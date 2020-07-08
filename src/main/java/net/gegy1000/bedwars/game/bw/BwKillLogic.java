@@ -1,0 +1,63 @@
+package net.gegy1000.bedwars.game.bw;
+
+import com.google.common.collect.Sets;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.server.network.ServerPlayerEntity;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+public final class BwKillLogic {
+    private static final Set<Item> RESOURCE_ITEMS = Sets.newHashSet(
+            Items.IRON_INGOT,
+            Items.GOLD_INGOT,
+            Items.DIAMOND,
+            Items.EMERALD
+    );
+
+    private final BedWars game;
+
+    BwKillLogic(BedWars game) {
+        this.game = game;
+    }
+
+    public void onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
+        BwState.Participant attackerParticipant = null;
+        Entity attacker = source.getAttacker();
+        if (attacker != null && attacker instanceof ServerPlayerEntity) {
+            attackerParticipant = this.game.state.getParticipant(attacker.getUuid());
+        }
+
+        Collection<ItemStack> resources = this.takeResources(player);
+        if (attackerParticipant != null) {
+            ServerPlayerEntity attackerPlayer = (ServerPlayerEntity) attacker;
+            for (ItemStack resource : resources) {
+                attackerPlayer.inventory.offerOrDrop(this.game.world, resource);
+            }
+        }
+    }
+
+    private Collection<ItemStack> takeResources(ServerPlayerEntity fromPlayer) {
+        List<ItemStack> resources = new ArrayList<>();
+
+        PlayerInventory inventory = fromPlayer.inventory;
+        for (int slot = 0; slot < inventory.getInvSize(); slot++) {
+            ItemStack stack = inventory.getInvStack(slot);
+            if (RESOURCE_ITEMS.contains(stack.getItem())) {
+                ItemStack removed = inventory.removeInvStack(slot);
+                if (!removed.isEmpty()) {
+                    resources.add(removed);
+                }
+            }
+        }
+
+        return resources;
+    }
+}

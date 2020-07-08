@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.gegy1000.bedwars.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MixinServerPlayerEntity",
+    "MixinServerPlayNetworkHandler",
+    "MixinEntity",
+    "MixinServerPlayerInteractionManager",
+    "MixinServerWorld",
+    "MixinCraftingResultInventory",
+    "MixinExplosion",
+    "MixinTntBlock"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
