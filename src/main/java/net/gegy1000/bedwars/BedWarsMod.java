@@ -21,6 +21,7 @@ import net.gegy1000.bedwars.item.CustomItem;
 import net.gegy1000.bedwars.item.CustomItems;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.DustParticleEffect;
+import net.minecraft.particle.ParticleEffect;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
@@ -28,6 +29,7 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -72,6 +74,7 @@ public final class BedWarsMod implements ModInitializer {
                 return;
             }
 
+            // TODO: different modes for the region selector
             for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
                 if (player instanceof MapViewer) {
                     MapViewer viewer = (MapViewer) player;
@@ -122,34 +125,60 @@ public final class BedWarsMod implements ModInitializer {
         }
     }
 
-    private static void renderOutline(ServerPlayerEntity player, BlockPos min, BlockPos max, float red, float green, float blue) {
+    private static void spawnParticleIfVisible(ServerPlayerEntity player, ParticleEffect effect, double x, double y, double z) {
         ServerWorld world = player.getServerWorld();
 
+        Vec3d delta = player.getPos().subtract(x, y, z);
+        double length2 = delta.lengthSquared();
+        if (length2 > 256 * 256) {
+            return;
+        }
+
+        Vec3d rotation = player.getRotationVec(1.0F);
+        double dot = (delta.multiply(1.0 / Math.sqrt(length2))).dotProduct(rotation);
+        if (dot > 0.0) {
+            return;
+        }
+
+        world.spawnParticles(
+                player, effect, true,
+                x, y, z,
+                1,
+                0.0, 0.0, 0.0,
+                0.0
+        );
+    }
+
+    private static void renderOutline(ServerPlayerEntity player, BlockPos min, BlockPos max, float red, float green, float blue) {
         DustParticleEffect effect = new DustParticleEffect(red, green, blue, 2.0F);
 
         if (min.equals(max)) {
-            world.spawnParticles(
-                    player, effect, true,
-                    min.getX() + 0.5, min.getY() + 0.5, min.getZ() + 0.5,
-                    1,
-                    0.0, 0.0, 0.0,
-                    0.0
+            spawnParticleIfVisible(
+                    player, effect,
+                    min.getX() + 0.5, min.getY() + 0.5, min.getZ() + 0.5
             );
             return;
         }
 
         Edge[] edges = edges(min, max);
 
+        int maxInterval = 5;
+        int maxCount = 20;
+
         for (Edge edge : edges) {
             int length = edge.length();
-            for (int i = 0; i <= length; i++) {
-                double m = (double) i / length;
-                world.spawnParticles(
-                        player, effect, true,
-                        edge.projX(m), edge.projY(m), edge.projZ(m),
-                        1,
-                        0.0, 0.0, 0.0,
-                        0.0
+
+            int interval = 1;
+            if (length > 0) {
+                interval = MathHelper.clamp(length / Math.min(maxCount, length), 1, maxInterval);
+            }
+
+            int steps = (length + interval - 1) / interval;
+            for (int i = 0; i <= steps; i++) {
+                double m = (double) (i * interval) / length;
+                spawnParticleIfVisible(
+                        player, effect,
+                        edge.projX(m), edge.projY(m), edge.projZ(m)
                 );
             }
         }

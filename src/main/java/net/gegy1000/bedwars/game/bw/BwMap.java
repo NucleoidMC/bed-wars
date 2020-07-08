@@ -339,6 +339,7 @@ public final class BwMap {
         static TeamRegions read(GameTeam team, BwMap map) {
             String teamKey = team.getKey();
 
+            // TODO: consolidate the team tags and check for ones contained within the team_base
             BlockBounds base = map.getFirstRegion(teamKey + "_base");
             BlockBounds spawn = map.getFirstRegion(teamKey + "_spawn");
             BlockBounds bed = map.getFirstRegion(teamKey + "_bed");
