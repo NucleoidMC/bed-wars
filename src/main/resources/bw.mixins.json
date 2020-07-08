@@ -4,12 +4,13 @@
   "package": "net.gegy1000.bedwars.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "MixinServerPlayerEntity",
+    "MixinBedBlock",
+    "MixinCraftingResultInventory",
     "MixinEntity",
+    "MixinExplosion",
+    "MixinServerPlayerEntity",
     "MixinServerPlayerInteractionManager",
     "MixinServerWorld",
-    "MixinCraftingResultInventory",
-    "MixinExplosion",
     "MixinTntBlock"
   ],
   "injectors": {
