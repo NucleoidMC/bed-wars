@@ -2,10 +2,10 @@ package net.gegy1000.bedwars;
 
 import com.google.common.reflect.Reflection;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.fabricmc.fabric.api.event.server.ServerTickCallback;
-import net.fabricmc.fabric.api.registry.CommandRegistry;
 import net.gegy1000.bedwars.api.CustomizableEntity;
 import net.gegy1000.bedwars.api.MapViewer;
 import net.gegy1000.bedwars.api.RegionConstructor;
@@ -41,9 +41,11 @@ public final class BedWarsMod implements ModInitializer {
 
         BedWars.initialize();
 
-        CommandRegistry.INSTANCE.register(false, MagicCommand::register);
-        CommandRegistry.INSTANCE.register(false, MapCommand::register);
-        CommandRegistry.INSTANCE.register(false, GameCommand::register);
+        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
+            MagicCommand.register(dispatcher);
+            MapCommand.register(dispatcher);
+            GameCommand.register(dispatcher);
+        });
 
         UseItemCallback.EVENT.register((player, world, hand) -> {
             ItemStack stack = player.getStackInHand(hand);
@@ -65,7 +67,7 @@ public final class BedWarsMod implements ModInitializer {
             return ActionResult.PASS;
         });
 
-        ServerTickCallback.EVENT.register(server -> {
+        ServerTickEvents.START_SERVER_TICK.register(server -> {
             if (server.getTicks() % 10 != 0) {
                 return;
             }
