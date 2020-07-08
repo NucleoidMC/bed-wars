@@ -4,6 +4,7 @@ import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -19,8 +20,8 @@ public final class ShopBuilder {
     }
 
     public ShopBuilder addItem(ItemStack stack, Cost cost) {
-        Text count = new LiteralText(stack.getCount() + "x ");
-        Text name = stack.getName().copy().formatted(Formatting.BOLD);
+        MutableText count = new LiteralText(stack.getCount() + "x ");
+        Text name = stack.getName().shallowCopy().formatted(Formatting.BOLD);
         Text text = count.append(name);
         return this.add(stack.getItem(), cost, text, () -> {
             this.player.inventory.offerOrDrop(this.player.world, stack);

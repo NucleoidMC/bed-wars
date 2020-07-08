@@ -7,11 +7,9 @@ import net.gegy1000.bedwars.game.bw.BedWars;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.StainedGlassBlock;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.text.Text;
-import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
@@ -33,9 +31,6 @@ public abstract class MixinEntity implements CustomizableEntity {
 
     @Shadow
     public World world;
-
-    @Shadow
-    public abstract boolean interact(PlayerEntity player, Hand hand);
 
     private CustomEntity customEntity;
 

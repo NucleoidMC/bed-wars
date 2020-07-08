@@ -8,7 +8,7 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.DefaultedList;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 
@@ -218,14 +218,14 @@ public final class BwState {
         private void restoreInventory(Inventory inventory, DefaultedList<ItemStack> from) {
             inventory.clear();
             for (int i = 0; i < from.size(); i++) {
-                inventory.setInvStack(i, from.get(i));
+                inventory.setStack(i, from.get(i));
             }
         }
 
         private static DefaultedList<ItemStack> snapshotInventory(Inventory inventory) {
-            DefaultedList<ItemStack> copy = DefaultedList.ofSize(inventory.getInvSize(), ItemStack.EMPTY);
+            DefaultedList<ItemStack> copy = DefaultedList.ofSize(inventory.size(), ItemStack.EMPTY);
             for (int i = 0; i < copy.size(); i++) {
-                copy.set(i, inventory.getInvStack(i));
+                copy.set(i, inventory.getStack(i));
             }
             return copy;
         }

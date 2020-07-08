@@ -16,7 +16,7 @@ public final class CustomEntities {
             .interact((player, world, hand, entity, hitResult) -> {
                 if (player instanceof ServerPlayerEntity) {
                     ShopUi shop = TeamShop.create((ServerPlayerEntity) player);
-                    player.openContainer(shop);
+                    player.openHandledScreen(shop);
                 }
                 return ActionResult.SUCCESS;
             })
@@ -28,7 +28,7 @@ public final class CustomEntities {
             .interact((player, world, hand, entity, hitResult) -> {
                 if (player instanceof ServerPlayerEntity) {
                     ShopUi shop = ItemShop.create((ServerPlayerEntity) player);
-                    player.openContainer(shop);
+                    player.openHandledScreen(shop);
                 }
                 return ActionResult.SUCCESS;
             })

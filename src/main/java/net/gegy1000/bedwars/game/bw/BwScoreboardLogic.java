@@ -119,10 +119,10 @@ public final class BwScoreboardLogic {
                 state += " (no bed)";
             }
 
-            Style teamNameStyle = new Style().setColor(teamState.team.getFormatting()).setBold(true);
-            Style descriptionStyle = new Style().setColor(Formatting.GRAY).setBold(false);
+            Style teamNameStyle = Style.EMPTY.withColor(teamState.team.getFormatting()).withBold(true);
+            Style descriptionStyle = Style.EMPTY.withColor(Formatting.GRAY).withBold(false);
 
-            Text teamName = teamState.team.getName().deepCopy().setStyle(teamNameStyle);
+            Text teamName = teamState.team.getName().copy().setStyle(teamNameStyle);
             Text teamDescription = new LiteralText(": " + state).setStyle(descriptionStyle);
             lines.add(new LiteralText("  ").append(teamName).append(teamDescription));
         });
@@ -144,7 +144,7 @@ public final class BwScoreboardLogic {
     private static void render(ServerScoreboard scoreboard, ScoreboardObjective objective, Text[] lines) {
         clear(scoreboard, objective);
         for (int i = 0; i < lines.length; i++) {
-            String line = lines[i].asFormattedString();
+            String line = lines[i].asString();
             scoreboard.getPlayerScore(line, objective).setScore(lines.length - i);
         }
     }

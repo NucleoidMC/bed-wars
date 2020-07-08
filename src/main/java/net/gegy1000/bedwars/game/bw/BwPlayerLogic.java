@@ -106,8 +106,8 @@ public final class BwPlayerLogic {
         if (level <= 0) return;
 
         PlayerInventory inventory = player.inventory;
-        for (int slot = 0; slot < inventory.getInvSize(); slot++) {
-            ItemStack stack = inventory.getInvStack(slot);
+        for (int slot = 0; slot < inventory.size(); slot++) {
+            ItemStack stack = inventory.getStack(slot);
             if (!stack.isEmpty() && predicate.test(stack)) {
                 int existingLevel = ItemUtil.getEnchantLevel(stack, enchantment);
                 if (existingLevel != level) {
@@ -120,7 +120,7 @@ public final class BwPlayerLogic {
 
     public void equipDefault(ServerPlayerEntity player, BwState.Participant participant) {
         this.equipArmor(player, participant);
-        player.inventory.setInvStack(0, ItemUtil.unbreakable(new ItemStack(Items.WOODEN_SWORD)));
+        player.inventory.setStack(0, ItemUtil.unbreakable(new ItemStack(Items.WOODEN_SWORD)));
 
         this.applyEnchantments(player, participant);
     }
@@ -173,7 +173,7 @@ public final class BwPlayerLogic {
         BwState.Participant participant = this.game.state.getParticipant(player);
         if (participant != null) {
             participant.startRespawning(spawn);
-            player.sendMessage(new LiteralText("You will respawn in " + BedWars.RESPAWN_TIME_SECONDS + " seconds..").formatted(Formatting.BOLD));
+            player.sendMessage(new LiteralText("You will respawn in " + BedWars.RESPAWN_TIME_SECONDS + " seconds..").formatted(Formatting.BOLD), false);
         }
     }
 }

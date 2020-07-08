@@ -14,7 +14,7 @@ public final class ShopInventory implements Inventory {
     private static final int PADDING = 1;
     private static final int PADDED_WIDTH = WIDTH - PADDING * 2;
 
-    private final ShopUi.Element[] elements = new ShopUi.Element[this.getInvSize()];
+    private final ShopUi.Element[] elements = new ShopUi.Element[this.size()];
 
     private final ServerPlayerEntity player;
     private final Consumer<ShopBuilder> builder;
@@ -67,22 +67,22 @@ public final class ShopInventory implements Inventory {
     }
 
     @Override
-    public int getInvSize() {
+    public int size() {
         return WIDTH * 6;
     }
 
     @Override
-    public boolean isInvEmpty() {
+    public boolean isEmpty() {
         return false;
     }
 
     @Override
-    public int getInvMaxStackAmount() {
+    public int getMaxCountPerStack() {
         return 1;
     }
 
     @Override
-    public ItemStack getInvStack(int index) {
+    public ItemStack getStack(int index) {
         ShopUi.Element element = this.elements[index];
         if (element == null) {
             return ItemStack.EMPTY;
@@ -91,20 +91,20 @@ public final class ShopInventory implements Inventory {
     }
 
     @Override
-    public ItemStack takeInvStack(int index, int count) {
+    public ItemStack removeStack(int index, int count) {
         this.handleElementClick(index);
         return ItemStack.EMPTY;
     }
 
     @Override
-    public ItemStack removeInvStack(int index) {
+    public ItemStack removeStack(int index) {
         this.handleElementClick(index);
         return ItemStack.EMPTY;
     }
 
     private void handleElementClick(int index) {
         this.player.inventory.setCursorStack(ItemStack.EMPTY);
-        this.player.method_14241();
+        this.player.updateCursorStack();
 
         ShopUi.Element element = this.elements[index];
         if (element != null) {
@@ -112,11 +112,11 @@ public final class ShopInventory implements Inventory {
         }
 
         this.buildGrid();
-        this.player.onContainerRegistered(this.player.container, this.player.container.getStacks());
+        this.player.onHandlerRegistered(this.player.currentScreenHandler, this.player.currentScreenHandler.getStacks());
     }
 
     @Override
-    public void setInvStack(int slot, ItemStack stack) {
+    public void setStack(int slot, ItemStack stack) {
     }
 
     @Override
@@ -124,7 +124,7 @@ public final class ShopInventory implements Inventory {
     }
 
     @Override
-    public boolean canPlayerUseInv(PlayerEntity player) {
+    public boolean canPlayerUse(PlayerEntity player) {
         return true;
     }
 

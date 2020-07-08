@@ -2,7 +2,7 @@ package net.gegy1000.bedwars.game.bw;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.util.WeightedList;
+import net.minecraft.util.collection.WeightedList;
 
 import java.util.Random;
 

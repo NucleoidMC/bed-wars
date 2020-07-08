@@ -27,10 +27,6 @@ public class MixinExplosion {
 
     @Final
     @Shadow
-    private boolean createFire;
-
-    @Final
-    @Shadow
     private List<BlockPos> affectedBlocks;
 
     @Inject(method = "affectWorld", at = @At("HEAD"))

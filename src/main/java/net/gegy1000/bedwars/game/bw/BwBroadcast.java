@@ -28,7 +28,7 @@ public final class BwBroadcast {
     public void broadcastTeamUpgrade(BwState.Participant participant, Text message) {
         ServerPlayerEntity player = participant.player();
         if (player != null) {
-            Text broadcast = player.getDisplayName().append(" ").append(message).formatted(Formatting.BOLD, Formatting.AQUA);
+            Text broadcast = player.getDisplayName().copy().append(" ").append(message).formatted(Formatting.BOLD, Formatting.AQUA);
             this.broadcastTeam(participant.team, broadcast);
         } else {
             Text broadcast = new LiteralText("A player ").append(message).formatted(Formatting.BOLD, Formatting.AQUA);
@@ -39,7 +39,7 @@ public final class BwBroadcast {
     public void broadcastGameOver(BwWinStateLogic.WinResult winResult) {
         GameTeam winningTeam = winResult.getTeam();
         if (winningTeam != null) {
-            this.broadcast(winningTeam.getName().deepCopy().append(" team won the game!")
+            this.broadcast(winningTeam.getName().copy().append(" team won the game!")
                     .formatted(winningTeam.getFormatting(), Formatting.BOLD)
             );
         } else {
@@ -50,13 +50,13 @@ public final class BwBroadcast {
     public void broadcastDeath(ServerPlayerEntity player, DamageSource source, boolean eliminated) {
         Entity attacker = source.getAttacker();
         if (attacker != null) {
-            Text deathAnnouncement = player.getDisplayName()
+            Text deathAnnouncement = player.getDisplayName().copy()
                     .append(new LiteralText(eliminated ? " was eliminated by " : " was killed by ").formatted(Formatting.GRAY))
                     .append(attacker.getDisplayName())
                     .formatted(Formatting.ITALIC);
             this.broadcast(deathAnnouncement);
         } else {
-            Text deathAnnouncement = player.getDisplayName()
+            Text deathAnnouncement = player.getDisplayName().copy()
                     .append(new LiteralText(eliminated ? " was eliminated" : " died").formatted(Formatting.GRAY))
                     .formatted(Formatting.ITALIC);
             this.broadcast(deathAnnouncement);
@@ -64,9 +64,9 @@ public final class BwBroadcast {
     }
 
     public void broadcastBedBroken(ServerPlayerEntity player, GameTeam bedTeam, @Nullable GameTeam destroyerTeam) {
-        Text announcement = bedTeam.getName().deepCopy().formatted(bedTeam.getFormatting())
+        Text announcement = bedTeam.getName().copy().formatted(bedTeam.getFormatting())
                 .append(new LiteralText(" bed was destroyed by ").formatted(Formatting.GRAY))
-                .append(player.getDisplayName().formatted(destroyerTeam != null ? destroyerTeam.getFormatting() : Formatting.OBFUSCATED));
+                .append(player.getDisplayName().copy().formatted(destroyerTeam != null ? destroyerTeam.getFormatting() : Formatting.OBFUSCATED));
 
         this.broadcast(announcement);
         this.broadcastSound(SoundEvents.BLOCK_END_PORTAL_SPAWN);
@@ -75,7 +75,7 @@ public final class BwBroadcast {
     }
 
     public void broadcastTeamEliminated(GameTeam team) {
-        this.broadcast(team.getName().deepCopy().formatted(team.getFormatting())
+        this.broadcast(team.getName().copy().formatted(team.getFormatting())
                 .append(new LiteralText(" Team was eliminated!").formatted(Formatting.BOLD))
         );
     }
@@ -84,7 +84,7 @@ public final class BwBroadcast {
         this.game.state.participantsFor(team).forEach(participant -> {
             ServerPlayerEntity player = participant.player();
             if (player != null) {
-                player.sendMessage(message);
+                player.sendMessage(message, false);
             }
         });
     }
@@ -93,7 +93,7 @@ public final class BwBroadcast {
         this.game.state.participants().forEach(participant -> {
             ServerPlayerEntity player = participant.player();
             if (player != null) {
-                player.sendMessage(message);
+                player.sendMessage(message, false);
             }
         });
     }

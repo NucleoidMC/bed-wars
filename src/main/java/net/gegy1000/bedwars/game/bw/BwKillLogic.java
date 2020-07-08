@@ -48,10 +48,10 @@ public final class BwKillLogic {
         List<ItemStack> resources = new ArrayList<>();
 
         PlayerInventory inventory = fromPlayer.inventory;
-        for (int slot = 0; slot < inventory.getInvSize(); slot++) {
-            ItemStack stack = inventory.getInvStack(slot);
+        for (int slot = 0; slot < inventory.size(); slot++) {
+            ItemStack stack = inventory.getStack(slot);
             if (RESOURCE_ITEMS.contains(stack.getItem())) {
-                ItemStack removed = inventory.removeInvStack(slot);
+                ItemStack removed = inventory.removeStack(slot);
                 if (!removed.isEmpty()) {
                     resources.add(removed);
                 }

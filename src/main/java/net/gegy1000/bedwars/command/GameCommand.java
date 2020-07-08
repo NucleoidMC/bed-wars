@@ -10,6 +10,7 @@ import net.gegy1000.bedwars.BedWarsMod;
 import net.gegy1000.bedwars.game.GameManager;
 import net.gegy1000.bedwars.game.GameType;
 import net.minecraft.command.arguments.IdentifierArgumentType;
+import net.minecraft.network.MessageType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -22,6 +23,7 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.Optional;
@@ -88,14 +90,15 @@ public final class GameCommand {
 
         ClickEvent joinClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/game join");
         HoverEvent joinHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("/game join"));
-        Style joinStyle = new Style()
-                .setUnderline(true).setColor(Formatting.BLUE)
-                .setClickEvent(joinClick)
+        Style joinStyle = Style.EMPTY
+                .withFormatting(Formatting.UNDERLINE)
+                .withColor(Formatting.BLUE)
+                .withClickEvent(joinClick)
                 .setHoverEvent(joinHover);
 
-        Text openMessage = gameType.getName().copy().append(" has opened! ")
+        Text openMessage = gameType.getName().shallowCopy().append(" has opened! ")
                 .append(new LiteralText("Click here to join").setStyle(joinStyle));
-        playerManager.broadcastChatMessage(openMessage, false);
+        playerManager.broadcastChatMessage(openMessage, MessageType.SYSTEM, Util.NIL_UUID);
 
         return Command.SINGLE_SUCCESS;
     }
@@ -114,10 +117,10 @@ public final class GameCommand {
             throw GAME_FULL.create();
         }
 
-        Text joinMessage = player.getDisplayName()
+        Text joinMessage = player.getDisplayName().copy()
                 .append(" has joined the game lobby!")
-                .setStyle(new Style().setColor(Formatting.YELLOW));
-        playerManager.broadcastChatMessage(joinMessage, false);
+                .setStyle(Style.EMPTY.withColor(Formatting.YELLOW));
+        playerManager.broadcastChatMessage(joinMessage, MessageType.SYSTEM, Util.NIL_UUID);
 
         source.sendFeedback(new LiteralText("You have joined the lobby! You will be teleported when the game starts"), false);
 
@@ -141,13 +144,13 @@ public final class GameCommand {
 
         MinecraftServer server = source.getMinecraftServer();
         PlayerManager playerManager = server.getPlayerManager();
-        playerManager.broadcastChatMessage(gameType.getName().copy().append(" is starting.."), false);
+        playerManager.broadcastChatMessage(gameType.getName().shallowCopy().append(" is starting.."), MessageType.SYSTEM, Util.NIL_UUID);
 
         recruiting.start(source.getWorld(), new BlockPos(100000, 40, 10000))
                 .handle((v, throwable) -> {
                     if (throwable != null) {
                         BedWarsMod.LOGGER.error("Failed to start game", throwable);
-                        playerManager.broadcastChatMessage(new LiteralText("An exception occurred while trying to start game"), false);
+                        playerManager.broadcastChatMessage(new LiteralText("An exception occurred while trying to start game"), MessageType.SYSTEM, Util.NIL_UUID);
                     }
                     return null;
                 });
@@ -170,7 +173,7 @@ public final class GameCommand {
                 MinecraftServer server = source.getMinecraftServer();
 
                 Text name = game.getGameType().getName();
-                server.getPlayerManager().broadcastChatMessage(name.copy().append(" has been stopped"), false);
+                server.getPlayerManager().broadcastChatMessage(name.shallowCopy().append(" has been stopped"), MessageType.SYSTEM, Util.NIL_UUID);
             } else {
                 source.sendError(new LiteralText("Failed to stop game: " + throwable.getClass()));
                 BedWarsMod.LOGGER.error("Failed to stop game", throwable);

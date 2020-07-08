@@ -2,8 +2,8 @@ package net.gegy1000.bedwars.game.bw;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import net.gegy1000.bedwars.BlockBounds;
 import net.gegy1000.bedwars.BedWarsMod;
+import net.gegy1000.bedwars.BlockBounds;
 import net.gegy1000.bedwars.api.CustomizableEntity;
 import net.gegy1000.bedwars.entity.CustomEntities;
 import net.gegy1000.bedwars.entity.CustomEntity;
@@ -13,7 +13,7 @@ import net.gegy1000.bedwars.game.map.GameMapData;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.SpawnType;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.ItemPickupAnimationS2CPacket;
@@ -133,8 +133,8 @@ public final class BwMap {
             mob.setInvulnerable(true);
             mob.setCustomNameVisible(true);
 
-            LocalDifficulty difficulty = world.getLocalDifficulty(new BlockPos(mob));
-            mob.initialize(world, difficulty, SpawnType.COMMAND, null, null);
+            LocalDifficulty difficulty = world.getLocalDifficulty(mob.getBlockPos());
+            mob.initialize(world, difficulty, SpawnReason.COMMAND, null, null);
         }
 
         world.spawnEntity(entity);
@@ -285,9 +285,9 @@ public final class BwMap {
             }
 
             Box spawnBox = box.expand(-0.5, 0.0, -0.5);
-            double x = spawnBox.x1 + (spawnBox.x2 - spawnBox.x1) * random.nextDouble();
-            double y = spawnBox.y1 + 0.5;
-            double z = spawnBox.z1 + (spawnBox.z2 - spawnBox.z1) * random.nextDouble();
+            double x = spawnBox.minX + (spawnBox.maxX - spawnBox.minX) * random.nextDouble();
+            double y = spawnBox.minY + 0.5;
+            double z = spawnBox.minZ + (spawnBox.maxZ - spawnBox.minZ) * random.nextDouble();
 
             ItemEntity itemEntity = new ItemEntity(world, x, y, z, stack);
             itemEntity.setVelocity(Vec3d.ZERO);

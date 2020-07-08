@@ -78,8 +78,8 @@ public final class Cost {
 
     static int getAvailable(ServerPlayerEntity player, Item item) {
         int available = 0;
-        for (int i = 0; i < player.inventory.getInvSize(); i++) {
-            ItemStack stack = player.inventory.getInvStack(i);
+        for (int i = 0; i < player.inventory.size(); i++) {
+            ItemStack stack = player.inventory.getStack(i);
             if (!stack.isEmpty() && stack.getItem().equals(item)) {
                 available += stack.getCount();
             }
@@ -88,12 +88,12 @@ public final class Cost {
     }
 
     static void take(ServerPlayerEntity player, Item item, int count) {
-        for (int slot = 0; slot < player.inventory.getInvSize(); slot++) {
-            ItemStack stack = player.inventory.getInvStack(slot);
+        for (int slot = 0; slot < player.inventory.size(); slot++) {
+            ItemStack stack = player.inventory.getStack(slot);
 
             if (!stack.isEmpty() && stack.getItem().equals(item)) {
                 int remove = Math.min(count, stack.getCount());
-                player.inventory.takeInvStack(slot, remove);
+                player.inventory.removeStack(slot, remove);
 
                 count -= remove;
                 if (count <= 0) {

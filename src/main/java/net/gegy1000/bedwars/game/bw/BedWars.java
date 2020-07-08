@@ -1,9 +1,9 @@
 package net.gegy1000.bedwars.game.bw;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.fabricmc.fabric.api.event.server.ServerTickCallback;
 import net.gegy1000.bedwars.BedWarsMod;
 import net.gegy1000.bedwars.event.BlockBreakCallback;
 import net.gegy1000.bedwars.event.CraftCheckCallback;
@@ -49,20 +49,20 @@ public final class BedWars implements Game {
             .setInitializer(BedWars::initialize);
 
     public static final GameTeam[] TEAMS = new GameTeam[] {
-//            GameTeam.WHITE,
+            GameTeam.WHITE,
             GameTeam.YELLOW,
             GameTeam.LIME,
-//            GameTeam.PINK,
-//            GameTeam.CYAN,
+            GameTeam.PINK,
+            GameTeam.CYAN,
             GameTeam.BLUE,
             GameTeam.RED,
-//            GameTeam.BLACK
+            GameTeam.BLACK
     };
 
     public static final int RESPAWN_TIME_SECONDS = 3;
 
     public static void initialize() {
-        ServerTickCallback.EVENT.register(server -> {
+        ServerTickEvents.START_SERVER_TICK.register(server -> {
             BedWars game = GameManager.activeFor(GAME);
             if (game != null) {
                 game.tick();
@@ -221,8 +221,8 @@ public final class BedWars implements Game {
         if (teamRegions.spawn != null) {
             Vec3d dropSpawn = teamRegions.spawn.getCenter();
 
-            for (int slot = 0; slot < enderChest.getInvSize(); slot++) {
-                ItemStack stack = enderChest.removeInvStack(slot);
+            for (int slot = 0; slot < enderChest.size(); slot++) {
+                ItemStack stack = enderChest.removeStack(slot);
                 if (!stack.isEmpty()) {
                     ItemEntity itemEntity = new ItemEntity(this.world, dropSpawn.x, dropSpawn.y + 0.5, dropSpawn.z, stack);
                     this.world.spawnEntity(itemEntity);
@@ -253,7 +253,7 @@ public final class BedWars implements Game {
             BlockState state = this.world.getBlockState(pos);
 
             if (this.map.isStandardBlock(pos)) {
-                if (state.getBlock().matches(BlockTags.BEDS)) {
+                if (state.getBlock().isIn(BlockTags.BEDS)) {
                     this.teamLogic.onBedBroken(player, pos);
                 }
 
@@ -310,7 +310,7 @@ public final class BedWars implements Game {
 
         ServerPlayerEntity player = participant.player();
         if (player != null) {
-            player.sendMessage(new LiteralText("You cannot access this team's chest!").formatted(Formatting.RED));
+            player.sendMessage(new LiteralText("You cannot access this team's chest!").formatted(Formatting.RED), true);
         }
 
         return ActionResult.FAIL;

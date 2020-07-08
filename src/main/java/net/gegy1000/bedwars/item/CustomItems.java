@@ -28,7 +28,7 @@ public final class CustomItems {
                 BlockPos pos = new BlockPos(result.getPos());
                 if (constructor.isTracing()) {
                     constructor.finishTracing(pos);
-                    player.sendMessage(new LiteralText("Use /map commit region <identifier> to add this region"));
+                    player.sendMessage(new LiteralText("Use /map commit region <identifier> to add this region"), false);
                 } else {
                     constructor.startTracing(pos);
                 }

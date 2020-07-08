@@ -193,7 +193,7 @@ public final class GameMapData {
                 beTag.putInt("x", globalPos.getX());
                 beTag.putInt("y", globalPos.getY());
                 beTag.putInt("z", globalPos.getZ());
-                BlockEntity blockEntity = BlockEntity.createFromTag(beTag);
+                BlockEntity blockEntity = BlockEntity.createFromTag(state, beTag);
                 if (blockEntity != null) {
                     blockEntity.setLocation(world, globalPos);
                     world.setBlockEntity(globalPos, blockEntity);

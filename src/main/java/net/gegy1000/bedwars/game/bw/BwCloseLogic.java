@@ -1,7 +1,7 @@
 package net.gegy1000.bedwars.game.bw;
 
 import net.gegy1000.bedwars.game.GameTeam;
-import net.minecraft.entity.FireworkEntity;
+import net.minecraft.entity.projectile.FireworkRocketEntity;
 import net.minecraft.item.FireworkItem;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -39,7 +39,7 @@ public final class BwCloseLogic {
 
             int flight = random.nextInt(3);
             FireworkItem.Type type = random.nextInt(4) == 0 ? FireworkItem.Type.STAR : FireworkItem.Type.BURST;
-            FireworkEntity firework = new FireworkEntity(
+            FireworkRocketEntity firework = new FireworkRocketEntity(
                     world,
                     player.getX(),
                     player.getEyeY(),

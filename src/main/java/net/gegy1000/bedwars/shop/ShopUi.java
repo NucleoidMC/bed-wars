@@ -1,12 +1,12 @@
 package net.gegy1000.bedwars.shop;
 
-import net.minecraft.container.Container;
-import net.minecraft.container.ContainerType;
-import net.minecraft.container.GenericContainer;
-import net.minecraft.container.NameableContainerFactory;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.screen.GenericContainerScreenHandler;
+import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -18,7 +18,7 @@ import net.minecraft.util.Formatting;
 
 import java.util.function.Consumer;
 
-public final class ShopUi implements NameableContainerFactory {
+public final class ShopUi implements NamedScreenHandlerFactory {
     private final Text title;
     private final Consumer<ShopBuilder> builder;
 
@@ -37,14 +37,14 @@ public final class ShopUi implements NameableContainerFactory {
     }
 
     @Override
-    public Container createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
+    public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
         ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
         ShopInventory inventory = new ShopInventory(serverPlayer, this.builder);
-        return new GenericContainer(ContainerType.GENERIC_9X5, syncId, playerInventory, inventory, 5) {
+        return new GenericContainerScreenHandler(ScreenHandlerType.GENERIC_9X5, syncId, playerInventory, inventory, 5) {
             @Override
             public ItemStack transferSlot(PlayerEntity player, int invSlot) {
                 // resend to avoid duplication
-                serverPlayer.onContainerRegistered(this, this.getStacks());
+                serverPlayer.onHandlerRegistered(this, this.getStacks());
                 return ItemStack.EMPTY;
             }
         };
@@ -68,12 +68,12 @@ public final class ShopUi implements NameableContainerFactory {
 
             boolean canBuy = this.cost.tryTake(player, true);
 
-            Style style = new Style().setItalic(false).setColor(canBuy ? Formatting.BLUE : Formatting.RED);
+            Style style = Style.EMPTY.withItalic(false).withColor(canBuy ? Formatting.BLUE : Formatting.RED);
 
             Text costText = this.cost.getDisplay();
             costText = new LiteralText(" (").append(costText).append(")").setStyle(costText.getStyle());
 
-            Text name = this.name.deepCopy().setStyle(style).append(costText);
+            Text name = this.name.copy().setStyle(style).append(costText);
 
             icon.setCustomName(name);
 
