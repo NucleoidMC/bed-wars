@@ -1,5 +1,6 @@
 package net.gegy1000.bedwars.game;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -12,7 +13,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public final class GameManager {
-    public static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
+    public static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(
+            new ThreadFactoryBuilder()
+                    .setNameFormat("game-manager")
+                    .setDaemon(true)
+                    .build()
+    );
 
     private static State state = Inactive.INSTANCE;
 

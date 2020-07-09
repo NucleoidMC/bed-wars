@@ -9,7 +9,8 @@ import net.gegy1000.bedwars.entity.CustomEntities;
 import net.gegy1000.bedwars.entity.CustomEntity;
 import net.gegy1000.bedwars.game.GameTeam;
 import net.gegy1000.bedwars.game.map.GameMap;
-import net.gegy1000.bedwars.game.map.GameMapData;
+import net.gegy1000.bedwars.game.map.MapProvider;
+import net.gegy1000.bedwars.game.map.PathMapProvider;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
@@ -17,7 +18,6 @@ import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.ItemPickupAnimationS2CPacket;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -40,6 +40,8 @@ import java.util.stream.Stream;
 
 // TODO: Map should not hold state! For generators it should just store the location
 public final class BwMap {
+    private static final MapProvider MAP_PROVIDER = new PathMapProvider(new Identifier(BedWarsMod.ID, "bed_wars_1"));
+
     private final GameMap map;
     private final Multimap<String, BlockBounds> regions = HashMultimap.create();
 
@@ -55,16 +57,12 @@ public final class BwMap {
     }
 
     public static CompletableFuture<BwMap> create(ServerWorld world, BlockPos origin) {
-        return GameMapData.load(new Identifier(BedWarsMod.ID, "bed_wars_1"))
-                .thenCompose(data -> {
-                    MinecraftServer server = world.getServer();
-                    return CompletableFuture.supplyAsync(() -> data.addToWorld(world, origin), server);
-                })
-                .thenApply(map -> {
+        return MAP_PROVIDER.createAt(world, origin)
+                .thenApplyAsync(map -> {
                     BwMap bwMap = new BwMap(map);
                     bwMap.initializeMap(map);
                     return bwMap;
-                });
+                }, world.getServer());
     }
 
     private void initializeMap(GameMap map) {
