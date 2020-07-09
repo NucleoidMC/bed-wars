@@ -1,14 +1,15 @@
-package net.gegy1000.bedwars.game.map;
+package net.gegy1000.bedwars.map.provider;
 
+import net.gegy1000.bedwars.map.GameMap;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.concurrent.CompletableFuture;
 
-public final class CompositeMapProvider implements MapProvider {
+public final class RandomMapProvider implements MapProvider {
     private final MapProvider[] providers;
 
-    public CompositeMapProvider(MapProvider... providers) {
+    public RandomMapProvider(MapProvider... providers) {
         this.providers = providers;
     }
 

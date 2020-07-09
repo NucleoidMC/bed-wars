@@ -8,14 +8,14 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.gegy1000.bedwars.BedWarsMod;
-import net.gegy1000.bedwars.BlockBounds;
-import net.gegy1000.bedwars.PartialRegion;
-import net.gegy1000.bedwars.api.MapViewer;
-import net.gegy1000.bedwars.api.RegionConstructor;
+import net.gegy1000.bedwars.util.BlockBounds;
+import net.gegy1000.bedwars.map.trace.PartialRegion;
+import net.gegy1000.bedwars.map.MapViewer;
+import net.gegy1000.bedwars.map.trace.RegionTracer;
 import net.gegy1000.bedwars.game.GameRegion;
-import net.gegy1000.bedwars.game.map.GameMapData;
-import net.gegy1000.bedwars.game.map.StagingMap;
-import net.gegy1000.bedwars.game.map.StagingMapManager;
+import net.gegy1000.bedwars.map.GameMapData;
+import net.gegy1000.bedwars.map.StagingMap;
+import net.gegy1000.bedwars.map.StagingMapManager;
 import net.minecraft.command.arguments.BlockPosArgumentType;
 import net.minecraft.command.arguments.IdentifierArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
@@ -230,10 +230,10 @@ public final class MapCommand {
 
         String marker = StringArgumentType.getString(context, "marker");
 
-        if (player instanceof RegionConstructor) {
-            RegionConstructor regionConstructor = (RegionConstructor) player;
+        if (player instanceof RegionTracer) {
+            RegionTracer regionTracer = (RegionTracer) player;
 
-            PartialRegion region = regionConstructor.takeReady();
+            PartialRegion region = regionTracer.takeReady();
             if (region == null) {
                 throw NO_REGION_READY.create();
             }

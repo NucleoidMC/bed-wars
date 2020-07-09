@@ -1,11 +1,11 @@
 package net.gegy1000.bedwars.game.bw;
 
-import net.gegy1000.bedwars.BlockBounds;
-import net.gegy1000.bedwars.ItemUtil;
 import net.gegy1000.bedwars.game.GameTeam;
-import net.gegy1000.bedwars.game.map.GameMap;
-import net.gegy1000.bedwars.game.map.GameMapBuilder;
-import net.gegy1000.bedwars.game.map.MapProvider;
+import net.gegy1000.bedwars.map.GameMap;
+import net.gegy1000.bedwars.map.GameMapBuilder;
+import net.gegy1000.bedwars.map.provider.MapProvider;
+import net.gegy1000.bedwars.util.BlockBounds;
+import net.gegy1000.bedwars.util.ColoredBlocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
@@ -75,7 +75,7 @@ public final class TestProceduralMapProvider implements MapProvider {
             this.origin = origin;
             this.team = team;
 
-            this.terracotta = ItemUtil.coloredTerracotta(team.getColor()).getDefaultState();
+            this.terracotta = ColoredBlocks.terracotta(team.getColor()).getDefaultState();
         }
 
         void addTo(GameMapBuilder builder) {

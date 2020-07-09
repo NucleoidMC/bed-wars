@@ -1,4 +1,4 @@
-package net.gegy1000.bedwars.entity;
+package net.gegy1000.bedwars.custom;
 
 import com.google.common.base.Preconditions;
 import net.minecraft.entity.Entity;

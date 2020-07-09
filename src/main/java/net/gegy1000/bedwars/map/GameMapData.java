@@ -1,7 +1,7 @@
-package net.gegy1000.bedwars.game.map;
+package net.gegy1000.bedwars.map;
 
 import net.gegy1000.bedwars.BedWarsMod;
-import net.gegy1000.bedwars.BlockBounds;
+import net.gegy1000.bedwars.util.BlockBounds;
 import net.gegy1000.bedwars.game.GameManager;
 import net.gegy1000.bedwars.game.GameRegion;
 import net.minecraft.block.Block;

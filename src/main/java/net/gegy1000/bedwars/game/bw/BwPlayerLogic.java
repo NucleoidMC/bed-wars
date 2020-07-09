@@ -1,6 +1,6 @@
 package net.gegy1000.bedwars.game.bw;
 
-import net.gegy1000.bedwars.ItemUtil;
+import net.gegy1000.bedwars.util.ItemUtil;
 import net.gegy1000.bedwars.game.GameTeam;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;

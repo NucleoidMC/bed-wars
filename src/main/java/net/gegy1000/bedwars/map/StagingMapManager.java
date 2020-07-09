@@ -1,7 +1,7 @@
-package net.gegy1000.bedwars.game.map;
+package net.gegy1000.bedwars.map;
 
 import net.gegy1000.bedwars.BedWarsMod;
-import net.gegy1000.bedwars.BlockBounds;
+import net.gegy1000.bedwars.util.BlockBounds;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;

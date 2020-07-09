@@ -1,4 +1,4 @@
-package net.gegy1000.bedwars.item;
+package net.gegy1000.bedwars.custom;
 
 import com.google.common.base.Preconditions;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;

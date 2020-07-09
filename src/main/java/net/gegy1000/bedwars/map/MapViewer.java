@@ -1,6 +1,4 @@
-package net.gegy1000.bedwars.api;
-
-import net.gegy1000.bedwars.game.map.StagingMap;
+package net.gegy1000.bedwars.map;
 
 import javax.annotation.Nullable;
 

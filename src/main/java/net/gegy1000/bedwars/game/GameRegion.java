@@ -1,6 +1,6 @@
 package net.gegy1000.bedwars.game;
 
-import net.gegy1000.bedwars.BlockBounds;
+import net.gegy1000.bedwars.util.BlockBounds;
 import net.minecraft.nbt.CompoundTag;
 
 public final class GameRegion {

@@ -1,5 +1,7 @@
-package net.gegy1000.bedwars.game.map;
+package net.gegy1000.bedwars.map.provider;
 
+import net.gegy1000.bedwars.map.GameMap;
+import net.gegy1000.bedwars.map.GameMapData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;

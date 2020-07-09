@@ -1,6 +1,4 @@
-package net.gegy1000.bedwars.api;
-
-import net.gegy1000.bedwars.entity.CustomEntity;
+package net.gegy1000.bedwars.custom;
 
 import javax.annotation.Nullable;
 

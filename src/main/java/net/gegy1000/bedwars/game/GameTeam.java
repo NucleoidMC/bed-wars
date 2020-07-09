@@ -1,6 +1,6 @@
 package net.gegy1000.bedwars.game;
 
-import net.gegy1000.bedwars.ItemUtil;
+import net.gegy1000.bedwars.util.ItemUtil;
 import net.minecraft.item.FireworkItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.LiteralText;

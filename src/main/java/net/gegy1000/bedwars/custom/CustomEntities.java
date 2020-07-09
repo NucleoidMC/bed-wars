@@ -1,4 +1,4 @@
-package net.gegy1000.bedwars.entity;
+package net.gegy1000.bedwars.custom;
 
 import net.gegy1000.bedwars.BedWarsMod;
 import net.gegy1000.bedwars.game.bw.shop.ItemShop;

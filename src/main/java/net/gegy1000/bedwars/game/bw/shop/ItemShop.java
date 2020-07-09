@@ -1,6 +1,7 @@
 package net.gegy1000.bedwars.game.bw.shop;
 
-import net.gegy1000.bedwars.ItemUtil;
+import net.gegy1000.bedwars.util.ColoredBlocks;
+import net.gegy1000.bedwars.util.ItemUtil;
 import net.gegy1000.bedwars.game.GameManager;
 import net.gegy1000.bedwars.game.bw.ArmorLevel;
 import net.gegy1000.bedwars.game.bw.BedWars;
@@ -23,9 +24,9 @@ public final class ItemShop {
             BwState.Participant participant = bedWars.state.getParticipant(player);
             if (participant != null) {
                 DyeColor color = participant.team.getColor();
-                shop.addItem(new ItemStack(ItemUtil.coloredWool(color), 16), Cost.ofIron(4));
-                shop.addItem(new ItemStack(ItemUtil.coloredTerracotta(color), 16), Cost.ofIron(16));
-                ItemStack glass = new ItemStack(ItemUtil.coloredGlass(color), 4);
+                shop.addItem(new ItemStack(ColoredBlocks.wool(color), 16), Cost.ofIron(4));
+                shop.addItem(new ItemStack(ColoredBlocks.terracotta(color), 16), Cost.ofIron(16));
+                ItemStack glass = new ItemStack(ColoredBlocks.glass(color), 4);
                 glass.setCustomName(new LiteralText("Shatterproof Glass"));
                 shop.addItem(glass, Cost.ofIron(12));
             }

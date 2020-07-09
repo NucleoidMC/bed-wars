@@ -1,11 +1,11 @@
 package net.gegy1000.bedwars.mixin;
 
-import net.gegy1000.bedwars.PartialRegion;
-import net.gegy1000.bedwars.RegionTraceMode;
-import net.gegy1000.bedwars.api.MapViewer;
-import net.gegy1000.bedwars.api.RegionConstructor;
+import net.gegy1000.bedwars.map.trace.PartialRegion;
+import net.gegy1000.bedwars.map.trace.RegionTraceMode;
+import net.gegy1000.bedwars.map.MapViewer;
+import net.gegy1000.bedwars.map.trace.RegionTracer;
 import net.gegy1000.bedwars.event.PlayerDeathCallback;
-import net.gegy1000.bedwars.game.map.StagingMap;
+import net.gegy1000.bedwars.map.StagingMap;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import javax.annotation.Nullable;
 
 @Mixin(ServerPlayerEntity.class)
-public abstract class MixinServerPlayerEntity implements MapViewer, RegionConstructor {
+public abstract class MixinServerPlayerEntity implements MapViewer, RegionTracer {
     private StagingMap viewing;
 
     private PartialRegion tracing;
@@ -84,12 +84,12 @@ public abstract class MixinServerPlayerEntity implements MapViewer, RegionConstr
     }
 
     @Override
-    public void setTraceMode(RegionTraceMode traceMode) {
+    public void setMode(RegionTraceMode traceMode) {
         this.traceMode = traceMode;
     }
 
     @Override
-    public RegionTraceMode getTraceMode() {
+    public RegionTraceMode getMode() {
         return this.traceMode;
     }
 }

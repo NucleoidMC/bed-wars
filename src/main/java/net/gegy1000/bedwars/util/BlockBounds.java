@@ -1,4 +1,4 @@
-package net.gegy1000.bedwars;
+package net.gegy1000.bedwars.util;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.math.BlockPos;

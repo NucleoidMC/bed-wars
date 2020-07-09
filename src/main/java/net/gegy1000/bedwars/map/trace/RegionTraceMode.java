@@ -1,4 +1,4 @@
-package net.gegy1000.bedwars;
+package net.gegy1000.bedwars.map.trace;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.LiteralText;

@@ -1,7 +1,7 @@
 package net.gegy1000.bedwars.mixin;
 
-import net.gegy1000.bedwars.api.CustomizableEntity;
-import net.gegy1000.bedwars.entity.CustomEntity;
+import net.gegy1000.bedwars.custom.CustomizableEntity;
+import net.gegy1000.bedwars.custom.CustomEntity;
 import net.gegy1000.bedwars.game.GameManager;
 import net.gegy1000.bedwars.game.bw.BedWars;
 import net.minecraft.block.BlockState;

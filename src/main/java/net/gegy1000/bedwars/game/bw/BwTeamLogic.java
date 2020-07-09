@@ -1,6 +1,6 @@
 package net.gegy1000.bedwars.game.bw;
 
-import net.gegy1000.bedwars.BlockBounds;
+import net.gegy1000.bedwars.util.BlockBounds;
 import net.gegy1000.bedwars.BedWarsMod;
 import net.gegy1000.bedwars.game.GameTeam;
 import net.minecraft.block.Blocks;

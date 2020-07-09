@@ -1,5 +1,6 @@
-package net.gegy1000.bedwars;
+package net.gegy1000.bedwars.map.trace;
 
+import net.gegy1000.bedwars.util.BlockBounds;
 import net.minecraft.util.math.BlockPos;
 
 public class PartialRegion {

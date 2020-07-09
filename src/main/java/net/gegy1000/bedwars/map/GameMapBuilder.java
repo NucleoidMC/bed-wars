@@ -1,9 +1,9 @@
-package net.gegy1000.bedwars.game.map;
+package net.gegy1000.bedwars.map;
 
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import net.gegy1000.bedwars.BlockBounds;
+import net.gegy1000.bedwars.util.BlockBounds;
 import net.gegy1000.bedwars.game.GameRegion;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;

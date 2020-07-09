@@ -1,12 +1,10 @@
-package net.gegy1000.bedwars.api;
+package net.gegy1000.bedwars.map.trace;
 
-import net.gegy1000.bedwars.PartialRegion;
-import net.gegy1000.bedwars.RegionTraceMode;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nullable;
 
-public interface RegionConstructor {
+public interface RegionTracer {
     void startTracing(BlockPos origin);
 
     void trace(BlockPos pos);
@@ -21,7 +19,7 @@ public interface RegionConstructor {
     @Nullable
     PartialRegion takeReady();
 
-    void setTraceMode(RegionTraceMode mode);
+    void setMode(RegionTraceMode mode);
 
-    RegionTraceMode getTraceMode();
+    RegionTraceMode getMode();
 }
