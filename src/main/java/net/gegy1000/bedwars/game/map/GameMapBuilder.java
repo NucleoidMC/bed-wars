@@ -55,11 +55,13 @@ public final class GameMapBuilder {
         this.world.setBlockEntity(globalPos, blockEntity);
     }
 
-    public void addRegion(GameRegion region) {
-        BlockBounds bounds = this.localToGlobal(region.getBounds());
-        String marker = region.getMarker();
-
+    public void addRegion(String marker, BlockBounds bounds) {
+        bounds = this.localToGlobal(bounds);
         this.regions.add(new GameRegion(marker, bounds));
+    }
+
+    public void addRegion(GameRegion region) {
+        this.addRegion(region.getMarker(), region.getBounds());
     }
 
     private BlockPos localToGlobal(BlockPos pos) {

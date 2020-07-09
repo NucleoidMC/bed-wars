@@ -10,7 +10,6 @@ import net.gegy1000.bedwars.entity.CustomEntity;
 import net.gegy1000.bedwars.game.GameTeam;
 import net.gegy1000.bedwars.game.map.GameMap;
 import net.gegy1000.bedwars.game.map.MapProvider;
-import net.gegy1000.bedwars.game.map.PathMapProvider;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
@@ -20,7 +19,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.ItemPickupAnimationS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -40,7 +38,8 @@ import java.util.stream.Stream;
 
 // TODO: Map should not hold state! For generators it should just store the location
 public final class BwMap {
-    private static final MapProvider MAP_PROVIDER = new PathMapProvider(new Identifier(BedWarsMod.ID, "bed_wars_1"));
+//    private static final MapProvider MAP_PROVIDER = new PathMapProvider(new Identifier(BedWarsMod.ID, "bed_wars_1"));
+    private static final MapProvider MAP_PROVIDER = new TestProceduralMapProvider();
 
     private final GameMap map;
     private final Multimap<String, BlockBounds> regions = HashMultimap.create();

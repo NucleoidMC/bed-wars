@@ -16,6 +16,10 @@ public final class BlockBounds {
         this.max = max(min, max);
     }
 
+    public BlockBounds(BlockPos pos) {
+        this(pos, pos);
+    }
+
     public boolean contains(BlockPos pos) {
         return pos.getX() >= this.min.getX() && pos.getY() >= this.min.getY() && pos.getZ() >= this.min.getZ()
                 && pos.getX() <= this.max.getX() && pos.getY() <= this.max.getY() && pos.getZ() <= this.max.getZ();
