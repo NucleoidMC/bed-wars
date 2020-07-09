@@ -117,7 +117,7 @@ public final class GameCommand {
             throw GAME_FULL.create();
         }
 
-        Text joinMessage = player.getDisplayName().copy()
+        Text joinMessage = player.getDisplayName().shallowCopy()
                 .append(" has joined the game lobby!")
                 .setStyle(Style.EMPTY.withColor(Formatting.YELLOW));
         playerManager.broadcastChatMessage(joinMessage, MessageType.SYSTEM, Util.NIL_UUID);

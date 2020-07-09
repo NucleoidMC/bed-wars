@@ -26,7 +26,7 @@ public final class ItemShop {
                 shop.addItem(new ItemStack(ItemUtil.coloredWool(color), 16), Cost.ofIron(4));
                 shop.addItem(new ItemStack(ItemUtil.coloredTerracotta(color), 16), Cost.ofIron(16));
                 ItemStack glass = new ItemStack(ItemUtil.coloredGlass(color), 4);
-                glass.setCustomName(new LiteralText("Blast Proof Glass"));
+                glass.setCustomName(new LiteralText("Shatterproof Glass"));
                 shop.addItem(glass, Cost.ofIron(12));
             }
 

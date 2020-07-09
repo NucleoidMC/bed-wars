@@ -73,8 +73,7 @@ public final class ShopUi implements NamedScreenHandlerFactory {
             Text costText = this.cost.getDisplay();
             costText = new LiteralText(" (").append(costText).append(")").setStyle(costText.getStyle());
 
-            Text name = this.name.copy().setStyle(style).append(costText);
-
+            Text name = this.name.shallowCopy().setStyle(style).append(costText);
             icon.setCustomName(name);
 
             return icon;

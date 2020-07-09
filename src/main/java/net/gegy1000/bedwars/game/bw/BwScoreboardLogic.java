@@ -9,8 +9,6 @@ import net.minecraft.scoreboard.Team;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
@@ -82,7 +80,7 @@ public final class BwScoreboardLogic {
         return this.scoreboardTeams.computeIfAbsent(team, t -> {
             MinecraftServer server = this.game.world.getServer();
             ServerScoreboard scoreboard = server.getScoreboard();
-            String teamKey = t.getName().asString();
+            String teamKey = t.getName().getString();
             Team scoreboardTeam = scoreboard.getTeam(teamKey);
             if (scoreboardTeam == null) {
                 scoreboardTeam = scoreboard.addTeam(teamKey);
@@ -99,15 +97,15 @@ public final class BwScoreboardLogic {
     private void rerender() {
         this.dirty = false;
 
-        List<Text> lines = new ArrayList<>(10);
+        List<String> lines = new ArrayList<>(10);
 
         long playersAlive = this.game.state.participants()
                 .filter(participant -> !participant.eliminated && participant.inGame())
                 .count();
-        lines.add(new LiteralText(playersAlive + " players alive").formatted(Formatting.BLUE));
-        lines.add(new LiteralText(""));
+        lines.add(Formatting.BLUE.toString() + playersAlive + " players alive");
+        lines.add("");
 
-        lines.add(new LiteralText("Teams:").formatted(Formatting.BOLD));
+        lines.add(Formatting.BOLD + "Teams:");
         this.game.state.teams().forEach(teamState -> {
             long totalPlayerCount = this.game.state.participantsFor(teamState.team).count();
             long alivePlayerCount = this.game.state.participantsFor(teamState.team)
@@ -119,18 +117,17 @@ public final class BwScoreboardLogic {
                 state += " (no bed)";
             }
 
-            Style teamNameStyle = Style.EMPTY.withColor(teamState.team.getFormatting()).withBold(true);
-            Style descriptionStyle = Style.EMPTY.withColor(Formatting.GRAY).withBold(false);
+            String nameFormat = teamState.team.getFormatting().toString() + Formatting.BOLD.toString();
+            String descriptionFormat = Formatting.RESET.toString() + Formatting.GRAY.toString();
 
-            Text teamName = teamState.team.getName().copy().setStyle(teamNameStyle);
-            Text teamDescription = new LiteralText(": " + state).setStyle(descriptionStyle);
-            lines.add(new LiteralText("  ").append(teamName).append(teamDescription));
+            String name = teamState.team.getName().asString();
+            lines.add("  " + nameFormat + name + ": " + descriptionFormat + state);
         });
 
-        this.render(lines.toArray(new Text[0]));
+        this.render(lines.toArray(new String[0]));
     }
 
-    private void render(Text[] lines) {
+    private void render(String[] lines) {
         if (this.objective == null) {
             return;
         }
@@ -141,10 +138,10 @@ public final class BwScoreboardLogic {
         render(scoreboard, this.objective, lines);
     }
 
-    private static void render(ServerScoreboard scoreboard, ScoreboardObjective objective, Text[] lines) {
+    private static void render(ServerScoreboard scoreboard, ScoreboardObjective objective, String[] lines) {
         clear(scoreboard, objective);
         for (int i = 0; i < lines.length; i++) {
-            String line = lines[i].asString();
+            String line = lines[i];
             scoreboard.getPlayerScore(line, objective).setScore(lines.length - i);
         }
     }
