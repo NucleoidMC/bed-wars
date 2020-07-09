@@ -333,7 +333,7 @@ public final class BedWars implements Game {
             if (stack.getItem() == Items.FIRE_CHARGE) {
                 Vec3d dir = player.getRotationVec(1.0F);
 
-                FireballEntity fireball = new FireballEntity(world, player, dir.x, dir.y, dir.z);
+                FireballEntity fireball = new FireballEntity(world, player, dir.x * 0.5, dir.y * 0.5, dir.z * 0.5);
                 fireball.explosionPower = 2;
                 fireball.updatePosition(player.getX() + dir.x * 4.0, player.getEyeY() + dir.y * 4.0, fireball.getZ() + dir.z * 4.0);
                 fireball.posX = dir.x;
