@@ -15,7 +15,6 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.chunk.IdListPalette;
 import net.minecraft.world.chunk.Palette;
@@ -29,13 +28,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import java.util.stream.Collectors;
 
 public final class GameMapData {
     private static final Path MAP_ROOT = Paths.get(BedWarsMod.ID, "map");
@@ -164,62 +160,29 @@ public final class GameMapData {
     }
 
     public GameMap addToWorld(ServerWorld world, BlockPos origin) {
-        ChunkPos minChunk = new ChunkPos(this.bounds.getMin().add(origin));
-        ChunkPos maxChunk = new ChunkPos(this.bounds.getMax().add(origin));
+        GameMapBuilder builder = new GameMapBuilder(world, origin);
+        builder.setBounds(this.bounds);
 
-        BedWarsMod.LOGGER.info("Loading chunks to spawn game...");
-        for (int z = minChunk.z; z <= maxChunk.z; z++) {
-            for (int x = minChunk.x; x <= maxChunk.x; x++) {
-                world.getChunk(x, z);
-            }
-        }
+        BedWarsMod.LOGGER.debug("Adding game blocks to world...");
 
-        BedWarsMod.LOGGER.info("Adding game blocks to world...");
+        this.bounds.iterate().forEach(pos -> {
+            BlockState state = this.getBlockState(pos);
+            builder.setBlockState(pos, state);
 
-        Set<BlockPos> standardBlocks = new HashSet<>();
-
-        this.bounds.iterate().forEach(localPos -> {
-            BlockPos globalPos = origin.add(localPos);
-            BlockState state = this.getBlockState(localPos);
-
-            world.setBlockState(globalPos, state, 3);
-
-            if (!state.isAir()) {
-                standardBlocks.add(globalPos);
-            }
-
-            CompoundTag beTag = this.blockEntities.get(localPos);
+            CompoundTag beTag = this.blockEntities.get(pos);
             if (beTag != null) {
-                beTag.putInt("x", globalPos.getX());
-                beTag.putInt("y", globalPos.getY());
-                beTag.putInt("z", globalPos.getZ());
                 BlockEntity blockEntity = BlockEntity.createFromTag(state, beTag);
                 if (blockEntity != null) {
-                    blockEntity.setLocation(world, globalPos);
-                    world.setBlockEntity(globalPos, blockEntity);
+                    builder.setBlockEntity(pos, blockEntity);
                 }
             }
         });
 
-        List<GameRegion> regions = this.regions.stream()
-                .map(region -> {
-                    BlockBounds bounds = region.getBounds();
-                    return new GameRegion(
-                            region.getMarker(),
-                            new BlockBounds(
-                                    bounds.getMin().add(origin),
-                                    bounds.getMax().add(origin)
-                            )
-                    );
-                })
-                .collect(Collectors.toList());
+        for (GameRegion region : this.regions) {
+            builder.addRegion(region);
+        }
 
-        BlockBounds globalBounds = new BlockBounds(
-                this.bounds.getMin().add(origin),
-                this.bounds.getMax().add(origin)
-        );
-
-        return new GameMap(world, globalBounds, regions, standardBlocks);
+        return builder.build();
     }
 
     private static class MapChunk {

@@ -6,6 +6,8 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
 public final class BlockBounds {
+    public static final BlockBounds EMPTY = new BlockBounds(BlockPos.ORIGIN, BlockPos.ORIGIN);
+
     private final BlockPos min;
     private final BlockPos max;
 

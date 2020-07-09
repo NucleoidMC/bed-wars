@@ -1,5 +1,6 @@
 package net.gegy1000.bedwars.game.map;
 
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.gegy1000.bedwars.BlockBounds;
 import net.gegy1000.bedwars.game.GameRegion;
 import net.minecraft.block.BlockState;
@@ -11,7 +12,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public final class GameMap {
@@ -21,13 +21,13 @@ public final class GameMap {
     private final BlockBounds bounds;
     private final List<GameRegion> regions;
 
-    private final Set<BlockPos> standardBlocks;
+    private final LongSet standardBlocks;
 
     GameMap(
             ServerWorld world,
             BlockBounds bounds,
             List<GameRegion> regions,
-            Set<BlockPos> standardBlocks
+            LongSet standardBlocks
     ) {
         this.world = world;
         this.bounds = bounds;
@@ -44,7 +44,7 @@ public final class GameMap {
     }
 
     public boolean isStandardBlock(BlockPos pos) {
-        return this.standardBlocks.contains(pos);
+        return this.standardBlocks.contains(pos.asLong());
     }
 
     public CompletableFuture<Void> delete() {
