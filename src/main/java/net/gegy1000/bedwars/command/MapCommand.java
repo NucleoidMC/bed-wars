@@ -2,17 +2,18 @@ package net.gegy1000.bedwars.command;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.gegy1000.bedwars.BedWarsMod;
+import net.gegy1000.bedwars.BlockBounds;
 import net.gegy1000.bedwars.PartialRegion;
 import net.gegy1000.bedwars.api.MapViewer;
 import net.gegy1000.bedwars.api.RegionConstructor;
-import net.gegy1000.bedwars.BlockBounds;
-import net.gegy1000.bedwars.game.map.GameMapData;
 import net.gegy1000.bedwars.game.GameRegion;
+import net.gegy1000.bedwars.game.map.GameMapData;
 import net.gegy1000.bedwars.game.map.StagingMap;
 import net.gegy1000.bedwars.game.map.StagingMapManager;
 import net.minecraft.command.arguments.BlockPosArgumentType;
@@ -67,7 +68,7 @@ public final class MapCommand {
                 ))
                 .then(literal("region")
                     .then(literal("add")
-                        .then(argument("marker", IdentifierArgumentType.identifier())
+                        .then(argument("marker", StringArgumentType.word())
                         .then(argument("min", BlockPosArgumentType.blockPos())
                         .then(argument("max", BlockPosArgumentType.blockPos())
                         .executes(MapCommand::addRegion)
@@ -77,7 +78,7 @@ public final class MapCommand {
                         .executes(MapCommand::removeRegionHere)
                     ))
                     .then(literal("commit")
-                        .then(argument("marker", IdentifierArgumentType.identifier())
+                        .then(argument("marker", StringArgumentType.word())
                         .executes(MapCommand::commitRegion)
                     ))
                 )
@@ -172,7 +173,7 @@ public final class MapCommand {
 
         StagingMapManager stagingMapManager = StagingMapManager.get(world);
 
-        Identifier marker = IdentifierArgumentType.getIdentifier(context, "marker");
+        String marker = StringArgumentType.getString(context, "marker");
         BlockPos min = BlockPosArgumentType.getBlockPos(context, "min");
         BlockPos max = BlockPosArgumentType.getBlockPos(context, "max");
         Optional<StagingMap> mapOpt = stagingMapManager.getStagingMaps().stream()
@@ -227,7 +228,7 @@ public final class MapCommand {
 
         StagingMapManager stagingMapManager = StagingMapManager.get(world);
 
-        Identifier marker = IdentifierArgumentType.getIdentifier(context, "marker");
+        String marker = StringArgumentType.getString(context, "marker");
 
         if (player instanceof RegionConstructor) {
             RegionConstructor regionConstructor = (RegionConstructor) player;

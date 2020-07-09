@@ -1,11 +1,14 @@
 package net.gegy1000.bedwars.item;
 
 import com.google.common.base.Preconditions;
+import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.gegy1000.bedwars.BedWarsMod;
+import net.gegy1000.bedwars.event.SwingHandCallback;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -22,7 +25,8 @@ public final class CustomItem {
     private final Identifier id;
     private final Text name;
 
-    private Use use;
+    private UseItemCallback use;
+    private SwingHandCallback swingHand;
 
     private CustomItem(Identifier identifier, Text name) {
         this.id = identifier;
@@ -70,13 +74,20 @@ public final class CustomItem {
         if (this.use == null) {
             return TypedActionResult.pass(ItemStack.EMPTY);
         }
-        return this.use.onUse(player, world, hand);
+        return this.use.interact(player, world, hand);
+    }
+
+    public void onSwingHand(ServerPlayerEntity player, Hand hand) {
+        if (this.swingHand != null) {
+            this.swingHand.onSwingHand(player, hand);
+        }
     }
 
     public static class Builder {
         private Identifier id;
         private Text name;
-        private Use use;
+        private UseItemCallback use;
+        private SwingHandCallback swingHand;
 
         private Builder() {
         }
@@ -91,8 +102,13 @@ public final class CustomItem {
             return this;
         }
 
-        public Builder onUse(Use use) {
+        public Builder onUse(UseItemCallback use) {
             this.use = use;
+            return this;
+        }
+
+        public Builder onSwingHand(SwingHandCallback swingHand) {
+            this.swingHand = swingHand;
             return this;
         }
 
@@ -104,14 +120,11 @@ public final class CustomItem {
 
             CustomItem item = new CustomItem(this.id, this.name);
             item.use = this.use;
+            item.swingHand = this.swingHand;
 
             REGISTRY.put(this.id, item);
 
             return item;
         }
-    }
-
-    public interface Use {
-        TypedActionResult<ItemStack> onUse(PlayerEntity player, World world, Hand hand);
     }
 }

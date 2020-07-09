@@ -10,6 +10,7 @@
     "MixinExplosion",
     "MixinServerPlayerEntity",
     "MixinServerPlayerInteractionManager",
+    "MixinServerPlayNetworkHandler",
     "MixinServerWorld",
     "MixinTntBlock"
   ],

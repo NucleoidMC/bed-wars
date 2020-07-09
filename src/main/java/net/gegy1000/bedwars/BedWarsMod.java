@@ -14,6 +14,7 @@ import net.gegy1000.bedwars.command.MagicCommand;
 import net.gegy1000.bedwars.command.MapCommand;
 import net.gegy1000.bedwars.entity.CustomEntities;
 import net.gegy1000.bedwars.entity.CustomEntity;
+import net.gegy1000.bedwars.event.SwingHandCallback;
 import net.gegy1000.bedwars.game.GameRegion;
 import net.gegy1000.bedwars.game.bw.BedWars;
 import net.gegy1000.bedwars.game.map.StagingMap;
@@ -26,7 +27,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -47,6 +47,14 @@ public final class BedWarsMod implements ModInitializer {
             MagicCommand.register(dispatcher);
             MapCommand.register(dispatcher);
             GameCommand.register(dispatcher);
+        });
+
+        SwingHandCallback.EVENT.register((player, hand) -> {
+            ItemStack stack = player.getStackInHand(hand);
+            CustomItem custom = CustomItem.match(stack);
+            if (custom != null) {
+                custom.onSwingHand(player, hand);
+            }
         });
 
         UseItemCallback.EVENT.register((player, world, hand) -> {
@@ -113,9 +121,11 @@ public final class BedWarsMod implements ModInitializer {
 
     private void displayTracing(ServerPlayerEntity player, RegionConstructor regionConstructor) {
         if (regionConstructor.isTracing()) {
-            HitResult result = player.rayTrace(64.0, 1.0F, true);
-            if (result.getType() == HitResult.Type.BLOCK) {
-                regionConstructor.trace(new BlockPos(result.getPos()));
+            RegionTraceMode traceMode = regionConstructor.getTraceMode();
+
+            BlockPos pos = traceMode.tryTrace(player);
+            if (pos != null) {
+                regionConstructor.trace(pos);
             }
         }
 

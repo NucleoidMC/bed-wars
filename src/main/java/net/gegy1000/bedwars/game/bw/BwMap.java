@@ -69,9 +69,8 @@ public final class BwMap {
 
     private void initializeMap(GameMap map) {
         map.getRegions().forEach(region -> {
-            Identifier marker = region.getMarker();
-            String path = marker.getPath();
-            this.regions.put(path, region.getBounds());
+            String marker = region.getMarker();
+            this.regions.put(marker, region.getBounds());
         });
 
         this.getRegions("diamond_spawn").forEach(bounds -> {

@@ -31,7 +31,7 @@ public final class StagingMap {
         StagingMapManager.get(this.world).setDirty(true);
     }
 
-    public void addRegion(Identifier marker, BlockBounds bounds) {
+    public void addRegion(String marker, BlockBounds bounds) {
         this.regions.add(new GameRegion(marker, bounds));
         this.setDirty();
     }

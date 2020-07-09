@@ -1,6 +1,7 @@
 package net.gegy1000.bedwars.mixin;
 
 import net.gegy1000.bedwars.PartialRegion;
+import net.gegy1000.bedwars.RegionTraceMode;
 import net.gegy1000.bedwars.api.MapViewer;
 import net.gegy1000.bedwars.api.RegionConstructor;
 import net.gegy1000.bedwars.event.PlayerDeathCallback;
@@ -21,6 +22,8 @@ public abstract class MixinServerPlayerEntity implements MapViewer, RegionConstr
 
     private PartialRegion tracing;
     private PartialRegion ready;
+
+    private RegionTraceMode traceMode = RegionTraceMode.OFFSET;
 
     @Inject(method = "onDeath", at = @At("HEAD"), cancellable = true)
     private void onDeath(DamageSource source, CallbackInfo ci) {
@@ -78,5 +81,15 @@ public abstract class MixinServerPlayerEntity implements MapViewer, RegionConstr
         PartialRegion ready = this.ready;
         this.ready = null;
         return ready;
+    }
+
+    @Override
+    public void setTraceMode(RegionTraceMode traceMode) {
+        this.traceMode = traceMode;
+    }
+
+    @Override
+    public RegionTraceMode getTraceMode() {
+        return this.traceMode;
     }
 }
