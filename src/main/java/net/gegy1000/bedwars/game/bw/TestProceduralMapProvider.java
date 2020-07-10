@@ -6,6 +6,8 @@ import net.gegy1000.bedwars.map.GameMapBuilder;
 import net.gegy1000.bedwars.map.provider.MapProvider;
 import net.gegy1000.bedwars.util.BlockBounds;
 import net.gegy1000.bedwars.util.ColoredBlocks;
+import net.gegy1000.bedwars.util.OpenSimplexNoise;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
@@ -16,7 +18,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public final class TestProceduralMapProvider implements MapProvider {
-    private static final double ISLAND_DISTANCE = 20.0;
+    private static final double ISLAND_DISTANCE = 50.0;
 
     @Override
     public CompletableFuture<GameMap> createAt(ServerWorld world, BlockPos origin) {
@@ -49,7 +51,7 @@ public final class TestProceduralMapProvider implements MapProvider {
                 double x = Math.cos(theta) * ISLAND_DISTANCE;
                 double z = Math.sin(theta) * ISLAND_DISTANCE;
 
-                BlockPos pos = new BlockPos(x, 0, z);
+                BlockPos pos = new BlockPos(x, 8, z);
                 this.teamIslands.put(team, new TeamIsland(pos, team));
             }
         }
@@ -61,9 +63,13 @@ public final class TestProceduralMapProvider implements MapProvider {
                 island.addTo(this.builder);
             }
 
+            new CenterIsland(new BlockPos(0, 8, 0), 14179).addTo(this.builder);
+
             return this.builder.build();
         }
     }
+
+    //TODO: split common behaviors into an interface
 
     static class TeamIsland {
         final BlockPos origin;
@@ -133,6 +139,69 @@ public final class TestProceduralMapProvider implements MapProvider {
 
         String marker(String name) {
             return this.team.getKey() + "_" + name;
+        }
+    }
+
+    static class CenterIsland {
+        final BlockPos origin;
+        final OpenSimplexNoise noise;
+
+        CenterIsland(BlockPos origin, long seed) {
+            this.origin = origin;
+            this.noise = new OpenSimplexNoise(seed);
+        }
+
+        void addTo(GameMapBuilder builder) {
+            int radius = 10;
+
+            int radiusSquared = radius * radius;
+
+            // Iterate a circle
+            for(int x = -radius; x <= radius; x++) {
+                for (int z = -radius; z <= radius; z++) {
+
+                    // Populate Noise
+                    for(int y = -radius; y <= radius; y++) {
+                        int squareDistance = (x * x) + (y * y) + (z * z);
+
+                        // Place stone based on noise
+                        if (squareDistance <= radiusSquared) {
+                            double noiseAt = noise.eval((origin.getX() + x) / 8.0, (origin.getY() + y) / 12.0, (origin.getZ() + z) / 8.0);
+                            noiseAt += computeNoiseFalloff(y);
+
+                            if (noiseAt > 0) {
+                                builder.setBlockState(origin.add(x, y, z), Blocks.STONE.getDefaultState());
+                            }
+                        }
+                    }
+
+                    // Build Surface
+                    for(int y = radius; y > -radius; y--) {
+                        // Air above
+                        if (builder.getBlockState(origin.add(x, y + 1, z)).isAir()) {
+                            // Stone here
+                            if (builder.getBlockState(origin.add(x, y, z)) == Blocks.STONE.getDefaultState()) {
+                                // Set grass, iterate downwards and set dirt
+                                builder.setBlockState(origin.add(x, y, z), Blocks.GRASS_BLOCK.getDefaultState());
+                                for (int i = 1; i < 3; i++) {
+                                    // check for stone
+                                    if (builder.getBlockState(origin.add(x, y - i, z)) == Blocks.STONE.getDefaultState()) {
+                                        builder.setBlockState(origin.add(x, y - i, z), Blocks.DIRT.getDefaultState());
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Computes the falloff constant at a y coordinate.
+        // Desmos: \frac{40}{x+10}-4.25
+        double computeNoiseFalloff(double y) {
+            return (40.0 / (y + 10)) - 4.25;
         }
     }
 }

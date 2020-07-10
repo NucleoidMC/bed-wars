@@ -48,6 +48,10 @@ public final class GameMapBuilder {
         }
     }
 
+    public BlockState getBlockState(BlockPos pos) {
+        return world.getBlockState(this.localToGlobal(pos));
+    }
+
     public void setBlockEntity(BlockPos pos, BlockEntity blockEntity) {
         BlockPos globalPos = this.localToGlobal(pos);
         blockEntity.setLocation(this.world, globalPos);
