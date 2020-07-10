@@ -2,6 +2,8 @@ package net.gegy1000.bedwars.game.config;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
@@ -47,9 +49,16 @@ public final class GameConfigs {
                             JsonElement json = new JsonParser().parse(reader);
 
                             Identifier identifier = identifierFromPath(path);
-                            ConfiguredGame.CODEC.decode(JsonOps.INSTANCE, json).result().ifPresent(result -> {
+
+                            DataResult<Pair<ConfiguredGame<?, ?>, JsonElement>> decode = ConfiguredGame.CODEC.decode(JsonOps.INSTANCE, json);
+
+                            decode.result().ifPresent(result -> {
                                 ConfiguredGame<?, ?> game = result.getFirst();
                                 CONFIGURED_GAMES.put(identifier, game);
+                            });
+
+                            decode.error().ifPresent(error -> {
+                                BedWarsMod.LOGGER.error("Failed to decode {}: {}", path, error.toString());
                             });
                         }
                     } catch (IOException e) {

@@ -28,6 +28,10 @@ public final class GameRegion {
 
     public static GameRegion deserialize(CompoundTag tag) {
         String marker = tag.getString("marker");
+        if (marker.startsWith("minecraft:")) {
+            // TODO: temporary fix for legacy map files
+            marker = marker.substring("minecraft:".length());
+        }
         return new GameRegion(marker, BlockBounds.deserialize(tag));
     }
 }
