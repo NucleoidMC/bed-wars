@@ -106,11 +106,15 @@ public final class BwMap {
             if (regions.teamShop != null) {
                 Entity entity = this.spawn(EntityType.VILLAGER, CustomEntities.TEAM_SHOP, regions.teamShop);
                 this.shopKeepers.add(entity);
+            } else {
+                BedWarsMod.LOGGER.warn("Missing team shop for {}", team.getDisplay());
             }
 
             if (regions.itemShop != null) {
                 Entity entity = this.spawn(EntityType.VILLAGER, CustomEntities.ITEM_SHOP, regions.itemShop);
                 this.shopKeepers.add(entity);
+            } else {
+                BedWarsMod.LOGGER.warn("Missing item shop for {}", team.getDisplay());
             }
         }
     }
@@ -120,6 +124,7 @@ public final class BwMap {
 
         Entity entity = type.create(this.world);
         if (entity == null) {
+            BedWarsMod.LOGGER.warn("Failed to spawn entity of type {}", type);
             return null;
         }
 

@@ -9,7 +9,6 @@ import net.gegy1000.bedwars.event.BlockBreakCallback;
 import net.gegy1000.bedwars.event.CraftCheckCallback;
 import net.gegy1000.bedwars.event.PlayerDeathCallback;
 import net.gegy1000.bedwars.event.PlayerJoinCallback;
-import net.gegy1000.bedwars.game.ConfiguredGame;
 import net.gegy1000.bedwars.game.Game;
 import net.gegy1000.bedwars.game.GameManager;
 import net.gegy1000.bedwars.game.GameTeam;
@@ -129,6 +128,8 @@ public final class BedWars implements Game {
     private BwCloseLogic closing;
     private boolean active = true;
 
+    private int ticks;
+
     private long lastWinCheck;
 
     private BedWars(BedWarsConfig config, BwMap map, BwState state) {
@@ -168,8 +169,6 @@ public final class BedWars implements Game {
                     game.playerLogic.spawnSpectator(player);
                 }
             });
-
-            game.map.spawnShopkeepers(config);
 
             return game;
         });
@@ -349,6 +348,10 @@ public final class BedWars implements Game {
     private void tick() {
         if (!this.active) {
             return;
+        }
+
+        if (this.ticks++ == 20) {
+            this.map.spawnShopkeepers(this.config);
         }
 
         long time = this.world.getTime();
