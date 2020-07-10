@@ -37,7 +37,7 @@ public final class Cost {
     }
 
     public static Cost no() {
-        return new Cost().display(new LiteralText("cannot buy"));
+        return new Cost().display(new LiteralText("Cannot buy"));
     }
 
     public Cost take(Take take) {

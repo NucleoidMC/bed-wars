@@ -4,9 +4,11 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Box;
 
 import java.util.List;
+import java.util.UUID;
 
 public final class BwMapLogic {
     private final BedWars game;
@@ -29,6 +31,15 @@ public final class BwMapLogic {
 
                 if (team.healPool) {
                     this.tickHealPool(team);
+                }
+
+                //TODO: optimize this
+                if (team.hasteEnabled) {
+                    for (ServerPlayerEntity player : this.game.world.getPlayers()) {
+                        if (team.players.contains(player.getUuid())) {
+                            player.addStatusEffect(new StatusEffectInstance(StatusEffects.HASTE, 20 * 2, 1));
+                        }
+                    }
                 }
             });
         }

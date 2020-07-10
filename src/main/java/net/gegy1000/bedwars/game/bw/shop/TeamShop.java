@@ -27,13 +27,19 @@ public final class TeamShop {
                 Cost trapCost = !teamState.trapSet ? Cost.ofDiamonds(1) : Cost.no();
                 shop.add(Items.REDSTONE_TORCH, trapCost, new LiteralText("Activate Base Trap"), () -> {
                     teamState.trapSet = true;
-                    bedWars.broadcast.broadcastTeamUpgrade(participant, new LiteralText("activated the base trap!"));
+                    bedWars.broadcast.broadcastTeamUpgrade(participant, new LiteralText("Activated the base trap!"));
                 });
 
                 Cost healPoolCost = !teamState.healPool ? Cost.ofDiamonds(3) : Cost.no();
                 shop.add(Blocks.BEACON, healPoolCost, new LiteralText("Activate Heal Pool"), () -> {
                     teamState.healPool = true;
-                    bedWars.broadcast.broadcastTeamUpgrade(participant, new LiteralText("activated a heal pool!"));
+                    bedWars.broadcast.broadcastTeamUpgrade(participant, new LiteralText("Activated a heal pool!"));
+                });
+
+                Cost hasteCost = !teamState.hasteEnabled ? Cost.ofDiamonds(2) : Cost.no();
+                shop.add(Items.GOLDEN_PICKAXE, hasteCost, new LiteralText("Haste"), () -> {
+                    teamState.hasteEnabled = true;
+                    bedWars.broadcast.broadcastTeamUpgrade(participant, new LiteralText("Activated haste!"));
                 });
 
                 int sharpness = teamState.swordSharpness;
@@ -43,7 +49,7 @@ public final class TeamShop {
                 shop.add(Items.DIAMOND_SWORD, sharpnessCost, new LiteralText("Sword Sharpness " + nextSharpness), () -> {
                     teamState.swordSharpness = Math.max(nextSharpness, teamState.swordSharpness);
                     bedWars.teamLogic.applyEnchantments(participant.team);
-                    bedWars.broadcast.broadcastTeamUpgrade(participant, new LiteralText("added Sword Sharpness " + teamState.swordSharpness));
+                    bedWars.broadcast.broadcastTeamUpgrade(participant, new LiteralText("Added Sword Sharpness " + teamState.swordSharpness));
                 });
 
                 int protection = teamState.armorProtection;
@@ -53,7 +59,7 @@ public final class TeamShop {
                 shop.add(Items.DIAMOND_CHESTPLATE, protectionCost, new LiteralText("Armor Protection " + nextProtection), () -> {
                     teamState.armorProtection = Math.max(nextProtection, teamState.armorProtection);
                     bedWars.teamLogic.applyEnchantments(participant.team);
-                    bedWars.broadcast.broadcastTeamUpgrade(participant, new LiteralText("added Armor Protection " + teamState.armorProtection));
+                    bedWars.broadcast.broadcastTeamUpgrade(participant, new LiteralText("Added Armor Protection " + teamState.armorProtection));
                 });
             }
 

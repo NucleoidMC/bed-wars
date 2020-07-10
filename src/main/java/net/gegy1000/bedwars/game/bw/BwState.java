@@ -163,6 +163,7 @@ public final class BwState {
 
         public boolean trapSet;
         public boolean healPool;
+        public boolean hasteEnabled;
         public int swordSharpness;
         public int armorProtection;
 
