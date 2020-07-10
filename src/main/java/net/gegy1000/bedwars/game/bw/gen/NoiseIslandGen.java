@@ -19,6 +19,7 @@ public final class NoiseIslandGen {
     private int radius = 10;
     private double noiseHorizontalFrequency = 1.0;
     private double noiseVerticalFrequency = 1.0;
+    private boolean checkSpace = false;
 
     private DoubleUnaryOperator falloffFunction = y -> y;
 
@@ -42,12 +43,22 @@ public final class NoiseIslandGen {
         this.falloffFunction = falloffFunction;
     }
 
+    public void setCheckSpace(boolean checkSpace) {
+        this.checkSpace = checkSpace;
+    }
+
     public void addTo(GameMapBuilder builder) {
-        int radius = this.radius;
         double noiseHorizontalFrequency = this.noiseHorizontalFrequency;
         double noiseVerticalFrequency = this.noiseVerticalFrequency;
 
         int radiusSquared = radius * radius;
+
+        // if checkSpace is enabled, return if there is an obstruction
+        if (checkSpace) {
+            if (!checkSpace(builder)) {
+                return;
+            }
+        }
 
         // Iterate a circle
         for (int x = -radius; x <= radius; x++) {
@@ -104,6 +115,20 @@ public final class NoiseIslandGen {
 
             wasAir = isAir;
         }
+    }
+
+    private boolean checkSpace(GameMapBuilder builder) {
+        for (int x = -radius; x <= radius; x++) {
+            for (int z = -radius; z <= radius; z++) {
+                for (int y = -radius; y <= radius; y++) {
+                    if (!builder.getBlockState(pos(x, y, z)).isAir()) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     private BlockPos pos(int x, int y, int z) {

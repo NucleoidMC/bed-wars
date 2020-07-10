@@ -4,6 +4,7 @@ import net.gegy1000.bedwars.game.GameTeam;
 import net.gegy1000.bedwars.game.bw.gen.MapGen;
 import net.gegy1000.bedwars.game.bw.gen.island.CenterIslandGen;
 import net.gegy1000.bedwars.game.bw.gen.island.DiamondIslandGen;
+import net.gegy1000.bedwars.game.bw.gen.island.RandomSmallIslandGen;
 import net.gegy1000.bedwars.game.bw.gen.island.TeamIslandGen;
 import net.gegy1000.bedwars.map.GameMap;
 import net.gegy1000.bedwars.map.GameMapBuilder;
@@ -63,14 +64,34 @@ public final class TestProceduralMapProvider implements MapProvider {
             islands.add(new DiamondIslandGen(new BlockPos(-DIAMOND_ISLAND_DISTANCE, 8, 0), random.nextLong()));
             islands.add(new DiamondIslandGen(new BlockPos(0, 8, DIAMOND_ISLAND_DISTANCE), random.nextLong()));
             islands.add(new DiamondIslandGen(new BlockPos(0, 8, -DIAMOND_ISLAND_DISTANCE), random.nextLong()));
+
+            for (int i = 0; i < 10; i++) {
+                int aX = random.nextInt(80) - random.nextInt(80);
+                int aY = random.nextInt(10) - random.nextInt(10);
+                int aZ = random.nextInt(80) - random.nextInt(80);
+                long seed = random.nextLong();
+
+                // Avoid generating at the center
+                if (Math.abs(aX) < 25 && Math.abs(aZ) < 25) {
+                    continue;
+                }
+
+                // Add symmetrical islands
+                islands.add(new RandomSmallIslandGen(new BlockPos(aX, 8 + aY, aZ), seed));
+                islands.add(new RandomSmallIslandGen(new BlockPos(-aX, 8 + aY, -aZ), seed));
+            }
         }
 
         private GameMap generate(Random random) {
             this.addIslands(random);
 
+            long time = System.currentTimeMillis();
+            System.out.println("Starting island generation...");
             for (MapGen island : islands) {
                 island.addTo(this.builder);
             }
+
+            System.out.println("Generated " + islands.size() + " islands in " + (System.currentTimeMillis() - time) + " ms");
 
             return this.builder.build();
         }
