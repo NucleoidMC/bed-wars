@@ -2,73 +2,111 @@ package net.gegy1000.bedwars.game.bw.gen;
 
 import net.gegy1000.bedwars.map.GameMapBuilder;
 import net.gegy1000.bedwars.util.OpenSimplexNoise;
-
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 
-public abstract class NoiseIslandGen implements MapGen {
-	protected final OpenSimplexNoise noise;
-	protected final BlockPos origin;
+import java.util.function.DoubleUnaryOperator;
 
-	public NoiseIslandGen(BlockPos origin, long seed) {
-		this.origin = origin;
-		noise = new OpenSimplexNoise(seed);
-	}
+public final class NoiseIslandGen {
+    private static final BlockState GRASS = Blocks.GRASS_BLOCK.getDefaultState();
+    private static final BlockState DIRT = Blocks.DIRT.getDefaultState();
+    private static final BlockState STONE = Blocks.STONE.getDefaultState();
 
-	@Override
-	public void addTo(GameMapBuilder builder) {
-		int radius = radius();
+    private final BlockPos origin;
+    private final OpenSimplexNoise noise;
 
-		int radiusSquared = radius * radius;
+    private int radius = 10;
+    private double noiseHorizontalFrequency = 1.0;
+    private double noiseVerticalFrequency = 1.0;
 
-		// Iterate a circle
-		for(int x = -radius; x <= radius; x++) {
-			for (int z = -radius; z <= radius; z++) {
+    private DoubleUnaryOperator falloffFunction = y -> y;
 
-				// Populate Noise
-				for(int y = -radius; y <= radius; y++) {
-					int squareDistance = (x * x) + (y * y) + (z * z);
+    private final BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 
-					// Place stone based on noise
-					if (squareDistance <= radiusSquared) {
-						double noiseAt = noise.eval((origin.getX() + x) / horizontalScale(), (origin.getY() + y) / verticalScale(), (origin.getZ() + z) / horizontalScale());
-						noiseAt += computeNoiseFalloff(y);
+    public NoiseIslandGen(BlockPos origin, long seed) {
+        this.origin = origin;
+        this.noise = new OpenSimplexNoise(seed);
+    }
 
-						if (noiseAt > 0) {
-							builder.setBlockState(origin.add(x, y, z), Blocks.STONE.getDefaultState());
-						}
-					}
-				}
+    public void setRadius(int radius) {
+        this.radius = radius;
+    }
 
-				// Build Surface
-				for(int y = radius; y > -radius; y--) {
-					// Air above
-					if (builder.getBlockState(origin.add(x, y + 1, z)).isAir()) {
-						// Stone here
-						if (builder.getBlockState(origin.add(x, y, z)) == Blocks.STONE.getDefaultState()) {
-							// Set grass, iterate downwards and set dirt
-							builder.setBlockState(origin.add(x, y, z), Blocks.GRASS_BLOCK.getDefaultState());
-							for (int i = 1; i < 3; i++) {
-								// check for stone
-								if (builder.getBlockState(origin.add(x, y - i, z)) == Blocks.STONE.getDefaultState()) {
-									builder.setBlockState(origin.add(x, y - i, z), Blocks.DIRT.getDefaultState());
-								} else {
-									break;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+    public void setNoiseFrequency(double horizontal, double vertical) {
+        this.noiseHorizontalFrequency = horizontal;
+        this.noiseVerticalFrequency = vertical;
+    }
 
-	protected abstract double horizontalScale();
+    public void setFalloff(DoubleUnaryOperator falloffFunction) {
+        this.falloffFunction = falloffFunction;
+    }
 
-	protected abstract double verticalScale();
+    public void addTo(GameMapBuilder builder) {
+        int radius = this.radius;
+        double noiseHorizontalFrequency = this.noiseHorizontalFrequency;
+        double noiseVerticalFrequency = this.noiseVerticalFrequency;
 
-	protected abstract int radius();
+        int radiusSquared = radius * radius;
 
-	// Computes the falloff constant at a y coordinate.
-	protected abstract double computeNoiseFalloff(double y);
+        // Iterate a circle
+        for (int x = -radius; x <= radius; x++) {
+            for (int z = -radius; z <= radius; z++) {
+
+                // Populate Noise
+                for (int y = -radius; y <= radius; y++) {
+                    int squareDistance = (x * x) + (y * y) + (z * z);
+
+                    // Place stone based on noise
+                    if (squareDistance <= radiusSquared) {
+                        BlockPos pos = this.pos(x, y, z);
+
+                        double noiseX = pos.getX() * noiseHorizontalFrequency;
+                        double noiseY = pos.getY() * noiseVerticalFrequency;
+                        double noiseZ = pos.getZ() * noiseHorizontalFrequency;
+
+                        double noise = this.noise.eval(noiseX, noiseY, noiseZ);
+                        noise += this.falloffFunction.applyAsDouble(y);
+
+                        if (noise > 0) {
+                            builder.setBlockState(pos, STONE);
+                        }
+                    }
+                }
+
+                this.buildSurface(builder, -radius, radius + 1, x, z);
+            }
+        }
+    }
+
+    private void buildSurface(GameMapBuilder builder, int minY, int maxY, int x, int z) {
+        boolean wasAir = false;
+        int depth = -1;
+
+        for (int y = maxY; y > minY; y--) {
+            BlockPos herePos = this.pos(x, y, z);
+            BlockState hereState = builder.getBlockState(herePos);
+
+            boolean isAir = hereState.isAir();
+            if (!isAir) {
+                if (wasAir) {
+                    // if we're transitioning from air to not air, reset depth
+                    depth = 0;
+                }
+
+                // replace stone with soil until depth=3
+                if (depth < 3 && hereState == STONE) {
+                    builder.setBlockState(herePos, depth == 0 ? GRASS : DIRT);
+                }
+
+                depth++;
+            }
+
+            wasAir = isAir;
+        }
+    }
+
+    private BlockPos pos(int x, int y, int z) {
+        return this.mutablePos.set(this.origin.getX() + x, this.origin.getY() + y, this.origin.getZ() + z);
+    }
 }

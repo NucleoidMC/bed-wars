@@ -1,38 +1,32 @@
 package net.gegy1000.bedwars.game.bw.gen.island;
 
+import net.gegy1000.bedwars.game.bw.gen.MapGen;
 import net.gegy1000.bedwars.game.bw.gen.NoiseIslandGen;
 import net.gegy1000.bedwars.map.GameMapBuilder;
 
 import net.minecraft.util.math.BlockPos;
 
-public class DiamondIslandGen extends NoiseIslandGen {
+public class DiamondIslandGen implements MapGen {
+    private final NoiseIslandGen noiseGen;
+
     public DiamondIslandGen(BlockPos origin, long seed) {
-        super(origin, seed);
+        this.noiseGen = new NoiseIslandGen(origin, seed);
+        this.noiseGen.setRadius(10);
+        this.noiseGen.setNoiseFrequency(1.0 / 8.0, 1.0 / 12.0);
+        this.noiseGen.setFalloff(DiamondIslandGen::computeNoiseFalloff);
+    }
+
+    @Override
+    public void addTo(GameMapBuilder builder) {
+        this.noiseGen.addTo(builder);
     }
 
     @Override
     public void addRegionsTo(GameMapBuilder builder) {
-
-    }
-
-    @Override
-    protected int radius() {
-        return 10;
-    }
-
-    @Override
-    protected double horizontalScale() {
-        return 8.0;
-    }
-
-    @Override
-    protected double verticalScale() {
-        return 12.0;
     }
 
     // Desmos: \frac{40}{x+10}-4.25
-    @Override
-    protected double computeNoiseFalloff(double y) {
+    private static double computeNoiseFalloff(double y) {
         return (40.0 / (y + 10)) - 4.25;
     }
 }

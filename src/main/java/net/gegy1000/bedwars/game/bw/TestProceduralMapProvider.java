@@ -13,6 +13,7 @@ import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 public final class TestProceduralMapProvider implements MapProvider {
@@ -27,7 +28,7 @@ public final class TestProceduralMapProvider implements MapProvider {
                     BedWars.TEAMS
             );
 
-            return generator.generate();
+            return generator.generate(world.random);
         }, world.getServer());
     }
 
@@ -42,7 +43,7 @@ public final class TestProceduralMapProvider implements MapProvider {
             this.teams = teams;
         }
 
-        private void addIslands() {
+        private void addIslands(Random random) {
             // Add team islands
             for (int i = 0; i < this.teams.length; i++) {
                 GameTeam team = this.teams[i];
@@ -56,16 +57,16 @@ public final class TestProceduralMapProvider implements MapProvider {
             }
 
             // Add center island
-            islands.add(new CenterIslandGen(new BlockPos(0, 8, 0), System.currentTimeMillis()));
+            islands.add(new CenterIslandGen(new BlockPos(0, 8, 0), random.nextLong()));
 
-            islands.add(new DiamondIslandGen(new BlockPos(DIAMOND_ISLAND_DISTANCE, 8, 0), System.currentTimeMillis()));
-            islands.add(new DiamondIslandGen(new BlockPos(-DIAMOND_ISLAND_DISTANCE, 8, 0), System.currentTimeMillis()));
-            islands.add(new DiamondIslandGen(new BlockPos(0, 8, DIAMOND_ISLAND_DISTANCE), System.currentTimeMillis()));
-            islands.add(new DiamondIslandGen(new BlockPos(0, 8, -DIAMOND_ISLAND_DISTANCE), System.currentTimeMillis()));
+            islands.add(new DiamondIslandGen(new BlockPos(DIAMOND_ISLAND_DISTANCE, 8, 0), random.nextLong()));
+            islands.add(new DiamondIslandGen(new BlockPos(-DIAMOND_ISLAND_DISTANCE, 8, 0), random.nextLong()));
+            islands.add(new DiamondIslandGen(new BlockPos(0, 8, DIAMOND_ISLAND_DISTANCE), random.nextLong()));
+            islands.add(new DiamondIslandGen(new BlockPos(0, 8, -DIAMOND_ISLAND_DISTANCE), random.nextLong()));
         }
 
-        private GameMap generate() {
-            this.addIslands();
+        private GameMap generate(Random random) {
+            this.addIslands(random);
 
             for (MapGen island : islands) {
                 island.addTo(this.builder);

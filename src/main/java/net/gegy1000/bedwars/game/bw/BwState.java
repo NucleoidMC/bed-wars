@@ -100,6 +100,10 @@ public final class BwState {
         return this.teams.values().stream();
     }
 
+    public int getTeamCount() {
+        return this.teams.size();
+    }
+
     @Nullable
     public TeamState getTeam(GameTeam team) {
         return this.teams.get(team);

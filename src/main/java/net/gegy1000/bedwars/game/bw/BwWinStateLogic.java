@@ -18,6 +18,11 @@ public final class BwWinStateLogic {
     public WinResult checkWinResult() {
         this.checkEliminatedTeams();
 
+        // if there's only one team, disable the win state
+        if (this.game.state.getTeamCount() <= 1) {
+            return null;
+        }
+
         List<BwState.TeamState> remainingTeams = this.game.state.teams()
                 .filter(team -> !team.eliminated)
                 .collect(Collectors.toList());
