@@ -111,7 +111,7 @@ public final class GameManager {
                         } else {
                             state = new Active<>(game);
                         }
-                        return null;
+                        return game;
                     });
         }
     }
