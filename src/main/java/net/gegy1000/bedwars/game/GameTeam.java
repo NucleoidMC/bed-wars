@@ -1,54 +1,51 @@
 package net.gegy1000.bedwars.game;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.gegy1000.bedwars.util.ItemUtil;
 import net.minecraft.item.FireworkItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.MathHelper;
 
 public final class GameTeam {
-    public static final GameTeam WHITE = new GameTeam(new LiteralText("White"), "white", DyeColor.WHITE, Formatting.WHITE);
-    public static final GameTeam ORANGE = new GameTeam(new LiteralText("Orange"), "orange", DyeColor.ORANGE, Formatting.GOLD);
-    public static final GameTeam MAGENTA = new GameTeam(new LiteralText("Magenta"), "magenta", DyeColor.MAGENTA, Formatting.LIGHT_PURPLE);
-    public static final GameTeam LIGHT_BLUE = new GameTeam(new LiteralText("Light Blue"), "light_blue", DyeColor.LIGHT_BLUE, Formatting.AQUA);
-    public static final GameTeam YELLOW = new GameTeam(new LiteralText("Yellow"), "yellow", DyeColor.YELLOW, Formatting.YELLOW);
-    public static final GameTeam LIME = new GameTeam(new LiteralText("Lime"), "lime", DyeColor.LIME, Formatting.GREEN);
-    public static final GameTeam PINK = new GameTeam(new LiteralText("Pink"), "pink", DyeColor.PINK, Formatting.LIGHT_PURPLE);
-    public static final GameTeam GRAY = new GameTeam(new LiteralText("Gray"), "gray", DyeColor.GRAY, Formatting.DARK_GRAY);
-    public static final GameTeam LIGHT_GRAY = new GameTeam(new LiteralText("Light Gray"), "light_gray", DyeColor.LIGHT_GRAY, Formatting.GRAY);
-    public static final GameTeam CYAN = new GameTeam(new LiteralText("Cyan"), "cyan", DyeColor.CYAN, Formatting.DARK_AQUA);
-    public static final GameTeam PURPLE = new GameTeam(new LiteralText("Purple"), "purple", DyeColor.PURPLE, Formatting.DARK_PURPLE);
-    public static final GameTeam BLUE = new GameTeam(new LiteralText("Blue"), "blue", DyeColor.BLUE, Formatting.BLUE);
-    public static final GameTeam BROWN = new GameTeam(new LiteralText("Brown"), "brown", DyeColor.BROWN, Formatting.DARK_RED);
-    public static final GameTeam GREEN = new GameTeam(new LiteralText("Green"), "green", DyeColor.GREEN, Formatting.DARK_GREEN);
-    public static final GameTeam RED = new GameTeam(new LiteralText("Red"), "red", DyeColor.RED, Formatting.RED);
-    public static final GameTeam BLACK = new GameTeam(new LiteralText("Black"), "black", DyeColor.BLACK, Formatting.BLACK);
+    private static final Codec<DyeColor> COLOR_CODEC = StringIdentifiable.method_28140(
+            DyeColor::values,
+            key -> DyeColor.byName(key, DyeColor.WHITE)
+    );
 
-    private final Text name;
+    public static final Codec<GameTeam> CODEC = RecordCodecBuilder.create(instance -> {
+        return instance.group(
+                Codec.STRING.fieldOf("key").forGetter(GameTeam::getKey),
+                Codec.STRING.fieldOf("display").forGetter(GameTeam::getDisplay),
+                COLOR_CODEC.fieldOf("color").forGetter(GameTeam::getDye)
+        ).apply(instance, GameTeam::new);
+    });
+
+    private final String display;
     private final String key;
-    private final DyeColor color;
+    private final DyeColor dye;
     private final Formatting formatting;
 
-    public GameTeam(Text name, String key, DyeColor color, Formatting formatting) {
-        this.name = name;
+    public GameTeam(String key, String display, DyeColor dye) {
+        this.display = display;
         this.key = key;
-        this.color = color;
-        this.formatting = formatting;
+        this.dye = dye;
+        this.formatting = formatByDye(dye);
     }
 
-    public Text getName() {
-        return this.name;
+    public String getDisplay() {
+        return this.display;
     }
 
     public String getKey() {
         return this.key;
     }
 
-    public DyeColor getColor() {
-        return this.color;
+    public DyeColor getDye() {
+        return this.dye;
     }
 
     public Formatting getFormatting() {
@@ -60,11 +57,11 @@ public final class GameTeam {
     }
 
     public ItemStack dye(ItemStack stack) {
-        return ItemUtil.dye(stack, this.getDyeColor());
+        return ItemUtil.dye(stack, this.getColor());
     }
 
-    public int getDyeColor() {
-        float[] components = this.color.getColorComponents();
+    public int getColor() {
+        float[] components = this.dye.getColorComponents();
         int red = MathHelper.floor(components[0] * 255.0F) & 0xFF;
         int green = MathHelper.floor(components[1] * 255.0F) & 0xFF;
         int blue = MathHelper.floor(components[2] * 255.0F) & 0xFF;
@@ -72,7 +69,7 @@ public final class GameTeam {
     }
 
     public int getFireworkColor() {
-        return this.color.getFireworkColor();
+        return this.dye.getFireworkColor();
     }
 
     @Override
@@ -89,5 +86,27 @@ public final class GameTeam {
         }
 
         return false;
+    }
+
+    private static Formatting formatByDye(DyeColor dye) {
+        switch (dye) {
+            case WHITE: return Formatting.WHITE;
+            case ORANGE: return Formatting.GOLD;
+            case MAGENTA: return Formatting.LIGHT_PURPLE;
+            case LIGHT_BLUE: return Formatting.AQUA;
+            case YELLOW: return Formatting.YELLOW;
+            case LIME: return Formatting.GREEN;
+            case PINK: return Formatting.LIGHT_PURPLE;
+            case GRAY: return Formatting.DARK_GRAY;
+            case LIGHT_GRAY: return Formatting.GRAY;
+            case CYAN: return Formatting.DARK_AQUA;
+            case PURPLE: return Formatting.DARK_PURPLE;
+            case BLUE: return Formatting.BLUE;
+            case BROWN: return Formatting.DARK_RED;
+            case GREEN: return Formatting.DARK_GREEN;
+            case RED: return Formatting.RED;
+            case BLACK: return Formatting.BLACK;
+            default: return Formatting.RESET;
+        }
     }
 }

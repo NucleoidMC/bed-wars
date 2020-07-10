@@ -1,5 +1,7 @@
 package net.gegy1000.bedwars.game.bw;
 
+import com.mojang.serialization.Codec;
+import net.gegy1000.bedwars.BedWarsMod;
 import net.gegy1000.bedwars.game.GameTeam;
 import net.gegy1000.bedwars.game.bw.gen.MapGen;
 import net.gegy1000.bedwars.game.bw.gen.island.CenterIslandGen;
@@ -10,6 +12,7 @@ import net.gegy1000.bedwars.map.GameMap;
 import net.gegy1000.bedwars.map.GameMapBuilder;
 import net.gegy1000.bedwars.map.provider.MapProvider;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
@@ -17,39 +20,50 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
-public final class TestProceduralMapProvider implements MapProvider {
+public final class TestProceduralMapProvider implements MapProvider<BedWarsConfig> {
+    public static final Codec<TestProceduralMapProvider> CODEC = Codec.unit(TestProceduralMapProvider::new);
+
     private static final double SPAWN_ISLAND_DISTANCE = 120.0;
     private static final double DIAMOND_ISLAND_DISTANCE = 65.0;
 
+    public static void register() {
+        MapProvider.REGISTRY.register(new Identifier(BedWarsMod.ID, "procedural"), CODEC);
+    }
+
     @Override
-    public CompletableFuture<GameMap> createAt(ServerWorld world, BlockPos origin) {
+    public CompletableFuture<GameMap> createAt(ServerWorld world, BlockPos origin, BedWarsConfig config) {
         return CompletableFuture.supplyAsync(() -> {
             Generator generator = new Generator(
                     new GameMapBuilder(world, origin),
-                    BedWars.TEAMS
+                    config.getTeams()
             );
 
             return generator.generate(world.random);
         }, world.getServer());
     }
 
+    @Override
+    public Codec<? extends MapProvider<BedWarsConfig>> getCodec() {
+        return Codec.unit(TestProceduralMapProvider::new);
+    }
+
     private static class Generator {
         private final GameMapBuilder builder;
-        private final GameTeam[] teams;
+        private final List<GameTeam> teams;
 
         private final List<MapGen> islands = new ArrayList<>();
 
-        private Generator(GameMapBuilder builder, GameTeam[] teams) {
+        private Generator(GameMapBuilder builder, List<GameTeam> teams) {
             this.builder = builder;
             this.teams = teams;
         }
 
         private void addIslands(Random random) {
             // Add team islands
-            for (int i = 0; i < this.teams.length; i++) {
-                GameTeam team = this.teams[i];
+            for (int i = 0; i < this.teams.size(); i++) {
+                GameTeam team = this.teams.get(i);
 
-                double theta = ((double) i / this.teams.length) * (2 * Math.PI);
+                double theta = ((double) i / this.teams.size()) * (2 * Math.PI);
                 double x = Math.cos(theta) * SPAWN_ISLAND_DISTANCE;
                 double z = Math.sin(theta) * SPAWN_ISLAND_DISTANCE;
 

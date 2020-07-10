@@ -1,81 +1,53 @@
 package net.gegy1000.bedwars.game;
 
+import com.mojang.serialization.Codec;
+import net.gegy1000.bedwars.game.config.GameConfig;
+import net.gegy1000.bedwars.util.TinyRegistry;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-public final class GameType<T extends Game> {
-    private static final Map<Identifier, GameType<?>> REGISTRY = new HashMap<>();
+public final class GameType<T extends Game, C extends GameConfig> {
+    public static final TinyRegistry<GameType<?, ?>> REGISTRY = TinyRegistry.newStable();
 
     private final Identifier identifier;
+    private final Initializer<T, C> initializer;
+    private final Codec<C> configCodec;
 
-    private Text name;
-    private Initializer<T> initializer;
-    private int minPlayers = 1;
-    private int maxPlayers = 100;
-
-    private GameType(Identifier identifier) {
+    private GameType(Identifier identifier, Initializer<T, C> initializer, Codec<C> configCodec) {
         this.identifier = identifier;
+        this.initializer = initializer;
+        this.configCodec = configCodec;
     }
 
-    public static <T extends Game> GameType<T> register(Identifier identifier) {
-        GameType<T> type = new GameType<>(identifier);
-        REGISTRY.put(identifier, type);
+    public static <T extends Game, C extends GameConfig> GameType<T, C> register(
+            Identifier identifier,
+            Initializer<T, C> initializer,
+            Codec<C> configCodec
+    ) {
+        GameType<T, C> type = new GameType<>(identifier, initializer, configCodec);
+        REGISTRY.register(identifier, type);
         return type;
+    }
+
+    public CompletableFuture<T> initialize(MinecraftServer server, List<ServerPlayerEntity> participants, C config) {
+        return this.initializer.initialize(server, participants, config);
     }
 
     public Identifier getIdentifier() {
         return this.identifier;
     }
 
-    public CompletableFuture<T> initialize(ServerWorld world, BlockPos origin, List<ServerPlayerEntity> participants) {
-        return this.initializer.initialize(world, origin, participants);
-    }
-
-    public GameType<T> setName(Text name) {
-        this.name = name;
-        return this;
-    }
-
-    public GameType<T> setInitializer(Initializer<T> initializer) {
-        this.initializer = initializer;
-        return this;
-    }
-
-    public GameType<T> setMinPlayers(int minPlayers) {
-        this.minPlayers = minPlayers;
-        return this;
-    }
-
-    public GameType<T> setMaxPlayers(int maxPlayers) {
-        this.maxPlayers = maxPlayers;
-        return this;
-    }
-
-    public Text getName() {
-        if (this.name == null) return new LiteralText(this.identifier.toString());
-        return this.name;
-    }
-
-    public int getMinPlayers() {
-        return this.minPlayers;
-    }
-
-    public int getMaxPlayers() {
-        return this.maxPlayers;
+    public Codec<C> getConfigCodec() {
+        return this.configCodec;
     }
 
     @Nullable
-    public static GameType get(Identifier identifier) {
+    public static GameType<?, ?> get(Identifier identifier) {
         return REGISTRY.get(identifier);
     }
 
@@ -89,13 +61,13 @@ public final class GameType<T extends Game> {
         if (obj == this) return true;
 
         if (obj instanceof GameType) {
-            return ((GameType) obj).identifier.equals(this.identifier);
+            return ((GameType<?, ?>) obj).identifier.equals(this.identifier);
         }
 
         return false;
     }
 
-    public interface Initializer<T extends Game> {
-        CompletableFuture<T> initialize(ServerWorld world, BlockPos origin, List<ServerPlayerEntity> participants);
+    public interface Initializer<T extends Game, C extends GameConfig> {
+        CompletableFuture<T> initialize(MinecraftServer server, List<ServerPlayerEntity> participants, C config);
     }
 }

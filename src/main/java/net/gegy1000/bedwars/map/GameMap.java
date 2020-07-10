@@ -35,6 +35,10 @@ public final class GameMap {
         this.standardBlocks = standardBlocks;
     }
 
+    public ServerWorld getWorld() {
+        return this.world;
+    }
+
     public BlockBounds getBounds() {
         return this.bounds;
     }

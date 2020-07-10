@@ -80,7 +80,7 @@ public final class BwScoreboardLogic {
         return this.scoreboardTeams.computeIfAbsent(team, t -> {
             MinecraftServer server = this.game.world.getServer();
             ServerScoreboard scoreboard = server.getScoreboard();
-            String teamKey = t.getName().getString();
+            String teamKey = t.getDisplay();
             Team scoreboardTeam = scoreboard.getTeam(teamKey);
             if (scoreboardTeam == null) {
                 scoreboardTeam = scoreboard.addTeam(teamKey);
@@ -120,7 +120,7 @@ public final class BwScoreboardLogic {
             String nameFormat = teamState.team.getFormatting().toString() + Formatting.BOLD.toString();
             String descriptionFormat = Formatting.RESET.toString() + Formatting.GRAY.toString();
 
-            String name = teamState.team.getName().asString();
+            String name = teamState.team.getDisplay();
             lines.add("  " + nameFormat + name + ": " + descriptionFormat + state);
         });
 

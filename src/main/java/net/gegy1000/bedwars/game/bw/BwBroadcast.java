@@ -39,7 +39,7 @@ public final class BwBroadcast {
     public void broadcastGameOver(BwWinStateLogic.WinResult winResult) {
         GameTeam winningTeam = winResult.getTeam();
         if (winningTeam != null) {
-            this.broadcast(winningTeam.getName().shallowCopy().append(" team won the game!")
+            this.broadcast(new LiteralText(winningTeam.getDisplay() + " team won the game!")
                     .formatted(winningTeam.getFormatting(), Formatting.BOLD)
             );
         } else {
@@ -64,7 +64,7 @@ public final class BwBroadcast {
     }
 
     public void broadcastBedBroken(ServerPlayerEntity player, GameTeam bedTeam, @Nullable GameTeam destroyerTeam) {
-        Text announcement = bedTeam.getName().shallowCopy().formatted(bedTeam.getFormatting())
+        Text announcement = new LiteralText(bedTeam.getDisplay()).formatted(bedTeam.getFormatting())
                 .append(new LiteralText(" bed was destroyed by ").formatted(Formatting.GRAY))
                 .append(player.getDisplayName().shallowCopy().formatted(destroyerTeam != null ? destroyerTeam.getFormatting() : Formatting.OBFUSCATED));
 
@@ -75,7 +75,7 @@ public final class BwBroadcast {
     }
 
     public void broadcastTeamEliminated(GameTeam team) {
-        this.broadcast(team.getName().shallowCopy().formatted(team.getFormatting())
+        this.broadcast(new LiteralText(team.getDisplay()).formatted(team.getFormatting())
                 .append(new LiteralText(" Team was eliminated!").formatted(Formatting.BOLD))
         );
     }

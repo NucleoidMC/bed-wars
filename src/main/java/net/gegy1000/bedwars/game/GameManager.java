@@ -1,9 +1,8 @@
 package net.gegy1000.bedwars.game;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -24,12 +23,13 @@ public final class GameManager {
 
     @SuppressWarnings("unchecked")
     @Nullable
-    public static <T extends Game> T activeFor(GameType<T> gameType) {
+    public static <T extends Game> T activeFor(GameType<T, ?> gameType) {
         Optional<Active<?>> activeOpt = active();
         if (activeOpt.isPresent()) {
             Active<?> active = activeOpt.get();
-            if (active.game.getGameType().equals(gameType)) {
-                return (T) active.game;
+            GameAndConfig<?> game = active.game;
+            if (game.getConfigured().getType().equals(gameType)) {
+                return (T) game.getGame();
             }
         }
         return null;
@@ -61,8 +61,8 @@ public final class GameManager {
 
     private static void fixState() {
         if (state instanceof Active) {
-            Active active = (Active) GameManager.state;
-            if (!active.game.isActive()) {
+            Active<?> active = (Active<?>) GameManager.state;
+            if (!active.game.getGame().isActive()) {
                 state = Inactive.INSTANCE;
             }
         }
@@ -77,7 +77,7 @@ public final class GameManager {
         private Inactive() {
         }
 
-        public void recruit(GameType<?> gameType) {
+        public void recruit(ConfiguredGame<?, ?> gameType) {
             state = new Recruiting<>(new GameWaiter<>(gameType));
         }
     }
@@ -89,8 +89,8 @@ public final class GameManager {
             this.waiter = waiter;
         }
 
-        public GameType<T> getGameType() {
-            return this.waiter.getGameType();
+        public ConfiguredGame<T, ?> getGame() {
+            return this.waiter.getGame();
         }
 
         public boolean joinPlayer(ServerPlayerEntity player) {
@@ -101,9 +101,9 @@ public final class GameManager {
             return this.waiter.canStart();
         }
 
-        public CompletableFuture<T> start(ServerWorld world, BlockPos origin) {
+        public CompletableFuture<GameAndConfig<T>> start(MinecraftServer server) {
             state = new Starting();
-            return this.waiter.start(world, origin)
+            return this.waiter.start(server)
                     .handle((game, throwable) -> {
                         if (throwable != null) {
                             state = Inactive.INSTANCE;
@@ -120,15 +120,15 @@ public final class GameManager {
     }
 
     public static class Active<T extends Game> implements State {
-        final T game;
+        final GameAndConfig<T> game;
 
-        Active(T game) {
+        Active(GameAndConfig<T> game) {
             this.game = game;
         }
 
-        public CompletableFuture<T> stop() {
+        public CompletableFuture<GameAndConfig<T>> stop() {
             state = Inactive.INSTANCE;
-            return this.game.stop().thenApply(v -> this.game);
+            return this.game.getGame().stop().thenApply(v -> this.game);
         }
     }
 }

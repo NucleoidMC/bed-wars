@@ -1,6 +1,5 @@
 package net.gegy1000.bedwars.game.bw;
 
-import com.google.common.collect.Lists;
 import net.gegy1000.bedwars.game.GameTeam;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
@@ -13,6 +12,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,11 +30,11 @@ public final class BwState {
     private final Map<UUID, Participant> participants = new HashMap<>();
     private final Map<GameTeam, TeamState> teams = new HashMap<>();
 
-    public static BwState create(List<ServerPlayerEntity> players) {
+    public static BwState create(List<ServerPlayerEntity> players, BedWarsConfig config) {
         BwState state = new BwState();
-        state.allocatePlayers(players);
+        state.allocatePlayers(players, config);
 
-        for (GameTeam team : BedWars.TEAMS) {
+        for (GameTeam team : config.getTeams()) {
             List<Participant> participants = state.participantsFor(team)
                     .collect(Collectors.toList());
 
@@ -51,15 +51,15 @@ public final class BwState {
         return state;
     }
 
-    private void allocatePlayers(List<ServerPlayerEntity> players) {
-        List<GameTeam> teams = Lists.newArrayList(BedWars.TEAMS);
+    private void allocatePlayers(List<ServerPlayerEntity> players, BedWarsConfig config) {
+        List<GameTeam> teams = new ArrayList<>(config.getTeams());
 
         Collections.shuffle(teams);
         Collections.shuffle(players);
 
         int teamIndex = 0;
         for (ServerPlayerEntity player : players) {
-            GameTeam team = teams.get((teamIndex++) % BedWars.TEAMS.length);
+            GameTeam team = teams.get(teamIndex++ % teams.size());
             this.participants.put(player.getUuid(), new Participant(player, team));
         }
     }

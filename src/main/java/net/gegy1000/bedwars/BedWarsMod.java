@@ -16,7 +16,10 @@ import net.gegy1000.bedwars.custom.CustomItems;
 import net.gegy1000.bedwars.custom.CustomizableEntity;
 import net.gegy1000.bedwars.event.SwingHandCallback;
 import net.gegy1000.bedwars.game.bw.BedWars;
+import net.gegy1000.bedwars.game.bw.TestProceduralMapProvider;
+import net.gegy1000.bedwars.game.config.GameConfigs;
 import net.gegy1000.bedwars.map.StagingBoundRenderer;
+import net.gegy1000.bedwars.map.provider.MapProviders;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.TypedActionResult;
@@ -32,6 +35,10 @@ public final class BedWarsMod implements ModInitializer {
         Reflection.initialize(CustomItems.class, CustomEntities.class);
 
         BedWars.initialize();
+
+        MapProviders.register();
+        TestProceduralMapProvider.register();
+        GameConfigs.register();
 
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             CustomizeCommand.register(dispatcher);

@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinTntBlock {
     @Inject(method = "onBlockAdded", at = @At("HEAD"))
     private void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean moved, CallbackInfo ci) {
-        BedWars game = GameManager.activeFor(BedWars.GAME);
+        BedWars game = GameManager.activeFor(BedWars.TYPE);
         if (game != null && game.map.contains(pos)) {
             TntBlock.primeTnt(world, pos);
             world.removeBlock(pos, false);

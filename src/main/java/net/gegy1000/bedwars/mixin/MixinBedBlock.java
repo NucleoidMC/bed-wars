@@ -22,7 +22,7 @@ public class MixinBedBlock {
 	@Inject(method = "onUse", at = @At("HEAD"))
 	private void injectOnUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
 		if (!world.isClient()) {
-			BedWars game = GameManager.activeFor(BedWars.GAME);
+			BedWars game = GameManager.activeFor(BedWars.TYPE);
 			if (game != null && game.map.contains(pos)) {
 				cir.setReturnValue(ActionResult.CONSUME);
 			}

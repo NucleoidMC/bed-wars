@@ -15,7 +15,7 @@ import net.minecraft.util.math.MathHelper;
 public final class TeamShop {
     public static ShopUi create(ServerPlayerEntity player) {
         return ShopUi.create(new LiteralText("Team Shop"), shop -> {
-            BedWars bedWars = GameManager.activeFor(BedWars.GAME);
+            BedWars bedWars = GameManager.activeFor(BedWars.TYPE);
             if (bedWars == null) return;
 
             BwState.Participant participant = bedWars.state.getParticipant(player);

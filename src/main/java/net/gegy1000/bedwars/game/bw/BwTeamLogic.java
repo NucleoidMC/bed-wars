@@ -80,7 +80,7 @@ public final class BwTeamLogic {
 
     @Nullable
     private Bed findBed(BlockPos pos) {
-        for (GameTeam team : BedWars.TEAMS) {
+        for (GameTeam team : this.game.config.getTeams()) {
             BwMap.TeamRegions teamRegions = this.game.map.getTeamRegions(team);
             BlockBounds bed = teamRegions.bed;
             if (bed != null && bed.contains(pos)) {

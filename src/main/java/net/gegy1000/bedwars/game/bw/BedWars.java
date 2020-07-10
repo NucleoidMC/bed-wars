@@ -9,6 +9,7 @@ import net.gegy1000.bedwars.event.BlockBreakCallback;
 import net.gegy1000.bedwars.event.CraftCheckCallback;
 import net.gegy1000.bedwars.event.PlayerDeathCallback;
 import net.gegy1000.bedwars.event.PlayerJoinCallback;
+import net.gegy1000.bedwars.game.ConfiguredGame;
 import net.gegy1000.bedwars.game.Game;
 import net.gegy1000.bedwars.game.GameManager;
 import net.gegy1000.bedwars.game.GameTeam;
@@ -23,6 +24,7 @@ import net.minecraft.entity.projectile.FireballEntity;
 import net.minecraft.inventory.EnderChestInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.tag.BlockTags;
@@ -43,34 +45,24 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public final class BedWars implements Game {
-    public static final GameType<BedWars> GAME = GameType.<BedWars>register(new Identifier(BedWarsMod.ID, "bed_wars"))
-            .setMinPlayers(1) // TODO
-            .setName(new LiteralText("BedWars"))
-            .setInitializer(BedWars::initialize);
-
-    public static final GameTeam[] TEAMS = new GameTeam[] {
-            GameTeam.WHITE,
-            GameTeam.YELLOW,
-            GameTeam.LIME,
-            GameTeam.PINK,
-            GameTeam.CYAN,
-            GameTeam.BLUE,
-            GameTeam.RED,
-            GameTeam.BLACK
-    };
+    public static final GameType<BedWars, BedWarsConfig> TYPE = GameType.register(
+            new Identifier(BedWarsMod.ID, "bed_wars"),
+            BedWars::initialize,
+            BedWarsConfig.CODEC
+    );
 
     public static final int RESPAWN_TIME_SECONDS = 3;
 
     public static void initialize() {
         ServerTickEvents.START_SERVER_TICK.register(server -> {
-            BedWars game = GameManager.activeFor(GAME);
+            BedWars game = GameManager.activeFor(TYPE);
             if (game != null) {
                 game.tick();
             }
         });
 
         PlayerDeathCallback.EVENT.register((player, source) -> {
-            BedWars game = GameManager.activeFor(GAME);
+            BedWars game = GameManager.activeFor(TYPE);
             if (game != null) {
                 return game.onPlayerDeath(player, source);
             } else {
@@ -79,14 +71,14 @@ public final class BedWars implements Game {
         });
 
         PlayerJoinCallback.EVENT.register(player -> {
-            BedWars game = GameManager.activeFor(GAME);
+            BedWars game = GameManager.activeFor(TYPE);
             if (game != null) {
                 game.onPlayerJoin(player);
             }
         });
 
         BlockBreakCallback.EVENT.register((world, player, pos) -> {
-            BedWars game = GameManager.activeFor(GAME);
+            BedWars game = GameManager.activeFor(TYPE);
             if (game != null) {
                 return game.onBreakBlock(player, pos);
             }
@@ -94,7 +86,7 @@ public final class BedWars implements Game {
         });
 
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
-            BedWars game = GameManager.activeFor(GAME);
+            BedWars game = GameManager.activeFor(TYPE);
             if (game != null) {
                 return game.onUseBlock(player, hitResult);
             }
@@ -102,7 +94,7 @@ public final class BedWars implements Game {
         });
 
         UseItemCallback.EVENT.register((player, world, hand) -> {
-            BedWars game = GameManager.activeFor(GAME);
+            BedWars game = GameManager.activeFor(TYPE);
             if (game != null) {
                 return game.onUseItem(player, world, hand);
             }
@@ -110,17 +102,18 @@ public final class BedWars implements Game {
         });
 
         AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
-            BedWars game = GameManager.activeFor(GAME);
+            BedWars game = GameManager.activeFor(TYPE);
             if (game != null) {
                 return game.onAttackEntity(player, world, hand, entity, hitResult);
             }
             return ActionResult.PASS;
         });
 
-        CraftCheckCallback.EVENT.register((world, player, recipe) -> GameManager.activeFor(GAME) == null);
+        CraftCheckCallback.EVENT.register((world, player, recipe) -> GameManager.activeFor(TYPE) == null);
     }
 
     public final ServerWorld world;
+    public final BedWarsConfig config;
 
     public final BwMap map;
     public final BwState state;
@@ -138,24 +131,25 @@ public final class BedWars implements Game {
 
     private long lastWinCheck;
 
-    private BedWars(ServerWorld world, BwMap map, BwState state) {
-        this.world = world;
+    private BedWars(BedWarsConfig config, BwMap map, BwState state) {
+        this.world = map.getWorld();
+        this.config = config;
         this.map = map;
         this.state = state;
     }
 
-    private static CompletableFuture<BedWars> initialize(ServerWorld world, BlockPos origin, List<ServerPlayerEntity> players) {
-        CompletableFuture<BwMap> mapFuture = BwMap.create(world, origin);
+    private static CompletableFuture<BedWars> initialize(MinecraftServer server, List<ServerPlayerEntity> players, BedWarsConfig config) {
+        CompletableFuture<BwMap> mapFuture = BwMap.create(server, config);
 
         return mapFuture.thenApply(map -> {
-            BwState state = BwState.create(players);
+            BwState state = BwState.create(players, config);
 
-            BedWars game = new BedWars(world, map, state);
+            BedWars game = new BedWars(config, map, state);
             game.playerLogic.setupPlayers();
 
             game.scoreboardLogic.setupScoreboard();
 
-            for (GameTeam team : BedWars.TEAMS) {
+            for (GameTeam team : config.getTeams()) {
                 game.teamLogic.spawnTeam(team);
                 game.scoreboardLogic.setupTeam(team);
             }
@@ -175,7 +169,7 @@ public final class BedWars implements Game {
                 }
             });
 
-            game.map.spawnShopkeepers(game.world);
+            game.map.spawnShopkeepers(config);
 
             return game;
         });
@@ -318,7 +312,7 @@ public final class BedWars implements Game {
 
     @Nullable
     private GameTeam getOwningTeamForChest(BlockPos pos) {
-        for (GameTeam team : TEAMS) {
+        for (GameTeam team : this.config.getTeams()) {
             BwMap.TeamRegions regions = this.map.getTeamRegions(team);
             if (regions.teamChest != null && regions.teamChest.contains(pos)) {
                 return team;
@@ -406,10 +400,5 @@ public final class BedWars implements Game {
     @Override
     public boolean isActive() {
         return this.active;
-    }
-
-    @Override
-    public GameType<?> getGameType() {
-        return GAME;
     }
 }

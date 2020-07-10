@@ -65,7 +65,7 @@ public abstract class MixinEntity implements CustomizableEntity {
 
     @Inject(method = "getEffectiveExplosionResistance", at = @At("HEAD"), cancellable = true)
     private void getEffectiveExplosionResistance(Explosion explosion, BlockView world, BlockPos pos, BlockState blockState, FluidState fluidState, float max, CallbackInfoReturnable<Float> ci) {
-        BedWars game = GameManager.activeFor(BedWars.GAME);
+        BedWars game = GameManager.activeFor(BedWars.TYPE);
         if (game != null && game.map.contains(pos)) {
             if (blockState.getBlock() instanceof StainedGlassBlock) {
                 ci.setReturnValue(99999.0F);

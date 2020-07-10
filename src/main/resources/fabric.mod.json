@@ -11,6 +11,7 @@
     "main": ["net.gegy1000.bedwars.BedWarsMod"]
   },
   "mixins": ["bw.mixins.json"],
+  "accessWidener": "bw.accesswidener",
   "depends": {
     "fabricloader": ">=0.8.9",
     "fabric": "*",

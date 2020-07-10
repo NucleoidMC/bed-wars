@@ -1,8 +1,8 @@
 package net.gegy1000.bedwars.game;
 
+import net.gegy1000.bedwars.game.config.PlayerConfig;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,15 +12,15 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public final class GameWaiter<T extends Game> {
-    private final GameType<T> gameType;
+    private final ConfiguredGame<T, ?> game;
     private final Set<ServerPlayerEntity> participants = new HashSet<>();
 
-    public GameWaiter(GameType<T> gameType) {
-        this.gameType = gameType;
+    public GameWaiter(ConfiguredGame<T, ?> game) {
+        this.game = game;
     }
 
-    public GameType<T> getGameType() {
-        return this.gameType;
+    public ConfiguredGame<T, ?> getGame() {
+        return this.game;
     }
 
     public boolean removePlayer(ServerPlayerEntity player) {
@@ -28,21 +28,23 @@ public final class GameWaiter<T extends Game> {
     }
 
     public boolean joinPlayer(ServerPlayerEntity player) {
-        if (this.participants.size() >= this.gameType.getMaxPlayers()) {
+        if (this.participants.size() >= this.game.getPlayerConfig().getMaxPlayers()) {
             return false;
         }
         return this.participants.add(player);
     }
 
     public boolean canStart() {
-        return this.participants.size() >= this.gameType.getMinPlayers()
-                && this.participants.size() <= this.gameType.getMaxPlayers();
+        PlayerConfig playerConfig = this.game.getPlayerConfig();
+        return this.participants.size() >= playerConfig.getMinPlayers()
+                && this.participants.size() <= playerConfig.getMaxPlayers();
     }
 
-    public CompletableFuture<T> start(ServerWorld world, BlockPos origin) {
+    public CompletableFuture<GameAndConfig<T>> start(MinecraftServer server) {
         List<ServerPlayerEntity> participants = new ArrayList<>(this.participants);
         Collections.shuffle(participants);
 
-        return this.gameType.initialize(world, origin, participants);
+        return this.game.initialize(server, participants)
+                .thenApply(game -> new GameAndConfig<>(game, this.game));
     }
 }

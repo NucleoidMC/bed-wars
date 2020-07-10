@@ -3,13 +3,13 @@ package net.gegy1000.bedwars.game.bw;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.gegy1000.bedwars.BedWarsMod;
-import net.gegy1000.bedwars.util.BlockBounds;
-import net.gegy1000.bedwars.custom.CustomizableEntity;
 import net.gegy1000.bedwars.custom.CustomEntities;
 import net.gegy1000.bedwars.custom.CustomEntity;
+import net.gegy1000.bedwars.custom.CustomizableEntity;
 import net.gegy1000.bedwars.game.GameTeam;
+import net.gegy1000.bedwars.game.config.GameMapConfig;
 import net.gegy1000.bedwars.map.GameMap;
-import net.gegy1000.bedwars.map.provider.MapProvider;
+import net.gegy1000.bedwars.util.BlockBounds;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
@@ -17,12 +17,15 @@ import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.ItemPickupAnimationS2CPacket;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.LocalDifficulty;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,9 +41,7 @@ import java.util.stream.Stream;
 
 // TODO: Map should not hold state! For generators it should just store the location
 public final class BwMap {
-//    private static final MapProvider MAP_PROVIDER = new PathMapProvider(new Identifier(BedWarsMod.ID, "bed_wars_1"));
-    private static final MapProvider MAP_PROVIDER = new TestProceduralMapProvider();
-
+    private final ServerWorld world;
     private final GameMap map;
     private final Multimap<String, BlockBounds> regions = HashMultimap.create();
 
@@ -51,21 +52,26 @@ public final class BwMap {
 
     private final Collection<Entity> shopKeepers = new ArrayList<>();
 
-    private BwMap(GameMap map) {
+    private BwMap(ServerWorld world, GameMap map) {
+        this.world = world;
         this.map = map;
     }
 
-    public static CompletableFuture<BwMap> create(ServerWorld world, BlockPos origin) {
-        return MAP_PROVIDER.createAt(world, origin)
+    public static CompletableFuture<BwMap> create(MinecraftServer server, BedWarsConfig config) {
+        GameMapConfig<BedWarsConfig> mapConfig = config.getMapConfig();
+        RegistryKey<World> dimension = mapConfig.getDimension();
+        ServerWorld world = server.getWorld(dimension);
+
+        return mapConfig.getProvider().createAt(world, mapConfig.getOrigin(), config)
                 .thenApplyAsync(map -> {
-                    BwMap bwMap = new BwMap(map);
-                    bwMap.initializeMap(map);
+                    BwMap bwMap = new BwMap(world, map);
+                    bwMap.initializeMap(config);
                     return bwMap;
-                }, world.getServer());
+                }, server);
     }
 
-    private void initializeMap(GameMap map) {
-        map.getRegions().forEach(region -> {
+    private void initializeMap(BedWarsConfig config) {
+        this.map.getRegions().forEach(region -> {
             String marker = region.getMarker();
             this.regions.put(marker, region.getBounds());
         });
@@ -78,7 +84,7 @@ public final class BwMap {
             this.generators.add(new Generator(bounds).setPool(GeneratorPool.EMERALD).maxItems(3));
         });
 
-        for (GameTeam team : BedWars.TEAMS) {
+        for (GameTeam team : config.getTeams()) {
             TeamRegions regions = TeamRegions.read(team, this);
 
             if (regions.spawn != null) {
@@ -93,26 +99,26 @@ public final class BwMap {
         }
     }
 
-    public void spawnShopkeepers(ServerWorld world) {
-        for (GameTeam team : BedWars.TEAMS) {
+    public void spawnShopkeepers(BedWarsConfig config) {
+        for (GameTeam team : config.getTeams()) {
             TeamRegions regions = this.getTeamRegions(team);
 
             if (regions.teamShop != null) {
-                Entity entity = this.spawn(world, EntityType.VILLAGER, CustomEntities.TEAM_SHOP, regions.teamShop);
+                Entity entity = this.spawn(EntityType.VILLAGER, CustomEntities.TEAM_SHOP, regions.teamShop);
                 this.shopKeepers.add(entity);
             }
 
             if (regions.itemShop != null) {
-                Entity entity = this.spawn(world, EntityType.VILLAGER, CustomEntities.ITEM_SHOP, regions.itemShop);
+                Entity entity = this.spawn(EntityType.VILLAGER, CustomEntities.ITEM_SHOP, regions.itemShop);
                 this.shopKeepers.add(entity);
             }
         }
     }
 
-    private Entity spawn(ServerWorld world, EntityType<?> type, CustomEntity custom, BlockBounds bounds) {
+    private Entity spawn(EntityType<?> type, CustomEntity custom, BlockBounds bounds) {
         Vec3d center = bounds.getCenter();
 
-        Entity entity = type.create(world);
+        Entity entity = type.create(this.world);
         if (entity == null) {
             return null;
         }
@@ -129,12 +135,16 @@ public final class BwMap {
             mob.setInvulnerable(true);
             mob.setCustomNameVisible(true);
 
-            LocalDifficulty difficulty = world.getLocalDifficulty(mob.getBlockPos());
-            mob.initialize(world, difficulty, SpawnReason.COMMAND, null, null);
+            LocalDifficulty difficulty = this.world.getLocalDifficulty(mob.getBlockPos());
+            mob.initialize(this.world, difficulty, SpawnReason.COMMAND, null, null);
         }
 
-        world.spawnEntity(entity);
+        this.world.spawnEntity(entity);
         return entity;
+    }
+
+    public ServerWorld getWorld() {
+        return this.world;
     }
 
     @Nullable

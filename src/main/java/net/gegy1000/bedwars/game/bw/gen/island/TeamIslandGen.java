@@ -20,7 +20,7 @@ public class TeamIslandGen implements MapGen {
         this.origin = origin;
         this.team = team;
 
-        this.terracotta = ColoredBlocks.terracotta(team.getColor()).getDefaultState();
+        this.terracotta = ColoredBlocks.terracotta(team.getDye()).getDefaultState();
     }
 
     @Override

@@ -18,12 +18,12 @@ import net.minecraft.util.DyeColor;
 public final class ItemShop {
     public static ShopUi create(ServerPlayerEntity player) {
         return ShopUi.create(new LiteralText("Item Shop"), shop -> {
-            BedWars bedWars = GameManager.activeFor(BedWars.GAME);
+            BedWars bedWars = GameManager.activeFor(BedWars.TYPE);
             if (bedWars == null) return;
 
             BwState.Participant participant = bedWars.state.getParticipant(player);
             if (participant != null) {
-                DyeColor color = participant.team.getColor();
+                DyeColor color = participant.team.getDye();
                 shop.addItem(new ItemStack(ColoredBlocks.wool(color), 16), Cost.ofIron(4));
                 shop.addItem(new ItemStack(ColoredBlocks.terracotta(color), 16), Cost.ofIron(16));
                 ItemStack glass = new ItemStack(ColoredBlocks.glass(color), 4);

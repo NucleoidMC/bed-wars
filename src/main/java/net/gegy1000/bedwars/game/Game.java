@@ -6,6 +6,4 @@ public interface Game {
     boolean isActive();
 
     CompletableFuture<Void> stop();
-
-    GameType<?> getGameType();
 }

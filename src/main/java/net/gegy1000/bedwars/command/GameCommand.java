@@ -7,8 +7,9 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.gegy1000.bedwars.BedWarsMod;
+import net.gegy1000.bedwars.game.ConfiguredGame;
 import net.gegy1000.bedwars.game.GameManager;
-import net.gegy1000.bedwars.game.GameType;
+import net.gegy1000.bedwars.game.config.GameConfigs;
 import net.minecraft.command.arguments.IdentifierArgumentType;
 import net.minecraft.network.MessageType;
 import net.minecraft.server.MinecraftServer;
@@ -24,7 +25,6 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
 
 import java.util.Optional;
 
@@ -72,9 +72,12 @@ public final class GameCommand {
     // @formatter:on
 
     private static int openGame(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        MinecraftServer server = context.getSource().getMinecraftServer();
+
         Identifier gameTypeId = IdentifierArgumentType.getIdentifier(context, "game_type");
-        GameType<?> gameType = GameType.get(gameTypeId);
-        if (gameType == null) {
+
+        ConfiguredGame<?, ?> game = GameConfigs.get(gameTypeId);
+        if (game == null) {
             throw GAME_NOT_FOUND.create(gameTypeId);
         }
 
@@ -83,9 +86,8 @@ public final class GameCommand {
             throw ALREADY_OPEN.create();
         }
 
-        inactive.get().recruit(gameType);
+        inactive.get().recruit(game);
 
-        MinecraftServer server = context.getSource().getMinecraftServer();
         PlayerManager playerManager = server.getPlayerManager();
 
         ClickEvent joinClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/game join");
@@ -96,7 +98,7 @@ public final class GameCommand {
                 .withClickEvent(joinClick)
                 .setHoverEvent(joinHover);
 
-        Text openMessage = gameType.getName().shallowCopy().append(" has opened! ")
+        Text openMessage = new LiteralText(game.getName() + " has opened! ")
                 .append(new LiteralText("Click here to join").setStyle(joinStyle));
         playerManager.broadcastChatMessage(openMessage, MessageType.SYSTEM, Util.NIL_UUID);
 
@@ -140,13 +142,13 @@ public final class GameCommand {
             throw GAME_NOT_READY.create();
         }
 
-        GameType<?> gameType = recruiting.getGameType();
+        ConfiguredGame<?, ?> game = recruiting.getGame();
 
         MinecraftServer server = source.getMinecraftServer();
         PlayerManager playerManager = server.getPlayerManager();
-        playerManager.broadcastChatMessage(gameType.getName().shallowCopy().append(" is starting.."), MessageType.SYSTEM, Util.NIL_UUID);
+        playerManager.broadcastChatMessage(new LiteralText(game.getName() + " is starting.."), MessageType.SYSTEM, Util.NIL_UUID);
 
-        recruiting.start(source.getWorld(), new BlockPos(100000, 40, 10000))
+        recruiting.start(source.getMinecraftServer())
                 .handle((v, throwable) -> {
                     if (throwable != null) {
                         BedWarsMod.LOGGER.error("Failed to start game", throwable);
@@ -172,8 +174,8 @@ public final class GameCommand {
             if (throwable == null) {
                 MinecraftServer server = source.getMinecraftServer();
 
-                Text name = game.getGameType().getName();
-                server.getPlayerManager().broadcastChatMessage(name.shallowCopy().append(" has been stopped"), MessageType.SYSTEM, Util.NIL_UUID);
+                LiteralText message = new LiteralText(game.getConfigured().getName() + " has been stopped");
+                server.getPlayerManager().broadcastChatMessage(message, MessageType.SYSTEM, Util.NIL_UUID);
             } else {
                 source.sendError(new LiteralText("Failed to stop game: " + throwable.getClass()));
                 BedWarsMod.LOGGER.error("Failed to stop game", throwable);

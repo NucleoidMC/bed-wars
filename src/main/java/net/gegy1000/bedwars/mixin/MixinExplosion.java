@@ -31,7 +31,7 @@ public class MixinExplosion {
 
     @Inject(method = "affectWorld", at = @At("HEAD"))
     private void affectWorld(boolean blocks, CallbackInfo ci) {
-        BedWars game = GameManager.activeFor(BedWars.GAME);
+        BedWars game = GameManager.activeFor(BedWars.TYPE);
         if (game != null) {
             game.onExplosion(this.affectedBlocks);
         }
@@ -39,7 +39,7 @@ public class MixinExplosion {
 
     @Inject(method = "affectWorld", at = @At(value = "FIELD", target = "Lnet/minecraft/world/explosion/Explosion;createFire:Z"), cancellable = true)
     private void createFire(boolean blocks, CallbackInfo ci) {
-        BedWars game = GameManager.activeFor(BedWars.GAME);
+        BedWars game = GameManager.activeFor(BedWars.TYPE);
         if (game != null && game.map.contains(new BlockPos(this.x, this.y, this.z))) {
             ci.cancel();
         }
