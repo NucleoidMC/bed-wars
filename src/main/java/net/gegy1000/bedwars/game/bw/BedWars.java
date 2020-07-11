@@ -130,6 +130,8 @@ public final class BedWars implements Game {
     private BwCloseLogic closing;
     private boolean active = true;
 
+    private int ticks;
+
     private long lastWinCheck;
 
     private BedWars(BedWarsConfig config, BwMap map, BwState state) {
@@ -171,10 +173,6 @@ public final class BedWars implements Game {
                         }
                     });
 
-                    return game;
-                }, server)
-                .thenApplyAsync(game -> {
-                    game.map.spawnShopkeepers(game.config);
                     return game;
                 }, server);
     }
@@ -350,6 +348,10 @@ public final class BedWars implements Game {
     private void tick() {
         if (!this.active) {
             return;
+        }
+
+        if (this.ticks++ == 20) {
+            this.map.spawnShopkeepers(this.config);
         }
 
         long time = this.world.getTime();

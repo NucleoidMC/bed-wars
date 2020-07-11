@@ -50,7 +50,7 @@ public final class GameCommand {
     );
 
     public static final SimpleCommandExceptionType ALREADY_JOINED = new SimpleCommandExceptionType(
-            new LiteralText("Already joined game")
+            new LiteralText("Already joined game!")
     );
 
     public static final SimpleCommandExceptionType GAME_NOT_READY = new SimpleCommandExceptionType(
