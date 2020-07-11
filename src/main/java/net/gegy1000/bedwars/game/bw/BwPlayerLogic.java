@@ -120,7 +120,7 @@ public final class BwPlayerLogic {
 
     public void equipDefault(ServerPlayerEntity player, BwState.Participant participant) {
         this.equipArmor(player, participant);
-        player.inventory.setStack(0, ItemUtil.unbreakable(new ItemStack(Items.WOODEN_SWORD)));
+        player.inventory.setStack(0, this.game.createTool(new ItemStack(Items.WOODEN_SWORD)));
 
         this.applyEnchantments(player, participant);
     }
@@ -152,7 +152,7 @@ public final class BwPlayerLogic {
 
         for (int i = 0; i < armorSlots.length; i++) {
             int slot = armorSlots[i].getEntitySlotId();
-            ItemStack stack = ItemUtil.unbreakable(team.dye(armorStacks[i]));
+            ItemStack stack = this.game.createArmor(team.dye(armorStacks[i]));
             player.inventory.armor.set(slot, stack);
         }
     }

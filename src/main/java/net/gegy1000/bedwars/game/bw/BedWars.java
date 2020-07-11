@@ -13,6 +13,8 @@ import net.gegy1000.bedwars.game.Game;
 import net.gegy1000.bedwars.game.GameManager;
 import net.gegy1000.bedwars.game.GameTeam;
 import net.gegy1000.bedwars.game.GameType;
+import net.gegy1000.bedwars.util.ItemUtil;
+import net.gegy1000.bedwars.util.OldCombat;
 import net.minecraft.block.AbstractChestBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -375,6 +377,19 @@ public final class BedWars implements Game {
 
         this.scoreboardLogic.tick();
         this.playerLogic.tick();
+    }
+
+    public ItemStack createArmor(ItemStack stack) {
+        return ItemUtil.unbreakable(stack);
+    }
+
+    public ItemStack createTool(ItemStack stack) {
+        stack = ItemUtil.unbreakable(stack);
+        if (this.config.getCombatConfig().isOldMechanics()) {
+            stack = OldCombat.applyTo(stack);
+        }
+
+        return stack;
     }
 
     @Override

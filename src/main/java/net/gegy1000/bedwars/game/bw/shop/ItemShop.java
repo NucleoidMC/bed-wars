@@ -36,21 +36,21 @@ public final class ItemShop {
             shop.addItem(new ItemStack(Blocks.SAND, 4), Cost.ofGold(4));
             shop.addItem(new ItemStack(Blocks.OBSIDIAN, 4), Cost.ofEmeralds(4));
 
-            shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.STONE_SWORD)), Cost.ofIron(20));
-            shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.IRON_SWORD)), Cost.ofGold(6));
-            shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.DIAMOND_SWORD)), Cost.ofEmeralds(3));
+            shop.addItem(bedWars.createTool(new ItemStack(Items.STONE_SWORD)), Cost.ofIron(20));
+            shop.addItem(bedWars.createTool(new ItemStack(Items.IRON_SWORD)), Cost.ofGold(6));
+            shop.addItem(bedWars.createTool(new ItemStack(Items.DIAMOND_SWORD)), Cost.ofEmeralds(3));
             shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.BOW)), Cost.ofGold(20));
             shop.addItem(new ItemStack(Items.ARROW, 2), Cost.ofGold(1));
 
             shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.SHEARS)), Cost.ofIron(40));
-            shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.WOODEN_AXE)), Cost.ofIron(10));
-            shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.WOODEN_PICKAXE)), Cost.ofIron(10));
-            shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.IRON_HOE)), Cost.ofGold(4));
-            shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.IRON_AXE)), Cost.ofGold(8));
-            shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.IRON_PICKAXE)), Cost.ofGold(8));
-            shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.DIAMOND_HOE)), Cost.ofGold(8));
-            shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.DIAMOND_AXE)), Cost.ofGold(12));
-            shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.DIAMOND_PICKAXE)), Cost.ofGold(12));
+            shop.addItem(bedWars.createTool(new ItemStack(Items.WOODEN_AXE)), Cost.ofIron(10));
+            shop.addItem(bedWars.createTool(new ItemStack(Items.WOODEN_PICKAXE)), Cost.ofIron(10));
+            shop.addItem(bedWars.createTool(new ItemStack(Items.IRON_HOE)), Cost.ofGold(4));
+            shop.addItem(bedWars.createTool(new ItemStack(Items.IRON_AXE)), Cost.ofGold(8));
+            shop.addItem(bedWars.createTool(new ItemStack(Items.IRON_PICKAXE)), Cost.ofGold(8));
+            shop.addItem(bedWars.createTool(new ItemStack(Items.DIAMOND_HOE)), Cost.ofGold(8));
+            shop.addItem(bedWars.createTool(new ItemStack(Items.DIAMOND_AXE)), Cost.ofGold(12));
+            shop.addItem(bedWars.createTool(new ItemStack(Items.DIAMOND_PICKAXE)), Cost.ofGold(12));
 
             shop.addItem(new ItemStack(Blocks.TNT), Cost.ofGold(8));
             shop.addItem(new ItemStack(Items.FIRE_CHARGE), Cost.ofIron(50));
