@@ -215,8 +215,7 @@ public final class BwState {
         public void restore(ServerPlayerEntity player) {
             ServerWorld world = player.getServerWorld().getServer().getWorld(this.dimension);
 
-            player.teleport(world, this.position.x, this.position.y, this.position.z, 0.0F, 0.0F);
-            player.setGameMode(this.gameMode);
+            player.setGameMode(GameMode.ADVENTURE);
 
             this.restoreInventory(player.inventory, this.inventory);
             this.restoreInventory(player.getEnderChestInventory(), this.enderInventory);
@@ -225,6 +224,9 @@ public final class BwState {
             for (StatusEffectInstance potionEffect : this.potionEffects) {
                 player.addStatusEffect(potionEffect);
             }
+
+            player.teleport(world, this.position.x, this.position.y, this.position.z, 0.0F, 0.0F);
+            player.setGameMode(this.gameMode);
         }
 
         private void restoreInventory(Inventory inventory, DefaultedList<ItemStack> from) {

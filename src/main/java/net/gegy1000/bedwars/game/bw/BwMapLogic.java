@@ -34,7 +34,7 @@ public final class BwMapLogic {
                 }
 
                 if (team.hasteEnabled) {
-                    this.tickGlobalEffect(team, StatusEffects.HASTE, 1);
+                    this.tickTeamEffect(team, StatusEffects.HASTE, 1);
                 }
             });
         }
@@ -77,14 +77,14 @@ public final class BwMapLogic {
         }
     }
 
-    private void tickGlobalEffect(BwState.TeamState teamState, StatusEffect effect, int amplifier) {
+    private void tickTeamEffect(BwState.TeamState teamState, StatusEffect effect, int amplifier) {
         this.game.state.participantsFor(teamState.team).forEach(participant -> {
             ServerPlayerEntity player = participant.player();
             if (player == null) {
                 return;
             }
 
-            player.addStatusEffect(new StatusEffectInstance(effect, 20 * 2, amplifier));
+            player.addStatusEffect(new StatusEffectInstance(effect, 20 * 2, amplifier, false, false));
         });
     }
 }

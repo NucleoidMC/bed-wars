@@ -128,8 +128,6 @@ public final class BedWars implements Game {
     private BwCloseLogic closing;
     private boolean active = true;
 
-    private int ticks;
-
     private long lastWinCheck;
 
     private BedWars(BedWarsConfig config, BwMap map, BwState state) {
@@ -140,38 +138,43 @@ public final class BedWars implements Game {
     }
 
     private static CompletableFuture<BedWars> initialize(MinecraftServer server, List<ServerPlayerEntity> players, BedWarsConfig config) {
-        CompletableFuture<BwMap> mapFuture = BwMap.create(server, config);
+        return BwMap.create(server, config)
+                .thenApplyAsync(map -> {
+                    BwState state = BwState.create(players, config);
 
-        return mapFuture.thenApply(map -> {
-            BwState state = BwState.create(players, config);
+                    BedWars game = new BedWars(config, map, state);
+                    game.playerLogic.setupPlayers();
 
-            BedWars game = new BedWars(config, map, state);
-            game.playerLogic.setupPlayers();
+                    game.scoreboardLogic.setupScoreboard();
 
-            game.scoreboardLogic.setupScoreboard();
+                    for (GameTeam team : config.getTeams()) {
+                        game.scoreboardLogic.setupTeam(team);
+                    }
 
-            for (GameTeam team : config.getTeams()) {
-                game.teamLogic.spawnTeam(team);
-                game.scoreboardLogic.setupTeam(team);
-            }
+                    return game;
+                }, server)
+                .thenApplyAsync(game -> {
+                    game.state.participants().forEach(participant -> {
+                        ServerPlayerEntity player = participant.player();
+                        if (player == null) {
+                            return;
+                        }
 
-            game.state.participants().forEach(participant -> {
-                ServerPlayerEntity player = participant.player();
-                if (player == null) {
-                    return;
-                }
+                        BwMap.TeamSpawn spawn = game.teamLogic.tryRespawn(participant);
+                        if (spawn != null) {
+                            game.playerLogic.spawnPlayer(player, spawn);
+                        } else {
+                            BedWarsMod.LOGGER.warn("No spawn for player {}", participant.playerId);
+                            game.playerLogic.spawnSpectator(player);
+                        }
+                    });
 
-                BwMap.TeamSpawn spawn = game.teamLogic.tryRespawn(participant);
-                if (spawn != null) {
-                    game.playerLogic.spawnPlayer(player, spawn);
-                } else {
-                    BedWarsMod.LOGGER.warn("No spawn for player {}", participant.playerId);
-                    game.playerLogic.spawnSpectator(player);
-                }
-            });
-
-            return game;
-        });
+                    return game;
+                }, server)
+                .thenApplyAsync(game -> {
+                    game.map.spawnShopkeepers(game.config);
+                    return game;
+                }, server);
     }
 
     public void onExplosion(List<BlockPos> affectedBlocks) {
@@ -345,10 +348,6 @@ public final class BedWars implements Game {
     private void tick() {
         if (!this.active) {
             return;
-        }
-
-        if (this.ticks++ == 20) {
-            this.map.spawnShopkeepers(this.config);
         }
 
         long time = this.world.getTime();

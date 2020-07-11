@@ -1,8 +1,7 @@
 package net.gegy1000.bedwars.game.bw;
 
-import net.gegy1000.bedwars.util.BlockBounds;
-import net.gegy1000.bedwars.BedWarsMod;
 import net.gegy1000.bedwars.game.GameTeam;
+import net.gegy1000.bedwars.util.BlockBounds;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -22,21 +21,6 @@ public final class BwTeamLogic {
             if (player != null) {
                 this.game.playerLogic.applyEnchantments(player, participant);
             }
-        });
-    }
-
-    public void spawnTeam(GameTeam team) {
-        BwMap.TeamSpawn spawn = this.game.map.getTeamSpawn(team);
-        if (spawn == null) {
-            BedWarsMod.LOGGER.warn("No team spawn for {}", team.getKey());
-            return;
-        }
-
-        this.game.state.participantsFor(team).forEach(participant -> {
-            ServerPlayerEntity player = participant.player();
-            if (player == null) return;
-
-            this.game.playerLogic.spawnPlayer(player, spawn);
         });
     }
 
