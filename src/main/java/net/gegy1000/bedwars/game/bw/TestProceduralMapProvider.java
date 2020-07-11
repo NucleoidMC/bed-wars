@@ -11,6 +11,7 @@ import net.gegy1000.bedwars.game.bw.gen.island.TeamIslandGen;
 import net.gegy1000.bedwars.map.GameMap;
 import net.gegy1000.bedwars.map.GameMapBuilder;
 import net.gegy1000.bedwars.map.provider.MapProvider;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -32,14 +33,12 @@ public final class TestProceduralMapProvider implements MapProvider<BedWarsConfi
 
     @Override
     public CompletableFuture<GameMap> createAt(ServerWorld world, BlockPos origin, BedWarsConfig config) {
-        return CompletableFuture.supplyAsync(() -> {
-            Generator generator = new Generator(
-                    new GameMapBuilder(world, origin),
-                    config.getTeams()
-            );
+        Generator generator = new Generator(
+                new GameMapBuilder(world, origin),
+                config.getTeams()
+        );
 
-            return generator.generate(world.random);
-        }, world.getServer());
+        return generator.generate(world.getServer(), world.random);
     }
 
     @Override
@@ -96,18 +95,16 @@ public final class TestProceduralMapProvider implements MapProvider<BedWarsConfi
             }
         }
 
-        private GameMap generate(Random random) {
+        private CompletableFuture<GameMap> generate(MinecraftServer server, Random random) {
+            CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
             this.addIslands(random);
 
-            long time = System.currentTimeMillis();
             System.out.println("Starting island generation...");
             for (MapGen island : islands) {
-                island.addTo(this.builder);
+                future = future.thenAcceptAsync(v -> island.addTo(this.builder), server);
             }
 
-            System.out.println("Generated " + islands.size() + " islands in " + (System.currentTimeMillis() - time) + " ms");
-
-            return this.builder.build();
+            return future.thenApplyAsync(v -> this.builder.build(), server);
         }
     }
 }
