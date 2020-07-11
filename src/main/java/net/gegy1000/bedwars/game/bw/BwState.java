@@ -9,7 +9,9 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.GameMode;
+import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -173,6 +175,7 @@ public final class BwState {
     }
 
     public static class FormerState {
+        private final RegistryKey<World> dimension;
         private final Vec3d position;
         private final GameMode gameMode;
         private final DefaultedList<ItemStack> inventory;
@@ -180,12 +183,13 @@ public final class BwState {
         private final Collection<StatusEffectInstance> potionEffects;
 
         private FormerState(
-                Vec3d position,
+                RegistryKey<World> dimension, Vec3d position,
                 GameMode gameMode,
                 DefaultedList<ItemStack> inventory,
                 DefaultedList<ItemStack> enderInventory,
                 Collection<StatusEffectInstance> potionEffects
         ) {
+            this.dimension = dimension;
             this.position = position;
             this.gameMode = gameMode;
             this.inventory = inventory;
@@ -194,6 +198,7 @@ public final class BwState {
         }
 
         public static FormerState snapshot(ServerPlayerEntity player) {
+            RegistryKey<World> dimension = player.world.getRegistryKey();
             Vec3d position = player.getPos();
             GameMode gameMode = player.interactionManager.getGameMode();
 
@@ -204,11 +209,13 @@ public final class BwState {
                     .map(StatusEffectInstance::new)
                     .collect(Collectors.toList());
 
-            return new FormerState(position, gameMode, inventory, enderInventory, potionEffects);
+            return new FormerState(dimension, position, gameMode, inventory, enderInventory, potionEffects);
         }
 
         public void restore(ServerPlayerEntity player) {
-            player.teleport(this.position.x, this.position.y, this.position.z);
+            ServerWorld world = player.getServerWorld().getServer().getWorld(this.dimension);
+
+            player.teleport(world, this.position.x, this.position.y, this.position.z, 0.0F, 0.0F);
             player.setGameMode(this.gameMode);
 
             this.restoreInventory(player.inventory, this.inventory);

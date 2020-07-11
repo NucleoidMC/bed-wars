@@ -89,7 +89,7 @@ public final class BwPlayerLogic {
         player.getHungerManager().setFoodLevel(20);
         player.setGameMode(GameMode.SURVIVAL);
 
-        spawn.placePlayer(player);
+        spawn.placePlayer(player, this.game.map.getWorld());
     }
 
     public void applyEnchantments(ServerPlayerEntity player, BwState.Participant participant) {
@@ -164,7 +164,7 @@ public final class BwPlayerLogic {
         player.setGameMode(GameMode.SPECTATOR);
 
         Vec3d center = this.game.map.getCenter();
-        player.teleport(center.x, center.y, center.z);
+        player.teleport(this.game.map.getWorld(), center.x, center.y, center.z, 0.0F, 0.0F);
     }
 
     public void respawnOnTimer(ServerPlayerEntity player, BwMap.TeamSpawn spawn) {

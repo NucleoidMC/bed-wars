@@ -213,11 +213,11 @@ public final class BwMap {
                     .allowDuplication();
         }
 
-        public void placePlayer(ServerPlayerEntity player) {
+        public void placePlayer(ServerPlayerEntity player, ServerWorld world) {
             player.fallDistance = 0.0F;
 
             Vec3d center = this.region.getCenter();
-            player.teleport(center.x, center.y + 0.5, center.z);
+            player.teleport(world, center.x, center.y + 0.5, center.z, 0.0F, 0.0F);
         }
 
         public void setLevel(int level) {
