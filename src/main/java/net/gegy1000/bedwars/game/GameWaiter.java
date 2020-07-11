@@ -27,11 +27,16 @@ public final class GameWaiter<T extends Game> {
         return this.participants.remove(player);
     }
 
-    public boolean joinPlayer(ServerPlayerEntity player) {
+    public JoinResult joinPlayer(ServerPlayerEntity player) {
         if (this.participants.size() >= this.game.getPlayerConfig().getMaxPlayers()) {
-            return false;
+            return JoinResult.GAME_FULL;
         }
-        return this.participants.add(player);
+
+        if (!this.participants.add(player)) {
+            return JoinResult.ALREADY_JOINED;
+        }
+
+        return JoinResult.OK;
     }
 
     public boolean canStart() {

@@ -9,6 +9,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.gegy1000.bedwars.BedWarsMod;
 import net.gegy1000.bedwars.game.ConfiguredGame;
 import net.gegy1000.bedwars.game.GameManager;
+import net.gegy1000.bedwars.game.JoinResult;
 import net.gegy1000.bedwars.game.config.GameConfigs;
 import net.minecraft.command.arguments.IdentifierArgumentType;
 import net.minecraft.network.MessageType;
@@ -46,6 +47,10 @@ public final class GameCommand {
 
     public static final SimpleCommandExceptionType GAME_FULL = new SimpleCommandExceptionType(
             new LiteralText("Game full! :(")
+    );
+
+    public static final SimpleCommandExceptionType ALREADY_JOINED = new SimpleCommandExceptionType(
+            new LiteralText("Already joined game")
     );
 
     public static final SimpleCommandExceptionType GAME_NOT_READY = new SimpleCommandExceptionType(
@@ -115,8 +120,13 @@ public final class GameCommand {
             throw NOT_RECRUITING.create();
         }
 
-        if (!recruiting.get().joinPlayer(player)) {
+        JoinResult joinResult = recruiting.get().joinPlayer(player);
+        if (joinResult == JoinResult.GAME_FULL) {
             throw GAME_FULL.create();
+        }
+
+        if (joinResult == JoinResult.ALREADY_JOINED) {
+            throw ALREADY_JOINED.create();
         }
 
         Text joinMessage = player.getDisplayName().shallowCopy()

@@ -93,7 +93,7 @@ public final class GameManager {
             return this.waiter.getGame();
         }
 
-        public boolean joinPlayer(ServerPlayerEntity player) {
+        public JoinResult joinPlayer(ServerPlayerEntity player) {
             return this.waiter.joinPlayer(player);
         }
 
