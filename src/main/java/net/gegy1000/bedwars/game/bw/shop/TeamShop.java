@@ -36,7 +36,7 @@ public final class TeamShop {
                     bedWars.broadcast.broadcastTeamUpgrade(participant, new LiteralText("Activated a heal pool!"));
                 });
 
-                Cost hasteCost = !teamState.hasteEnabled ? Cost.ofDiamonds(2) : Cost.no();
+                Cost hasteCost = !teamState.hasteEnabled ? Cost.ofDiamonds(3) : Cost.no();
                 shop.add(Items.GOLDEN_PICKAXE, hasteCost, new LiteralText("Haste"), () -> {
                     teamState.hasteEnabled = true;
                     bedWars.broadcast.broadcastTeamUpgrade(participant, new LiteralText("Activated haste!"));

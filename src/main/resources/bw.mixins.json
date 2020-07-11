@@ -8,6 +8,7 @@
     "MixinCraftingResultInventory",
     "MixinEntity",
     "MixinExplosion",
+    "MixinFireChargeItem",
     "MixinServerPlayerEntity",
     "MixinServerPlayerInteractionManager",
     "MixinServerPlayNetworkHandler",

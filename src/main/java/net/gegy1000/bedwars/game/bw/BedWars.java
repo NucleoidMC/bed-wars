@@ -320,7 +320,7 @@ public final class BedWars implements Game {
         return null;
     }
 
-    private TypedActionResult<ItemStack> onUseItem(PlayerEntity player, World world, Hand hand) {
+    public TypedActionResult<ItemStack> onUseItem(PlayerEntity player, World world, Hand hand) {
         ItemStack stack = player.getStackInHand(hand);
         if (!stack.isEmpty()) {
             if (stack.getItem() == Items.FIRE_CHARGE) {
@@ -328,10 +328,7 @@ public final class BedWars implements Game {
 
                 FireballEntity fireball = new FireballEntity(world, player, dir.x * 0.5, dir.y * 0.5, dir.z * 0.5);
                 fireball.explosionPower = 2;
-                fireball.updatePosition(player.getX() + dir.x * 4.0, player.getEyeY() + dir.y * 4.0, fireball.getZ() + dir.z * 4.0);
-                fireball.posX = dir.x;
-                fireball.posY = dir.y;
-                fireball.posZ = dir.z;
+                fireball.updatePosition(player.getX() + dir.x, player.getEyeY() + dir.y, fireball.getZ() + dir.z);
 
                 world.spawnEntity(fireball);
 
