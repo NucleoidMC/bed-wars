@@ -1,6 +1,7 @@
 package net.gegy1000.bedwars.game.bw;
 
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
@@ -8,7 +9,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Box;
 
 import java.util.List;
-import java.util.UUID;
 
 public final class BwMapLogic {
     private final BedWars game;
@@ -33,13 +33,8 @@ public final class BwMapLogic {
                     this.tickHealPool(team);
                 }
 
-                //TODO: optimize this
                 if (team.hasteEnabled) {
-                    for (ServerPlayerEntity player : this.game.world.getPlayers()) {
-                        if (team.players.contains(player.getUuid())) {
-                            player.addStatusEffect(new StatusEffectInstance(StatusEffects.HASTE, 20 * 2, 1));
-                        }
-                    }
+                    this.tickGlobalEffect(team, StatusEffects.HASTE, 1);
                 }
             });
         }
@@ -80,5 +75,16 @@ public final class BwMapLogic {
                 player.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 20 * 2, 1, false, false));
             }
         }
+    }
+
+    private void tickGlobalEffect(BwState.TeamState teamState, StatusEffect effect, int amplifier) {
+        this.game.state.participantsFor(teamState.team).forEach(participant -> {
+            ServerPlayerEntity player = participant.player();
+            if (player == null) {
+                return;
+            }
+
+            player.addStatusEffect(new StatusEffectInstance(effect, 20 * 2, amplifier));
+        });
     }
 }
