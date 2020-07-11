@@ -185,6 +185,10 @@ public final class GameMapData {
         return builder.build();
     }
 
+    public BlockBounds getBounds() {
+        return this.bounds;
+    }
+
     private static class MapChunk {
         private static final Palette<BlockState> PALETTE = new IdListPalette<>(Block.STATE_IDS, Blocks.AIR.getDefaultState());
 

@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.gegy1000.bedwars.game.config.GameConfig;
 import net.gegy1000.bedwars.map.GameMap;
 import net.gegy1000.bedwars.map.GameMapData;
+import net.gegy1000.bedwars.util.BlockBounds;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -28,7 +29,12 @@ public final class PathMapProvider<C extends GameConfig> implements MapProvider<
     @Override
     public CompletableFuture<GameMap> createAt(ServerWorld world, BlockPos origin, C config) {
         MinecraftServer server = world.getServer();
-        return GameMapData.load(this.path).thenApplyAsync(data -> data.addToWorld(world, origin), server);
+        return GameMapData.load(this.path).thenApplyAsync(data -> {
+            BlockBounds bounds = data.getBounds();
+            BlockPos size = bounds.getSize();
+
+            return data.addToWorld(world, origin.add(-size.getX() / 2, 0, -size.getZ() / 2));
+        }, server);
     }
 
     public Identifier getPath() {
