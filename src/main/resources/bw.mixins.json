@@ -9,6 +9,7 @@
     "MixinEntity",
     "MixinExplosion",
     "MixinFireChargeItem",
+    "MixinNetherPortalBlock",
     "MixinServerPlayerEntity",
     "MixinServerPlayerInteractionManager",
     "MixinServerPlayNetworkHandler",
