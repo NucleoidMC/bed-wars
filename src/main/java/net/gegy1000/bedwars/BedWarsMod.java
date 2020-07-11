@@ -22,7 +22,11 @@ import net.gegy1000.bedwars.map.StagingBoundRenderer;
 import net.gegy1000.bedwars.map.provider.MapProviders;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.registry.Registry;
+
+import net.gegy1000.bedwars.world.VoidChunkGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,6 +39,8 @@ public final class BedWarsMod implements ModInitializer {
         Reflection.initialize(CustomItems.class, CustomEntities.class);
 
         BedWars.initialize();
+
+        Registry.register(Registry.CHUNK_GENERATOR, new Identifier("bedwars", "void"), VoidChunkGenerator.CODEC);
 
         MapProviders.register();
         TestProceduralMapProvider.register();
