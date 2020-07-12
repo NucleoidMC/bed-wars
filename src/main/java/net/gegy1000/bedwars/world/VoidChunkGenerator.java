@@ -57,4 +57,9 @@ public class VoidChunkGenerator extends ChunkGenerator {
 		Arrays.fill(data, Blocks.AIR.getDefaultState());
 		return new VerticalBlockSample(data);
 	}
+
+	@Override
+	public void generateFeatures(ChunkRegion region, StructureAccessor accessor) {
+		// Leave empty so void platform doesn't spawn
+	}
 }
