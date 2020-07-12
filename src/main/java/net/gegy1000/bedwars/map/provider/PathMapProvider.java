@@ -33,7 +33,7 @@ public final class PathMapProvider<C extends GameConfig> implements MapProvider<
             BlockBounds bounds = data.getBounds();
             BlockPos size = bounds.getSize();
 
-            return data.buildArena(world, origin.add(-size.getX() / 2, 0, -size.getZ() / 2));
+            return data.addToWorld(world, origin.add(-size.getX() / 2, 0, -size.getZ() / 2));
         }, server);
     }
 

@@ -20,6 +20,7 @@ import net.minecraft.world.chunk.IdListPalette;
 import net.minecraft.world.chunk.Palette;
 import net.minecraft.world.chunk.PalettedContainer;
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -54,7 +55,7 @@ public final class GameMapData {
         return CompletableFuture.supplyAsync(() -> {
             Path path = getPathFor(identifier).resolve("map.nbt");
 
-            try (DataInputStream input = new DataInputStream(Files.newInputStream(path))) {
+            try (DataInputStream input = new DataInputStream(new BufferedInputStream(Files.newInputStream(path)))) {
                 GameMapData map = new GameMapData(identifier);
                 map.load(NbtIo.read(input));
                 return map;
@@ -159,7 +160,7 @@ public final class GameMapData {
         return MAP_ROOT.resolve(identifier.getNamespace()).resolve(identifier.getPath());
     }
 
-    public GameMap buildArena(ServerWorld world, BlockPos origin) {
+    public GameMap addToWorld(ServerWorld world, BlockPos origin) {
         GameMapBuilder builder = GameMapBuilder.open(world, origin, this.bounds);
 
         for (BlockPos pos : this.bounds.iterate()) {
