@@ -10,6 +10,7 @@ import com.mojang.serialization.Lifecycle;
 import net.minecraft.util.Identifier;
 
 import javax.annotation.Nullable;
+import java.util.Set;
 
 public final class TinyRegistry<T> implements Codec<T> {
     private final Lifecycle lifecycle;
@@ -38,7 +39,7 @@ public final class TinyRegistry<T> implements Codec<T> {
         return this.map.inverse().get(value);
     }
 
-    public boolean contains(Identifier identifier) {
+    public boolean containsKey(Identifier identifier) {
         return this.map.containsKey(identifier);
     }
 
@@ -46,7 +47,7 @@ public final class TinyRegistry<T> implements Codec<T> {
     public <U> DataResult<Pair<T, U>> decode(DynamicOps<U> ops, U input) {
         return Identifier.CODEC.decode(ops, input).addLifecycle(this.lifecycle)
                 .flatMap(pair -> {
-                    if (!this.contains(pair.getFirst())) {
+                    if (!this.containsKey(pair.getFirst())) {
                         return DataResult.error("Unknown registry key: " + pair.getFirst());
                     }
                     return DataResult.success(pair.mapFirst(this::get), this.lifecycle);
@@ -60,6 +61,10 @@ public final class TinyRegistry<T> implements Codec<T> {
             return DataResult.error("Unknown registry element " + input);
         }
         return ops.mergeToPrimitive(prefix, ops.createString(identifier.toString())).setLifecycle(this.lifecycle);
+    }
+
+    public Set<Identifier> keySet() {
+        return this.map.keySet();
     }
 
     public T[] toArray(T[] array) {

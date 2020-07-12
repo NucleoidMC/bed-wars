@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.gegy1000.bedwars.BedWarsMod;
 import net.gegy1000.bedwars.event.SwingHandCallback;
+import net.gegy1000.bedwars.util.TinyRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -16,11 +17,10 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 
 public final class CustomItem {
-    private static final Map<Identifier, CustomItem> REGISTRY = new HashMap<>();
+    private static final TinyRegistry<CustomItem> REGISTRY = TinyRegistry.newStable();
 
     private final Identifier id;
     private final Text name;
@@ -63,6 +63,10 @@ public final class CustomItem {
         }
 
         return null;
+    }
+
+    public static Set<Identifier> getKeys() {
+        return REGISTRY.keySet();
     }
 
     @Nullable
@@ -122,7 +126,7 @@ public final class CustomItem {
             item.use = this.use;
             item.swingHand = this.swingHand;
 
-            REGISTRY.put(this.id, item);
+            REGISTRY.register(this.id, item);
 
             return item;
         }

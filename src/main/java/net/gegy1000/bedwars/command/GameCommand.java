@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.gegy1000.bedwars.BedWarsMod;
 import net.gegy1000.bedwars.game.ConfiguredGame;
 import net.gegy1000.bedwars.game.GameManager;
@@ -15,6 +16,7 @@ import net.minecraft.command.arguments.IdentifierArgumentType;
 import net.minecraft.network.MessageType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
+import net.minecraft.server.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.ClickEvent;
@@ -67,7 +69,7 @@ public final class GameCommand {
         dispatcher.register(
             literal("game")
                 .then(literal("open")
-                    .then(argument("game_type", IdentifierArgumentType.identifier())
+                    .then(argument("game_type", IdentifierArgumentType.identifier()).suggests(gameSuggestions())
                     .executes(GameCommand::openGame)
                 ))
                 .then(literal("join").executes(GameCommand::joinGame))
@@ -202,7 +204,7 @@ public final class GameCommand {
     private static int listGames(CommandContext<ServerCommandSource> context) {
         ServerCommandSource source = context.getSource();
         source.sendFeedback(new LiteralText("Registered games:").formatted(Formatting.BOLD), false);
-        for (Identifier id : GameConfigs.getConfiguredGames().keySet()) {
+        for (Identifier id : GameConfigs.getKeys()) {
             String command = "/game open " + id;
 
             ClickEvent linkClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
@@ -218,5 +220,14 @@ public final class GameCommand {
         }
 
         return Command.SINGLE_SUCCESS;
+    }
+
+    private static SuggestionProvider<ServerCommandSource> gameSuggestions() {
+        return (ctx, builder) -> {
+            return CommandSource.suggestMatching(
+                    GameConfigs.getKeys().stream().map(Identifier::toString),
+                    builder
+            );
+        };
     }
 }

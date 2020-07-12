@@ -5,9 +5,11 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.gegy1000.bedwars.custom.CustomItem;
 import net.minecraft.command.arguments.IdentifierArgumentType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.TranslatableText;
@@ -25,7 +27,7 @@ public final class CustomizeCommand {
     // @formatter:off
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(literal("customize")
-            .then(argument("custom", IdentifierArgumentType.identifier())
+            .then(argument("custom", IdentifierArgumentType.identifier()).suggests(customSuggestions())
                 .executes(CustomizeCommand::customizeHeld)
             )
         );
@@ -49,5 +51,15 @@ public final class CustomizeCommand {
         }
 
         return Command.SINGLE_SUCCESS;
+    }
+
+
+    private static SuggestionProvider<ServerCommandSource> customSuggestions() {
+        return (ctx, builder) -> {
+            return CommandSource.suggestMatching(
+                    CustomItem.getKeys().stream().map(Identifier::toString),
+                    builder
+            );
+        };
     }
 }

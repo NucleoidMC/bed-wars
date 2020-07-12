@@ -22,6 +22,7 @@ import java.io.Reader;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public final class GameConfigs {
     private static final Map<Identifier, ConfiguredGame<?, ?>> CONFIGURED_GAMES = new HashMap<>();
@@ -82,7 +83,7 @@ public final class GameConfigs {
         return CONFIGURED_GAMES.get(identifier);
     }
 
-    public static Map<Identifier, ConfiguredGame<?, ?>> getConfiguredGames() {
-        return CONFIGURED_GAMES;
+    public static Set<Identifier> getKeys() {
+        return CONFIGURED_GAMES.keySet();
     }
 }

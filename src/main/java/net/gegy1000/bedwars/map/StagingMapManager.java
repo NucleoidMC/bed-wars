@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public final class StagingMapManager extends PersistentState {
     public static final String KEY = BedWarsMod.ID + ":staging_maps";
@@ -37,6 +38,10 @@ public final class StagingMapManager extends PersistentState {
     @Nullable
     public StagingMap get(Identifier identifier) {
         return this.stagingMaps.get(identifier);
+    }
+
+    public Set<Identifier> getStagingMapKeys() {
+        return this.stagingMaps.keySet();
     }
 
     public Collection<StagingMap> getStagingMaps() {

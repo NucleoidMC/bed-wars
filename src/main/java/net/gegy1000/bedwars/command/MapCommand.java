@@ -7,17 +7,19 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.gegy1000.bedwars.BedWarsMod;
-import net.gegy1000.bedwars.util.BlockBounds;
-import net.gegy1000.bedwars.map.trace.PartialRegion;
-import net.gegy1000.bedwars.map.MapViewer;
-import net.gegy1000.bedwars.map.trace.RegionTracer;
 import net.gegy1000.bedwars.game.GameRegion;
 import net.gegy1000.bedwars.map.GameMapData;
+import net.gegy1000.bedwars.map.MapViewer;
 import net.gegy1000.bedwars.map.StagingMap;
 import net.gegy1000.bedwars.map.StagingMapManager;
+import net.gegy1000.bedwars.map.trace.PartialRegion;
+import net.gegy1000.bedwars.map.trace.RegionTracer;
+import net.gegy1000.bedwars.util.BlockBounds;
 import net.minecraft.command.arguments.BlockPosArgumentType;
 import net.minecraft.command.arguments.IdentifierArgumentType;
+import net.minecraft.server.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -52,18 +54,18 @@ public final class MapCommand {
         dispatcher.register(
             literal("map")
                 .then(literal("stage")
-                    .then(argument("identifier", IdentifierArgumentType.identifier())
+                    .then(argument("identifier", IdentifierArgumentType.identifier()).suggests(stagingSuggestions())
                     .then(argument("min", BlockPosArgumentType.blockPos())
                     .then(argument("max", BlockPosArgumentType.blockPos())
                     .executes(MapCommand::stageMap)
                 ))))
                 .then(literal("enter")
-                    .then(argument("identifier", IdentifierArgumentType.identifier())
+                    .then(argument("identifier", IdentifierArgumentType.identifier()).suggests(stagingSuggestions())
                     .executes(MapCommand::enterMap)
                 ))
                 .then(literal("exit").executes(MapCommand::exitMap))
                 .then(literal("compile")
-                    .then(argument("identifier", IdentifierArgumentType.identifier())
+                    .then(argument("identifier", IdentifierArgumentType.identifier()).suggests(stagingSuggestions())
                     .executes(MapCommand::compileMap)
                 ))
                 .then(literal("region")
@@ -255,5 +257,15 @@ public final class MapCommand {
         }
 
         return Command.SINGLE_SUCCESS;
+    }
+
+    private static SuggestionProvider<ServerCommandSource> stagingSuggestions() {
+        return (ctx, builder) -> {
+            ServerWorld world = ctx.getSource().getWorld();
+            return CommandSource.suggestMatching(
+                    StagingMapManager.get(world).getStagingMapKeys().stream().map(Identifier::toString),
+                    builder
+            );
+        };
     }
 }
