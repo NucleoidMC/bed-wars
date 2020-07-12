@@ -14,7 +14,8 @@
     "MixinServerPlayerInteractionManager",
     "MixinServerPlayNetworkHandler",
     "MixinServerWorld",
-    "MixinTntBlock"
+    "MixinTntBlock",
+    "MixinVillagerEntity"
   ],
   "injectors": {
     "defaultRequire": 1
