@@ -14,6 +14,8 @@ import net.gegy1000.bedwars.game.GameManager;
 import net.gegy1000.bedwars.game.GameTeam;
 import net.gegy1000.bedwars.game.GameType;
 import net.gegy1000.bedwars.game.modifier.GameModifier;
+import net.gegy1000.bedwars.game.modifier.GameTrigger;
+import net.gegy1000.bedwars.game.modifier.GameTriggers;
 import net.gegy1000.bedwars.util.ItemUtil;
 import net.gegy1000.bedwars.util.OldCombat;
 import net.minecraft.block.AbstractChestBlock;
@@ -43,8 +45,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -129,7 +129,6 @@ public final class BedWars implements Game {
     public final BwKillLogic killLogic = new BwKillLogic(this);
     public final BwWinStateLogic winStateLogic = new BwWinStateLogic(this);
     public final BwMapLogic mapLogic = new BwMapLogic(this);
-    public final List<GameModifier> modifiers = new ArrayList<>();
 
     private BwCloseLogic closing;
     private boolean active = true;
@@ -151,7 +150,6 @@ public final class BedWars implements Game {
                     BwState state = BwState.create(players, config);
 
                     BedWars game = new BedWars(config, map, state);
-                    game.initializeModifiers();
                     game.playerLogic.setupPlayers();
 
                     game.scoreboardLogic.setupScoreboard();
@@ -199,7 +197,7 @@ public final class BedWars implements Game {
             this.broadcast.broadcastDeath(player, source, spawn == null);
 
             // Run death modifiers
-            triggerModifiers(GameModifier.Trigger.PLAYER_DEATH);
+            triggerModifiers(GameTriggers.PLAYER_DEATH);
 
             if (spawn != null) {
                 this.playerLogic.respawnOnTimer(player, spawn);
@@ -210,7 +208,7 @@ public final class BedWars implements Game {
                 this.winStateLogic.eliminatePlayer(participant);
 
                 // Run final death modifiers
-                triggerModifiers(GameModifier.Trigger.FINAL_DEATH);
+                triggerModifiers(GameTriggers.FINAL_DEATH);
             }
 
             this.scoreboardLogic.markDirty();
@@ -365,7 +363,7 @@ public final class BedWars implements Game {
             this.map.spawnShopkeepers(this.config);
 
             // Broadcasting the game start event here because this is when the game officially starts, maybe this should be moved?
-            triggerModifiers(GameModifier.Trigger.GAME_START);
+            triggerModifiers(GameTriggers.GAME_RUNNING);
         }
 
         long time = this.world.getTime();
@@ -395,8 +393,8 @@ public final class BedWars implements Game {
         this.playerLogic.tick();
 
         // Tick modifiers
-        for (GameModifier modifier : modifiers) {
-            if (modifier.getTrigger().isTickable()) {
+        for (GameModifier modifier : this.config.getModifiers()) {
+            if (modifier.getTrigger().tickable) {
                 modifier.tick(this);
             }
         }
@@ -406,8 +404,8 @@ public final class BedWars implements Game {
         return ItemUtil.unbreakable(stack);
     }
 
-    public void triggerModifiers(GameModifier.Trigger type) {
-        for (GameModifier modifier : modifiers) {
+    public void triggerModifiers(GameTrigger type) {
+        for (GameModifier modifier : this.config.getModifiers()) {
             if (modifier.getTrigger() == type) {
                 modifier.init(this);
             }
@@ -421,10 +419,6 @@ public final class BedWars implements Game {
         }
 
         return stack;
-    }
-
-    private void initializeModifiers() {
-        // Empty for now, implement modifiers later
     }
 
     @Override

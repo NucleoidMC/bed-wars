@@ -61,4 +61,8 @@ public final class TinyRegistry<T> implements Codec<T> {
         }
         return ops.mergeToPrimitive(prefix, ops.createString(identifier.toString())).setLifecycle(this.lifecycle);
     }
+
+    public T[] toArray(T[] array) {
+        return this.map.values().toArray(array);
+    }
 }

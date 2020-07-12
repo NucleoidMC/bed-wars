@@ -1,7 +1,7 @@
 package net.gegy1000.bedwars.game.bw;
 
 import net.gegy1000.bedwars.game.GameTeam;
-import net.gegy1000.bedwars.game.modifier.GameModifier;
+import net.gegy1000.bedwars.game.modifier.GameTriggers;
 import net.gegy1000.bedwars.util.BlockBounds;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -54,11 +54,11 @@ public final class BwTeamLogic {
 
         bed.bounds.iterate().forEach(p -> this.game.world.setBlockState(p, Blocks.AIR.getDefaultState(), 32));
         this.game.broadcast.broadcastBedBroken(player, bed.team, destroyerTeam);
+        game.triggerModifiers(GameTriggers.BED_BROKEN);
 
         BwState.TeamState teamState = this.game.state.getTeam(bed.team);
         if (teamState != null) {
             teamState.hasBed = false;
-            game.triggerModifiers(GameModifier.Trigger.BED_BROKEN);
         }
 
         this.game.scoreboardLogic.markDirty();

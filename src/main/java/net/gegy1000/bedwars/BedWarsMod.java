@@ -18,15 +18,16 @@ import net.gegy1000.bedwars.event.SwingHandCallback;
 import net.gegy1000.bedwars.game.bw.BedWars;
 import net.gegy1000.bedwars.game.bw.TestProceduralMapProvider;
 import net.gegy1000.bedwars.game.config.GameConfigs;
+import net.gegy1000.bedwars.game.modifier.GameModifiers;
+import net.gegy1000.bedwars.game.modifier.GameTriggers;
 import net.gegy1000.bedwars.map.StagingBoundRenderer;
 import net.gegy1000.bedwars.map.provider.MapProviders;
+import net.gegy1000.bedwars.world.VoidChunkGenerator;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.registry.Registry;
-
-import net.gegy1000.bedwars.world.VoidChunkGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -44,6 +45,10 @@ public final class BedWarsMod implements ModInitializer {
 
         MapProviders.register();
         TestProceduralMapProvider.register();
+
+        GameTriggers.register();
+        GameModifiers.register();
+
         GameConfigs.register();
 
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
