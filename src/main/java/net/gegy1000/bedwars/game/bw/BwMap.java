@@ -7,8 +7,8 @@ import net.gegy1000.bedwars.custom.CustomEntities;
 import net.gegy1000.bedwars.custom.CustomEntity;
 import net.gegy1000.bedwars.custom.CustomizableEntity;
 import net.gegy1000.bedwars.game.GameTeam;
-import net.gegy1000.bedwars.game.config.GameMapConfig;
 import net.gegy1000.bedwars.map.GameMap;
+import net.gegy1000.bedwars.game.config.GameMapConfig;
 import net.gegy1000.bedwars.util.BlockBounds;
 import net.gegy1000.bedwars.util.FloatingText;
 import net.minecraft.entity.Entity;
@@ -54,8 +54,6 @@ public final class BwMap {
     private final Map<GameTeam, TeamRegions> teamRegions = new HashMap<>();
 
     private final Collection<Generator> generators = new ArrayList<>();
-
-    private final Collection<Entity> shopKeepers = new ArrayList<>();
 
     private BwMap(ServerWorld world, GameMap map) {
         this.world = world;
@@ -109,15 +107,13 @@ public final class BwMap {
             TeamRegions regions = this.getTeamRegions(team);
 
             if (regions.teamShop != null) {
-                Entity entity = this.spawn(EntityType.VILLAGER, CustomEntities.TEAM_SHOP, regions.teamShop);
-                this.shopKeepers.add(entity);
+                this.trySpawn(EntityType.VILLAGER, CustomEntities.TEAM_SHOP, regions.teamShop);
             } else {
                 BedWarsMod.LOGGER.warn("Missing team shop for {}", team.getDisplay());
             }
 
             if (regions.itemShop != null) {
-                Entity entity = this.spawn(EntityType.VILLAGER, CustomEntities.ITEM_SHOP, regions.itemShop);
-                this.shopKeepers.add(entity);
+                this.trySpawn(EntityType.VILLAGER, CustomEntities.ITEM_SHOP, regions.itemShop);
             } else {
                 BedWarsMod.LOGGER.warn("Missing item shop for {}", team.getDisplay());
             }
@@ -125,7 +121,7 @@ public final class BwMap {
     }
 
     @Nullable
-    private Entity spawn(EntityType<?> type, CustomEntity custom, BlockBounds bounds) {
+    private Entity trySpawn(EntityType<?> type, CustomEntity custom, BlockBounds bounds) {
         Vec3d center = bounds.getCenter();
 
         Entity entity = type.create(this.world);
@@ -151,7 +147,7 @@ public final class BwMap {
         }
 
         if (!this.world.spawnEntity(entity)) {
-            BedWarsMod.LOGGER.warn("Tried to spawn entity of type {} but chunk was not loaded", type);
+            BedWarsMod.LOGGER.warn("Tried to spawn entity of type {} but the chunk was not loaded", type);
             return null;
         }
 
@@ -195,7 +191,6 @@ public final class BwMap {
     }
 
     public CompletableFuture<Void> delete() {
-        this.shopKeepers.forEach(Entity::remove);
         this.generators.forEach(Generator::remove);
 
         return this.map.delete();

@@ -1,35 +1,41 @@
 package net.gegy1000.bedwars.map;
 
+import com.google.common.collect.ImmutableList;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import net.gegy1000.bedwars.util.BlockBounds;
 import net.gegy1000.bedwars.game.GameRegion;
+import net.gegy1000.bedwars.util.BlockBounds;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.Box;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public final class GameMap {
-    private static final BlockState AIR = Blocks.AIR.getDefaultState();
+    static final int SET_BLOCK_FLAGS = 0b0110000;
+    static final BlockState AIR = Blocks.AIR.getDefaultState();
 
     private final ServerWorld world;
     private final BlockBounds bounds;
-    private final List<GameRegion> regions;
 
+    final MapTickets tickets;
+
+    private final ImmutableList<GameRegion> regions;
     private final LongSet standardBlocks;
 
     GameMap(
-            ServerWorld world,
+            ServerWorld world, MapTickets tickets,
             BlockBounds bounds,
-            List<GameRegion> regions,
+            ImmutableList<GameRegion> regions,
             LongSet standardBlocks
     ) {
         this.world = world;
+        this.tickets = tickets;
         this.bounds = bounds;
         this.regions = regions;
         this.standardBlocks = standardBlocks;
@@ -52,26 +58,34 @@ public final class GameMap {
     }
 
     public CompletableFuture<Void> delete() {
-        return this.world.getServer().submit(() -> {
-            ChunkPos minChunk = new ChunkPos(this.bounds.getMin());
-            ChunkPos maxChunk = new ChunkPos(this.bounds.getMax());
+        MinecraftServer server = this.world.getServer();
 
-            for (int z = minChunk.z; z <= maxChunk.z; z++) {
-                for (int x = minChunk.x; x <= maxChunk.x; x++) {
-                    this.world.getChunk(x, z);
-                }
+        return server.submit(this::removeEntities)
+                .thenRunAsync(this::clearBlocks, server)
+                .thenRunAsync(this::releaseTickets, server);
+    }
+
+    private void removeEntities() {
+        Box box = this.bounds.toBox();
+
+        List<Entity> entities = this.world.getEntities(null, box);
+        for (Entity entity : entities) {
+            if (entity instanceof PlayerEntity) {
+                continue;
             }
 
-            this.bounds.iterate().forEach(pos -> {
-                this.world.setBlockState(pos, AIR, 3);
-            });
+            entity.remove();
+        }
+    }
 
-            List<Entity> entities = this.world.getEntities(null, this.bounds.toBox());
-            for (Entity entity : entities) {
-                if (!(entity instanceof PlayerEntity)) {
-                    entity.remove();
-                }
-            }
+    private void clearBlocks() {
+        // TODO: replace the chunks fully with their previous state?
+        this.bounds.iterate().forEach(pos -> {
+            this.world.setBlockState(pos, AIR, SET_BLOCK_FLAGS);
         });
+    }
+
+    private void releaseTickets() {
+        this.tickets.release(this.world);
     }
 }

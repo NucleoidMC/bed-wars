@@ -1,8 +1,8 @@
 package net.gegy1000.bedwars.map.provider;
 
 import com.mojang.serialization.Codec;
-import net.gegy1000.bedwars.game.config.GameConfig;
 import net.gegy1000.bedwars.map.GameMap;
+import net.gegy1000.bedwars.game.config.GameConfig;
 import net.gegy1000.bedwars.util.TinyRegistry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;

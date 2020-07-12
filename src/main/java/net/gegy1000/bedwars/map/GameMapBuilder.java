@@ -1,44 +1,43 @@
 package net.gegy1000.bedwars.map;
 
-import it.unimi.dsi.fastutil.longs.LongIterator;
+import com.google.common.collect.ImmutableList;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import net.gegy1000.bedwars.util.BlockBounds;
 import net.gegy1000.bedwars.game.GameRegion;
+import net.gegy1000.bedwars.util.BlockBounds;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public final class GameMapBuilder {
-    private static final int SET_BLOCK_FLAGS = 0b11;
-
     private final ServerWorld world;
     private final BlockPos origin;
 
-    private BlockBounds bounds;
+    private final BlockBounds bounds;
+    private final MapTickets tickets;
 
-    private final List<GameRegion> regions = new ArrayList<>();
+    private final ImmutableList.Builder<GameRegion> regions = ImmutableList.builder();
     private final LongSet standardBlocks = new LongOpenHashSet();
 
     private final BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 
-    public GameMapBuilder(ServerWorld world, BlockPos origin) {
+    private GameMapBuilder(ServerWorld world, BlockPos origin, BlockBounds bounds, MapTickets tickets) {
         this.world = world;
         this.origin = origin;
+        this.bounds = bounds;
+        this.tickets = tickets;
     }
 
-    public void setBounds(BlockBounds bounds) {
-        this.bounds = this.localToGlobal(bounds);
+    public static GameMapBuilder open(ServerWorld world, BlockPos origin, BlockBounds bounds) {
+        MapTickets tickets = MapTickets.acquire(world, bounds.offset(origin));
+        return new GameMapBuilder(world, origin, bounds, tickets);
     }
 
     public void setBlockState(BlockPos pos, BlockState state) {
         BlockPos globalPos = this.localToGlobal(pos);
 
-        this.world.setBlockState(globalPos, state, SET_BLOCK_FLAGS);
+        this.world.setBlockState(globalPos, state, GameMap.SET_BLOCK_FLAGS);
 
         long key = globalPos.asLong();
         if (!state.isAir()) {
@@ -49,7 +48,7 @@ public final class GameMapBuilder {
     }
 
     public BlockState getBlockState(BlockPos pos) {
-        return world.getBlockState(this.localToGlobal(pos));
+        return this.world.getBlockState(this.localToGlobal(pos));
     }
 
     public void setBlockEntity(BlockPos pos, BlockEntity blockEntity) {
@@ -84,47 +83,8 @@ public final class GameMapBuilder {
     }
 
     public GameMap build() {
-        if (this.bounds == null) {
-            this.bounds = this.computeEncompassingBounds();
-        }
-
-        return new GameMap(this.world, this.bounds, this.regions, this.standardBlocks);
-    }
-
-    private BlockBounds computeEncompassingBounds() {
-        if (this.standardBlocks.isEmpty()) {
-            return BlockBounds.EMPTY;
-        }
-
-        int minX = Integer.MAX_VALUE;
-        int minY = Integer.MAX_VALUE;
-        int minZ = Integer.MAX_VALUE;
-
-        int maxX = Integer.MIN_VALUE;
-        int maxY = Integer.MIN_VALUE;
-        int maxZ = Integer.MIN_VALUE;
-
-        LongIterator iterator = this.standardBlocks.iterator();
-        while (iterator.hasNext()) {
-            long pos = iterator.nextLong();
-
-            int x = BlockPos.unpackLongX(pos);
-            int y = BlockPos.unpackLongY(pos);
-            int z = BlockPos.unpackLongZ(pos);
-
-            if (x < minX) minX = x;
-            if (x > maxX) maxX = x;
-
-            if (y < minY) minY = y;
-            if (y > maxY) maxY = y;
-
-            if (z < minZ) minZ = z;
-            if (z > maxZ) maxZ = z;
-        }
-
-        return new BlockBounds(
-                new BlockPos(minX, minY, minZ),
-                new BlockPos(maxX, maxY, maxZ)
-        );
+        ImmutableList<GameRegion> regions = this.regions.build();
+        BlockBounds bounds = this.localToGlobal(this.bounds);
+        return new GameMap(this.world, this.tickets, bounds, regions, this.standardBlocks);
     }
 }

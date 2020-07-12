@@ -11,6 +11,7 @@ import net.gegy1000.bedwars.game.bw.gen.island.TeamIslandGen;
 import net.gegy1000.bedwars.map.GameMap;
 import net.gegy1000.bedwars.map.GameMapBuilder;
 import net.gegy1000.bedwars.map.provider.MapProvider;
+import net.gegy1000.bedwars.util.BlockBounds;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -27,17 +28,24 @@ public final class TestProceduralMapProvider implements MapProvider<BedWarsConfi
     private static final double SPAWN_ISLAND_DISTANCE = 120.0;
     private static final double DIAMOND_ISLAND_DISTANCE = 65.0;
 
+    private static final int HORIZONTAL_RADIUS = 150;
+    private static final int VERTICAL_RADIUS = 40;
+
     public static void register() {
         MapProvider.REGISTRY.register(new Identifier(BedWarsMod.ID, "procedural"), CODEC);
     }
 
     @Override
     public CompletableFuture<GameMap> createAt(ServerWorld world, BlockPos origin, BedWarsConfig config) {
-        Generator generator = new Generator(
-                new GameMapBuilder(world, origin),
-                config.getTeams()
+        // TODO: abstract away the origin to avoid mistakes in coordinate systems
+        BlockBounds bounds = new BlockBounds(
+                new BlockPos(-HORIZONTAL_RADIUS, -VERTICAL_RADIUS, -HORIZONTAL_RADIUS),
+                new BlockPos(HORIZONTAL_RADIUS, VERTICAL_RADIUS, HORIZONTAL_RADIUS)
         );
 
+        GameMapBuilder builder = GameMapBuilder.open(world, origin, bounds);
+
+        Generator generator = new Generator(builder, config.getTeams());
         return generator.generate(world.getServer(), world.random);
     }
 

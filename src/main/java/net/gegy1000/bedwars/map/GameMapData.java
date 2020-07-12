@@ -159,13 +159,10 @@ public final class GameMapData {
         return MAP_ROOT.resolve(identifier.getNamespace()).resolve(identifier.getPath());
     }
 
-    public GameMap addToWorld(ServerWorld world, BlockPos origin) {
-        GameMapBuilder builder = new GameMapBuilder(world, origin);
-        builder.setBounds(this.bounds);
+    public GameMap buildArena(ServerWorld world, BlockPos origin) {
+        GameMapBuilder builder = GameMapBuilder.open(world, origin, this.bounds);
 
-        BedWarsMod.LOGGER.debug("Adding game blocks to world...");
-
-        this.bounds.iterate().forEach(pos -> {
+        for (BlockPos pos : this.bounds.iterate()) {
             BlockState state = this.getBlockState(pos);
             builder.setBlockState(pos, state);
 
@@ -176,7 +173,7 @@ public final class GameMapData {
                     builder.setBlockEntity(pos, blockEntity);
                 }
             }
-        });
+        }
 
         for (GameRegion region : this.regions) {
             builder.addRegion(region);

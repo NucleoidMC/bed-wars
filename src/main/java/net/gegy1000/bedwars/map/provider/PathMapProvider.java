@@ -2,8 +2,8 @@ package net.gegy1000.bedwars.map.provider;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.gegy1000.bedwars.game.config.GameConfig;
 import net.gegy1000.bedwars.map.GameMap;
+import net.gegy1000.bedwars.game.config.GameConfig;
 import net.gegy1000.bedwars.map.GameMapData;
 import net.gegy1000.bedwars.util.BlockBounds;
 import net.minecraft.server.MinecraftServer;
@@ -33,7 +33,7 @@ public final class PathMapProvider<C extends GameConfig> implements MapProvider<
             BlockBounds bounds = data.getBounds();
             BlockPos size = bounds.getSize();
 
-            return data.addToWorld(world, origin.add(-size.getX() / 2, 0, -size.getZ() / 2));
+            return data.buildArena(world, origin.add(-size.getX() / 2, 0, -size.getZ() / 2));
         }, server);
     }
 
