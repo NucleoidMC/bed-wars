@@ -81,4 +81,8 @@ public final class GameConfigs {
     public static ConfiguredGame<?, ?> get(Identifier identifier) {
         return CONFIGURED_GAMES.get(identifier);
     }
+
+    public static Map<Identifier, ConfiguredGame<?, ?>> getConfiguredGames() {
+        return CONFIGURED_GAMES;
+    }
 }

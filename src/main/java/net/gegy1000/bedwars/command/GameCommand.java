@@ -72,6 +72,7 @@ public final class GameCommand {
                 .then(literal("join").executes(GameCommand::joinGame))
                 .then(literal("start").executes(GameCommand::startGame))
                 .then(literal("stop").executes(GameCommand::stopGame))
+                .then(literal("list").executes(GameCommand::listGames))
         );
     }
     // @formatter:on
@@ -193,6 +194,16 @@ public final class GameCommand {
 
             return null;
         });
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int listGames(CommandContext<ServerCommandSource> context) {
+        ServerCommandSource source = context.getSource();
+        source.sendFeedback(new LiteralText("Registered games:"), false);
+        for (Identifier id : GameConfigs.getConfiguredGames().keySet()) {
+            source.sendFeedback(new LiteralText(id.toString()), false);
+        }
 
         return Command.SINGLE_SUCCESS;
     }
