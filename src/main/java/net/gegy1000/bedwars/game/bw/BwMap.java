@@ -10,6 +10,7 @@ import net.gegy1000.bedwars.game.GameTeam;
 import net.gegy1000.bedwars.game.config.GameMapConfig;
 import net.gegy1000.bedwars.map.GameMap;
 import net.gegy1000.bedwars.util.BlockBounds;
+import net.gegy1000.bedwars.util.FloatingText;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
@@ -20,6 +21,10 @@ import net.minecraft.network.packet.s2c.play.ItemPickupAnimationS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -77,11 +82,11 @@ public final class BwMap {
         });
 
         this.getRegions("diamond_spawn").forEach(bounds -> {
-            this.generators.add(new Generator(bounds).setPool(GeneratorPool.DIAMOND).maxItems(6));
+            this.generators.add(new Generator(bounds).setPool(GeneratorPool.DIAMOND).maxItems(6).addTimerText());
         });
 
         this.getRegions("emerald_spawn").forEach(bounds -> {
-            this.generators.add(new Generator(bounds).setPool(GeneratorPool.EMERALD).maxItems(3));
+            this.generators.add(new Generator(bounds).setPool(GeneratorPool.EMERALD).maxItems(3).addTimerText());
         });
 
         for (GameTeam team : config.getTeams()) {
@@ -119,6 +124,7 @@ public final class BwMap {
         }
     }
 
+    @Nullable
     private Entity spawn(EntityType<?> type, CustomEntity custom, BlockBounds bounds) {
         Vec3d center = bounds.getCenter();
 
@@ -144,7 +150,11 @@ public final class BwMap {
             mob.initialize(this.world, difficulty, SpawnReason.COMMAND, null, null);
         }
 
-        this.world.spawnEntity(entity);
+        if (!this.world.spawnEntity(entity)) {
+            BedWarsMod.LOGGER.warn("Tried to spawn entity of type {} but chunk was not loaded", type);
+            return null;
+        }
+
         return entity;
     }
 
@@ -186,6 +196,8 @@ public final class BwMap {
 
     public CompletableFuture<Void> delete() {
         this.shopKeepers.forEach(Entity::remove);
+        this.generators.forEach(Generator::remove);
+
         return this.map.delete();
     }
 
@@ -250,6 +262,9 @@ public final class BwMap {
         private int maxItems = 4;
         private boolean allowDuplication;
 
+        private boolean hasTimerText;
+        private FloatingText timerText;
+
         public Generator(BlockBounds bounds) {
             this.bounds = bounds;
         }
@@ -269,15 +284,67 @@ public final class BwMap {
             return this;
         }
 
+        public Generator addTimerText() {
+            this.hasTimerText = true;
+            return this;
+        }
+
         public void tick(ServerWorld world, BwState state) {
             if (this.pool == null) return;
 
             long time = world.getTime();
 
+            if (this.hasTimerText) {
+                this.tickTimerText(world);
+            }
+
             if (time - this.lastItemSpawn > this.pool.getSpawnInterval()) {
                 this.spawnItems(world, state);
                 this.lastItemSpawn = time;
             }
+        }
+
+        private void tickTimerText(ServerWorld world) {
+            long time = world.getTime();
+
+            if (this.timerText == null) {
+                Vec3d textPos = this.bounds.getCenter();
+                textPos = textPos.add(0.0, 2.0, 0.0);
+
+                // TODO: we need to properly load the chunks rather than continually retrying spawning until it works
+                this.timerText = FloatingText.spawn(world, textPos, this.getTimerText(time));
+            }
+
+            if (this.timerText != null && time % 20 == 0) {
+                this.timerText.setText(this.getTimerText(time));
+            }
+        }
+
+        private Text getTimerText(long time) {
+            long timeSinceSpawn = time - this.lastItemSpawn;
+
+            long timeUntilSpawn = this.pool.getSpawnInterval() - timeSinceSpawn;
+            timeUntilSpawn = Math.max(0, timeUntilSpawn);
+
+            // TODO: duplication with scoreboard
+            long seconds = (timeUntilSpawn / 20) % 60;
+            long minutes = timeUntilSpawn / (20 * 60);
+
+            Formatting titleFormatting = Formatting.GOLD;
+
+            Formatting numberFormatting = Formatting.WHITE;
+
+            long secondsUntilSpawn = timeUntilSpawn / 20;
+            if (secondsUntilSpawn < 5) {
+                if ((secondsUntilSpawn & 1) == 0) {
+                    numberFormatting = Formatting.AQUA;
+                }
+            }
+
+            MutableText titleText = new LiteralText("Next spawn in: ");
+            MutableText numberText = new LiteralText(String.format("%02d:%02d", minutes, seconds));
+
+            return titleText.formatted(titleFormatting).append(numberText.formatted(numberFormatting));
         }
 
         private void spawnItems(ServerWorld world, BwState state) {
@@ -325,6 +392,12 @@ public final class BwMap {
             }
 
             return !players.isEmpty();
+        }
+
+        public void remove() {
+            if (this.timerText != null) {
+                this.timerText.remove();
+            }
         }
     }
 
