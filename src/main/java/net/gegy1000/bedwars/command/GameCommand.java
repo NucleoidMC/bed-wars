@@ -20,6 +20,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -157,7 +158,7 @@ public final class GameCommand {
 
         MinecraftServer server = source.getMinecraftServer();
         PlayerManager playerManager = server.getPlayerManager();
-        playerManager.broadcastChatMessage(new LiteralText(game.getName() + " is starting.."), MessageType.SYSTEM, Util.NIL_UUID);
+        playerManager.broadcastChatMessage(new LiteralText(game.getName() + " is starting.. Hold tight!"), MessageType.SYSTEM, Util.NIL_UUID);
 
         recruiting.start(source.getMinecraftServer())
                 .handle((v, throwable) -> {
@@ -200,9 +201,20 @@ public final class GameCommand {
 
     private static int listGames(CommandContext<ServerCommandSource> context) {
         ServerCommandSource source = context.getSource();
-        source.sendFeedback(new LiteralText("Registered games:"), false);
+        source.sendFeedback(new LiteralText("Registered games:").formatted(Formatting.BOLD), false);
         for (Identifier id : GameConfigs.getConfiguredGames().keySet()) {
-            source.sendFeedback(new LiteralText(id.toString()), false);
+            String command = "/game open " + id;
+
+            ClickEvent linkClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
+            HoverEvent linkHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(command));
+            Style linkStyle = Style.EMPTY
+                    .withFormatting(Formatting.UNDERLINE)
+                    .withColor(Formatting.BLUE)
+                    .withClickEvent(linkClick)
+                    .setHoverEvent(linkHover);
+
+            MutableText link = new LiteralText(id.toString()).setStyle(linkStyle);
+            source.sendFeedback(new LiteralText(" - ").append(link), false);
         }
 
         return Command.SINGLE_SUCCESS;

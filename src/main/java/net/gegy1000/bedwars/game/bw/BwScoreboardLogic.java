@@ -24,14 +24,17 @@ public final class BwScoreboardLogic {
 
     private ScoreboardObjective objective;
     private boolean dirty;
-    private long startTime;
+
+    private long ticks;
 
     BwScoreboardLogic(BedWars game) {
         this.game = game;
     }
 
     public void tick() {
-        if (this.dirty) {
+        this.ticks++;
+
+        if (this.dirty || this.ticks % 20 == 0) {
             this.rerender();
             this.dirty = false;
         }
@@ -50,7 +53,6 @@ public final class BwScoreboardLogic {
 
         scoreboard.setObjectiveSlot(1, this.objective);
 
-        startTime = System.currentTimeMillis();
         this.rerender();
     }
 
@@ -102,11 +104,10 @@ public final class BwScoreboardLogic {
 
         List<String> lines = new ArrayList<>(10);
 
-        long currTime = System.currentTimeMillis() - startTime;
-        long minutes = currTime / (1000 * 60);
-        long seconds = (currTime / 1000) % 60;
+        long seconds = (this.ticks / 20) % 60;
+        long minutes = this.ticks / (20 * 60);
 
-        lines.add(minutes + " min "  + seconds + " seconds");
+        lines.add(String.format("%sTime: %s%02d:%02d", Formatting.RED.toString() + Formatting.BOLD, Formatting.RESET, minutes, seconds));
 
         long playersAlive = this.game.state.participants()
                 .filter(participant -> !participant.eliminated && participant.inGame())

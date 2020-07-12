@@ -45,10 +45,8 @@ public final class ItemShop {
             shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.SHEARS)), Cost.ofIron(40));
             shop.addItem(bedWars.createTool(new ItemStack(Items.WOODEN_AXE)), Cost.ofIron(10));
             shop.addItem(bedWars.createTool(new ItemStack(Items.WOODEN_PICKAXE)), Cost.ofIron(10));
-            shop.addItem(bedWars.createTool(new ItemStack(Items.IRON_HOE)), Cost.ofGold(4));
             shop.addItem(bedWars.createTool(new ItemStack(Items.IRON_AXE)), Cost.ofGold(8));
             shop.addItem(bedWars.createTool(new ItemStack(Items.IRON_PICKAXE)), Cost.ofGold(8));
-            shop.addItem(bedWars.createTool(new ItemStack(Items.DIAMOND_HOE)), Cost.ofGold(8));
             shop.addItem(bedWars.createTool(new ItemStack(Items.DIAMOND_AXE)), Cost.ofGold(12));
             shop.addItem(bedWars.createTool(new ItemStack(Items.DIAMOND_PICKAXE)), Cost.ofGold(12));
 
