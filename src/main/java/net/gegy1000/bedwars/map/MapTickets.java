@@ -30,6 +30,7 @@ final class MapTickets {
         ServerChunkManager chunkManager = world.getChunkManager();
         this.stream().forEach(ticketPos -> {
             chunkManager.setChunkForced(ticketPos, true);
+            world.getChunk(ticketPos.x, ticketPos.z);
         });
     }
 
