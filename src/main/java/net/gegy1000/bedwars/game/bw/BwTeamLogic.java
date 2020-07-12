@@ -52,7 +52,7 @@ public final class BwTeamLogic {
             return;
         }
 
-        bed.bounds.iterate().forEach(p -> this.game.world.setBlockState(p, Blocks.AIR.getDefaultState(), 32));
+        bed.bounds.iterate().forEach(p -> this.game.world.setBlockState(p, Blocks.AIR.getDefaultState(), 0b100010));
         this.game.broadcast.broadcastBedBroken(player, bed.team, destroyerTeam);
         game.triggerModifiers(GameTriggers.BED_BROKEN);
 

@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public final class GameMap {
-    static final int SET_BLOCK_FLAGS = 0b0110000;
+    static final int SET_BLOCK_FLAGS = 0b0110011;
     static final BlockState AIR = Blocks.AIR.getDefaultState();
 
     private final ServerWorld world;

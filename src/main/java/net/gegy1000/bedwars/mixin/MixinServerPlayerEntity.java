@@ -1,28 +1,27 @@
 package net.gegy1000.bedwars.mixin;
 
 import com.mojang.authlib.GameProfile;
+import net.gegy1000.bedwars.event.PlayerDeathCallback;
 import net.gegy1000.bedwars.game.GameManager;
 import net.gegy1000.bedwars.game.bw.BedWars;
+import net.gegy1000.bedwars.map.MapViewer;
+import net.gegy1000.bedwars.map.StagingMap;
 import net.gegy1000.bedwars.map.trace.PartialRegion;
 import net.gegy1000.bedwars.map.trace.RegionTraceMode;
-import net.gegy1000.bedwars.map.MapViewer;
 import net.gegy1000.bedwars.map.trace.RegionTracer;
-import net.gegy1000.bedwars.event.PlayerDeathCallback;
-import net.gegy1000.bedwars.map.StagingMap;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
 
@@ -109,16 +108,13 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements Ma
     }
 
     /**
-     * Disable pvp outside of game
-     * @author SuperCoder79
+     * Ensure that PVP is enabled when in a game
      */
-    @Overwrite
-    private boolean isPvpEnabled() {
+    @Inject(method = "isPvpEnabled", at = @At("HEAD"), cancellable = true)
+    private void testPvpEnabled(CallbackInfoReturnable<Boolean> cir) {
         BedWars game = GameManager.activeFor(BedWars.TYPE);
         if (game != null && game.map.contains(this.getBlockPos())) {
-            return true;
+            cir.setReturnValue(true);
         }
-
-        return false;
     }
 }
