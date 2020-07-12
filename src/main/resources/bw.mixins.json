@@ -6,6 +6,8 @@
   "mixins": [
     "MixinBedBlock",
     "MixinCraftingResultInventory",
+    "MixinEggEntity",
+    "MixinEggItem",
     "MixinEntity",
     "MixinExplosion",
     "MixinFireChargeItem",
