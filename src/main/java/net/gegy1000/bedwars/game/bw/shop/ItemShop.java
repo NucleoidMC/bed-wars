@@ -1,5 +1,6 @@
 package net.gegy1000.bedwars.game.bw.shop;
 
+import net.gegy1000.bedwars.custom.CustomItems;
 import net.gegy1000.bedwars.util.ColoredBlocks;
 import net.gegy1000.bedwars.util.ItemUtil;
 import net.gegy1000.bedwars.game.GameManager;
@@ -55,7 +56,7 @@ public final class ItemShop {
             shop.addItem(new ItemStack(Items.ENDER_PEARL), Cost.ofEmeralds(4));
             shop.addItem(new ItemStack(Items.WATER_BUCKET), Cost.ofGold(10));
             shop.addItem(new ItemStack(Items.GOLDEN_APPLE), Cost.ofGold(3));
-            shop.addItem(new ItemStack(Items.EGG), Cost.ofEmeralds(1));
+            shop.addItem(CustomItems.BRIDGE_EGG.applyTo(new ItemStack(Items.EGG)), Cost.ofEmeralds(2));
 
             if (participant != null) {
                 ArmorLevel armorLevel = participant.armorLevel;

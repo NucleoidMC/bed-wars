@@ -33,4 +33,8 @@ public final class CustomEntities {
                 return ActionResult.SUCCESS;
             })
             .register();
+
+    public static final CustomEntity BRIDGE_EGG = CustomEntity.builder()
+            .id(new Identifier(BedWarsMod.ID, "bridge_egg"))
+            .register();
 }

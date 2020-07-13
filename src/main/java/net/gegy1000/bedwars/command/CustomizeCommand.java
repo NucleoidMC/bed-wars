@@ -47,7 +47,7 @@ public final class CustomizeCommand {
 
         ItemStack stack = player.getStackInHand(Hand.MAIN_HAND);
         if (!stack.isEmpty()) {
-            customItem.apply(stack);
+            customItem.applyTo(stack);
         }
 
         return Command.SINGLE_SUCCESS;

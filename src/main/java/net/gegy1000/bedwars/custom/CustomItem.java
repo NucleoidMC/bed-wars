@@ -37,18 +37,20 @@ public final class CustomItem {
         return new Builder();
     }
 
-    public void apply(ItemStack stack) {
+    public ItemStack applyTo(ItemStack stack) {
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString(BedWarsMod.ID + ":custom_item", this.id.toString());
 
         if (this.name != null && !stack.hasCustomName()) {
             stack.setCustomName(this.name);
         }
+
+        return stack;
     }
 
     public ItemStack create(Item item) {
         ItemStack stack = new ItemStack(item);
-        this.apply(stack);
+        this.applyTo(stack);
         return stack;
     }
 

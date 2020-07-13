@@ -13,7 +13,6 @@ import net.gegy1000.bedwars.custom.CustomEntities;
 import net.gegy1000.bedwars.custom.CustomEntity;
 import net.gegy1000.bedwars.custom.CustomItem;
 import net.gegy1000.bedwars.custom.CustomItems;
-import net.gegy1000.bedwars.custom.CustomizableEntity;
 import net.gegy1000.bedwars.event.SwingHandCallback;
 import net.gegy1000.bedwars.game.bw.BedWars;
 import net.gegy1000.bedwars.game.bw.TestProceduralMapProvider;
@@ -75,12 +74,9 @@ public final class BedWarsMod implements ModInitializer {
         });
 
         UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
-            if (entity instanceof CustomizableEntity) {
-                CustomizableEntity customizable = (CustomizableEntity) entity;
-                CustomEntity customEntity = customizable.getCustomEntity();
-                if (customEntity != null) {
-                    return customEntity.interact(player, world, hand, entity, hitResult);
-                }
+            CustomEntity customEntity = CustomEntity.match(entity);
+            if (customEntity != null) {
+                return customEntity.interact(player, world, hand, entity, hitResult);
             }
             return ActionResult.PASS;
         });

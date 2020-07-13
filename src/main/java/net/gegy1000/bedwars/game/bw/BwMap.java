@@ -5,7 +5,6 @@ import com.google.common.collect.Multimap;
 import net.gegy1000.bedwars.BedWarsMod;
 import net.gegy1000.bedwars.custom.CustomEntities;
 import net.gegy1000.bedwars.custom.CustomEntity;
-import net.gegy1000.bedwars.custom.CustomizableEntity;
 import net.gegy1000.bedwars.game.GameTeam;
 import net.gegy1000.bedwars.map.GameMap;
 import net.gegy1000.bedwars.game.config.GameMapConfig;
@@ -130,9 +129,7 @@ public final class BwMap {
             return null;
         }
 
-        if (entity instanceof CustomizableEntity) {
-            ((CustomizableEntity) entity).setCustomEntity(custom);
-        }
+        custom.applyTo(entity);
 
         entity.refreshPositionAndAngles(center.x, bounds.getMin().getY(), center.z, 0.0F, 0.0F);
 

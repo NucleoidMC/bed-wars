@@ -51,6 +51,20 @@ public final class CustomEntity {
         return REGISTRY.get(identifier);
     }
 
+    public void applyTo(Entity entity) {
+        if (entity instanceof CustomizableEntity) {
+            ((CustomizableEntity) entity).setCustomEntity(this);
+        }
+    }
+
+    @Nullable
+    public static CustomEntity match(Entity entity) {
+        if (entity instanceof CustomizableEntity) {
+            return ((CustomizableEntity) entity).getCustomEntity();
+        }
+        return null;
+    }
+
     public static class Builder {
         private Identifier id;
         private Text name;
