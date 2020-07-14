@@ -42,6 +42,14 @@ public final class BwEvents {
     }
 
     public boolean onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
+        if (this.game.state == null) {
+            if (this.game.waiting.containsPlayer(player)) {
+                this.game.waiting.spawnPlayer(player);
+                return true;
+            }
+            return false;
+        }
+
         BwState.Participant participant = this.game.state.getParticipant(player);
 
         // TODO: this should go in KillLogic?
@@ -96,6 +104,10 @@ public final class BwEvents {
     }
 
     public void onPlayerJoin(ServerPlayerEntity player) {
+        if (this.game.state == null) {
+            return;
+        }
+
         BwState.Participant participant = this.game.state.getParticipant(player);
 
         if (participant != null) {
@@ -127,6 +139,10 @@ public final class BwEvents {
     }
 
     public ActionResult onAttackEntity(PlayerEntity player, World world, Hand hand, Entity entity, EntityHitResult hitResult) {
+        if (this.game.state == null) {
+            return ActionResult.PASS;
+        }
+
         BwState.Participant participant = this.game.state.getParticipant(player);
         BwState.Participant attackedParticipant = this.game.state.getParticipant(entity.getUuid());
         if (participant != null && attackedParticipant != null) {
@@ -134,10 +150,15 @@ public final class BwEvents {
                 return ActionResult.FAIL;
             }
         }
+
         return ActionResult.PASS;
     }
 
     public ActionResult onUseBlock(PlayerEntity player, BlockHitResult hitResult) {
+        if (this.game.state == null) {
+            return ActionResult.PASS;
+        }
+
         BwState.Participant participant = this.game.state.getParticipant(player);
 
         if (participant != null) {

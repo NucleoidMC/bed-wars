@@ -26,6 +26,10 @@ public final class WaitingPlayers {
         }
     }
 
+    public boolean contains(ServerPlayerEntity player) {
+        return this.players.contains(player);
+    }
+
     public int size() {
         return this.players.size();
     }

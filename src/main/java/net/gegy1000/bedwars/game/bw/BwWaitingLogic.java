@@ -36,6 +36,7 @@ public final class BwWaitingLogic {
         }
 
         if (this.players.addPlayer(player)) {
+            this.game.joinPlayerToMap(player);
             this.spawnPlayer(player);
 
             return JoinResult.OK;
@@ -59,10 +60,9 @@ public final class BwWaitingLogic {
         }
     }
 
-    private void spawnPlayer(ServerPlayerEntity player) {
-        this.game.joinPlayerToMap(player);
-
+    public void spawnPlayer(ServerPlayerEntity player) {
         player.setGameMode(GameMode.ADVENTURE);
+        this.game.playerLogic.resetPlayer(player);
         this.game.playerLogic.spawnAtCenter(player);
 
         List<GameTeam> teams = this.game.config.getTeams();
@@ -79,6 +79,10 @@ public final class BwWaitingLogic {
 
             player.inventory.setStack(i, CustomItems.TEAM_SELECTOR.applyTo(selectorStack));
         }
+    }
+
+    public boolean containsPlayer(ServerPlayerEntity player) {
+        return this.players.contains(player);
     }
 
     public Either<BwState, StartResult> tryStart() {
