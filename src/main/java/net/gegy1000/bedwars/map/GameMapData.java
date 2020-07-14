@@ -1,9 +1,12 @@
 package net.gegy1000.bedwars.map;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.gegy1000.bedwars.BedWarsMod;
-import net.gegy1000.bedwars.util.BlockBounds;
 import net.gegy1000.bedwars.game.GameManager;
 import net.gegy1000.bedwars.game.GameRegion;
+import net.gegy1000.bedwars.util.BlockBounds;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -15,7 +18,6 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.chunk.IdListPalette;
 import net.minecraft.world.chunk.Palette;
 import net.minecraft.world.chunk.PalettedContainer;
@@ -28,9 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -41,8 +41,8 @@ public final class GameMapData {
 
     private final Identifier identifier;
 
-    final Map<Vec3i, MapChunk> chunks = new HashMap<>();
-    final Map<BlockPos, CompoundTag> blockEntities = new HashMap<>();
+    final Long2ObjectMap<MapChunk> chunks = new Long2ObjectOpenHashMap<>();
+    final Long2ObjectMap<CompoundTag> blockEntities = new Long2ObjectOpenHashMap<>();
     final List<GameRegion> regions = new ArrayList<>();
 
     BlockBounds bounds = new BlockBounds(BlockPos.ORIGIN, BlockPos.ORIGIN);
@@ -76,10 +76,10 @@ public final class GameMapData {
                 continue;
             }
 
-            Vec3i pos = new Vec3i(posArray[0], posArray[1], posArray[2]);
+            BlockPos pos = new BlockPos(posArray[0], posArray[1], posArray[2]);
             MapChunk chunk = MapChunk.deserialize(chunkRoot);
 
-            this.chunks.put(pos, chunk);
+            this.chunks.put(pos.asLong(), chunk);
         }
 
         ListTag regionList = root.getList("regions", 10);
@@ -96,7 +96,7 @@ public final class GameMapData {
                     blockEntity.getInt("y"),
                     blockEntity.getInt("z")
             );
-            this.blockEntities.put(pos, blockEntity);
+            this.blockEntities.put(pos.asLong(), blockEntity);
         }
 
         this.bounds = BlockBounds.deserialize(root.getCompound("bounds"));
@@ -106,10 +106,12 @@ public final class GameMapData {
         CompoundTag root = new CompoundTag();
 
         ListTag chunkList = new ListTag();
-        for (Map.Entry<Vec3i, MapChunk> entry : this.chunks.entrySet()) {
-            CompoundTag chunkRoot = new CompoundTag();
-            Vec3i pos = entry.getKey();
+
+        for (Long2ObjectMap.Entry<MapChunk> entry : Long2ObjectMaps.fastIterable(this.chunks)) {
+            BlockPos pos = BlockPos.fromLong(entry.getLongKey());
             MapChunk chunk = entry.getValue();
+
+            CompoundTag chunkRoot = new CompoundTag();
 
             chunkRoot.putIntArray("pos", new int[] { pos.getX(), pos.getY(), pos.getZ() });
             chunk.serialize(chunkRoot);
@@ -142,18 +144,20 @@ public final class GameMapData {
     }
 
     void setBlockState(BlockPos pos, BlockState state) {
-        Vec3i chunkPos = new Vec3i(pos.getX() >> 4, pos.getY() >> 4, pos.getZ() >> 4);
-        MapChunk chunk = this.chunks.computeIfAbsent(chunkPos, p -> new MapChunk());
+        MapChunk chunk = this.chunks.computeIfAbsent(chunkPos(pos), p -> new MapChunk());
         chunk.set(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, state);
     }
 
     BlockState getBlockState(BlockPos pos) {
-        Vec3i chunkPos = new Vec3i(pos.getX() >> 4, pos.getY() >> 4, pos.getZ() >> 4);
-        MapChunk chunk = this.chunks.get(chunkPos);
+        MapChunk chunk = this.chunks.get(chunkPos(pos));
         if (chunk != null) {
             return chunk.get(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
         }
         return AIR;
+    }
+
+    private static long chunkPos(BlockPos pos) {
+        return BlockPos.asLong(pos.getX() >> 4, pos.getY() >> 4, pos.getZ() >> 4);
     }
 
     private static Path getPathFor(Identifier identifier) {
@@ -165,9 +169,11 @@ public final class GameMapData {
 
         for (BlockPos pos : this.bounds.iterate()) {
             BlockState state = this.getBlockState(pos);
-            builder.setBlockState(pos, state);
+            if (!state.isAir()) {
+                builder.setBlockState(pos, state);
+            }
 
-            CompoundTag beTag = this.blockEntities.get(pos);
+            CompoundTag beTag = this.blockEntities.get(pos.asLong());
             if (beTag != null) {
                 BlockEntity blockEntity = BlockEntity.createFromTag(state, beTag);
                 if (blockEntity != null) {

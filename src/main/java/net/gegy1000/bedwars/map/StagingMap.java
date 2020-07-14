@@ -83,17 +83,17 @@ public final class StagingMap {
 
     public GameMapData compile() {
         GameMapData map = new GameMapData(this.identifier);
-        map.bounds = this.localize(this.bounds);
+        map.bounds = this.globalToLocal(this.bounds);
 
         for (GameRegion region : this.regions) {
             map.regions.add(new GameRegion(
                     region.getMarker(),
-                    this.localize(region.getBounds())
+                    this.globalToLocal(region.getBounds())
             ));
         }
 
         for (BlockPos pos : this.bounds.iterate()) {
-            BlockPos localPos = this.localize(pos);
+            BlockPos localPos = this.globalToLocal(pos);
 
             BlockEntity entity = this.world.getBlockEntity(pos);
             if (entity != null) {
@@ -101,7 +101,7 @@ public final class StagingMap {
                 entityTag.putInt("x", localPos.getX());
                 entityTag.putInt("y", localPos.getY());
                 entityTag.putInt("z", localPos.getZ());
-                map.blockEntities.put(localPos, entityTag);
+                map.blockEntities.put(localPos.asLong(), entityTag);
             }
 
             BlockState state = this.world.getBlockState(pos);
@@ -111,11 +111,11 @@ public final class StagingMap {
         return map;
     }
 
-    private BlockPos localize(BlockPos pos) {
+    private BlockPos globalToLocal(BlockPos pos) {
         return pos.subtract(this.bounds.getMin());
     }
 
-    private BlockBounds localize(BlockBounds bounds) {
-        return new BlockBounds(this.localize(bounds.getMin()), this.localize(bounds.getMax()));
+    private BlockBounds globalToLocal(BlockBounds bounds) {
+        return new BlockBounds(this.globalToLocal(bounds.getMin()), this.globalToLocal(bounds.getMax()));
     }
 }
