@@ -42,8 +42,10 @@ public abstract class MixinEggEntity extends ThrownItemEntity implements BlockSt
 			BedWars game = GameManager.activeFor(BedWars.TYPE);
 			if (game != null) {
 				BlockPos pos = this.getBlockPos().down();
-				if (world.getBlockState(pos).isAir()) {
-					world.setBlockState(pos, woolState);
+				if (game.map.contains(pos)) {
+					if (world.getBlockState(pos).isAir()) {
+						world.setBlockState(pos, woolState);
+					}
 				}
 			}
 		}
