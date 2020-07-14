@@ -22,6 +22,7 @@ import net.gegy1000.bedwars.game.modifier.GameTriggers;
 import net.gegy1000.bedwars.util.ItemUtil;
 import net.gegy1000.bedwars.util.OldCombat;
 import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
@@ -212,28 +213,16 @@ public final class BedWars implements Game {
         return stack;
     }
 
-    @Override
-    public CompletableFuture<Void> stop() {
-        this.active = false;
-        this.closed = true;
-
-        this.restorePlayers();
-        this.scoreboardLogic.resetScoreboard();
-
-        return this.map.delete();
-    }
-
     public void takeSnapshot(ServerPlayerEntity player) {
         this.playerSnapshots.put(player.getUuid(), PlayerSnapshot.take(player));
     }
 
     private void restorePlayers() {
-        this.state.participants().forEach(participant -> {
+        this.playerSnapshots.forEach((uuid, snapshot) -> {
             // TODO: restore if offline
-            ServerPlayerEntity player = participant.player();
-            if (player != null) {
-                PlayerSnapshot snapshot = this.playerSnapshots.get(player.getUuid());
-                snapshot.restore(player);
+            PlayerEntity player = this.world.getPlayerByUuid(uuid);
+            if (player != null && player instanceof ServerPlayerEntity) {
+                snapshot.restore((ServerPlayerEntity) player);
             }
         });
     }
@@ -295,6 +284,24 @@ public final class BedWars implements Game {
 
         // TODO: join player as spectator
         return JoinResult.GAME_FULL;
+    }
+
+    @Override
+    public CompletableFuture<Void> stop() {
+        if (this.closed) {
+            return CompletableFuture.completedFuture(null);
+        }
+
+        this.closed = true;
+
+        this.restorePlayers();
+
+        if (this.active) {
+            this.scoreboardLogic.resetScoreboard();
+            this.active = false;
+        }
+
+        return this.map.delete();
     }
 
     @Override
