@@ -14,6 +14,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.world.GameMode;
 
 import java.util.List;
 
@@ -60,6 +61,8 @@ public final class BwWaitingLogic {
 
     private void spawnPlayer(ServerPlayerEntity player) {
         this.game.joinPlayerToMap(player);
+
+        player.setGameMode(GameMode.ADVENTURE);
         this.game.playerLogic.spawnAtCenter(player);
 
         List<GameTeam> teams = this.game.config.getTeams();
