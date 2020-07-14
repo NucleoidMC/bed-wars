@@ -39,7 +39,7 @@ public abstract class MixinEggEntity extends ThrownItemEntity implements BlockSt
 
 		// Place wool every tick
 		if (!this.world.isClient()) {
-			BedWars game = GameManager.activeFor(BedWars.TYPE);
+			BedWars game = GameManager.openFor(BedWars.TYPE);
 			if (game != null) {
 				BlockPos pos = this.getBlockPos().down();
 				if (game.map.contains(pos)) {
@@ -54,7 +54,7 @@ public abstract class MixinEggEntity extends ThrownItemEntity implements BlockSt
 	@Inject(method = "onCollision", at = @At("HEAD"), cancellable = true)
 	private void handleCollision(HitResult hitResult, CallbackInfo ci) {
 		if (!this.world.isClient()) {
-			BedWars game = GameManager.activeFor(BedWars.TYPE);
+			BedWars game = GameManager.openFor(BedWars.TYPE);
 			if (game != null) {
 				// Cancel if it's trying to hit our wool
 				if (hitResult.getType() == HitResult.Type.BLOCK) {

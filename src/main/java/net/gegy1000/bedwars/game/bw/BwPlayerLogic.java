@@ -28,13 +28,13 @@ public final class BwPlayerLogic {
         this.game = game;
     }
 
-    public void setupPlayers() {
+    public void resetPlayers() {
         this.game.state.participants().forEach(participant -> {
             ServerPlayerEntity player = participant.player();
             if (player == null) {
                 return;
             }
-            this.setupPlayer(player);
+            this.resetPlayer(player);
         });
     }
 
@@ -68,7 +68,7 @@ public final class BwPlayerLogic {
         }
     }
 
-    private void setupPlayer(ServerPlayerEntity player) {
+    public void resetPlayer(ServerPlayerEntity player) {
         player.inventory.clear();
         player.getEnderChestInventory().clear();
         player.clearStatusEffects();

@@ -6,6 +6,7 @@ import net.gegy1000.bedwars.game.GameTeam;
 import net.gegy1000.bedwars.game.config.CombatConfig;
 import net.gegy1000.bedwars.game.config.GameConfig;
 import net.gegy1000.bedwars.game.config.GameMapConfig;
+import net.gegy1000.bedwars.game.config.PlayerConfig;
 import net.gegy1000.bedwars.game.modifier.GameModifier;
 
 import java.util.Collections;
@@ -19,7 +20,8 @@ public final class BedWarsConfig implements GameConfig {
                 mapCodec.fieldOf("map").forGetter(BedWarsConfig::getMapConfig),
                 CombatConfig.CODEC.fieldOf("combat").withDefault(CombatConfig.DEFAULT).forGetter(BedWarsConfig::getCombatConfig),
                 GameModifier.CODEC.listOf().fieldOf("modifiers").withDefault(Collections.emptyList()).forGetter(BedWarsConfig::getModifiers),
-                GameTeam.CODEC.listOf().fieldOf("teams").forGetter(BedWarsConfig::getTeams)
+                GameTeam.CODEC.listOf().fieldOf("teams").forGetter(BedWarsConfig::getTeams),
+                PlayerConfig.CODEC.fieldOf("players").forGetter(BedWarsConfig::getPlayerConfig)
         ).apply(instance, BedWarsConfig::new);
     });
 
@@ -27,17 +29,20 @@ public final class BedWarsConfig implements GameConfig {
     private final CombatConfig combatConfig;
     private final List<GameModifier> modifiers;
     private final List<GameTeam> teams;
+    private final PlayerConfig playerConfig;
 
     public BedWarsConfig(
             GameMapConfig<BedWarsConfig> mapConfig,
             CombatConfig combatConfig,
             List<GameModifier> modifiers,
-            List<GameTeam> teams
+            List<GameTeam> teams,
+            PlayerConfig playerConfig
     ) {
         this.mapConfig = mapConfig;
         this.combatConfig = combatConfig;
         this.modifiers = modifiers;
         this.teams = teams;
+        this.playerConfig = playerConfig;
     }
 
     public GameMapConfig<BedWarsConfig> getMapConfig() {
@@ -54,5 +59,9 @@ public final class BedWarsConfig implements GameConfig {
 
     public List<GameTeam> getTeams() {
         return this.teams;
+    }
+
+    public PlayerConfig getPlayerConfig() {
+        return this.playerConfig;
     }
 }

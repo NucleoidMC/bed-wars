@@ -26,7 +26,7 @@ public class MixinDefaultExplosionBehavior {
             BlockPos pos, BlockState block, FluidState fluid,
             CallbackInfoReturnable<Optional<Float>> ci
     ) {
-        BedWars game = GameManager.activeFor(BedWars.TYPE);
+        BedWars game = GameManager.openFor(BedWars.TYPE);
         if (game != null && game.map.contains(pos)) {
             if (block.getBlock() instanceof StainedGlassBlock) {
                 ci.setReturnValue(GLASS_RESISTANCE);

@@ -11,6 +11,7 @@ import net.gegy1000.bedwars.BedWarsMod;
 import net.gegy1000.bedwars.game.ConfiguredGame;
 import net.gegy1000.bedwars.game.GameManager;
 import net.gegy1000.bedwars.game.JoinResult;
+import net.gegy1000.bedwars.game.StartResult;
 import net.gegy1000.bedwars.game.config.GameConfigs;
 import net.minecraft.command.arguments.IdentifierArgumentType;
 import net.minecraft.network.MessageType;
@@ -56,8 +57,12 @@ public final class GameCommand {
             new LiteralText("Already joined game!")
     );
 
-    public static final SimpleCommandExceptionType GAME_NOT_READY = new SimpleCommandExceptionType(
-            new LiteralText("Game not ready to start yet!")
+    public static final SimpleCommandExceptionType NOT_ENOUGH_PLAYERS = new SimpleCommandExceptionType(
+            new LiteralText("Game does not have enough players yet!")
+    );
+
+    public static final SimpleCommandExceptionType ALREADY_ACTIVE = new SimpleCommandExceptionType(
+            new LiteralText("Game is already running!")
     );
 
     public static final SimpleCommandExceptionType NOT_ACTIVE = new SimpleCommandExceptionType(
@@ -95,10 +100,23 @@ public final class GameCommand {
             throw ALREADY_OPEN.create();
         }
 
-        inactive.get().recruit(game);
-
         PlayerManager playerManager = server.getPlayerManager();
+        playerManager.broadcastChatMessage(new LiteralText(game.getName() + " is opening! Hold tight.."), MessageType.SYSTEM, Util.NIL_UUID);
 
+        inactive.get().open(server, game)
+                .handle((gameAndConfig, throwable) -> {
+                    if (throwable == null) {
+                        onOpenSuccess(game, playerManager);
+                    } else {
+                        onOpenError(playerManager, throwable);
+                    }
+                    return null;
+                });
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static void onOpenSuccess(ConfiguredGame<?, ?> game, PlayerManager playerManager) {
         ClickEvent joinClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/game join");
         HoverEvent joinHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("/game join"));
         Style joinStyle = Style.EMPTY
@@ -110,8 +128,11 @@ public final class GameCommand {
         Text openMessage = new LiteralText(game.getName() + " has opened! ")
                 .append(new LiteralText("Click here to join").setStyle(joinStyle));
         playerManager.broadcastChatMessage(openMessage, MessageType.SYSTEM, Util.NIL_UUID);
+    }
 
-        return Command.SINGLE_SUCCESS;
+    private static void onOpenError(PlayerManager playerManager, Throwable throwable) {
+        BedWarsMod.LOGGER.error("Failed to start game", throwable);
+        playerManager.broadcastChatMessage(new LiteralText("An exception occurred while trying to start game"), MessageType.SYSTEM, Util.NIL_UUID);
     }
 
     private static int joinGame(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
@@ -119,12 +140,12 @@ public final class GameCommand {
         ServerPlayerEntity player = source.getPlayer();
         PlayerManager playerManager = source.getMinecraftServer().getPlayerManager();
 
-        Optional<GameManager.Recruiting<?>> recruiting = GameManager.recruiting();
-        if (!recruiting.isPresent()) {
+        Optional<GameManager.Open<?>> openOpt = GameManager.open();
+        if (!openOpt.isPresent()) {
             throw NOT_RECRUITING.create();
         }
 
-        JoinResult joinResult = recruiting.get().joinPlayer(player);
+        JoinResult joinResult = openOpt.get().offerPlayer(player);
         if (joinResult == JoinResult.GAME_FULL) {
             throw GAME_FULL.create();
         }
@@ -138,53 +159,44 @@ public final class GameCommand {
                 .setStyle(Style.EMPTY.withColor(Formatting.YELLOW));
         playerManager.broadcastChatMessage(joinMessage, MessageType.SYSTEM, Util.NIL_UUID);
 
-        source.sendFeedback(new LiteralText("You have joined the lobby! You will be teleported when the game starts"), false);
-
         return Command.SINGLE_SUCCESS;
     }
 
     private static int startGame(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
 
-        Optional<GameManager.Recruiting<?>> recruitingOpt = GameManager.recruiting();
-        if (!recruitingOpt.isPresent()) {
+        Optional<GameManager.Open<?>> openOpt = GameManager.open();
+        if (!openOpt.isPresent()) {
             throw NOT_RECRUITING.create();
         }
 
-        GameManager.Recruiting<?> recruiting = recruitingOpt.get();
-        if (!recruiting.canStart()) {
-            throw GAME_NOT_READY.create();
-        }
+        GameManager.Open<?> open = openOpt.get();
 
-        ConfiguredGame<?, ?> game = recruiting.getGame();
+        StartResult result = open.requestStart();
+        if (result == StartResult.NOT_ENOUGH_PLAYERS) {
+            throw NOT_ENOUGH_PLAYERS.create();
+        } else if (result == StartResult.ALREADY_STARTED) {
+            throw ALREADY_ACTIVE.create();
+        }
 
         MinecraftServer server = source.getMinecraftServer();
         PlayerManager playerManager = server.getPlayerManager();
-        playerManager.broadcastChatMessage(new LiteralText(game.getName() + " is starting.. Hold tight!"), MessageType.SYSTEM, Util.NIL_UUID);
-
-        recruiting.start(source.getMinecraftServer())
-                .handle((v, throwable) -> {
-                    if (throwable != null) {
-                        BedWarsMod.LOGGER.error("Failed to start game", throwable);
-                        playerManager.broadcastChatMessage(new LiteralText("An exception occurred while trying to start game"), MessageType.SYSTEM, Util.NIL_UUID);
-                    }
-                    return null;
-                });
+        playerManager.broadcastChatMessage(new LiteralText(open.getName() + " is starting!"), MessageType.SYSTEM, Util.NIL_UUID);
 
         return Command.SINGLE_SUCCESS;
     }
 
     private static int stopGame(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Optional<GameManager.Active<?>> activeOpt = GameManager.active();
+        Optional<GameManager.Open<?>> activeOpt = GameManager.open();
         if (!activeOpt.isPresent()) {
             throw NOT_ACTIVE.create();
         }
 
-        GameManager.Active<?> active = activeOpt.get();
+        GameManager.Open<?> open = activeOpt.get();
 
         ServerCommandSource source = context.getSource();
 
-        active.stop().handle((game, throwable) -> {
+        open.stop().handle((game, throwable) -> {
             if (throwable == null) {
                 MinecraftServer server = source.getMinecraftServer();
 

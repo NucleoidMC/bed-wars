@@ -15,7 +15,7 @@ import net.minecraft.world.WorldAccess;
 public class MixinNetherPortalBlock {
 	@Inject(method = "createPortalAt", at = @At("HEAD"), cancellable = true)
 	private static void handleCreatePortal(WorldAccess world, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
-		BedWars game = GameManager.activeFor(BedWars.TYPE);
+		BedWars game = GameManager.openFor(BedWars.TYPE);
 		if (game != null && game.map.contains(pos)) {
 			cir.setReturnValue(false);
 		}

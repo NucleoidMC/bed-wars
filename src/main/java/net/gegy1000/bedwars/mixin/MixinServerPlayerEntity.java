@@ -112,7 +112,7 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements Ma
      */
     @Inject(method = "isPvpEnabled", at = @At("HEAD"), cancellable = true)
     private void testPvpEnabled(CallbackInfoReturnable<Boolean> cir) {
-        BedWars game = GameManager.activeFor(BedWars.TYPE);
+        BedWars game = GameManager.openFor(BedWars.TYPE);
         if (game != null && game.map.contains(this.getBlockPos())) {
             cir.setReturnValue(true);
         }

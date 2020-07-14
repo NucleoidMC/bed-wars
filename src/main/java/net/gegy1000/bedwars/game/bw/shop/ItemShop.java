@@ -22,7 +22,7 @@ public final class ItemShop {
     //TODO: reorganize shop layout
     public static ShopUi create(ServerPlayerEntity player) {
         return ShopUi.create(new LiteralText("Item Shop"), shop -> {
-            BedWars bedWars = GameManager.activeFor(BedWars.TYPE);
+            BedWars bedWars = GameManager.openFor(BedWars.TYPE);
             if (bedWars == null) return;
 
             BwState.Participant participant = bedWars.state.getParticipant(player);

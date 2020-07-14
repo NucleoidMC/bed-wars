@@ -3,47 +3,40 @@ package net.gegy1000.bedwars.game;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.gegy1000.bedwars.game.config.GameConfig;
-import net.gegy1000.bedwars.game.config.PlayerConfig;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public final class ConfiguredGame<T extends Game, C extends GameConfig> {
     public static final Codec<ConfiguredGame<?, ?>> CODEC = RecordCodecBuilder.create(instance -> {
         return instance.group(
                 Codec.STRING.fieldOf("name").forGetter(ConfiguredGame::getName),
-                TypeAndConfig.CODEC.fieldOf("game").forGetter(game -> new TypeAndConfig(game.type, game.config)),
-                PlayerConfig.CODEC.fieldOf("players").forGetter(ConfiguredGame::getPlayerConfig)
+                TypeAndConfig.CODEC.fieldOf("game").forGetter(game -> new TypeAndConfig(game.type, game.config))
         ).apply(instance, ConfiguredGame::createUnchecked);
     });
 
     private final String name;
     private final GameType<T, C> type;
     private final C config;
-    private final PlayerConfig playerConfig;
 
-    private ConfiguredGame(String name, GameType<T, C> type, C config, PlayerConfig playerConfig) {
+    private ConfiguredGame(String name, GameType<T, C> type, C config) {
         this.name = name;
         this.type = type;
         this.config = config;
-        this.playerConfig = playerConfig;
     }
 
     @SuppressWarnings("unchecked")
     private static <T extends Game, C extends GameConfig> ConfiguredGame<T, C> createUnchecked(
             String name,
-            TypeAndConfig typeAndConfig,
-            PlayerConfig playerConfig
+            TypeAndConfig typeAndConfig
     ) {
         GameType<T, C> type = (GameType<T, C>) typeAndConfig.type;
         C config = (C) typeAndConfig.config;
-        return new ConfiguredGame<>(name, type, config, playerConfig);
+        return new ConfiguredGame<>(name, type, config);
     }
 
-    public CompletableFuture<T> initialize(MinecraftServer server, List<ServerPlayerEntity> participants) {
-        return this.type.initialize(server, participants, this.config);
+    public CompletableFuture<T> open(MinecraftServer server) {
+        return this.type.open(server, this.config);
     }
 
     public String getName() {
@@ -56,10 +49,6 @@ public final class ConfiguredGame<T extends Game, C extends GameConfig> {
 
     public C getConfig() {
         return this.config;
-    }
-
-    public PlayerConfig getPlayerConfig() {
-        return this.playerConfig;
     }
 
     private static class TypeAndConfig {

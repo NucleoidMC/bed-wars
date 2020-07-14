@@ -74,7 +74,7 @@ public final class CustomItems {
 
     private static TypedActionResult<ItemStack> throwBridgeEgg(PlayerEntity player, World world, Hand hand) {
         if (!world.isClient) {
-            BedWars game = GameManager.activeFor(BedWars.TYPE);
+            BedWars game = GameManager.openFor(BedWars.TYPE);
             if (game != null) {
                 ItemStack stack = player.getStackInHand(hand);
 

@@ -15,9 +15,9 @@ import net.minecraft.util.ActionResult;
 public class MixinFireChargeItem {
 	@Inject(method = "useOnBlock", at = @At("HEAD"), cancellable = true)
 	private void handleUseOnBlock(ItemUsageContext context, CallbackInfoReturnable<ActionResult> cir) {
-		BedWars game = GameManager.activeFor(BedWars.TYPE);
+		BedWars game = GameManager.openFor(BedWars.TYPE);
 		if (game != null) {
-			cir.setReturnValue(game.onUseItem(context.getPlayer(), context.getWorld(), context.getHand()).getResult());
+			cir.setReturnValue(game.events.onUseItem(context.getPlayer(), context.getWorld(), context.getHand()).getResult());
 		}
 	}
 }
