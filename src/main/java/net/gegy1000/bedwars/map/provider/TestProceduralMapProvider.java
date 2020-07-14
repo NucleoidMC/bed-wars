@@ -1,0 +1,138 @@
+package net.gegy1000.bedwars.map.provider;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.gegy1000.bedwars.BedWarsMod;
+import net.gegy1000.bedwars.game.GameTeam;
+import net.gegy1000.bedwars.game.bw.BedWarsConfig;
+import net.gegy1000.bedwars.game.bw.gen.MapGen;
+import net.gegy1000.bedwars.game.bw.gen.island.CenterIslandGen;
+import net.gegy1000.bedwars.game.bw.gen.island.DiamondIslandGen;
+import net.gegy1000.bedwars.game.bw.gen.island.RandomSmallIslandGen;
+import net.gegy1000.bedwars.game.bw.gen.island.TeamIslandGen;
+import net.gegy1000.bedwars.map.GameMap;
+import net.gegy1000.bedwars.map.GameMapBuilder;
+import net.gegy1000.bedwars.util.BlockBounds;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+
+public final class TestProceduralMapProvider implements MapProvider<BedWarsConfig> {
+    public static final Codec<TestProceduralMapProvider> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Generator.CODEC.fieldOf("generator").forGetter(provider -> provider.generator)
+    ).apply(instance, TestProceduralMapProvider::new));
+
+    private static final int HORIZONTAL_RADIUS = 150;
+    private static final int VERTICAL_RADIUS = 40;
+    private final Generator generator;
+
+    public TestProceduralMapProvider(Generator generator) {
+        this.generator = generator;
+    }
+
+    public static void register() {
+        MapProvider.REGISTRY.register(new Identifier(BedWarsMod.ID, "procedural"), CODEC);
+    }
+
+    @Override
+    public CompletableFuture<GameMap> createAt(ServerWorld world, BlockPos origin, BedWarsConfig config) {
+        // TODO: abstract away the origin to avoid mistakes in coordinate systems
+        BlockBounds bounds = new BlockBounds(
+                new BlockPos(-HORIZONTAL_RADIUS, -VERTICAL_RADIUS, -HORIZONTAL_RADIUS),
+                new BlockPos(HORIZONTAL_RADIUS, VERTICAL_RADIUS, HORIZONTAL_RADIUS)
+        );
+
+        GameMapBuilder builder = GameMapBuilder.open(world, origin, bounds);
+        return this.generator.generate(builder, config.getTeams(), world.getServer(), world.random);
+    }
+
+    @Override
+    public Codec<? extends MapProvider<BedWarsConfig>> getCodec() {
+        return CODEC;
+    }
+
+    private static class Generator {
+        // TODO: add generators to codec as well
+        public static final Codec<Generator> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.DOUBLE.fieldOf("spawn_island_distance").forGetter(generator -> generator.spawnIslandDistance),
+                Codec.DOUBLE.fieldOf("diamond_island_distance").forGetter(generator -> generator.diamondIslandDistance),
+                Codec.DOUBLE.fieldOf("small_island_count").forGetter(generator -> generator.smallIslandCount),
+                Codec.INT.fieldOf("small_island_horizontal_spread").forGetter(generator -> generator.smallIslandHorizontalSpread),
+                Codec.INT.fieldOf("small_island_vertical_spread").forGetter(generator -> generator.smallIslandVerticalSpread),
+                Codec.INT.fieldOf("small_island_cutoff").forGetter(generator -> generator.smallIslandCutoff)
+        ).apply(instance, Generator::new));
+
+        private final List<MapGen> islands = new ArrayList<>();
+        private final double spawnIslandDistance;
+        private final double diamondIslandDistance;
+        private final double smallIslandCount;
+        private final int smallIslandHorizontalSpread;
+        private final int smallIslandVerticalSpread;
+        private final int smallIslandCutoff;
+
+        private Generator(double spawnIslandDistance, double diamondIslandDistance, double smallIslandCount, int smallIslandHorizontalSpread, int smallIslandVerticalSpread, int smallIslandCutoff) {
+            this.spawnIslandDistance = spawnIslandDistance;
+            this.diamondIslandDistance = diamondIslandDistance;
+            this.smallIslandCount = smallIslandCount;
+            this.smallIslandHorizontalSpread = smallIslandHorizontalSpread;
+            this.smallIslandVerticalSpread = smallIslandVerticalSpread;
+            this.smallIslandCutoff = smallIslandCutoff;
+        }
+
+        private void addIslands(List<GameTeam> teams, Random random) {
+            // Add team islands
+            for (int i = 0; i < teams.size(); i++) {
+                GameTeam team = teams.get(i);
+
+                double theta = ((double) i / teams.size()) * (2 * Math.PI);
+                double x = Math.cos(theta) * spawnIslandDistance;
+                double z = Math.sin(theta) * spawnIslandDistance;
+
+                BlockPos pos = new BlockPos(x, 8, z);
+                islands.add(new TeamIslandGen(pos, team));
+            }
+
+            // Add center island
+            islands.add(new CenterIslandGen(new BlockPos(0, 8, 0), random.nextLong()));
+
+            islands.add(new DiamondIslandGen(new BlockPos(diamondIslandDistance, 8, 0), random.nextLong()));
+            islands.add(new DiamondIslandGen(new BlockPos(-diamondIslandDistance, 8, 0), random.nextLong()));
+            islands.add(new DiamondIslandGen(new BlockPos(0, 8, diamondIslandDistance), random.nextLong()));
+            islands.add(new DiamondIslandGen(new BlockPos(0, 8, -diamondIslandDistance), random.nextLong()));
+
+            for (int i = 0; i < smallIslandCount; i++) {
+                int aX = random.nextInt(this.smallIslandHorizontalSpread) - random.nextInt(this.smallIslandHorizontalSpread);
+                int aY = random.nextInt(this.smallIslandVerticalSpread) - random.nextInt(this.smallIslandVerticalSpread);
+                int aZ = random.nextInt(this.smallIslandHorizontalSpread) - random.nextInt(this.smallIslandHorizontalSpread);
+                long seed = random.nextLong();
+
+                // Avoid generating at the center
+                if (Math.abs(aX) < this.smallIslandCutoff && Math.abs(aZ) < this.smallIslandCutoff) {
+                    continue;
+                }
+
+                // Add symmetrical islands
+                islands.add(new RandomSmallIslandGen(new BlockPos(aX, 8 + aY, aZ), seed));
+                islands.add(new RandomSmallIslandGen(new BlockPos(-aX, 8 + aY, -aZ), seed));
+            }
+        }
+
+        private CompletableFuture<GameMap> generate(GameMapBuilder builder, List<GameTeam> teams, MinecraftServer server, Random random) {
+            CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
+            this.addIslands(teams, random);
+
+            System.out.println("Starting island generation...");
+            for (MapGen island : islands) {
+                future = future.thenAcceptAsync(v -> island.addTo(builder), server);
+            }
+
+            return future.thenApplyAsync(v -> builder.build(), server);
+        }
+    }
+}

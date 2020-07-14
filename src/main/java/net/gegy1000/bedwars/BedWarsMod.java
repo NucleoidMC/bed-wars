@@ -15,7 +15,7 @@ import net.gegy1000.bedwars.custom.CustomItem;
 import net.gegy1000.bedwars.custom.CustomItems;
 import net.gegy1000.bedwars.event.SwingHandCallback;
 import net.gegy1000.bedwars.game.bw.BedWars;
-import net.gegy1000.bedwars.game.bw.TestProceduralMapProvider;
+import net.gegy1000.bedwars.map.provider.TestProceduralMapProvider;
 import net.gegy1000.bedwars.game.config.GameConfigs;
 import net.gegy1000.bedwars.game.modifier.GameModifiers;
 import net.gegy1000.bedwars.game.modifier.GameTriggers;

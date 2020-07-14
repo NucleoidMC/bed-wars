@@ -14,11 +14,9 @@ import net.minecraft.util.math.BlockPos;
 import java.util.concurrent.CompletableFuture;
 
 public final class PathMapProvider<C extends GameConfig> implements MapProvider<C> {
-    public static final Codec<PathMapProvider<?>> CODEC = RecordCodecBuilder.create(instance -> {
-        return instance.group(
-                Identifier.CODEC.fieldOf("path").forGetter(PathMapProvider::getPath)
-        ).apply(instance, PathMapProvider::new);
-    });
+    public static final Codec<PathMapProvider<?>> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Identifier.CODEC.fieldOf("path").forGetter(PathMapProvider::getPath)
+    ).apply(instance, PathMapProvider::new));
 
     private final Identifier path;
 
