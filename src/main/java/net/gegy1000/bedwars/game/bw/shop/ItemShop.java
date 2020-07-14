@@ -17,6 +17,8 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.util.DyeColor;
 
 public final class ItemShop {
+
+    //TODO: reorganize shop layout
     public static ShopUi create(ServerPlayerEntity player) {
         return ShopUi.create(new LiteralText("Item Shop"), shop -> {
             BedWars bedWars = GameManager.activeFor(BedWars.TYPE);
@@ -36,6 +38,8 @@ public final class ItemShop {
             shop.addItem(new ItemStack(Blocks.END_STONE, 12), Cost.ofIron(24));
             shop.addItem(new ItemStack(Blocks.SAND, 4), Cost.ofGold(4));
             shop.addItem(new ItemStack(Blocks.OBSIDIAN, 4), Cost.ofEmeralds(4));
+            shop.addItem(new ItemStack(Items.COBWEB, 4), Cost.ofGold(8));
+            shop.addItem(new ItemStack(Items.SCAFFOLDING, 8), Cost.ofGold(4));
 
             shop.addItem(bedWars.createTool(new ItemStack(Items.STONE_SWORD)), Cost.ofIron(20));
             shop.addItem(bedWars.createTool(new ItemStack(Items.IRON_SWORD)), Cost.ofGold(6));
@@ -55,6 +59,7 @@ public final class ItemShop {
             shop.addItem(new ItemStack(Items.FIRE_CHARGE), Cost.ofIron(50));
             shop.addItem(new ItemStack(Items.ENDER_PEARL), Cost.ofEmeralds(4));
             shop.addItem(new ItemStack(Items.WATER_BUCKET), Cost.ofGold(10));
+            shop.addItem(new ItemStack(Items.LAVA_BUCKET), Cost.ofGold(24));
             shop.addItem(new ItemStack(Items.GOLDEN_APPLE), Cost.ofGold(3));
             shop.addItem(CustomItems.BRIDGE_EGG.applyTo(new ItemStack(Items.EGG)), Cost.ofEmeralds(2));
 
