@@ -1,7 +1,7 @@
 package net.gegy1000.bedwars.game.bw;
 
-import net.gegy1000.bedwars.util.ItemUtil;
 import net.gegy1000.bedwars.game.GameTeam;
+import net.gegy1000.bedwars.util.ItemUtil;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EquipmentSlot;
@@ -12,10 +12,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.SwordItem;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameMode;
+import net.minecraft.world.Heightmap;
 
 import java.util.function.Predicate;
 
@@ -158,13 +160,19 @@ public final class BwPlayerLogic {
     }
 
     public void spawnSpectator(ServerPlayerEntity player) {
-        player.inventory.clear();
-        player.setHealth(20.0F);
-        player.getHungerManager().setFoodLevel(20);
+        this.resetPlayer(player);
         player.setGameMode(GameMode.SPECTATOR);
 
-        Vec3d center = this.game.map.getCenter();
-        player.teleport(this.game.map.getWorld(), center.x, center.y, center.z, 0.0F, 0.0F);
+        this.spawnAtCenter(player);
+    }
+
+    public void spawnAtCenter(ServerPlayerEntity player) {
+        ServerWorld world = this.game.map.getWorld();
+
+        BlockPos center = new BlockPos(this.game.map.getCenter());
+        int topY = world.getTopY(Heightmap.Type.MOTION_BLOCKING, center.getX(), center.getZ());
+
+        player.teleport(world, center.getX() + 0.5, topY + 0.5, center.getZ() + 0.5, 0.0F, 0.0F);
     }
 
     public void respawnOnTimer(ServerPlayerEntity player, BwMap.TeamSpawn spawn) {

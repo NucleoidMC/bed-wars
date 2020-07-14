@@ -131,7 +131,7 @@ public final class BedWars implements Game {
 
     public final BwEvents events = new BwEvents(this);
 
-    private BwWaitingLogic waiting;
+    public BwWaitingLogic waiting;
     private BwCloseLogic closing;
 
     private final Map<UUID, PlayerSnapshot> playerSnapshots = new HashMap<>();
@@ -213,8 +213,9 @@ public final class BedWars implements Game {
         return stack;
     }
 
-    public void takeSnapshot(ServerPlayerEntity player) {
+    public void joinPlayerToMap(ServerPlayerEntity player) {
         this.playerSnapshots.put(player.getUuid(), PlayerSnapshot.take(player));
+        this.playerLogic.resetPlayer(player);
     }
 
     private void restorePlayers() {
@@ -282,7 +283,9 @@ public final class BedWars implements Game {
             return this.waiting.offerPlayer(player);
         }
 
-        // TODO: join player as spectator
+        this.joinPlayerToMap(player);
+        this.playerLogic.spawnSpectator(player);
+
         return JoinResult.GAME_FULL;
     }
 

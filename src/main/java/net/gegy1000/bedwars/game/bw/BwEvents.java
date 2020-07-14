@@ -1,5 +1,7 @@
 package net.gegy1000.bedwars.game.bw;
 
+import net.gegy1000.bedwars.custom.CustomItem;
+import net.gegy1000.bedwars.custom.CustomItems;
 import net.gegy1000.bedwars.game.GameTeam;
 import net.gegy1000.bedwars.game.modifier.GameTriggers;
 import net.minecraft.block.AbstractChestBlock;
@@ -189,20 +191,26 @@ public final class BwEvents {
 
     public TypedActionResult<ItemStack> onUseItem(PlayerEntity player, World world, Hand hand) {
         ItemStack stack = player.getStackInHand(hand);
-        if (!stack.isEmpty()) {
-            if (stack.getItem() == Items.FIRE_CHARGE) {
-                Vec3d dir = player.getRotationVec(1.0F);
+        if (stack.isEmpty() || world.isClient()) {
+            return TypedActionResult.pass(ItemStack.EMPTY);
+        }
 
-                FireballEntity fireball = new FireballEntity(world, player, dir.x * 0.5, dir.y * 0.5, dir.z * 0.5);
-                fireball.explosionPower = 2;
-                fireball.updatePosition(player.getX() + dir.x, player.getEyeY() + dir.y, fireball.getZ() + dir.z);
+        if (stack.getItem() == Items.FIRE_CHARGE) {
+            Vec3d dir = player.getRotationVec(1.0F);
 
-                world.spawnEntity(fireball);
+            FireballEntity fireball = new FireballEntity(world, player, dir.x * 0.5, dir.y * 0.5, dir.z * 0.5);
+            fireball.explosionPower = 2;
+            fireball.updatePosition(player.getX() + dir.x, player.getEyeY() + dir.y, fireball.getZ() + dir.z);
 
-                player.getItemCooldownManager().set(Items.FIRE_CHARGE, 20);
-                stack.decrement(1);
+            world.spawnEntity(fireball);
 
-                return TypedActionResult.success(ItemStack.EMPTY);
+            player.getItemCooldownManager().set(Items.FIRE_CHARGE, 20);
+            stack.decrement(1);
+
+            return TypedActionResult.success(ItemStack.EMPTY);
+        } else if (CustomItem.match(stack) == CustomItems.TEAM_SELECTOR) {
+            if (this.game.waiting != null) {
+                this.game.waiting.onUseRequestTeam((ServerPlayerEntity) player, stack);
             }
         }
 

@@ -9,6 +9,7 @@ import net.gegy1000.bedwars.game.config.GameMapConfig;
 import net.gegy1000.bedwars.game.config.PlayerConfig;
 import net.gegy1000.bedwars.game.modifier.GameModifier;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
@@ -63,5 +64,15 @@ public final class BedWarsConfig implements GameConfig {
 
     public PlayerConfig getPlayerConfig() {
         return this.playerConfig;
+    }
+
+    @Nullable
+    public GameTeam getTeam(String key) {
+        for (GameTeam team : this.teams) {
+            if (team.getKey().equals(key)) {
+                return team;
+            }
+        }
+        return null;
     }
 }

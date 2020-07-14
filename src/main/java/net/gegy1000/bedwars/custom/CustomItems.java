@@ -41,6 +41,11 @@ public final class CustomItems {
             .id(new Identifier(BedWarsMod.ID, "bw_chorus_fruit"))
             .register();
 
+    // TODO: a more proper way for custom items to store additional data
+    public static final CustomItem TEAM_SELECTOR = CustomItem.builder()
+            .id(new Identifier(BedWarsMod.ID, "team_selector"))
+            .register();
+
     private static TypedActionResult<ItemStack> addRegion(PlayerEntity player, World world, Hand hand) {
         if (player instanceof RegionTracer) {
             RegionTracer constructor = (RegionTracer) player;

@@ -1,5 +1,7 @@
 package net.gegy1000.bedwars.game.bw;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import net.gegy1000.bedwars.game.GameTeam;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -7,12 +9,12 @@ import net.minecraft.server.world.ServerWorld;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -27,7 +29,7 @@ public final class BwState {
     private BwState() {
     }
 
-    public static BwState start(List<ServerPlayerEntity> players, BedWarsConfig config) {
+    public static BwState start(WaitingPlayers players, BedWarsConfig config) {
         BwState state = new BwState();
 
         state.allocatePlayers(players, config);
@@ -49,17 +51,44 @@ public final class BwState {
         return state;
     }
 
-    private void allocatePlayers(List<ServerPlayerEntity> players, BedWarsConfig config) {
+    // TODO: this code is not nice
+    private void allocatePlayers(WaitingPlayers waitingPlayers, BedWarsConfig config) {
+        List<ServerPlayerEntity> players = waitingPlayers.takePlayers();
         List<GameTeam> teams = new ArrayList<>(config.getTeams());
 
-        Collections.shuffle(teams);
-        Collections.shuffle(players);
+        Random random = new Random();
 
-        int teamIndex = 0;
-        for (ServerPlayerEntity player : players) {
-            GameTeam team = teams.get(teamIndex++ % teams.size());
-            this.participants.put(player.getUuid(), new Participant(player, team));
+        Multimap<GameTeam, ServerPlayerEntity> allocated = HashMultimap.create();
+
+        int maximumTeamSize = (players.size() + teams.size() - 1) / teams.size();
+
+        // first pass to try allocate where specific teams have been requested
+        players.removeIf(player -> {
+            GameTeam requestedTeam = waitingPlayers.getRequestedTeam(player);
+            if (requestedTeam != null) {
+                if (allocated.get(requestedTeam).size() < maximumTeamSize) {
+                    allocated.put(requestedTeam, player);
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        // try allocate players until every player has been allocated
+        while (!players.isEmpty()) {
+            players.removeIf(player -> {
+                GameTeam team = teams.get(random.nextInt(teams.size()));
+                if (allocated.get(team).size() < maximumTeamSize) {
+                    allocated.put(team, player);
+                    return true;
+                }
+                return false;
+            });
         }
+
+        allocated.forEach((team, player) -> {
+            this.participants.put(player.getUuid(), new Participant(player, team));
+        });
     }
 
     @Nullable
