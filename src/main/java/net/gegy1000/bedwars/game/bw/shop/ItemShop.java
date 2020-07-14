@@ -67,7 +67,7 @@ public final class ItemShop {
             shop.addItem(new ItemStack(Items.WATER_BUCKET), Cost.ofGold(10));
             shop.addItem(new ItemStack(Items.LAVA_BUCKET), Cost.ofGold(24));
             shop.addItem(new ItemStack(Items.GOLDEN_APPLE), Cost.ofGold(3));
-            shop.addItem(new ItemStack(Items.CHORUS_FRUIT), Cost.ofEmeralds(1));
+            shop.addItem(CustomItems.BW_CHORUS_FRUIT.applyTo(new ItemStack(Items.CHORUS_FRUIT)), Cost.ofGold(8));
             shop.addItem(CustomItems.BRIDGE_EGG.applyTo(new ItemStack(Items.EGG)), Cost.ofEmeralds(2));
 
             if (participant != null) {

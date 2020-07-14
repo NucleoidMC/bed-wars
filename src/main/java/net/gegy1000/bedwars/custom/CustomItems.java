@@ -37,6 +37,10 @@ public final class CustomItems {
             .onUse(CustomItems::throwBridgeEgg)
             .register();
 
+    public static final CustomItem BW_CHORUS_FRUIT = CustomItem.builder()
+            .id(new Identifier(BedWarsMod.ID, "bw_chorus_fruit"))
+            .register();
+
     private static TypedActionResult<ItemStack> addRegion(PlayerEntity player, World world, Hand hand) {
         if (player instanceof RegionTracer) {
             RegionTracer constructor = (RegionTracer) player;

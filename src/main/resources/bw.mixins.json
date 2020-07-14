@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "MixinBedBlock",
+    "MixinChorusFruitItem",
     "MixinCraftingResultInventory",
     "MixinEggEntity",
     "MixinEntity",
