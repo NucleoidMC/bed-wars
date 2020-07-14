@@ -1,15 +1,16 @@
 package net.gegy1000.bedwars.game.bw.shop;
 
 import net.gegy1000.bedwars.custom.CustomItems;
-import net.gegy1000.bedwars.util.ColoredBlocks;
-import net.gegy1000.bedwars.util.ItemUtil;
 import net.gegy1000.bedwars.game.GameManager;
 import net.gegy1000.bedwars.game.bw.ArmorLevel;
 import net.gegy1000.bedwars.game.bw.BedWars;
 import net.gegy1000.bedwars.game.bw.BwState;
 import net.gegy1000.bedwars.shop.Cost;
 import net.gegy1000.bedwars.shop.ShopUi;
+import net.gegy1000.bedwars.util.ColoredBlocks;
+import net.gegy1000.bedwars.util.ItemUtil;
 import net.minecraft.block.Blocks;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -44,8 +45,13 @@ public final class ItemShop {
             shop.addItem(bedWars.createTool(new ItemStack(Items.STONE_SWORD)), Cost.ofIron(20));
             shop.addItem(bedWars.createTool(new ItemStack(Items.IRON_SWORD)), Cost.ofGold(6));
             shop.addItem(bedWars.createTool(new ItemStack(Items.DIAMOND_SWORD)), Cost.ofEmeralds(3));
+            shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.SHIELD)), Cost.ofGold(10));
             shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.BOW)), Cost.ofGold(20));
             shop.addItem(new ItemStack(Items.ARROW, 2), Cost.ofGold(1));
+
+            ItemStack trident = ItemUtil.unbreakable(new ItemStack(Items.TRIDENT));
+            trident.addEnchantment(Enchantments.LOYALTY, 1);
+            shop.addItem(trident, Cost.ofEmeralds(6));
 
             shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.SHEARS)), Cost.ofIron(40));
             shop.addItem(bedWars.createTool(new ItemStack(Items.WOODEN_AXE)), Cost.ofIron(10));
@@ -61,6 +67,7 @@ public final class ItemShop {
             shop.addItem(new ItemStack(Items.WATER_BUCKET), Cost.ofGold(10));
             shop.addItem(new ItemStack(Items.LAVA_BUCKET), Cost.ofGold(24));
             shop.addItem(new ItemStack(Items.GOLDEN_APPLE), Cost.ofGold(3));
+            shop.addItem(new ItemStack(Items.CHORUS_FRUIT), Cost.ofEmeralds(1));
             shop.addItem(CustomItems.BRIDGE_EGG.applyTo(new ItemStack(Items.EGG)), Cost.ofEmeralds(2));
 
             if (participant != null) {
