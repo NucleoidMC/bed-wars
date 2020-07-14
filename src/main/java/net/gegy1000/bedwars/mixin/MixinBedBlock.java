@@ -19,7 +19,7 @@ import net.minecraft.world.World;
 @Mixin(BedBlock.class)
 public class MixinBedBlock {
 
-	@Inject(method = "onUse", at = @At("HEAD"))
+	@Inject(method = "onUse", at = @At("HEAD"), cancellable = true)
 	private void injectOnUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
 		if (!world.isClient()) {
 			BedWars game = GameManager.activeFor(BedWars.TYPE);
