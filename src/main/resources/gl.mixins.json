@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.gegy1000.gl.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "custom.EntityMixin",
+    "event.CraftingResultInventoryMixin",
+    "event.ServerPlayerEntityMixin",
+    "event.ServerPlayerInteractionManagerMixin",
+    "event.ServerPlayNetworkHandlerMixin",
+    "event.ServerWorldMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

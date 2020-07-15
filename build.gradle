@@ -15,7 +15,7 @@ repositories {
 }
 
 minecraft {
-	accessWidener = file("src/main/resources/bw.accesswidener")
+	accessWidener = file("src/main/resources/gl.accesswidener")
 }
 
 dependencies {
