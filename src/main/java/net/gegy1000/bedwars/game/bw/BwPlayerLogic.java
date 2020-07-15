@@ -72,7 +72,6 @@ public final class BwPlayerLogic {
 
     public void resetPlayer(ServerPlayerEntity player) {
         player.inventory.clear();
-        player.getEnderChestInventory().clear();
         player.clearStatusEffects();
         player.setHealth(20.0F);
         player.getHungerManager().setFoodLevel(20);

@@ -216,6 +216,8 @@ public final class BedWars implements Game {
     public void joinPlayerToMap(ServerPlayerEntity player) {
         this.playerSnapshots.put(player.getUuid(), PlayerSnapshot.take(player));
         this.playerLogic.resetPlayer(player);
+
+        player.getEnderChestInventory().clear();
     }
 
     private void restorePlayers() {
@@ -286,7 +288,7 @@ public final class BedWars implements Game {
         this.joinPlayerToMap(player);
         this.playerLogic.spawnSpectator(player);
 
-        return JoinResult.GAME_FULL;
+        return JoinResult.OK;
     }
 
     @Override
