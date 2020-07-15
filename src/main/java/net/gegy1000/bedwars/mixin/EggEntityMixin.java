@@ -17,6 +17,7 @@ import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 @Mixin(EggEntity.class)
@@ -45,6 +46,11 @@ public abstract class EggEntityMixin extends ThrownItemEntity implements BlockSt
 				if (game.map.contains(pos)) {
 					if (world.getBlockState(pos).isAir()) {
 						world.setBlockState(pos, woolState);
+						for (Direction value : Direction.values()) {
+							if (random.nextInt(3) != 0) {
+								world.setBlockState(pos.offset(value), woolState);
+							}
+						}
 					}
 				}
 			}
