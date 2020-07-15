@@ -2,14 +2,12 @@ package net.gegy1000.bedwars.custom;
 
 import net.gegy1000.bedwars.BedWarsMod;
 import net.gegy1000.bedwars.game.BedWars;
-import net.gegy1000.gl.util.BlockStateHolder;
-import net.gegy1000.gl.util.ColoredBlocks;
 import net.gegy1000.gl.game.GameManager;
 import net.gegy1000.gl.game.GameTeam;
 import net.gegy1000.gl.item.CustomItem;
+import net.gegy1000.gl.util.ColoredBlocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.thrown.EggEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -59,15 +57,9 @@ public final class BwCustomItems {
                 BlockState state = ColoredBlocks.wool(team.getDye()).getDefaultState();
 
                 // Spawn egg
-                EggEntity eggEntity = new EggEntity(world, player);
+                BridgeEggEntity eggEntity = new BridgeEggEntity(world, player, state);
                 eggEntity.setItem(stack);
                 eggEntity.setProperties(player, player.pitch, player.yaw, 0.0F, 1.5F, 1.0F);
-
-                BwCustomEntities.BRIDGE_EGG.applyTo(eggEntity);
-
-                if (eggEntity instanceof BlockStateHolder) {
-                    ((BlockStateHolder) eggEntity).setBlockState(state);
-                }
 
                 world.spawnEntity(eggEntity);
 

@@ -7,7 +7,6 @@
     "BedBlockMixin",
     "ChorusFruitItemMixin",
     "DefaultExplosionBehaviorMixin",
-    "EggEntityMixin",
     "ExplosionMixin",
     "FireChargeItemMixin",
     "NetherPortalBlockMixin",
