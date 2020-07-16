@@ -214,7 +214,10 @@ public final class BedWars implements Game {
     }
 
     public void joinPlayerToMap(ServerPlayerEntity player) {
-        this.playerSnapshots.put(player.getUuid(), PlayerSnapshot.take(player));
+        if (!this.playerSnapshots.containsKey(player.getUuid())) {
+            this.playerSnapshots.put(player.getUuid(), PlayerSnapshot.take(player));
+        }
+
         this.playerLogic.resetPlayer(player);
 
         player.getEnderChestInventory().clear();
@@ -251,6 +254,7 @@ public final class BedWars implements Game {
 
     private void startWith(BwState state) {
         this.active = true;
+        this.waiting = null;
         this.state = state;
 
         this.playerLogic.resetPlayers();
