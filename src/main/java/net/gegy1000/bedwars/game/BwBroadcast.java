@@ -9,7 +9,6 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -28,9 +27,8 @@ public final class BwBroadcast {
     public void broadcastTrapSetOff(BwState.TeamState team) {
         Target target = this.team(team.team);
 
-        MutableText message = new LiteralText("A player set off your team trap!").formatted(Formatting.BOLD, Formatting.RED);
-        this.broadcast(target, message);
-        this.broadcastTitle(target, message, null);
+        this.broadcast(target, new LiteralText("A player set off your team trap!").formatted(Formatting.BOLD, Formatting.RED));
+        this.broadcastTitle(target, new LiteralText("Trap activated!").formatted(Formatting.RED), null);
         this.broadcastSound(target, SoundEvents.BLOCK_BELL_USE);
     }
 
@@ -85,11 +83,13 @@ public final class BwBroadcast {
 
         Target teamTarget = this.team(bedTeam);
 
-        Text title = new LiteralText("Your bed has been destroyed!").formatted(Formatting.RED).formatted(Formatting.BOLD);
-        Text subtitle = new LiteralText("You can no longer respawn!").formatted(Formatting.RED);
+        this.broadcast(teamTarget, new LiteralText("Your bed has been destroyed! You can no longer respawn!").formatted(Formatting.RED));
 
-        this.broadcast(teamTarget, title.shallowCopy().append(" ").append(subtitle));
-        this.broadcastTitle(teamTarget, title, subtitle);
+        this.broadcastTitle(
+                teamTarget,
+                new LiteralText("Bed destroyed!").formatted(Formatting.RED),
+                new LiteralText("You can no longer respawn!").formatted(Formatting.GOLD)
+        );
     }
 
     public void broadcastTeamEliminated(GameTeam team) {
