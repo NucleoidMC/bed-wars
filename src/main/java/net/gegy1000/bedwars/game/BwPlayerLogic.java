@@ -1,16 +1,13 @@
 package net.gegy1000.bedwars.game;
 
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
-import net.gegy1000.gl.game.GameTeam;
 import net.gegy1000.gl.util.ItemUtil;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.HungerManager;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
@@ -120,42 +117,8 @@ public final class BwPlayerLogic {
     }
 
     public void equipDefault(ServerPlayerEntity player, BwState.Participant participant) {
-        this.equipArmor(player, participant);
-        player.inventory.setStack(0, this.game.createTool(new ItemStack(Items.WOODEN_SWORD)));
-
+        participant.upgrades.applyAll();
         this.applyEnchantments(player, participant);
-    }
-
-    public void upgradeArmorTo(BwState.Participant participant, ArmorLevel level) {
-        if (participant.armorLevel.isUpgradeTo(level)) {
-            participant.armorLevel = level;
-        }
-
-        ServerPlayerEntity player = participant.player();
-        this.equipArmor(player, participant);
-    }
-
-    private void equipArmor(ServerPlayerEntity player, BwState.Participant participant) {
-        GameTeam team = participant.team;
-        ArmorLevel armorLevel = participant.armorLevel;
-
-        ItemStack[] armorStacks = new ItemStack[] {
-                new ItemStack(Items.LEATHER_HELMET),
-                new ItemStack(armorLevel.chest),
-                new ItemStack(Items.LEATHER_LEGGINGS),
-                new ItemStack(armorLevel.feet)
-        };
-
-        EquipmentSlot[] armorSlots = new EquipmentSlot[] {
-                EquipmentSlot.HEAD, EquipmentSlot.CHEST,
-                EquipmentSlot.LEGS, EquipmentSlot.FEET
-        };
-
-        for (int i = 0; i < armorSlots.length; i++) {
-            int slot = armorSlots[i].getEntitySlotId();
-            ItemStack stack = this.game.createArmor(team.dye(armorStacks[i]));
-            player.inventory.armor.set(slot, stack);
-        }
     }
 
     public void spawnSpectator(ServerPlayerEntity player) {

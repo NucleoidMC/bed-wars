@@ -56,6 +56,8 @@ public final class BwEvents {
 
         // TODO: cancel if cause is own player
         if (participant != null) {
+            participant.upgrades.onDeath();
+
             this.game.killLogic.onPlayerDeath(player, source);
 
             BwMap.TeamSpawn spawn = this.game.teamLogic.tryRespawn(participant);

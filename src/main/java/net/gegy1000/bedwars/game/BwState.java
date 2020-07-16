@@ -2,6 +2,8 @@ package net.gegy1000.bedwars.game;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import net.gegy1000.bedwars.game.upgrade.PlayerUpgrades;
+import net.gegy1000.bedwars.game.upgrade.UpgradeType;
 import net.gegy1000.gl.game.GameTeam;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -29,10 +31,10 @@ public final class BwState {
     private BwState() {
     }
 
-    public static BwState start(WaitingPlayers players, BedWarsConfig config) {
+    public static BwState start(BedWars game, WaitingPlayers players, BedWarsConfig config) {
         BwState state = new BwState();
 
-        state.allocatePlayers(players, config);
+        state.allocatePlayers(game, players, config);
 
         for (GameTeam team : config.getTeams()) {
             List<Participant> participants = state.participantsFor(team)
@@ -52,7 +54,7 @@ public final class BwState {
     }
 
     // TODO: this code is not nice
-    private void allocatePlayers(WaitingPlayers waitingPlayers, BedWarsConfig config) {
+    private void allocatePlayers(BedWars game, WaitingPlayers waitingPlayers, BedWarsConfig config) {
         List<ServerPlayerEntity> players = waitingPlayers.takePlayers();
         List<GameTeam> teams = new ArrayList<>(config.getTeams());
 
@@ -87,7 +89,7 @@ public final class BwState {
         }
 
         allocated.forEach((team, player) -> {
-            this.participants.put(player.getUuid(), new Participant(player, team));
+            this.participants.put(player.getUuid(), new Participant(game, player, team));
         });
     }
 
@@ -145,16 +147,29 @@ public final class BwState {
         public final UUID playerId;
         public final GameTeam team;
 
-        public ArmorLevel armorLevel = ArmorLevel.LEATHER;
+        public final PlayerUpgrades upgrades;
 
         BwMap.TeamSpawn respawningAt;
         long respawnTime = -1;
         boolean eliminated;
 
-        Participant(ServerPlayerEntity player, GameTeam team) {
+        Participant(BedWars game, ServerPlayerEntity player, GameTeam team) {
             this.world = player.getServerWorld();
             this.playerId = player.getUuid();
             this.team = team;
+
+            this.upgrades = new PlayerUpgrades(game, this);
+
+            // TODO: don't like this at all
+            this.upgrades.setLevel(UpgradeType.ARMOR, 0);
+            this.upgrades.setLevel(UpgradeType.SWORD, 0);
+            this.upgrades.setLevel(UpgradeType.PICKAXE, -1);
+            this.upgrades.setLevel(UpgradeType.AXE, -1);
+            this.upgrades.setLevel(UpgradeType.SHEARS, -1);
+        }
+
+        public void onDeath() {
+            this.upgrades.onDeath();
         }
 
         public void startRespawning(BwMap.TeamSpawn spawn) {

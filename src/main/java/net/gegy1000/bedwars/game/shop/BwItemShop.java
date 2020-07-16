@@ -1,11 +1,14 @@
 package net.gegy1000.bedwars.game.shop;
 
 import net.gegy1000.bedwars.custom.BwCustomItems;
-import net.gegy1000.gl.game.GameManager;
-import net.gegy1000.bedwars.game.ArmorLevel;
 import net.gegy1000.bedwars.game.BedWars;
 import net.gegy1000.bedwars.game.BwState;
+import net.gegy1000.bedwars.game.upgrade.Upgrade;
+import net.gegy1000.bedwars.game.upgrade.PlayerUpgrades;
+import net.gegy1000.bedwars.game.upgrade.UpgradeType;
+import net.gegy1000.gl.game.GameManager;
 import net.gegy1000.gl.shop.Cost;
+import net.gegy1000.gl.shop.ShopBuilder;
 import net.gegy1000.gl.shop.ShopUi;
 import net.gegy1000.gl.util.ColoredBlocks;
 import net.gegy1000.gl.util.ItemUtil;
@@ -15,6 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 
 public final class BwItemShop {
@@ -42,9 +46,6 @@ public final class BwItemShop {
             shop.addItem(new ItemStack(Items.COBWEB, 4), Cost.ofGold(8));
             shop.addItem(new ItemStack(Items.SCAFFOLDING, 8), Cost.ofGold(4));
 
-            shop.addItem(bedWars.createTool(new ItemStack(Items.STONE_SWORD)), Cost.ofIron(20));
-            shop.addItem(bedWars.createTool(new ItemStack(Items.IRON_SWORD)), Cost.ofGold(6));
-            shop.addItem(bedWars.createTool(new ItemStack(Items.DIAMOND_SWORD)), Cost.ofEmeralds(3));
             shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.SHIELD)), Cost.ofGold(10));
             shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.BOW)), Cost.ofGold(20));
             shop.addItem(new ItemStack(Items.ARROW, 2), Cost.ofGold(1));
@@ -52,14 +53,6 @@ public final class BwItemShop {
             ItemStack trident = ItemUtil.unbreakable(new ItemStack(Items.TRIDENT));
             trident.addEnchantment(Enchantments.LOYALTY, 1);
             shop.addItem(trident, Cost.ofEmeralds(6));
-
-            shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.SHEARS)), Cost.ofIron(40));
-            shop.addItem(bedWars.createTool(new ItemStack(Items.WOODEN_AXE)), Cost.ofIron(10));
-            shop.addItem(bedWars.createTool(new ItemStack(Items.WOODEN_PICKAXE)), Cost.ofIron(10));
-            shop.addItem(bedWars.createTool(new ItemStack(Items.IRON_AXE)), Cost.ofGold(8));
-            shop.addItem(bedWars.createTool(new ItemStack(Items.IRON_PICKAXE)), Cost.ofGold(8));
-            shop.addItem(bedWars.createTool(new ItemStack(Items.DIAMOND_AXE)), Cost.ofGold(12));
-            shop.addItem(bedWars.createTool(new ItemStack(Items.DIAMOND_PICKAXE)), Cost.ofGold(12));
 
             shop.addItem(new ItemStack(Blocks.TNT), Cost.ofGold(8));
             shop.addItem(new ItemStack(Items.FIRE_CHARGE), Cost.ofIron(50));
@@ -71,18 +64,36 @@ public final class BwItemShop {
             shop.addItem(BwCustomItems.BRIDGE_EGG.applyTo(new ItemStack(Items.EGG)), Cost.ofEmeralds(2));
 
             if (participant != null) {
-                ArmorLevel armorLevel = participant.armorLevel;
+                PlayerUpgrades upgrades = participant.upgrades;
 
-                Cost ironArmorCost = armorLevel.isUpgradeTo(ArmorLevel.IRON) ? Cost.ofGold(12) : Cost.no();
-                shop.add(Items.IRON_CHESTPLATE, ironArmorCost, new LiteralText("Upgrade to Iron Armor"), () -> {
-                    bedWars.playerLogic.upgradeArmorTo(participant, ArmorLevel.IRON);
-                });
+                addUpgrade(shop, upgrades, UpgradeType.SWORD, new LiteralText("Upgrade Sword"));
+                addUpgrade(shop, upgrades, UpgradeType.PICKAXE, new LiteralText("Upgrade Pickaxe"));
+                addUpgrade(shop, upgrades, UpgradeType.AXE, new LiteralText("Upgrade Axe"));
+                addUpgrade(shop, upgrades, UpgradeType.SHEARS, new LiteralText("Add Shears"));
 
-                Cost diamondArmorCost = armorLevel.isUpgradeTo(ArmorLevel.DIAMOND) ? Cost.ofEmeralds(6) : Cost.no();
-                shop.add(Items.DIAMOND_CHESTPLATE, diamondArmorCost, new LiteralText("Upgrade to Diamond Armor"), () -> {
-                    bedWars.playerLogic.upgradeArmorTo(participant, ArmorLevel.DIAMOND);
-                });
+                addUpgrade(shop, upgrades, UpgradeType.ARMOR, new LiteralText("Upgrade Armor"));
             }
         });
+    }
+
+    private static <T extends Upgrade> void addUpgrade(
+            ShopBuilder shop,
+            PlayerUpgrades upgrades, UpgradeType<T> type,
+            Text name
+    ) {
+        int currentLevel = upgrades.getLevel(type);
+        int nextLevel = currentLevel + 1;
+
+        T nextUpgrade = type.forLevel(nextLevel);
+        if (nextUpgrade != null) {
+            shop.add(nextUpgrade.getIcon(), nextUpgrade.getCost(), name, () -> {
+                upgrades.applyLevel(type, nextLevel);
+            });
+        } else {
+            T currentUpgrade = type.forLevel(currentLevel);
+            if (currentUpgrade != null) {
+                shop.add(currentUpgrade.getIcon(), Cost.no(), name, () -> {});
+            }
+        }
     }
 }

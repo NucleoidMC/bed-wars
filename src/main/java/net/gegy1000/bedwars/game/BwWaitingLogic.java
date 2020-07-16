@@ -91,7 +91,7 @@ public final class BwWaitingLogic {
             return Either.right(StartResult.NOT_ENOUGH_PLAYERS);
         }
 
-        BwState state = BwState.start(this.players, this.game.config);
+        BwState state = BwState.start(this.game, this.players, this.game.config);
         return Either.left(state);
     }
 }
