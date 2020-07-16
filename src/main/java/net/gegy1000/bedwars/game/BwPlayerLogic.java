@@ -1,5 +1,6 @@
 package net.gegy1000.bedwars.game;
 
+import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
 import net.gegy1000.gl.game.GameTeam;
 import net.gegy1000.gl.util.ItemUtil;
 import net.minecraft.enchantment.Enchantment;
@@ -10,7 +11,6 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.item.SwordItem;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
@@ -99,7 +99,7 @@ public final class BwPlayerLogic {
             return;
         }
 
-        this.applyEnchantments(player, stack -> stack.getItem() instanceof SwordItem, Enchantments.SHARPNESS, teamState.swordSharpness);
+        this.applyEnchantments(player, stack -> stack.getItem().isIn(FabricToolTags.SWORDS), Enchantments.SHARPNESS, teamState.swordSharpness);
         this.applyEnchantments(player, stack -> stack.getItem() instanceof ArmorItem, Enchantments.PROTECTION, teamState.armorProtection);
     }
 
