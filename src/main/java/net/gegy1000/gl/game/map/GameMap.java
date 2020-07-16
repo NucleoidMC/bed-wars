@@ -5,6 +5,8 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import net.gegy1000.gl.world.BlockBounds;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.LootableContainerBlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
@@ -80,6 +82,12 @@ public final class GameMap {
     private void clearBlocks() {
         // TODO: replace the chunks fully with their previous state?
         this.bounds.iterate().forEach(pos -> {
+            BlockEntity entity = this.world.getBlockEntity(pos);
+            if (entity instanceof LootableContainerBlockEntity) {
+                // clear block entity inventory so that it doesn't drop items
+                ((LootableContainerBlockEntity) entity).clear();
+            }
+
             this.world.setBlockState(pos, AIR, SET_BLOCK_FLAGS);
         });
     }
