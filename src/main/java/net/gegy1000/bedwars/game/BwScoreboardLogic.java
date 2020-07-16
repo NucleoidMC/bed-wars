@@ -1,6 +1,7 @@
 package net.gegy1000.bedwars.game;
 
 import net.gegy1000.gl.game.GameTeam;
+import net.minecraft.scoreboard.AbstractTeam;
 import net.minecraft.scoreboard.ScoreboardCriterion;
 import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.scoreboard.ScoreboardPlayerScore;
@@ -90,6 +91,7 @@ public final class BwScoreboardLogic {
             if (scoreboardTeam == null) {
                 scoreboardTeam = scoreboard.addTeam(teamKey);
                 scoreboardTeam.setColor(team.getFormatting());
+                scoreboardTeam.setCollisionRule(AbstractTeam.CollisionRule.PUSH_OTHER_TEAMS);
             }
             return scoreboardTeam;
         });
