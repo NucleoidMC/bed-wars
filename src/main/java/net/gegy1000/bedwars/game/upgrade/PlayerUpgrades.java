@@ -7,6 +7,7 @@ import net.gegy1000.bedwars.game.BedWars;
 import net.gegy1000.bedwars.game.BwState;
 import net.minecraft.server.network.ServerPlayerEntity;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -63,7 +64,8 @@ public final class PlayerUpgrades {
     }
 
     public void onDeath() {
-        for (UpgradeType<?> downgradeType : this.typesToDowngrade) {
+        // TODO: horrible solution
+        for (UpgradeType<?> downgradeType : new ArrayList<>(this.typesToDowngrade)) {
             int currentLevel = this.getLevel(downgradeType);
             this.applyLevel(downgradeType, currentLevel - 1);
         }

@@ -168,10 +168,6 @@ public final class BwState {
             this.upgrades.setLevel(UpgradeType.SHEARS, -1);
         }
 
-        public void onDeath() {
-            this.upgrades.onDeath();
-        }
-
         public void startRespawning(BwMap.TeamSpawn spawn) {
             this.respawnTime = this.world.getTime() + RESPAWN_TICKS;
             this.respawningAt = spawn;

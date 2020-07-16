@@ -11,7 +11,7 @@ public class RandomSmallIslandGen implements MapGen {
 
 	public RandomSmallIslandGen(BlockPos origin, long seed) {
 		this.noiseGen = new NoiseIslandGen(origin, seed);
-		this.noiseGen.setRadius(3);
+		this.noiseGen.setRadius(5);
 		this.noiseGen.setNoiseFrequency(1.0 / 6.0, 1.0 / 8.0);
 		this.noiseGen.setCheckSpace(true);
 		this.noiseGen.setFalloff(RandomSmallIslandGen::computeNoiseFalloff);

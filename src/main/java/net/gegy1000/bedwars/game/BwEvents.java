@@ -1,9 +1,10 @@
 package net.gegy1000.bedwars.game;
 
-import net.gegy1000.bedwars.game.modifiers.BwGameTriggers;
-import net.gegy1000.gl.item.CustomItem;
 import net.gegy1000.bedwars.custom.BwCustomItems;
+import net.gegy1000.bedwars.game.modifiers.BwGameTriggers;
 import net.gegy1000.gl.game.GameTeam;
+import net.gegy1000.gl.item.CustomItem;
+import net.gegy1000.gl.world.BlockBounds;
 import net.minecraft.block.AbstractChestBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -15,7 +16,6 @@ import net.minecraft.inventory.EnderChestInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.tag.BlockTags;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
@@ -129,8 +129,11 @@ public final class BwEvents {
             BlockState state = this.game.world.getBlockState(pos);
 
             if (this.game.map.isStandardBlock(pos)) {
-                if (state.getBlock().isIn(BlockTags.BEDS)) {
-                    this.game.teamLogic.onBedBroken(player, pos);
+                for (GameTeam team : this.game.config.getTeams()) {
+                    BlockBounds bed = this.game.map.getTeamRegions(team).bed;
+                    if (bed != null && bed.contains(pos)) {
+                        this.game.teamLogic.onBedBroken(player, pos);
+                    }
                 }
 
                 return true;

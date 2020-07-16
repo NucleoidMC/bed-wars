@@ -11,6 +11,8 @@ import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 
 public class TeamIslandGen implements MapGen {
+    private static final int RAD = 10;
+
     final BlockPos origin;
     final GameTeam team;
 
@@ -27,8 +29,8 @@ public class TeamIslandGen implements MapGen {
     public void addTo(GameMapBuilder builder) {
         BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 
-        for (int z = -5; z <= 5; z++) {
-            for (int x = -5; x <= 5; x++) {
+        for (int z = -RAD; z <= RAD; z++) {
+            for (int x = -RAD; x <= RAD; x++) {
                 mutablePos.set(this.origin.getX() + x, this.origin.getY(), this.origin.getZ() + z);
 
                 int radius = Math.max(Math.abs(x), Math.abs(z));
@@ -43,7 +45,7 @@ public class TeamIslandGen implements MapGen {
         mutablePos.set(this.origin.getX() - 2, this.origin.getY() + 1, this.origin.getZ());
         builder.setBlockState(mutablePos, Blocks.CHEST.getDefaultState());
 
-        mutablePos.set(this.origin.getX() + 2, this.origin.getY() + 1, this.origin.getZ());
+        mutablePos.set(this.origin.getX() + 5, this.origin.getY() + 1, this.origin.getZ());
         builder.setBlockState(mutablePos, Blocks.RESPAWN_ANCHOR.getDefaultState());
 
         this.addRegionsTo(builder);
@@ -52,8 +54,8 @@ public class TeamIslandGen implements MapGen {
     @Override
     public void addRegionsTo(GameMapBuilder builder) {
         builder.addRegion(this.marker("base"), new BlockBounds(
-                this.origin.add(-5, -1, -5),
-                this.origin.add(5, 5, 5)
+                this.origin.add(-RAD, -1, -RAD),
+                this.origin.add(RAD, 5, RAD)
         ));
 
         builder.addRegion(this.marker("spawn"), new BlockBounds(
@@ -74,7 +76,7 @@ public class TeamIslandGen implements MapGen {
         ));
 
         builder.addRegion(this.marker("bed"), new BlockBounds(
-                this.origin.add(2, 1, 0)
+                this.origin.add(5, 1, 0)
         ));
     }
 
