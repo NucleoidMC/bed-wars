@@ -45,6 +45,11 @@ public final class BwMapLogic {
 
         if (regions.base != null) {
             List<PlayerEntity> entities = this.game.world.getEntities(EntityType.PLAYER, regions.base.toBox(), player -> {
+                // Filter out creative mode and spectator mode players
+                if (player.abilities.allowFlying) {
+                    return false;
+                }
+
                 BwState.Participant participant = this.game.state.getParticipant(player);
                 return participant != null && !participant.team.equals(teamState.team) && !participant.eliminated;
             });
