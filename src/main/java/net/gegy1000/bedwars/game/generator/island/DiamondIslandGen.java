@@ -23,6 +23,7 @@ public class DiamondIslandGen implements MapGen {
         this.noiseGen.setRadius(10);
         this.noiseGen.setNoiseFrequency(1.0 / 8.0, 1.0 / 12.0);
         this.noiseGen.setFalloff(DiamondIslandGen::computeNoiseFalloff);
+        this.noiseGen.setTreeAmt(1 + new Random(seed).nextInt(2));
     }
 
     @Override

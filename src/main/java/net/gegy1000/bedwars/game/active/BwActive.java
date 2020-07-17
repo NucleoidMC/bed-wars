@@ -73,7 +73,7 @@ public final class BwActive implements BwPhase {
         this.playerLogic = new BwPlayerLogic(this);
     }
 
-    static BwActive open(BwMap map, BwConfig config, BwPlayerTracker playerTracker, PlayerQueue playerQueue) {
+    public static BwActive open(BwMap map, BwConfig config, BwPlayerTracker playerTracker, PlayerQueue playerQueue) {
         BwActive active = new BwActive(map, config, playerTracker);
         active.allocateTeams(config, playerQueue);
 
@@ -240,7 +240,7 @@ public final class BwActive implements BwPhase {
         final Set<UUID> players = new HashSet<>();
         final GameTeam team;
         boolean hasBed = true;
-        boolean eliminated;
+        public boolean eliminated;
 
         public boolean trapSet;
         public boolean healPool;

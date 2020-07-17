@@ -1,5 +1,7 @@
 package net.gegy1000.bedwars.game.generator.island;
 
+import java.util.Random;
+
 import net.gegy1000.bedwars.game.generator.MapGen;
 import net.gegy1000.bedwars.game.generator.NoiseIslandGen;
 import net.gegy1000.gl.game.map.GameMapBuilder;
@@ -19,6 +21,7 @@ public class CenterIslandGen implements MapGen {
         this.noiseGen.setRadius(20);
         this.noiseGen.setNoiseFrequency(1.0 / 12.0, 1.0 / 16.0);
         this.noiseGen.setFalloff(CenterIslandGen::computeNoiseFalloff);
+        this.noiseGen.setTreeAmt(3 + new Random(seed).nextInt(4));
     }
 
     @Override
