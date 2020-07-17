@@ -18,6 +18,7 @@ public class RandomSmallIslandGen implements MapGen {
 		this.noiseGen.setCheckSpace(true);
 		this.noiseGen.setFalloff(RandomSmallIslandGen::computeNoiseFalloff);
 		this.noiseGen.setTreeAmt(new Random(seed).nextInt(6) == 0 ? 1 : 0);
+		this.noiseGen.setGrassAmt(4);
 	}
 
 	@Override

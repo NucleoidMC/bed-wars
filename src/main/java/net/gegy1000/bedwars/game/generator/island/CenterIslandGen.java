@@ -22,6 +22,7 @@ public class CenterIslandGen implements MapGen {
         this.noiseGen.setNoiseFrequency(1.0 / 12.0, 1.0 / 16.0);
         this.noiseGen.setFalloff(CenterIslandGen::computeNoiseFalloff);
         this.noiseGen.setTreeAmt(3 + new Random(seed).nextInt(4));
+        this.noiseGen.setGrassAmt(16);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package net.gegy1000.bedwars.game.generator;
 
+import net.gegy1000.bedwars.game.generator.feature.GrassGen;
 import net.gegy1000.bedwars.game.generator.feature.TreeGen;
 import net.gegy1000.gl.game.map.GameMapBuilder;
 import net.gegy1000.gl.world.generator.OpenSimplexNoise;
@@ -22,6 +23,7 @@ public final class NoiseIslandGen {
 
     private int radius = 10;
     private int treeAmt = 0;
+    private int grassAmt = 1;
     private double noiseHorizontalFrequency = 1.0;
     private double noiseVerticalFrequency = 1.0;
     private boolean checkSpace = false;
@@ -54,6 +56,10 @@ public final class NoiseIslandGen {
 
     public void setTreeAmt(int treeAmt) {
         this.treeAmt = treeAmt;
+    }
+
+    public void setGrassAmt(int grassAmt) {
+        this.grassAmt = grassAmt;
     }
 
     public void addTo(GameMapBuilder builder) {
@@ -140,6 +146,15 @@ public final class NoiseIslandGen {
             // Get a random pos
             BlockPos pos = surfaceBlocks.get(random.nextInt(surfaceBlocks.size()));
             new TreeGen(pos).addTo(builder);
+
+            // Remove this position
+            surfaceBlocks.remove(pos);
+        }
+
+        for (int i = 0; i < grassAmt; i++) {
+            // Get a random pos
+            BlockPos pos = surfaceBlocks.get(random.nextInt(surfaceBlocks.size()));
+            new GrassGen(pos).addTo(builder);
 
             // Remove this position
             surfaceBlocks.remove(pos);
