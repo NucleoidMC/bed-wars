@@ -5,19 +5,20 @@ import net.gegy1000.gl.game.GameTeam;
 import net.gegy1000.gl.world.BlockBounds;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nullable;
 
 public final class BwTeamLogic {
-    private final BedWars game;
+    private final BwActive game;
 
-    BwTeamLogic(BedWars game) {
+    BwTeamLogic(BwActive game) {
         this.game = game;
     }
 
     public void applyEnchantments(GameTeam team) {
-        this.game.state.participantsFor(team).forEach(participant -> {
+        this.game.participantsFor(team).forEach(participant -> {
             ServerPlayerEntity player = participant.player();
             if (player != null) {
                 this.game.playerLogic.applyEnchantments(player, participant);
@@ -25,13 +26,13 @@ public final class BwTeamLogic {
         });
     }
 
-    public boolean canRespawn(BwState.Participant participant) {
+    public boolean canRespawn(BwParticipant participant) {
         return this.tryRespawn(participant) != null;
     }
 
     @Nullable
-    public BwMap.TeamSpawn tryRespawn(BwState.Participant participant) {
-        BwState.TeamState teamState = this.game.state.getTeam(participant.team);
+    public BwMap.TeamSpawn tryRespawn(BwParticipant participant) {
+        BwActive.TeamState teamState = this.game.getTeam(participant.team);
         if (teamState != null && teamState.hasBed) {
             return this.game.map.getTeamSpawn(participant.team);
         }
@@ -42,7 +43,7 @@ public final class BwTeamLogic {
     public void onBedBroken(ServerPlayerEntity player, BlockPos pos) {
         GameTeam destroyerTeam = null;
 
-        BwState.Participant participant = this.game.state.getParticipant(player);
+        BwParticipant participant = this.game.getParticipant(player);
         if (participant != null) {
             destroyerTeam = participant.team;
         }
@@ -52,16 +53,20 @@ public final class BwTeamLogic {
             return;
         }
 
-        bed.bounds.iterate().forEach(p -> this.game.world.setBlockState(p, Blocks.AIR.getDefaultState(), 0b100010));
-        this.game.broadcast.broadcastBedBroken(player, bed.team, destroyerTeam);
-        game.triggerModifiers(BwGameTriggers.BED_BROKEN);
+        ServerWorld world = this.game.map.getWorld();
+        bed.bounds.iterate().forEach(p -> {
+            world.setBlockState(p, Blocks.AIR.getDefaultState(), 0b100010);
+        });
 
-        BwState.TeamState teamState = this.game.state.getTeam(bed.team);
+        this.game.broadcast.broadcastBedBroken(player, bed.team, destroyerTeam);
+        this.game.triggerModifiers(BwGameTriggers.BED_BROKEN);
+
+        BwActive.TeamState teamState = this.game.getTeam(bed.team);
         if (teamState != null) {
             teamState.hasBed = false;
         }
 
-        this.game.scoreboardLogic.markDirty();
+        this.game.scoreboard.markDirty();
     }
 
     @Nullable

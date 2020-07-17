@@ -27,19 +27,19 @@ public final class GameMap {
     final MapTickets tickets;
 
     private final ImmutableList<GameRegion> regions;
-    private final LongSet standardBlocks;
+    private final LongSet protectedBlocks;
 
     GameMap(
             ServerWorld world, MapTickets tickets,
             BlockBounds bounds,
             ImmutableList<GameRegion> regions,
-            LongSet standardBlocks
+            LongSet protectedBlocks
     ) {
         this.world = world;
         this.tickets = tickets;
         this.bounds = bounds;
         this.regions = regions;
-        this.standardBlocks = standardBlocks;
+        this.protectedBlocks = protectedBlocks;
     }
 
     public ServerWorld getWorld() {
@@ -54,8 +54,8 @@ public final class GameMap {
         return this.regions;
     }
 
-    public boolean isStandardBlock(BlockPos pos) {
-        return this.standardBlocks.contains(pos.asLong());
+    public boolean isProtectedBlock(BlockPos pos) {
+        return this.protectedBlocks.contains(pos.asLong());
     }
 
     public CompletableFuture<Void> delete() {

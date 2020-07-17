@@ -59,8 +59,8 @@ public final class BwMap {
         this.map = map;
     }
 
-    public static CompletableFuture<BwMap> create(MinecraftServer server, BedWarsConfig config) {
-        GameMapConfig<BedWarsConfig> mapConfig = config.getMapConfig();
+    public static CompletableFuture<BwMap> create(MinecraftServer server, BwConfig config) {
+        GameMapConfig<BwConfig> mapConfig = config.getMapConfig();
         RegistryKey<World> dimension = mapConfig.getDimension();
         ServerWorld world = server.getWorld(dimension);
 
@@ -72,7 +72,7 @@ public final class BwMap {
                 }, server);
     }
 
-    private void initializeMap(BedWarsConfig config) {
+    private void initializeMap(BwConfig config) {
         this.map.getRegions().forEach(region -> {
             String marker = region.getMarker();
             this.regions.put(marker, region.getBounds());
@@ -101,7 +101,7 @@ public final class BwMap {
         }
     }
 
-    public void spawnShopkeepers(BedWarsConfig config) {
+    public void spawnShopkeepers(BwConfig config) {
         for (GameTeam team : config.getTeams()) {
             TeamRegions regions = this.getTeamRegions(team);
 
@@ -193,8 +193,8 @@ public final class BwMap {
         return this.map.delete();
     }
 
-    public boolean isStandardBlock(BlockPos pos) {
-        return this.map.isStandardBlock(pos);
+    public boolean isProtectedBlock(BlockPos pos) {
+        return this.map.isProtectedBlock(pos);
     }
 
     public Vec3d getCenter() {
@@ -281,7 +281,7 @@ public final class BwMap {
             return this;
         }
 
-        public void tick(ServerWorld world, BwState state) {
+        public void tick(ServerWorld world, BwActive game) {
             if (this.pool == null) return;
 
             long time = world.getTime();
@@ -291,7 +291,7 @@ public final class BwMap {
             }
 
             if (time - this.lastItemSpawn > this.pool.getSpawnInterval()) {
-                this.spawnItems(world, state);
+                this.spawnItems(world, game);
                 this.lastItemSpawn = time;
             }
         }
@@ -303,7 +303,6 @@ public final class BwMap {
                 Vec3d textPos = this.bounds.getCenter();
                 textPos = textPos.add(0.0, 2.0, 0.0);
 
-                // TODO: we need to properly load the chunks rather than continually retrying spawning until it works
                 this.timerText = FloatingText.spawn(world, textPos, this.getTimerText(time));
             }
 
@@ -339,7 +338,7 @@ public final class BwMap {
             return titleText.formatted(titleFormatting).append(numberText.formatted(numberFormatting));
         }
 
-        private void spawnItems(ServerWorld world, BwState state) {
+        private void spawnItems(ServerWorld world, BwActive game) {
             Random random = world.random;
             ItemStack stack = this.pool.sample(random).copy();
 
@@ -363,7 +362,7 @@ public final class BwMap {
             itemEntity.setVelocity(Vec3d.ZERO);
 
             if (this.allowDuplication) {
-                if (this.giveItems(world, state, itemEntity)) {
+                if (this.giveItems(world, game, itemEntity)) {
                     return;
                 }
             }
@@ -371,8 +370,8 @@ public final class BwMap {
             world.spawnEntity(itemEntity);
         }
 
-        private boolean giveItems(ServerWorld world, BwState state, ItemEntity entity) {
-            List<ServerPlayerEntity> players = world.getEntities(ServerPlayerEntity.class, this.bounds.toBox(), state::isParticipant);
+        private boolean giveItems(ServerWorld world, BwActive game, ItemEntity entity) {
+            List<ServerPlayerEntity> players = world.getEntities(ServerPlayerEntity.class, this.bounds.toBox(), game::isParticipant);
             for (ServerPlayerEntity player : players) {
                 ItemStack stack = entity.getStack();
 

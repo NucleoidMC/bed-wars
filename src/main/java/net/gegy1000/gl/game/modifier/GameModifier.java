@@ -1,7 +1,7 @@
 package net.gegy1000.gl.game.modifier;
 
 import com.mojang.serialization.Codec;
-import net.gegy1000.bedwars.game.BedWars;
+import net.gegy1000.bedwars.game.BwActive;
 import net.gegy1000.gl.registry.TinyRegistry;
 
 import java.util.function.Function;
@@ -22,12 +22,12 @@ public interface GameModifier {
 	/**
 	 * Called when starting a modifier
 	 */
-	void init(BedWars game);
+	void init(BwActive game);
 
 	/**
 	 * Called every tick for tickable modifiers
 	 */
-	default void tick(BedWars game) {
+	default void tick(BwActive game) {
 	}
 
 	Codec<? extends GameModifier> getCodec();

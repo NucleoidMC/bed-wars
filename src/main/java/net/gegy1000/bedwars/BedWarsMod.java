@@ -8,7 +8,6 @@ import net.gegy1000.bedwars.game.BedWars;
 import net.gegy1000.bedwars.game.generator.ProceduralMapProvider;
 import net.gegy1000.bedwars.game.modifiers.BwGameModifiers;
 import net.gegy1000.bedwars.game.modifiers.BwGameTriggers;
-import net.gegy1000.gl.GameLib;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

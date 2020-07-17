@@ -1,7 +1,7 @@
 package net.gegy1000.bedwars.game.upgrade;
 
-import net.gegy1000.bedwars.game.BedWars;
-import net.gegy1000.bedwars.game.BwState;
+import net.gegy1000.bedwars.game.BwActive;
+import net.gegy1000.bedwars.game.BwParticipant;
 import net.gegy1000.gl.shop.Cost;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.Item;
@@ -30,7 +30,7 @@ public final class ArmorUpgrade implements Upgrade {
     }
 
     @Override
-    public void applyTo(BedWars game, ServerPlayerEntity player, BwState.Participant participant) {
+    public void applyTo(BwActive game, ServerPlayerEntity player, BwParticipant participant) {
         ItemStack[] armorStacks = new ItemStack[] {
                 new ItemStack(Items.LEATHER_HELMET),
                 new ItemStack(this.chest),
@@ -46,7 +46,7 @@ public final class ArmorUpgrade implements Upgrade {
     }
 
     @Override
-    public void removeFrom(BedWars game, ServerPlayerEntity player) {
+    public void removeFrom(BwActive game, ServerPlayerEntity player) {
         for (EquipmentSlot slot : ARMOR_SLOTS) {
             player.inventory.armor.set(slot.getEntitySlotId(), ItemStack.EMPTY);
         }

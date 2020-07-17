@@ -2,7 +2,8 @@ package net.gegy1000.bedwars.game.shop;
 
 import net.gegy1000.bedwars.custom.BwCustomItems;
 import net.gegy1000.bedwars.game.BedWars;
-import net.gegy1000.bedwars.game.BwState;
+import net.gegy1000.bedwars.game.BwActive;
+import net.gegy1000.bedwars.game.BwParticipant;
 import net.gegy1000.bedwars.game.upgrade.Upgrade;
 import net.gegy1000.bedwars.game.upgrade.PlayerUpgrades;
 import net.gegy1000.bedwars.game.upgrade.UpgradeType;
@@ -27,9 +28,11 @@ public final class BwItemShop {
     public static ShopUi create(ServerPlayerEntity player) {
         return ShopUi.create(new LiteralText("Item Shop"), shop -> {
             BedWars bedWars = GameManager.openFor(BedWars.TYPE);
-            if (bedWars == null) return;
+            if (bedWars == null || !(bedWars.phase instanceof BwActive)) return;
 
-            BwState.Participant participant = bedWars.state.getParticipant(player);
+            BwActive active = (BwActive) bedWars.phase;
+
+            BwParticipant participant = active.getParticipant(player);
             if (participant != null) {
                 DyeColor color = participant.team.getDye();
                 shop.addItem(new ItemStack(ColoredBlocks.wool(color), 16), Cost.ofIron(4));

@@ -1,7 +1,7 @@
 package net.gegy1000.bedwars.game.upgrade;
 
-import net.gegy1000.bedwars.game.BedWars;
-import net.gegy1000.bedwars.game.BwState;
+import net.gegy1000.bedwars.game.BwActive;
+import net.gegy1000.bedwars.game.BwParticipant;
 import net.gegy1000.gl.shop.Cost;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
@@ -23,12 +23,12 @@ public final class WeaponUpgrade implements Upgrade {
     }
 
     @Override
-    public void applyTo(BedWars game, ServerPlayerEntity player, BwState.Participant participant) {
+    public void applyTo(BwActive game, ServerPlayerEntity player, BwParticipant participant) {
         player.inventory.offerOrDrop(player.world, game.createTool(this.stack.copy()));
     }
 
     @Override
-    public void removeFrom(BedWars game, ServerPlayerEntity player) {
+    public void removeFrom(BwActive game, ServerPlayerEntity player) {
         for (int slot = 0; slot < player.inventory.size(); slot++) {
             ItemStack stack = player.inventory.getStack(slot);
             if (stack.getItem() == this.stack.getItem()) {

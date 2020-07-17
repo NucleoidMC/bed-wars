@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.gegy1000.bedwars.BedWarsMod;
 import net.gegy1000.gl.game.GameTeam;
-import net.gegy1000.bedwars.game.BedWarsConfig;
+import net.gegy1000.bedwars.game.BwConfig;
 import net.gegy1000.bedwars.game.generator.island.CenterIslandGen;
 import net.gegy1000.bedwars.game.generator.island.DiamondIslandGen;
 import net.gegy1000.bedwars.game.generator.island.RandomSmallIslandGen;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
-public final class ProceduralMapProvider implements MapProvider<BedWarsConfig> {
+public final class ProceduralMapProvider implements MapProvider<BwConfig> {
     public static final Codec<ProceduralMapProvider> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Generator.CODEC.fieldOf("generator").forGetter(provider -> provider.generator)
     ).apply(instance, ProceduralMapProvider::new));
@@ -41,7 +41,7 @@ public final class ProceduralMapProvider implements MapProvider<BedWarsConfig> {
     }
 
     @Override
-    public CompletableFuture<GameMap> createAt(ServerWorld world, BlockPos origin, BedWarsConfig config) {
+    public CompletableFuture<GameMap> createAt(ServerWorld world, BlockPos origin, BwConfig config) {
         // TODO: abstract away the origin to avoid mistakes in coordinate systems
         BlockBounds bounds = new BlockBounds(
                 new BlockPos(-HORIZONTAL_RADIUS, -VERTICAL_RADIUS, -HORIZONTAL_RADIUS),
@@ -53,7 +53,7 @@ public final class ProceduralMapProvider implements MapProvider<BedWarsConfig> {
     }
 
     @Override
-    public Codec<? extends MapProvider<BedWarsConfig>> getCodec() {
+    public Codec<? extends MapProvider<BwConfig>> getCodec() {
         return CODEC;
     }
 

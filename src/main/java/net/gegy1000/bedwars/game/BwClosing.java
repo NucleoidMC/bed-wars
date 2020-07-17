@@ -1,6 +1,7 @@
 package net.gegy1000.bedwars.game;
 
 import net.gegy1000.gl.game.GameTeam;
+import net.gegy1000.gl.game.JoinResult;
 import net.minecraft.entity.projectile.FireworkRocketEntity;
 import net.minecraft.item.FireworkItem;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -12,27 +13,35 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-public final class BwCloseLogic {
+public final class BwClosing implements BwPhase {
     public static final long CLOSE_TICKS = 10 * 20;
 
-    private final BedWars game;
+    private final BwActive game;
     private final GameTeam winningTeam;
 
     private final long closeTime;
 
-    BwCloseLogic(BedWars game, @Nullable GameTeam winningTeam) {
+    BwClosing(BwActive game, @Nullable GameTeam winningTeam) {
         this.game = game;
         this.winningTeam = winningTeam;
-        this.closeTime = game.world.getTime() + CLOSE_TICKS;
+        this.closeTime = game.map.getWorld().getTime() + CLOSE_TICKS;
+    }
+
+    public boolean tick() {
+        if (this.winningTeam != null) {
+            this.spawnFireworks(this.winningTeam);
+        }
+
+        return this.game.map.getWorld().getTime() >= this.closeTime;
     }
 
     private void spawnFireworks(GameTeam team) {
-        ServerWorld world = this.game.world;
+        ServerWorld world = this.game.map.getWorld();
         Random random = world.random;
 
         if (random.nextInt(18) == 0) {
-            List<ServerPlayerEntity> players = this.game.state.participants()
-                    .map(BwState.Participant::player)
+            List<ServerPlayerEntity> players = this.game.participants()
+                    .map(BwParticipant::player)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
             ServerPlayerEntity player = players.get(random.nextInt(players.size()));
@@ -51,11 +60,8 @@ public final class BwCloseLogic {
         }
     }
 
-    public boolean tick() {
-        if (this.winningTeam != null) {
-            this.spawnFireworks(this.winningTeam);
-        }
-
-        return this.game.world.getTime() >= this.closeTime;
+    @Override
+    public JoinResult offerPlayer(ServerPlayerEntity player) {
+        return JoinResult.GAME_FULL;
     }
 }

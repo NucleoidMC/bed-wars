@@ -1,18 +1,17 @@
 package net.gegy1000.bedwars.game;
 
+import com.google.common.collect.Multimap;
 import net.gegy1000.gl.game.GameTeam;
+import net.gegy1000.gl.game.player.TeamAllocator;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public final class WaitingPlayers {
+public final class PlayerQueue {
     private final Set<ServerPlayerEntity> players = new HashSet<>();
     private final Map<ServerPlayerEntity, GameTeam> requestedTeams = new HashMap<>();
 
@@ -34,14 +33,14 @@ public final class WaitingPlayers {
         return this.players.size();
     }
 
-    public List<ServerPlayerEntity> takePlayers() {
-        List<ServerPlayerEntity> players = new ArrayList<>(this.players);
-        Collections.shuffle(players);
-        return players;
-    }
+    public Multimap<GameTeam, ServerPlayerEntity> allocatePlayers(List<GameTeam> teams) {
+        TeamAllocator<GameTeam, ServerPlayerEntity> allocator = new TeamAllocator<>(teams);
 
-    @Nullable
-    public GameTeam getRequestedTeam(ServerPlayerEntity player) {
-        return this.requestedTeams.get(player);
+        for (ServerPlayerEntity player : this.players) {
+            GameTeam requestedTeam = this.requestedTeams.get(player);
+            allocator.add(player, requestedTeam);
+        }
+
+        return allocator.build();
     }
 }

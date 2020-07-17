@@ -22,24 +22,24 @@ public final class BwKillLogic {
             Items.EMERALD
     );
 
-    private final BedWars game;
+    private final BwActive game;
 
-    BwKillLogic(BedWars game) {
+    BwKillLogic(BwActive game) {
         this.game = game;
     }
 
     public void onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
-        BwState.Participant attackerParticipant = null;
+        BwParticipant attackerParticipant = null;
         Entity attacker = source.getAttacker();
         if (attacker != null && attacker instanceof ServerPlayerEntity) {
-            attackerParticipant = this.game.state.getParticipant(attacker.getUuid());
+            attackerParticipant = this.game.getParticipant(attacker.getUuid());
         }
 
         Collection<ItemStack> resources = this.takeResources(player);
         if (attackerParticipant != null) {
             ServerPlayerEntity attackerPlayer = (ServerPlayerEntity) attacker;
             for (ItemStack resource : resources) {
-                attackerPlayer.inventory.offerOrDrop(this.game.world, resource);
+                attackerPlayer.inventory.offerOrDrop(this.game.map.getWorld(), resource);
             }
         }
     }

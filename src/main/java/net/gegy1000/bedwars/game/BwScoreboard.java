@@ -9,6 +9,7 @@ import net.minecraft.scoreboard.ServerScoreboard;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Formatting;
 
@@ -18,18 +19,38 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class BwScoreboardLogic {
-    private final BedWars game;
+public final class BwScoreboard implements AutoCloseable {
+    private final BwActive game;
 
     private final Map<GameTeam, Team> scoreboardTeams = new HashMap<>();
+    private final ScoreboardObjective objective;
 
-    private ScoreboardObjective objective;
-    private boolean dirty;
+    private boolean dirty = true;
 
     private long ticks;
 
-    BwScoreboardLogic(BedWars game) {
+    private BwScoreboard(BwActive game, ScoreboardObjective objective) {
         this.game = game;
+        this.objective = objective;
+    }
+
+    public static BwScoreboard create(BwActive game) {
+        ServerWorld world = game.map.getWorld();
+        MinecraftServer server = world.getServer();
+
+        ServerScoreboard scoreboard = server.getScoreboard();
+
+        ScoreboardObjective objective = new ScoreboardObjective(
+                scoreboard, "bedwars",
+                ScoreboardCriterion.DUMMY,
+                new LiteralText("BedWars").formatted(Formatting.GOLD, Formatting.BOLD),
+                ScoreboardCriterion.RenderType.INTEGER
+        );
+        scoreboard.addScoreboardObjective(objective);
+
+        scoreboard.setObjectiveSlot(1, objective);
+
+        return new BwScoreboard(game, objective);
     }
 
     public void tick() {
@@ -41,50 +62,27 @@ public final class BwScoreboardLogic {
         }
     }
 
-    public void setupScoreboard() {
-        MinecraftServer server = this.game.world.getServer();
-        ServerScoreboard scoreboard = server.getScoreboard();
-        this.objective = new ScoreboardObjective(
-                scoreboard, "bedwars",
-                ScoreboardCriterion.DUMMY,
-                new LiteralText("BedWars").formatted(Formatting.GOLD, Formatting.BOLD),
-                ScoreboardCriterion.RenderType.INTEGER
-        );
-        scoreboard.addScoreboardObjective(this.objective);
-
-        scoreboard.setObjectiveSlot(1, this.objective);
-
-        this.rerender();
-    }
-
-    public void setupTeam(GameTeam team) {
-        this.game.state.participantsFor(team).forEach(participant -> {
+    public void addTeam(GameTeam team) {
+        this.game.participantsFor(team).forEach(participant -> {
             ServerPlayerEntity player = participant.player();
             if (player == null) return;
 
-            this.setupPlayer(player, team);
+            this.addPlayer(player, team);
         });
     }
 
-    public void setupPlayer(ServerPlayerEntity player, GameTeam team) {
-        MinecraftServer server = this.game.world.getServer();
+    private void addPlayer(ServerPlayerEntity player, GameTeam team) {
+        ServerWorld world = this.game.map.getWorld();
+        MinecraftServer server = world.getServer();
+
         ServerScoreboard scoreboard = server.getScoreboard();
         scoreboard.addPlayerToTeam(player.getEntityName(), this.scoreboardTeam(team));
     }
 
-    public void resetScoreboard() {
-        MinecraftServer server = this.game.world.getServer();
-        ServerScoreboard scoreboard = server.getScoreboard();
-        this.scoreboardTeams.values().forEach(scoreboard::removeTeam);
-
-        if (this.objective != null) {
-            scoreboard.removeObjective(this.objective);
-        }
-    }
-
     public Team scoreboardTeam(GameTeam team) {
         return this.scoreboardTeams.computeIfAbsent(team, t -> {
-            MinecraftServer server = this.game.world.getServer();
+            ServerWorld world = this.game.map.getWorld();
+            MinecraftServer server = world.getServer();
             ServerScoreboard scoreboard = server.getScoreboard();
             String teamKey = t.getDisplay();
             Team scoreboardTeam = scoreboard.getTeam(teamKey);
@@ -102,8 +100,6 @@ public final class BwScoreboardLogic {
     }
 
     private void rerender() {
-        this.dirty = false;
-
         List<String> lines = new ArrayList<>(10);
 
         long seconds = (this.ticks / 20) % 60;
@@ -111,16 +107,16 @@ public final class BwScoreboardLogic {
 
         lines.add(String.format("%sTime: %s%02d:%02d", Formatting.RED.toString() + Formatting.BOLD, Formatting.RESET, minutes, seconds));
 
-        long playersAlive = this.game.state.participants()
+        long playersAlive = this.game.participants()
                 .filter(participant -> !participant.eliminated && participant.inGame())
                 .count();
         lines.add(Formatting.BLUE.toString() + playersAlive + " players alive");
         lines.add("");
 
         lines.add(Formatting.BOLD + "Teams:");
-        this.game.state.teams().forEach(teamState -> {
-            long totalPlayerCount = this.game.state.participantsFor(teamState.team).count();
-            long alivePlayerCount = this.game.state.participantsFor(teamState.team)
+        this.game.teams().forEach(teamState -> {
+            long totalPlayerCount = this.game.participantsFor(teamState.team).count();
+            long alivePlayerCount = this.game.participantsFor(teamState.team)
                     .filter(participant -> !participant.eliminated)
                     .count();
 
@@ -140,11 +136,8 @@ public final class BwScoreboardLogic {
     }
 
     private void render(String[] lines) {
-        if (this.objective == null) {
-            return;
-        }
-
-        MinecraftServer server = this.game.world.getServer();
+        ServerWorld world = this.game.map.getWorld();
+        MinecraftServer server = world.getServer();
         ServerScoreboard scoreboard = server.getScoreboard();
 
         render(scoreboard, this.objective, lines);
@@ -163,5 +156,16 @@ public final class BwScoreboardLogic {
         for (ScoreboardPlayerScore score : existing) {
             scoreboard.resetPlayerScore(score.getPlayerName(), objective);
         }
+    }
+
+    @Override
+    public void close() {
+        ServerWorld world = this.game.map.getWorld();
+        MinecraftServer server = world.getServer();
+
+        ServerScoreboard scoreboard = server.getScoreboard();
+        this.scoreboardTeams.values().forEach(scoreboard::removeTeam);
+
+        scoreboard.removeObjective(this.objective);
     }
 }

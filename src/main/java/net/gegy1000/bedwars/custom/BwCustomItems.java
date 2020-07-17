@@ -2,6 +2,7 @@ package net.gegy1000.bedwars.custom;
 
 import net.gegy1000.bedwars.BedWarsMod;
 import net.gegy1000.bedwars.game.BedWars;
+import net.gegy1000.bedwars.game.BwActive;
 import net.gegy1000.gl.game.GameManager;
 import net.gegy1000.gl.game.GameTeam;
 import net.gegy1000.gl.item.CustomItem;
@@ -38,7 +39,9 @@ public final class BwCustomItems {
     private static TypedActionResult<ItemStack> throwBridgeEgg(PlayerEntity player, World world, Hand hand) {
         if (!world.isClient) {
             BedWars game = GameManager.openFor(BedWars.TYPE);
-            if (game != null) {
+            if (game != null && game.phase instanceof BwActive) {
+                BwActive active = (BwActive) game.phase;
+
                 ItemStack stack = player.getStackInHand(hand);
 
                 Random random = player.world.random;
@@ -49,7 +52,7 @@ public final class BwCustomItems {
                 );
 
                 // Get player wool color
-                GameTeam team = game.state.getTeam(player.getUuid());
+                GameTeam team = active.getTeam(player.getUuid());
                 if (team == null) {
                     return TypedActionResult.pass(stack);
                 }

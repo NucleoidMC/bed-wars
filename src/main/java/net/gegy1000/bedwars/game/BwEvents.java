@@ -26,6 +26,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -39,57 +40,64 @@ public final class BwEvents {
     }
 
     public void onExplosion(List<BlockPos> affectedBlocks) {
-        affectedBlocks.removeIf(this.game.map::isStandardBlock);
+        affectedBlocks.removeIf(this.game.map::isProtectedBlock);
     }
 
     public boolean onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
-        if (this.game.state == null) {
-            if (this.game.waiting.containsPlayer(player)) {
-                this.game.waiting.spawnPlayer(player);
+        BwPhase phase = this.game.phase;
+        if (phase instanceof BwWaiting) {
+            BwWaiting waiting = (BwWaiting) phase;
+
+            if (waiting.containsPlayer(player)) {
+                waiting.spawnPlayer(player);
                 return true;
             }
+
             return false;
         }
 
-        BwState.Participant participant = this.game.state.getParticipant(player);
+        if (phase instanceof BwActive) {
+            BwActive active = (BwActive) phase;
+            BwParticipant participant = active.getParticipant(player);
 
-        // TODO: this should go in KillLogic?
+            // TODO: this should go in KillLogic?
 
-        // TODO: cancel if cause is own player
-        if (participant != null) {
-            participant.upgrades.tryDowngrade(UpgradeType.SWORD);
-            participant.upgrades.tryDowngrade(UpgradeType.PICKAXE);
-            participant.upgrades.tryDowngrade(UpgradeType.AXE);
+            // TODO: cancel if cause is own player
+            if (participant != null) {
+                participant.upgrades.tryDowngrade(UpgradeType.SWORD);
+                participant.upgrades.tryDowngrade(UpgradeType.PICKAXE);
+                participant.upgrades.tryDowngrade(UpgradeType.AXE);
 
-            this.game.killLogic.onPlayerDeath(player, source);
+                active.killLogic.onPlayerDeath(player, source);
 
-            BwMap.TeamSpawn spawn = this.game.teamLogic.tryRespawn(participant);
-            this.game.broadcast.broadcastDeath(player, source, spawn == null);
+                BwMap.TeamSpawn spawn = active.teamLogic.tryRespawn(participant);
+                active.broadcast.broadcastDeath(player, source, spawn == null);
 
-            // Run death modifiers
-            this.game.triggerModifiers(BwGameTriggers.PLAYER_DEATH);
+                // Run death modifiers
+                active.triggerModifiers(BwGameTriggers.PLAYER_DEATH);
 
-            if (spawn != null) {
-                this.game.playerLogic.respawnOnTimer(player, spawn);
-            } else {
-                this.dropEnderChest(player, participant);
+                if (spawn != null) {
+                    active.playerLogic.respawnOnTimer(player, spawn);
+                } else {
+                    this.dropEnderChest(player, participant);
 
-                this.game.playerLogic.spawnSpectator(player);
-                this.game.winStateLogic.eliminatePlayer(participant);
+                    active.playerTracker.spawnAtCenter(player, GameMode.SPECTATOR);
+                    active.winStateLogic.eliminatePlayer(participant);
 
-                // Run final death modifiers
-                this.game.triggerModifiers(BwGameTriggers.FINAL_DEATH);
+                    // Run final death modifiers
+                    active.triggerModifiers(BwGameTriggers.FINAL_DEATH);
+                }
+
+                active.scoreboard.markDirty();
+
+                return true;
             }
-
-            this.game.scoreboardLogic.markDirty();
-
-            return true;
         }
 
         return false;
     }
 
-    private void dropEnderChest(ServerPlayerEntity player, BwState.Participant participant) {
+    private void dropEnderChest(ServerPlayerEntity player, BwParticipant participant) {
         EnderChestInventory enderChest = player.getEnderChestInventory();
 
         BwMap.TeamRegions teamRegions = this.game.map.getTeamRegions(participant.team);
@@ -109,33 +117,36 @@ public final class BwEvents {
     }
 
     public void onPlayerJoin(ServerPlayerEntity player) {
-        if (this.game.state == null) {
-            return;
-        }
+        BwPhase phase = this.game.phase;
 
-        BwState.Participant participant = this.game.state.getParticipant(player);
+        if (phase instanceof BwActive) {
+            BwActive active = (BwActive) phase;
+            BwParticipant participant = active.getParticipant(player);
 
-        if (participant != null) {
-            BwMap.TeamSpawn spawn = this.game.teamLogic.tryRespawn(participant);
-            if (spawn != null) {
-                this.game.playerLogic.respawnOnTimer(player, spawn);
-            } else {
-                this.game.playerLogic.spawnSpectator(player);
+            if (participant != null) {
+                BwMap.TeamSpawn spawn = active.teamLogic.tryRespawn(participant);
+                if (spawn != null) {
+                    active.playerLogic.respawnOnTimer(player, spawn);
+                } else {
+                    active.playerTracker.spawnAtCenter(player, GameMode.SPECTATOR);
+                }
+
+                active.scoreboard.markDirty();
             }
-
-            this.game.scoreboardLogic.markDirty();
         }
     }
 
     public boolean onBreakBlock(ServerPlayerEntity player, BlockPos pos) {
-        if (this.game.map.contains(pos)) {
-            BlockState state = this.game.world.getBlockState(pos);
+        BwPhase phase = this.game.phase;
 
-            if (this.game.map.isStandardBlock(pos)) {
+        if (phase instanceof BwActive) {
+            BwActive active = (BwActive) phase;
+
+            if (this.game.map.contains(pos)) {
                 for (GameTeam team : this.game.config.getTeams()) {
                     BlockBounds bed = this.game.map.getTeamRegions(team).bed;
                     if (bed != null && bed.contains(pos)) {
-                        this.game.teamLogic.onBedBroken(player, pos);
+                        active.teamLogic.onBedBroken(player, pos);
                     }
                 }
 
@@ -147,37 +158,15 @@ public final class BwEvents {
     }
 
     public ActionResult onAttackEntity(PlayerEntity player, World world, Hand hand, Entity entity, EntityHitResult hitResult) {
-        if (this.game.state == null) {
-            return ActionResult.PASS;
-        }
+        BwPhase phase = this.game.phase;
 
-        BwState.Participant participant = this.game.state.getParticipant(player);
-        BwState.Participant attackedParticipant = this.game.state.getParticipant(entity.getUuid());
-        if (participant != null && attackedParticipant != null) {
-            if (participant.team == attackedParticipant.team) {
-                return ActionResult.FAIL;
-            }
-        }
+        if (phase instanceof BwActive) {
+            BwActive active = (BwActive) phase;
 
-        return ActionResult.PASS;
-    }
-
-    public ActionResult onUseBlock(PlayerEntity player, BlockHitResult hitResult) {
-        if (this.game.state == null) {
-            return ActionResult.PASS;
-        }
-
-        BwState.Participant participant = this.game.state.getParticipant(player);
-
-        if (participant != null) {
-            BlockPos pos = hitResult.getBlockPos();
-            if (pos != null) {
-                if (this.game.map.contains(pos)) {
-                    BlockState state = this.game.world.getBlockState(pos);
-                    if (state.getBlock() instanceof AbstractChestBlock) {
-                        return this.onUseChest(participant, pos);
-                    }
-                } else {
+            BwParticipant participant = active.getParticipant(player);
+            BwParticipant attackedParticipant = active.getParticipant(entity.getUuid());
+            if (participant != null && attackedParticipant != null) {
+                if (participant.team == attackedParticipant.team) {
                     return ActionResult.FAIL;
                 }
             }
@@ -186,7 +175,32 @@ public final class BwEvents {
         return ActionResult.PASS;
     }
 
-    private ActionResult onUseChest(BwState.Participant participant, BlockPos pos) {
+    public ActionResult onUseBlock(PlayerEntity player, BlockHitResult hitResult) {
+        BwPhase phase = this.game.phase;
+
+        if (phase instanceof BwActive) {
+            BwActive active = (BwActive) phase;
+            BwParticipant participant = active.getParticipant(player);
+
+            if (participant != null) {
+                BlockPos pos = hitResult.getBlockPos();
+                if (pos != null) {
+                    if (this.game.map.contains(pos)) {
+                        BlockState state = this.game.world.getBlockState(pos);
+                        if (state.getBlock() instanceof AbstractChestBlock) {
+                            return this.onUseChest(active, participant, pos);
+                        }
+                    } else {
+                        return ActionResult.FAIL;
+                    }
+                }
+            }
+        }
+
+        return ActionResult.PASS;
+    }
+
+    private ActionResult onUseChest(BwActive active, BwParticipant participant, BlockPos pos) {
         GameTeam team = participant.team;
 
         GameTeam chestTeam = this.getOwningTeamForChest(pos);
@@ -194,7 +208,7 @@ public final class BwEvents {
             return ActionResult.PASS;
         }
 
-        BwState.TeamState chestTeamState = this.game.state.getTeam(chestTeam);
+        BwActive.TeamState chestTeamState = active.getTeam(chestTeam);
         if (chestTeamState == null || chestTeamState.eliminated) {
             return ActionResult.PASS;
         }
@@ -238,8 +252,11 @@ public final class BwEvents {
 
             return TypedActionResult.success(ItemStack.EMPTY);
         } else if (CustomItem.match(stack) == BwCustomItems.TEAM_SELECTOR) {
-            if (this.game.waiting != null) {
-                this.game.waiting.onUseRequestTeam((ServerPlayerEntity) player, stack);
+            BwPhase phase = this.game.phase;
+
+            if (phase instanceof BwWaiting) {
+                BwWaiting waiting = (BwWaiting) phase;
+                waiting.onUseRequestTeam((ServerPlayerEntity) player, stack);
             }
         }
 

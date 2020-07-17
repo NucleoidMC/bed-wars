@@ -18,13 +18,13 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public final class BwBroadcast {
-    private final BedWars game;
+    private final BwActive game;
 
-    BwBroadcast(BedWars game) {
+    BwBroadcast(BwActive game) {
         this.game = game;
     }
 
-    public void broadcastTrapSetOff(BwState.TeamState team) {
+    public void broadcastTrapSetOff(BwActive.TeamState team) {
         Target target = this.team(team.team);
 
         this.broadcast(target, new LiteralText("A player set off your team trap!").formatted(Formatting.BOLD, Formatting.RED));
@@ -32,7 +32,7 @@ public final class BwBroadcast {
         this.broadcastSound(target, SoundEvents.BLOCK_BELL_USE);
     }
 
-    public void broadcastTeamUpgrade(BwState.Participant participant, Text message) {
+    public void broadcastTeamUpgrade(BwParticipant participant, Text message) {
         ServerPlayerEntity player = participant.player();
 
         Text broadcast;
@@ -126,13 +126,13 @@ public final class BwBroadcast {
     }
 
     public Target everyone() {
-        return this.game.state::players;
+        return this.game::players;
     }
 
     public Target team(GameTeam team) {
         return () -> {
-            return this.game.state.participantsFor(team)
-                    .map(BwState.Participant::player)
+            return this.game.participantsFor(team)
+                    .map(BwParticipant::player)
                     .filter(Objects::nonNull);
         };
     }

@@ -2,7 +2,7 @@ package net.gegy1000.bedwars.game.modifiers;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.gegy1000.bedwars.game.BedWars;
+import net.gegy1000.bedwars.game.BwActive;
 import net.gegy1000.gl.game.modifier.GameModifier;
 import net.gegy1000.gl.game.modifier.GameTrigger;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -28,13 +28,13 @@ public class JumpBoostGameModifier implements GameModifier {
     }
 
     @Override
-    public void init(BedWars game) {
+    public void init(BwActive game) {
     }
 
     @Override
-    public void tick(BedWars game) {
-        if (game.world.getTime() % 20 == 0) {
-            game.state.players().forEach(this::addEffect);
+    public void tick(BwActive game) {
+        if (game.map.getWorld().getTime() % 20 == 0) {
+            game.players().forEach(this::addEffect);
         }
     }
 

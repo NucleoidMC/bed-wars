@@ -13,27 +13,27 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-public final class BedWarsConfig implements GameConfig {
-    public static final Codec<BedWarsConfig> CODEC = RecordCodecBuilder.create(instance -> {
-        Codec<GameMapConfig<BedWarsConfig>> mapCodec = GameMapConfig.codec();
+public final class BwConfig implements GameConfig {
+    public static final Codec<BwConfig> CODEC = RecordCodecBuilder.create(instance -> {
+        Codec<GameMapConfig<BwConfig>> mapCodec = GameMapConfig.codec();
 
         return instance.group(
-                mapCodec.fieldOf("map").forGetter(BedWarsConfig::getMapConfig),
-                CombatConfig.CODEC.fieldOf("combat").withDefault(CombatConfig.DEFAULT).forGetter(BedWarsConfig::getCombatConfig),
-                GameModifier.CODEC.listOf().fieldOf("modifiers").withDefault(Collections.emptyList()).forGetter(BedWarsConfig::getModifiers),
-                GameTeam.CODEC.listOf().fieldOf("teams").forGetter(BedWarsConfig::getTeams),
-                PlayerConfig.CODEC.fieldOf("players").forGetter(BedWarsConfig::getPlayerConfig)
-        ).apply(instance, BedWarsConfig::new);
+                mapCodec.fieldOf("map").forGetter(BwConfig::getMapConfig),
+                CombatConfig.CODEC.fieldOf("combat").withDefault(CombatConfig.DEFAULT).forGetter(BwConfig::getCombatConfig),
+                GameModifier.CODEC.listOf().fieldOf("modifiers").withDefault(Collections.emptyList()).forGetter(BwConfig::getModifiers),
+                GameTeam.CODEC.listOf().fieldOf("teams").forGetter(BwConfig::getTeams),
+                PlayerConfig.CODEC.fieldOf("players").forGetter(BwConfig::getPlayerConfig)
+        ).apply(instance, BwConfig::new);
     });
 
-    private final GameMapConfig<BedWarsConfig> mapConfig;
+    private final GameMapConfig<BwConfig> mapConfig;
     private final CombatConfig combatConfig;
     private final List<GameModifier> modifiers;
     private final List<GameTeam> teams;
     private final PlayerConfig playerConfig;
 
-    public BedWarsConfig(
-            GameMapConfig<BedWarsConfig> mapConfig,
+    public BwConfig(
+            GameMapConfig<BwConfig> mapConfig,
             CombatConfig combatConfig,
             List<GameModifier> modifiers,
             List<GameTeam> teams,
@@ -46,7 +46,7 @@ public final class BedWarsConfig implements GameConfig {
         this.playerConfig = playerConfig;
     }
 
-    public GameMapConfig<BedWarsConfig> getMapConfig() {
+    public GameMapConfig<BwConfig> getMapConfig() {
         return this.mapConfig;
     }
 

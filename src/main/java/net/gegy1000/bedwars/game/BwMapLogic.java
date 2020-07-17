@@ -6,22 +6,25 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Box;
 
 import java.util.List;
 
 public final class BwMapLogic {
-    private final BedWars game;
+    private final BwActive game;
 
-    BwMapLogic(BedWars game) {
+    BwMapLogic(BwActive game) {
         this.game = game;
     }
 
     public void tick() {
-        this.game.map.generators().forEach(generator -> generator.tick(this.game.world, this.game.state));
+        ServerWorld world = this.game.map.getWorld();
 
-        if (this.game.world.getTime() % 20 == 0) {
-            this.game.state.teams().forEach(team -> {
+        this.game.map.generators().forEach(generator -> generator.tick(world, this.game));
+
+        if (world.getTime() % 20 == 0) {
+            this.game.teams().forEach(team -> {
                 if (team.trapSet) {
                     if (this.tickTrap(team)) {
                         this.game.broadcast.broadcastTrapSetOff(team);
@@ -40,17 +43,18 @@ public final class BwMapLogic {
         }
     }
 
-    private boolean tickTrap(BwState.TeamState teamState) {
+    private boolean tickTrap(BwActive.TeamState teamState) {
+        ServerWorld world = this.game.map.getWorld();
         BwMap.TeamRegions regions = this.game.map.getTeamRegions(teamState.team);
 
         if (regions.base != null) {
-            List<PlayerEntity> entities = this.game.world.getEntities(EntityType.PLAYER, regions.base.toBox(), player -> {
+            List<PlayerEntity> entities = world.getEntities(EntityType.PLAYER, regions.base.toBox(), player -> {
                 // Filter out creative mode and spectator mode players
                 if (player.abilities.allowFlying) {
                     return false;
                 }
 
-                BwState.Participant participant = this.game.state.getParticipant(player);
+                BwParticipant participant = this.game.getParticipant(player);
                 return participant != null && !participant.team.equals(teamState.team) && !participant.eliminated;
             });
 
@@ -66,13 +70,15 @@ public final class BwMapLogic {
         return false;
     }
 
-    private void tickHealPool(BwState.TeamState teamState) {
+    private void tickHealPool(BwActive.TeamState teamState) {
+        ServerWorld world = this.game.map.getWorld();
         BwMap.TeamRegions regions = this.game.map.getTeamRegions(teamState.team);
+
         if (regions.base != null) {
             Box box = regions.base.toBox();
 
-            List<PlayerEntity> entities = this.game.world.getEntities(EntityType.PLAYER, box, player -> {
-                BwState.Participant participant = this.game.state.getParticipant(player);
+            List<PlayerEntity> entities = world.getEntities(EntityType.PLAYER, box, player -> {
+                BwParticipant participant = this.game.getParticipant(player);
                 return participant != null && participant.team.equals(teamState.team);
             });
 
@@ -82,8 +88,8 @@ public final class BwMapLogic {
         }
     }
 
-    private void tickTeamEffect(BwState.TeamState teamState, StatusEffect effect, int amplifier) {
-        this.game.state.participantsFor(teamState.team).forEach(participant -> {
+    private void tickTeamEffect(BwActive.TeamState teamState, StatusEffect effect, int amplifier) {
+        this.game.participantsFor(teamState.team).forEach(participant -> {
             ServerPlayerEntity player = participant.player();
             if (player == null) {
                 return;

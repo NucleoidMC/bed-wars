@@ -18,16 +18,17 @@ import net.minecraft.world.GameMode;
 
 import java.util.List;
 
-public final class BwWaitingLogic {
+public final class BwWaiting implements BwPhase {
     private static final String TEAM_KEY = BedWarsMod.ID + ":team";
 
     private final BedWars game;
-    private final WaitingPlayers players = new WaitingPlayers();
+    private final PlayerQueue players = new PlayerQueue();
 
-    public BwWaitingLogic(BedWars game) {
+    public BwWaiting(BedWars game) {
         this.game = game;
     }
 
+    @Override
     public JoinResult offerPlayer(ServerPlayerEntity player) {
         PlayerConfig playerConfig = this.game.config.getPlayerConfig();
 
@@ -36,7 +37,7 @@ public final class BwWaitingLogic {
         }
 
         if (this.players.addPlayer(player)) {
-            this.game.joinPlayerToMap(player);
+            this.game.playerTracker.joinPlayer(player);
             this.spawnPlayer(player);
 
             return JoinResult.OK;
@@ -61,9 +62,8 @@ public final class BwWaitingLogic {
     }
 
     public void spawnPlayer(ServerPlayerEntity player) {
-        player.setGameMode(GameMode.ADVENTURE);
-        this.game.playerLogic.resetPlayer(player);
-        this.game.playerLogic.spawnAtCenter(player);
+        BedWars.resetPlayer(player);
+        this.game.playerTracker.spawnAtCenter(player, GameMode.ADVENTURE);
 
         List<GameTeam> teams = this.game.config.getTeams();
         for (int i = 0; i < teams.size(); i++) {
@@ -85,13 +85,13 @@ public final class BwWaitingLogic {
         return this.players.contains(player);
     }
 
-    public Either<BwState, StartResult> tryStart() {
+    public Either<BwPhase, StartResult> tryStart() {
         PlayerConfig playerConfig = this.game.config.getPlayerConfig();
         if (this.players.size() < playerConfig.getMinPlayers()) {
             return Either.right(StartResult.NOT_ENOUGH_PLAYERS);
         }
 
-        BwState state = BwState.start(this.game, this.players, this.game.config);
-        return Either.left(state);
+        BwPhase phase = BwActive.open(this.game.map, this.game.config, this.game.playerTracker, this.players);
+        return Either.left(phase);
     }
 }

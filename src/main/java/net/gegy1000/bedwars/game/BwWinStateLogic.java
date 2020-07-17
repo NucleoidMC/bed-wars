@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class BwWinStateLogic {
-    private final BedWars game;
+    private final BwActive game;
 
-    BwWinStateLogic(BedWars game) {
+    BwWinStateLogic(BwActive game) {
         this.game = game;
     }
 
@@ -19,17 +19,17 @@ public final class BwWinStateLogic {
         this.checkEliminatedTeams();
 
         // if there's only one team, disable the win state
-        if (this.game.state.getTeamCount() <= 1) {
+        if (this.game.getTeamCount() <= 1) {
             return null;
         }
 
-        List<BwState.TeamState> remainingTeams = this.game.state.teams()
+        List<BwActive.TeamState> remainingTeams = this.game.teams()
                 .filter(team -> !team.eliminated)
                 .collect(Collectors.toList());
 
         if (remainingTeams.size() <= 1) {
             if (remainingTeams.size() == 1) {
-                BwState.TeamState winningTeam = remainingTeams.get(0);
+                BwActive.TeamState winningTeam = remainingTeams.get(0);
                 return WinResult.team(winningTeam.team);
             } else {
                 return WinResult.draw();
@@ -40,7 +40,7 @@ public final class BwWinStateLogic {
     }
 
     private void checkEliminatedTeams() {
-        Stream<BwState.TeamState> eliminatedTeams = this.game.state.teams()
+        Stream<BwActive.TeamState> eliminatedTeams = this.game.teams()
                 .filter(team -> !team.eliminated)
                 .filter(team -> {
                     long remainingCount = this.countRemainingPlayers(team.team);
@@ -50,10 +50,10 @@ public final class BwWinStateLogic {
         eliminatedTeams.forEach(this::eliminateTeam);
     }
 
-    public void eliminatePlayer(BwState.Participant participant) {
+    public void eliminatePlayer(BwParticipant participant) {
         participant.eliminated = true;
 
-        BwState.TeamState teamState = this.game.state.getTeam(participant.team);
+        BwActive.TeamState teamState = this.game.getTeam(participant.team);
         if (teamState != null && !teamState.eliminated) {
             long remainingCount = this.countRemainingPlayers(participant.team);
             if (remainingCount <= 0) {
@@ -61,25 +61,25 @@ public final class BwWinStateLogic {
             }
         }
 
-        this.game.scoreboardLogic.markDirty();
+        this.game.scoreboard.markDirty();
     }
 
     private long countRemainingPlayers(GameTeam team) {
-        return this.game.state.participantsFor(team)
+        return this.game.participantsFor(team)
                 .filter(p -> !p.eliminated)
-                .filter(BwState.Participant::inGame)
+                .filter(BwParticipant::inGame)
                 .count();
     }
 
-    private void eliminateTeam(BwState.TeamState teamState) {
+    private void eliminateTeam(BwActive.TeamState teamState) {
         teamState.eliminated = true;
 
-        this.game.state.participantsFor(teamState.team).forEach(participant -> {
+        this.game.participantsFor(teamState.team).forEach(participant -> {
             participant.eliminated = true;
         });
 
         this.game.broadcast.broadcastTeamEliminated(teamState.team);
-        this.game.scoreboardLogic.markDirty();
+        this.game.scoreboard.markDirty();
     }
 
     public static class WinResult {

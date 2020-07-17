@@ -4,18 +4,18 @@ import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import net.gegy1000.bedwars.game.BedWars;
-import net.gegy1000.bedwars.game.BwState;
+import net.gegy1000.bedwars.game.BwActive;
+import net.gegy1000.bedwars.game.BwParticipant;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public final class PlayerUpgrades {
-    private final BedWars game;
-    private final BwState.Participant participant;
+    private final BwActive game;
+    private final BwParticipant participant;
 
     private final ObjectSet<UpgradeType<?>> upgradeTypes = new ObjectOpenHashSet<>();
     private final Object2IntMap<UpgradeType<?>> map = new Object2IntLinkedOpenHashMap<>();
 
-    public PlayerUpgrades(BedWars game, BwState.Participant participant) {
+    public PlayerUpgrades(BwActive game, BwParticipant participant) {
         this.game = game;
         this.participant = participant;
         this.map.defaultReturnValue(-1);
