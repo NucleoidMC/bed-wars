@@ -80,7 +80,7 @@ public final class NoiseIslandGen {
                         noise += this.falloffFunction.applyAsDouble(y);
 
                         if (noise > 0) {
-                            builder.setBlockState(pos, STONE);
+                            builder.setBlockState(pos, STONE, false);
                         }
                     }
                 }
@@ -107,7 +107,7 @@ public final class NoiseIslandGen {
 
                 // replace stone with soil until depth=3
                 if (depth < 3 && hereState == STONE) {
-                    builder.setBlockState(herePos, depth == 0 ? GRASS : DIRT);
+                    builder.setBlockState(herePos, depth == 0 ? GRASS : DIRT, false);
                 }
 
                 depth++;

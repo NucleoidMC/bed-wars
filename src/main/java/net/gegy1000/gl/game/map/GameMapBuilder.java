@@ -34,12 +34,16 @@ public final class GameMapBuilder {
     }
 
     public void setBlockState(BlockPos pos, BlockState state) {
+        setBlockState(pos, state, true);
+    }
+
+    public void setBlockState(BlockPos pos, BlockState state, boolean addToStandardBlocks) {
         BlockPos globalPos = this.localToGlobal(pos);
 
         this.world.setBlockState(globalPos, state, GameMap.SET_BLOCK_FLAGS);
 
         long key = globalPos.asLong();
-        if (!state.isAir()) {
+        if (!state.isAir() && addToStandardBlocks) {
             this.standardBlocks.add(key);
         } else {
             this.standardBlocks.remove(key);
