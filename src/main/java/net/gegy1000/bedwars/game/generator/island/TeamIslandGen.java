@@ -42,8 +42,11 @@ public class TeamIslandGen implements MapGen {
             }
         }
 
-        mutablePos.set(this.origin.getX() - 2, this.origin.getY() + 1, this.origin.getZ());
+        mutablePos.set(this.origin.getX(), this.origin.getY() + 1, this.origin.getZ() - 2);
         builder.setBlockState(mutablePos, Blocks.CHEST.getDefaultState());
+
+        mutablePos.set(this.origin.getX(), this.origin.getY() + 1, this.origin.getZ() + 2);
+        builder.setBlockState(mutablePos, Blocks.ENDER_CHEST.getDefaultState());
 
         mutablePos.set(this.origin.getX() + 5, this.origin.getY() + 1, this.origin.getZ());
         builder.setBlockState(mutablePos, Blocks.RESPAWN_ANCHOR.getDefaultState());
@@ -64,7 +67,11 @@ public class TeamIslandGen implements MapGen {
         ));
 
         builder.addRegion(this.marker("chest"), new BlockBounds(
-                this.origin.add(-2, 1, 0)
+                this.origin.add(0, 1, -2)
+        ));
+
+        builder.addRegion(this.marker("ender_chest"), new BlockBounds(
+                this.origin.add(0, 1, 2)
         ));
 
         builder.addRegion(this.marker("team_shop"), new BlockBounds(
