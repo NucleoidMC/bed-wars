@@ -1,6 +1,7 @@
-package net.gegy1000.bedwars.game;
+package net.gegy1000.bedwars.game.active;
 
-import net.gegy1000.bedwars.game.modifiers.BwGameTriggers;
+import net.gegy1000.bedwars.game.BwMap;
+import net.gegy1000.bedwars.game.active.modifiers.BwGameTriggers;
 import net.gegy1000.gl.game.GameTeam;
 import net.gegy1000.gl.world.BlockBounds;
 import net.minecraft.block.Blocks;

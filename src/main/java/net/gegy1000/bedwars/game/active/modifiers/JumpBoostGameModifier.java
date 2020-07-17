@@ -1,8 +1,8 @@
-package net.gegy1000.bedwars.game.modifiers;
+package net.gegy1000.bedwars.game.active.modifiers;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.gegy1000.bedwars.game.BwActive;
+import net.gegy1000.bedwars.game.active.BwActive;
 import net.gegy1000.gl.game.modifier.GameModifier;
 import net.gegy1000.gl.game.modifier.GameTrigger;
 import net.minecraft.entity.effect.StatusEffectInstance;

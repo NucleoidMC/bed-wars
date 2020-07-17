@@ -1,4 +1,4 @@
-package net.gegy1000.bedwars.game.upgrade;
+package net.gegy1000.bedwars.game.active.upgrade;
 
 import net.gegy1000.gl.shop.Cost;
 import net.minecraft.enchantment.Enchantments;

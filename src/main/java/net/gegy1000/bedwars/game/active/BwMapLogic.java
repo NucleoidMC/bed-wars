@@ -1,5 +1,6 @@
-package net.gegy1000.bedwars.game;
+package net.gegy1000.bedwars.game.active;
 
+import net.gegy1000.bedwars.game.BwMap;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;

@@ -1,4 +1,4 @@
-package net.gegy1000.bedwars.game.modifiers;
+package net.gegy1000.bedwars.game.active.modifiers;
 
 import net.gegy1000.bedwars.BedWarsMod;
 import net.gegy1000.gl.game.modifier.GameTrigger;

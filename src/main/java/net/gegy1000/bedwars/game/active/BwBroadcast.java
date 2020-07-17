@@ -1,4 +1,4 @@
-package net.gegy1000.bedwars.game;
+package net.gegy1000.bedwars.game.active;
 
 import net.gegy1000.gl.game.GameTeam;
 import net.minecraft.entity.Entity;

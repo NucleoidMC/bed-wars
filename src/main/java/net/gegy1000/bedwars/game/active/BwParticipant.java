@@ -1,7 +1,8 @@
-package net.gegy1000.bedwars.game;
+package net.gegy1000.bedwars.game.active;
 
-import net.gegy1000.bedwars.game.upgrade.PlayerUpgrades;
-import net.gegy1000.bedwars.game.upgrade.UpgradeType;
+import net.gegy1000.bedwars.game.BwMap;
+import net.gegy1000.bedwars.game.active.upgrade.PlayerUpgrades;
+import net.gegy1000.bedwars.game.active.upgrade.UpgradeType;
 import net.gegy1000.gl.game.GameTeam;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;

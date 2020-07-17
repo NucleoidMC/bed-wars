@@ -3,6 +3,7 @@ package net.gegy1000.bedwars.game;
 import com.mojang.datafixers.util.Either;
 import net.gegy1000.bedwars.BedWarsMod;
 import net.gegy1000.bedwars.custom.BwCustomItems;
+import net.gegy1000.bedwars.game.active.BwActive;
 import net.gegy1000.gl.game.GameTeam;
 import net.gegy1000.gl.game.JoinResult;
 import net.gegy1000.gl.game.StartResult;

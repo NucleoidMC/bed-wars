@@ -2,7 +2,7 @@ package net.gegy1000.bedwars.custom;
 
 import net.gegy1000.bedwars.BedWarsMod;
 import net.gegy1000.bedwars.game.BedWars;
-import net.gegy1000.bedwars.game.BwActive;
+import net.gegy1000.bedwars.game.active.BwActive;
 import net.gegy1000.gl.game.GameManager;
 import net.gegy1000.gl.game.GameTeam;
 import net.gegy1000.gl.item.CustomItem;

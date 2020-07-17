@@ -1,7 +1,7 @@
 package net.gegy1000.gl.game.modifier;
 
 import com.mojang.serialization.Codec;
-import net.gegy1000.bedwars.game.BwActive;
+import net.gegy1000.bedwars.game.active.BwActive;
 import net.gegy1000.gl.registry.TinyRegistry;
 
 import java.util.function.Function;

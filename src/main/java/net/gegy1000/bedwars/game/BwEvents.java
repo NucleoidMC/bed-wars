@@ -1,8 +1,10 @@
 package net.gegy1000.bedwars.game;
 
 import net.gegy1000.bedwars.custom.BwCustomItems;
-import net.gegy1000.bedwars.game.modifiers.BwGameTriggers;
-import net.gegy1000.bedwars.game.upgrade.UpgradeType;
+import net.gegy1000.bedwars.game.active.BwActive;
+import net.gegy1000.bedwars.game.active.BwParticipant;
+import net.gegy1000.bedwars.game.active.modifiers.BwGameTriggers;
+import net.gegy1000.bedwars.game.active.upgrade.UpgradeType;
 import net.gegy1000.gl.game.GameTeam;
 import net.gegy1000.gl.item.CustomItem;
 import net.gegy1000.gl.world.BlockBounds;

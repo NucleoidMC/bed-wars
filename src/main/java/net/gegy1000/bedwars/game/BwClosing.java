@@ -1,5 +1,7 @@
 package net.gegy1000.bedwars.game;
 
+import net.gegy1000.bedwars.game.active.BwActive;
+import net.gegy1000.bedwars.game.active.BwParticipant;
 import net.gegy1000.gl.game.GameTeam;
 import net.gegy1000.gl.game.JoinResult;
 import net.minecraft.entity.projectile.FireworkRocketEntity;

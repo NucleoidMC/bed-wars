@@ -4,6 +4,8 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.gegy1000.bedwars.BedWarsMod;
 import net.gegy1000.bedwars.custom.BwCustomEntities;
+import net.gegy1000.bedwars.game.active.BwActive;
+import net.gegy1000.bedwars.game.active.GeneratorPool;
 import net.gegy1000.gl.entity.CustomEntity;
 import net.gegy1000.gl.game.GameTeam;
 import net.gegy1000.gl.game.map.GameMap;

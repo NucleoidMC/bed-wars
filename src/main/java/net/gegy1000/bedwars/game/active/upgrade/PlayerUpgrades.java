@@ -1,11 +1,11 @@
-package net.gegy1000.bedwars.game.upgrade;
+package net.gegy1000.bedwars.game.active.upgrade;
 
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import net.gegy1000.bedwars.game.BwActive;
-import net.gegy1000.bedwars.game.BwParticipant;
+import net.gegy1000.bedwars.game.active.BwActive;
+import net.gegy1000.bedwars.game.active.BwParticipant;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public final class PlayerUpgrades {

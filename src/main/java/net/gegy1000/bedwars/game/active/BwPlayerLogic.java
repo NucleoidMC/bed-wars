@@ -1,6 +1,8 @@
-package net.gegy1000.bedwars.game;
+package net.gegy1000.bedwars.game.active;
 
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
+import net.gegy1000.bedwars.game.BedWars;
+import net.gegy1000.bedwars.game.BwMap;
 import net.gegy1000.gl.util.ItemUtil;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;

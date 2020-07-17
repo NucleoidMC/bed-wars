@@ -6,6 +6,8 @@ import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.gegy1000.bedwars.BedWarsMod;
+import net.gegy1000.bedwars.game.active.BwActive;
+import net.gegy1000.bedwars.game.active.BwWinStateLogic;
 import net.gegy1000.gl.event.BlockBreakCallback;
 import net.gegy1000.gl.event.CraftCheckCallback;
 import net.gegy1000.gl.event.PlayerDeathCallback;
@@ -101,6 +103,7 @@ public final class BedWars implements Game {
 
     public final BwPlayerTracker playerTracker;
 
+    // TODO: consolidate phase system with game management system: they function largely the same
     public BwPhase phase;
 
     public final BwEvents events = new BwEvents(this);

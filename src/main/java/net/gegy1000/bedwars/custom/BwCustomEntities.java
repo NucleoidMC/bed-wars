@@ -1,9 +1,9 @@
 package net.gegy1000.bedwars.custom;
 
 import net.gegy1000.bedwars.BedWarsMod;
-import net.gegy1000.bedwars.game.shop.BwItemShop;
+import net.gegy1000.bedwars.game.active.shop.BwItemShop;
 import net.gegy1000.gl.shop.ShopUi;
-import net.gegy1000.bedwars.game.shop.BwTeamShop;
+import net.gegy1000.bedwars.game.active.shop.BwTeamShop;
 import net.gegy1000.gl.entity.CustomEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;

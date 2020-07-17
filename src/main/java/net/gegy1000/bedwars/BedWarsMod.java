@@ -6,8 +6,8 @@ import net.gegy1000.bedwars.custom.BwCustomEntities;
 import net.gegy1000.bedwars.custom.BwCustomItems;
 import net.gegy1000.bedwars.game.BedWars;
 import net.gegy1000.bedwars.game.generator.ProceduralMapProvider;
-import net.gegy1000.bedwars.game.modifiers.BwGameModifiers;
-import net.gegy1000.bedwars.game.modifiers.BwGameTriggers;
+import net.gegy1000.bedwars.game.active.modifiers.BwGameModifiers;
+import net.gegy1000.bedwars.game.active.modifiers.BwGameTriggers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

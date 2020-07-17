@@ -1,12 +1,12 @@
-package net.gegy1000.bedwars.game.shop;
+package net.gegy1000.bedwars.game.active.shop;
 
 import net.gegy1000.bedwars.custom.BwCustomItems;
 import net.gegy1000.bedwars.game.BedWars;
-import net.gegy1000.bedwars.game.BwActive;
-import net.gegy1000.bedwars.game.BwParticipant;
-import net.gegy1000.bedwars.game.upgrade.Upgrade;
-import net.gegy1000.bedwars.game.upgrade.PlayerUpgrades;
-import net.gegy1000.bedwars.game.upgrade.UpgradeType;
+import net.gegy1000.bedwars.game.active.BwActive;
+import net.gegy1000.bedwars.game.active.BwParticipant;
+import net.gegy1000.bedwars.game.active.upgrade.Upgrade;
+import net.gegy1000.bedwars.game.active.upgrade.PlayerUpgrades;
+import net.gegy1000.bedwars.game.active.upgrade.UpgradeType;
 import net.gegy1000.gl.game.GameManager;
 import net.gegy1000.gl.shop.Cost;
 import net.gegy1000.gl.shop.ShopBuilder;

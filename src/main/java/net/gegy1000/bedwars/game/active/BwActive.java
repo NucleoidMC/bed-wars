@@ -1,8 +1,13 @@
-package net.gegy1000.bedwars.game;
+package net.gegy1000.bedwars.game.active;
 
 import com.google.common.collect.Multimap;
 import net.gegy1000.bedwars.BedWarsMod;
-import net.gegy1000.bedwars.game.modifiers.BwGameTriggers;
+import net.gegy1000.bedwars.game.BwConfig;
+import net.gegy1000.bedwars.game.BwMap;
+import net.gegy1000.bedwars.game.BwPhase;
+import net.gegy1000.bedwars.game.BwPlayerTracker;
+import net.gegy1000.bedwars.game.PlayerQueue;
+import net.gegy1000.bedwars.game.active.modifiers.BwGameTriggers;
 import net.gegy1000.gl.game.GameTeam;
 import net.gegy1000.gl.game.JoinResult;
 import net.gegy1000.gl.game.modifier.GameModifier;
