@@ -53,7 +53,7 @@ public final class BwState {
         return state;
     }
 
-    // TODO: this code is not nice
+    // TODO: this code is not nice. also, it doesn't ensure that every team has players
     private void allocatePlayers(BedWars game, WaitingPlayers waitingPlayers, BedWarsConfig config) {
         List<ServerPlayerEntity> players = waitingPlayers.takePlayers();
         List<GameTeam> teams = new ArrayList<>(config.getTeams());
@@ -160,12 +160,11 @@ public final class BwState {
 
             this.upgrades = new PlayerUpgrades(game, this);
 
-            // TODO: don't like this at all
-            this.upgrades.setLevel(UpgradeType.ARMOR, 0);
-            this.upgrades.setLevel(UpgradeType.SWORD, 0);
-            this.upgrades.setLevel(UpgradeType.PICKAXE, -1);
-            this.upgrades.setLevel(UpgradeType.AXE, -1);
-            this.upgrades.setLevel(UpgradeType.SHEARS, -1);
+            this.upgrades.addAt(UpgradeType.ARMOR, 0);
+            this.upgrades.addAt(UpgradeType.SWORD, 0);
+            this.upgrades.add(UpgradeType.PICKAXE);
+            this.upgrades.add(UpgradeType.AXE);
+            this.upgrades.add(UpgradeType.SHEARS);
         }
 
         public void startRespawning(BwMap.TeamSpawn spawn) {

@@ -2,6 +2,7 @@ package net.gegy1000.bedwars.game;
 
 import net.gegy1000.bedwars.custom.BwCustomItems;
 import net.gegy1000.bedwars.game.modifiers.BwGameTriggers;
+import net.gegy1000.bedwars.game.upgrade.UpgradeType;
 import net.gegy1000.gl.game.GameTeam;
 import net.gegy1000.gl.item.CustomItem;
 import net.gegy1000.gl.world.BlockBounds;
@@ -56,7 +57,9 @@ public final class BwEvents {
 
         // TODO: cancel if cause is own player
         if (participant != null) {
-            participant.upgrades.onDeath();
+            participant.upgrades.tryDowngrade(UpgradeType.SWORD);
+            participant.upgrades.tryDowngrade(UpgradeType.PICKAXE);
+            participant.upgrades.tryDowngrade(UpgradeType.AXE);
 
             this.game.killLogic.onPlayerDeath(player, source);
 

@@ -2,27 +2,32 @@ package net.gegy1000.bedwars.game.upgrade;
 
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMaps;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.gegy1000.bedwars.game.BedWars;
 import net.gegy1000.bedwars.game.BwState;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-
-// TODO: this code is all horrible, i hate it.
 public final class PlayerUpgrades {
     private final BedWars game;
     private final BwState.Participant participant;
 
+    private final ObjectSet<UpgradeType<?>> upgradeTypes = new ObjectOpenHashSet<>();
     private final Object2IntMap<UpgradeType<?>> map = new Object2IntLinkedOpenHashMap<>();
-    private final Set<UpgradeType<?>> typesToDowngrade = new HashSet<>();
 
     public PlayerUpgrades(BedWars game, BwState.Participant participant) {
         this.game = game;
         this.participant = participant;
         this.map.defaultReturnValue(-1);
+    }
+
+    public void add(UpgradeType<?> type) {
+        this.upgradeTypes.add(type);
+    }
+
+    public void addAt(UpgradeType<?> type, int level) {
+        this.upgradeTypes.add(type);
+        this.map.put(type, level);
     }
 
     public void applyAll() {
@@ -31,9 +36,8 @@ public final class PlayerUpgrades {
             return;
         }
 
-        for (Object2IntMap.Entry<UpgradeType<?>> entry : Object2IntMaps.fastIterable(this.map)) {
-            UpgradeType<?> type = entry.getKey();
-            int level = entry.getIntValue();
+        for (UpgradeType<?> type : this.upgradeTypes) {
+            int level = this.map.getInt(type);
 
             Upgrade upgrade = type.forLevel(level);
             if (upgrade != null) {
@@ -43,11 +47,11 @@ public final class PlayerUpgrades {
     }
 
     public <T extends Upgrade> void applyLevel(UpgradeType<T> type, int level) {
-        if (!type.canRemove() && level < 0) {
+        if (!this.upgradeTypes.contains(type)) {
             return;
         }
 
-        int lastLevel = this.setLevel(type, level);
+        int lastLevel = this.map.put(type, level);
 
         ServerPlayerEntity player = this.participant.player();
         if (player != null) {
@@ -63,22 +67,11 @@ public final class PlayerUpgrades {
         }
     }
 
-    public void onDeath() {
-        // TODO: horrible solution
-        for (UpgradeType<?> downgradeType : new ArrayList<>(this.typesToDowngrade)) {
-            int currentLevel = this.getLevel(downgradeType);
-            this.applyLevel(downgradeType, currentLevel - 1);
+    public void tryDowngrade(UpgradeType<?> type) {
+        int currentLevel = this.getLevel(type);
+        if (currentLevel > 0) {
+            this.applyLevel(type, currentLevel - 1);
         }
-    }
-
-    public int setLevel(UpgradeType<?> type, int level) {
-        if (level >= 0 && type.shouldDowngradeOnDeath()) {
-            this.typesToDowngrade.add(type);
-        } else {
-            this.typesToDowngrade.remove(type);
-        }
-
-        return this.map.put(type, level);
     }
 
     public <T extends Upgrade> int getLevel(UpgradeType<T> type) {

@@ -20,22 +20,19 @@ public final class UpgradeType<T extends Upgrade> {
             .addLevel(new WeaponUpgrade(Items.WOODEN_SWORD, Cost.no()))
             .addLevel(new WeaponUpgrade(Items.STONE_SWORD, Cost.ofIron(12)))
             .addLevel(new WeaponUpgrade(Items.IRON_SWORD, Cost.ofGold(6)))
-            .addLevel(new WeaponUpgrade(Items.DIAMOND_SWORD, Cost.ofEmeralds(3)))
-            .setDowngradeOnDeath();
+            .addLevel(new WeaponUpgrade(Items.DIAMOND_SWORD, Cost.ofEmeralds(3)));
 
     public static final UpgradeType<WeaponUpgrade> PICKAXE = new UpgradeType<WeaponUpgrade>()
             .addLevel(new WeaponUpgrade(Items.WOODEN_PICKAXE, Cost.ofIron(10)))
             .addLevel(new WeaponUpgrade(Items.STONE_PICKAXE, Cost.ofIron(10)))
             .addLevel(new WeaponUpgrade(Items.IRON_PICKAXE, Cost.ofGold(6)))
-            .addLevel(new WeaponUpgrade(diamondTool(Items.DIAMOND_PICKAXE), Cost.ofGold(10)))
-            .setDowngradeOnDeath();
+            .addLevel(new WeaponUpgrade(diamondTool(Items.DIAMOND_PICKAXE), Cost.ofGold(10)));
 
     public static final UpgradeType<WeaponUpgrade> AXE = new UpgradeType<WeaponUpgrade>()
             .addLevel(new WeaponUpgrade(Items.WOODEN_AXE, Cost.ofIron(8)))
             .addLevel(new WeaponUpgrade(Items.STONE_AXE, Cost.ofIron(8)))
             .addLevel(new WeaponUpgrade(Items.IRON_AXE, Cost.ofGold(4)))
-            .addLevel(new WeaponUpgrade(diamondTool(Items.DIAMOND_AXE), Cost.ofGold(8)))
-            .setDowngradeOnDeath();
+            .addLevel(new WeaponUpgrade(diamondTool(Items.DIAMOND_AXE), Cost.ofGold(8)));
 
     public static final UpgradeType<WeaponUpgrade> SHEARS = new UpgradeType<WeaponUpgrade>()
             .addLevel(new WeaponUpgrade(Items.SHEARS, Cost.ofIron(40)));
@@ -47,21 +44,9 @@ public final class UpgradeType<T extends Upgrade> {
     }
 
     private final List<T> levels = new ArrayList<>();
-    private boolean downgradeOnDeath;
-    private boolean canRemove;
 
     public UpgradeType<T> addLevel(T level) {
         this.levels.add(level);
-        return this;
-    }
-
-    public UpgradeType<T> setDowngradeOnDeath() {
-        this.downgradeOnDeath = true;
-        return this;
-    }
-
-    public UpgradeType<T> setCanRemove() {
-        this.canRemove = true;
         return this;
     }
 
@@ -75,13 +60,5 @@ public final class UpgradeType<T extends Upgrade> {
 
     public boolean containsLevel(int level) {
         return level >= 0 && level < this.levels.size();
-    }
-
-    public boolean shouldDowngradeOnDeath() {
-        return this.downgradeOnDeath;
-    }
-
-    public boolean canRemove() {
-        return this.canRemove;
     }
 }
