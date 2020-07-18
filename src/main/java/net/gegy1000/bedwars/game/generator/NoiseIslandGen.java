@@ -1,9 +1,9 @@
 package net.gegy1000.bedwars.game.generator;
 
+import kdotjpg.opensimplex.OpenSimplexNoise;
 import net.gegy1000.bedwars.game.generator.feature.GrassGen;
 import net.gegy1000.bedwars.game.generator.feature.TreeGen;
 import net.gegy1000.gl.game.map.GameMapBuilder;
-import net.gegy1000.gl.world.generator.OpenSimplexNoise;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
