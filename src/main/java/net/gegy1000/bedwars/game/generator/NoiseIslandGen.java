@@ -3,6 +3,7 @@ package net.gegy1000.bedwars.game.generator;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import kdotjpg.opensimplex.OpenSimplexNoise;
+import net.gegy1000.bedwars.game.generator.feature.AspenTreeGen;
 import net.gegy1000.bedwars.game.generator.feature.GrassGen;
 import net.gegy1000.bedwars.game.generator.feature.TreeGen;
 import net.gegy1000.gl.game.map.GameMapBuilder;
@@ -27,7 +28,9 @@ public final class NoiseIslandGen {
             Codec.INT.fieldOf("tree_amt_rand").forGetter(generator -> generator.treeAmtRand),
             Codec.INT.fieldOf("tree_extra_amt_chance").forGetter(generator -> generator.treeAmtRand),
             Codec.INT.fieldOf("grass_amt").forGetter(generator -> generator.grassAmt),
-            Codec.BOOL.fieldOf("check_space").forGetter(generator -> generator.checkSpace)
+            Codec.BOOL.fieldOf("check_space").forGetter(generator -> generator.checkSpace),
+            //TODO: refactor to biomes
+            Codec.BOOL.fieldOf("use_aspen_trees").forGetter(generator -> generator.useAspenTrees)
     ).apply(instance, NoiseIslandGen::new));
     private static final BlockState GRASS = Blocks.GRASS_BLOCK.getDefaultState();
     private static final BlockState DIRT = Blocks.DIRT.getDefaultState();
@@ -47,10 +50,11 @@ public final class NoiseIslandGen {
     private final int treeExtraAmtChance;
     private final int grassAmt;
     private final boolean checkSpace;
+    private final boolean useAspenTrees;
 
     private final BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 
-    public NoiseIslandGen(int radius, double falloffMultiplier, double falloffStrength, double falloffOffset, double noiseHorizontalFrequency, double noiseVerticalFrequency, int treeAmt, int treeAmtRand, int treeExtraAmtChance, int grassAmt, boolean checkSpace) {
+    public NoiseIslandGen(int radius, double falloffMultiplier, double falloffStrength, double falloffOffset, double noiseHorizontalFrequency, double noiseVerticalFrequency, int treeAmt, int treeAmtRand, int treeExtraAmtChance, int grassAmt, boolean checkSpace, boolean useAspenTrees) {
         this.radius = radius;
         this.falloffMultiplier = falloffMultiplier;
         this.falloffStrength = falloffStrength;
@@ -62,6 +66,7 @@ public final class NoiseIslandGen {
         this.treeExtraAmtChance = treeExtraAmtChance;
         this.grassAmt = grassAmt;
         this.checkSpace = checkSpace;
+        this.useAspenTrees = useAspenTrees;
     }
 
     public void setOrigin(BlockPos origin) {
@@ -172,7 +177,11 @@ public final class NoiseIslandGen {
         for (int i = 0; i < finalTreeAmt; i++) {
             // Get a random pos
             BlockPos pos = surfaceBlocks.get(random.nextInt(surfaceBlocks.size()));
-            new TreeGen(pos).addTo(builder);
+            if (useAspenTrees) {
+                new AspenTreeGen(pos.up()).addTo(builder);
+            } else {
+                new TreeGen(pos.up()).addTo(builder);
+            }
 
             // Remove this position
             surfaceBlocks.remove(pos);
