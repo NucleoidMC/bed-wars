@@ -58,8 +58,10 @@ public final class ProceduralMapProvider implements MapProvider<BwConfig> {
     }
 
     private static class Generator {
-        // TODO: add generators to codec as well
         public static final Codec<Generator> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                NoiseIslandGen.CODEC.fieldOf("diamond_generator").forGetter(generator -> generator.diamondGenerator),
+                NoiseIslandGen.CODEC.fieldOf("center_generator").forGetter(generator -> generator.centerGenerator),
+                NoiseIslandGen.CODEC.fieldOf("small_island_generator").forGetter(generator -> generator.smallIslandGenerator),
                 Codec.DOUBLE.fieldOf("spawn_island_distance").forGetter(generator -> generator.spawnIslandDistance),
                 Codec.DOUBLE.fieldOf("diamond_island_distance").forGetter(generator -> generator.diamondIslandDistance),
                 Codec.DOUBLE.fieldOf("small_island_count").forGetter(generator -> generator.smallIslandCount),
@@ -69,6 +71,9 @@ public final class ProceduralMapProvider implements MapProvider<BwConfig> {
         ).apply(instance, Generator::new));
 
         private final List<MapGen> islands = new ArrayList<>();
+        private final NoiseIslandGen diamondGenerator;
+        private final NoiseIslandGen centerGenerator;
+        private final NoiseIslandGen smallIslandGenerator;
         private final double spawnIslandDistance;
         private final double diamondIslandDistance;
         private final double smallIslandCount;
@@ -76,7 +81,10 @@ public final class ProceduralMapProvider implements MapProvider<BwConfig> {
         private final int smallIslandVerticalSpread;
         private final int smallIslandCutoff;
 
-        private Generator(double spawnIslandDistance, double diamondIslandDistance, double smallIslandCount, int smallIslandHorizontalSpread, int smallIslandVerticalSpread, int smallIslandCutoff) {
+        private Generator(NoiseIslandGen diamondGenerator, NoiseIslandGen centerGenerator, NoiseIslandGen smallIslandGenerator, double spawnIslandDistance, double diamondIslandDistance, double smallIslandCount, int smallIslandHorizontalSpread, int smallIslandVerticalSpread, int smallIslandCutoff) {
+            this.diamondGenerator = diamondGenerator;
+            this.centerGenerator = centerGenerator;
+            this.smallIslandGenerator = smallIslandGenerator;
             this.spawnIslandDistance = spawnIslandDistance;
             this.diamondIslandDistance = diamondIslandDistance;
             this.smallIslandCount = smallIslandCount;
@@ -99,12 +107,12 @@ public final class ProceduralMapProvider implements MapProvider<BwConfig> {
             }
 
             // Add center island
-            islands.add(new CenterIslandGen(new BlockPos(0, 8, 0), random.nextLong()));
+            islands.add(new CenterIslandGen(centerGenerator, new BlockPos(0, 8, 0), random.nextLong()));
 
-            islands.add(new DiamondIslandGen(new BlockPos(diamondIslandDistance, 8, 0), random.nextLong()));
-            islands.add(new DiamondIslandGen(new BlockPos(-diamondIslandDistance, 8, 0), random.nextLong()));
-            islands.add(new DiamondIslandGen(new BlockPos(0, 8, diamondIslandDistance), random.nextLong()));
-            islands.add(new DiamondIslandGen(new BlockPos(0, 8, -diamondIslandDistance), random.nextLong()));
+            islands.add(new DiamondIslandGen(diamondGenerator, new BlockPos(diamondIslandDistance, 8, 0), random.nextLong()));
+            islands.add(new DiamondIslandGen(diamondGenerator, new BlockPos(-diamondIslandDistance, 8, 0), random.nextLong()));
+            islands.add(new DiamondIslandGen(diamondGenerator, new BlockPos(0, 8, diamondIslandDistance), random.nextLong()));
+            islands.add(new DiamondIslandGen(diamondGenerator, new BlockPos(0, 8, -diamondIslandDistance), random.nextLong()));
 
             for (int i = 0; i < smallIslandCount; i++) {
                 int aX = random.nextInt(this.smallIslandHorizontalSpread) - random.nextInt(this.smallIslandHorizontalSpread);
@@ -118,8 +126,8 @@ public final class ProceduralMapProvider implements MapProvider<BwConfig> {
                 }
 
                 // Add symmetrical islands
-                islands.add(new RandomSmallIslandGen(new BlockPos(aX, 8 + aY, aZ), seed));
-                islands.add(new RandomSmallIslandGen(new BlockPos(-aX, 8 + aY, -aZ), seed));
+                islands.add(new RandomSmallIslandGen(smallIslandGenerator, new BlockPos(aX, 8 + aY, aZ), seed));
+                islands.add(new RandomSmallIslandGen(smallIslandGenerator, new BlockPos(-aX, 8 + aY, -aZ), seed));
             }
         }
 

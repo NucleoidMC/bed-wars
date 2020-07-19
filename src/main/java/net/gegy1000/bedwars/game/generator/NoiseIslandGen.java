@@ -1,5 +1,7 @@
 package net.gegy1000.bedwars.game.generator;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.gegy1000.bedwars.game.generator.feature.GrassGen;
 import net.gegy1000.bedwars.game.generator.feature.TreeGen;
 import net.gegy1000.gl.game.map.GameMapBuilder;
@@ -14,52 +16,68 @@ import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
 
 public final class NoiseIslandGen {
+    public static final Codec<NoiseIslandGen> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.INT.fieldOf("radius").forGetter(generator -> generator.radius),
+            Codec.DOUBLE.fieldOf("falloff_multiplier").forGetter(generator -> generator.falloffMultiplier),
+            Codec.DOUBLE.fieldOf("falloff_strength").forGetter(generator -> generator.falloffStrength),
+            Codec.DOUBLE.fieldOf("falloff_offset").forGetter(generator -> generator.falloffOffset),
+            Codec.DOUBLE.fieldOf("horizontal_frequency").forGetter(generator -> generator.noiseHorizontalFrequency),
+            Codec.DOUBLE.fieldOf("vertical_frequency").forGetter(generator -> generator.noiseVerticalFrequency),
+            Codec.INT.fieldOf("tree_amt").forGetter(generator -> generator.treeAmt),
+            Codec.INT.fieldOf("tree_amt_rand").forGetter(generator -> generator.treeAmtRand),
+            Codec.INT.fieldOf("tree_extra_amt_chance").forGetter(generator -> generator.treeAmtRand),
+            Codec.INT.fieldOf("grass_amt").forGetter(generator -> generator.grassAmt),
+            Codec.BOOL.fieldOf("check_space").forGetter(generator -> generator.checkSpace)
+    ).apply(instance, NoiseIslandGen::new));
     private static final BlockState GRASS = Blocks.GRASS_BLOCK.getDefaultState();
     private static final BlockState DIRT = Blocks.DIRT.getDefaultState();
     private static final BlockState STONE = Blocks.STONE.getDefaultState();
 
-    private final BlockPos origin;
-    private final OpenSimplexNoise noise;
+    private BlockPos origin;
+    private OpenSimplexNoise noise;
 
-    private int radius = 10;
-    private int treeAmt = 0;
-    private int grassAmt = 1;
-    private double noiseHorizontalFrequency = 1.0;
-    private double noiseVerticalFrequency = 1.0;
-    private boolean checkSpace = false;
-
-    private DoubleUnaryOperator falloffFunction = y -> y;
+    private final int radius;
+    private final double falloffMultiplier;
+    private final double falloffStrength;
+    private final double falloffOffset;
+    private final double noiseHorizontalFrequency;
+    private final double noiseVerticalFrequency;
+    private final int treeAmt;
+    private final int treeAmtRand;
+    private final int treeExtraAmtChance;
+    private final int grassAmt;
+    private final boolean checkSpace;
 
     private final BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 
-    public NoiseIslandGen(BlockPos origin, long seed) {
-        this.origin = origin;
-        this.noise = new OpenSimplexNoise(seed);
-    }
-
-    public void setRadius(int radius) {
+    public NoiseIslandGen(int radius, double falloffMultiplier, double falloffStrength, double falloffOffset, double noiseHorizontalFrequency, double noiseVerticalFrequency, int treeAmt, int treeAmtRand, int treeExtraAmtChance, int grassAmt, boolean checkSpace) {
         this.radius = radius;
-    }
-
-    public void setNoiseFrequency(double horizontal, double vertical) {
-        this.noiseHorizontalFrequency = horizontal;
-        this.noiseVerticalFrequency = vertical;
-    }
-
-    public void setFalloff(DoubleUnaryOperator falloffFunction) {
-        this.falloffFunction = falloffFunction;
-    }
-
-    public void setCheckSpace(boolean checkSpace) {
+        this.falloffMultiplier = falloffMultiplier;
+        this.falloffStrength = falloffStrength;
+        this.falloffOffset = falloffOffset;
+        this.noiseHorizontalFrequency = noiseHorizontalFrequency;
+        this.noiseVerticalFrequency = noiseVerticalFrequency;
+        this.treeAmt = treeAmt;
+        this.treeAmtRand = treeAmtRand;
+        this.treeExtraAmtChance = treeExtraAmtChance;
+        this.grassAmt = grassAmt;
         this.checkSpace = checkSpace;
     }
 
-    public void setTreeAmt(int treeAmt) {
-        this.treeAmt = treeAmt;
+    public void setOrigin(BlockPos origin) {
+        this.origin = origin;
     }
 
-    public void setGrassAmt(int grassAmt) {
-        this.grassAmt = grassAmt;
+    public void setNoise(OpenSimplexNoise noise) {
+        this.noise = noise;
+    }
+
+    public int getRadius() {
+        return radius;
+    }
+
+    public double computeNoiseFalloff(int y) {
+        return (falloffMultiplier * (falloffStrength / (y + radius))) + falloffOffset;
     }
 
     public void addTo(GameMapBuilder builder) {
@@ -94,7 +112,7 @@ public final class NoiseIslandGen {
                         double noiseZ = pos.getZ() * noiseHorizontalFrequency;
 
                         double noise = this.noise.eval(noiseX, noiseY, noiseZ);
-                        noise += this.falloffFunction.applyAsDouble(y);
+                        noise += computeNoiseFalloff(y);
 
                         if (noise > 0) {
                             builder.setBlockState(pos, STONE, false);
@@ -142,7 +160,16 @@ public final class NoiseIslandGen {
     }
 
     private void generateFeatures(GameMapBuilder builder, Random random, List<BlockPos> surfaceBlocks) {
-        for (int i = 0; i < treeAmt; i++) {
+        // Calculate the final tree amount for this island
+
+        int finalTreeAmt = treeAmt + random.nextInt(treeAmtRand + 1);
+        if (treeExtraAmtChance > 0) {
+            if (random.nextInt(treeExtraAmtChance) == 0) {
+                finalTreeAmt++;
+            }
+        }
+
+        for (int i = 0; i < finalTreeAmt; i++) {
             // Get a random pos
             BlockPos pos = surfaceBlocks.get(random.nextInt(surfaceBlocks.size()));
             new TreeGen(pos).addTo(builder);
