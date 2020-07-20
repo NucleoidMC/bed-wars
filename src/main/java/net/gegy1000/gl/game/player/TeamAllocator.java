@@ -62,6 +62,7 @@ public final class TeamAllocator<K, V> {
             Collection<V> bucket = map.get(key);
             if (bucket.size() < keyCapacity) {
                 bucket.add(value);
+                return;
             }
         }
 
