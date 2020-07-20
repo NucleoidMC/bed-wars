@@ -175,6 +175,8 @@ public final class NoiseIslandGen {
         }
 
         for (int i = 0; i < finalTreeAmt; i++) {
+            if (surfaceBlocks.size() == 0) break;
+
             // Get a random pos
             BlockPos pos = surfaceBlocks.get(random.nextInt(surfaceBlocks.size()));
             if (useAspenTrees) {
@@ -188,6 +190,8 @@ public final class NoiseIslandGen {
         }
 
         for (int i = 0; i < grassAmt; i++) {
+            if (surfaceBlocks.size() == 0) break;
+
             // Get a random pos
             BlockPos pos = surfaceBlocks.get(random.nextInt(surfaceBlocks.size()));
             new GrassGen(pos).addTo(builder);
