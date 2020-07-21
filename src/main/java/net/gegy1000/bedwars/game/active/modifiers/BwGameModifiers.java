@@ -1,8 +1,7 @@
 package net.gegy1000.bedwars.game.active.modifiers;
 
 import com.mojang.serialization.Codec;
-import net.gegy1000.bedwars.BedWarsMod;
-import net.gegy1000.gl.game.modifier.GameModifier;
+import net.gegy1000.bedwars.BedWars;
 import net.minecraft.util.Identifier;
 
 public final class BwGameModifiers {
@@ -12,6 +11,6 @@ public final class BwGameModifiers {
     }
 
     private static void register(String identifier, Codec<? extends GameModifier> modifier) {
-        GameModifier.REGISTRY.register(new Identifier(BedWarsMod.ID, identifier), modifier);
+        GameModifier.REGISTRY.register(new Identifier(BedWars.ID, identifier), modifier);
     }
 }

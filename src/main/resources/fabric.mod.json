@@ -8,7 +8,7 @@
   "license": "LGPLv3",
   "environment": "*",
   "entrypoints": {
-    "main": ["net.gegy1000.bedwars.BedWarsMod", "net.gegy1000.gl.GameLib"]
+    "main": ["net.gegy1000.bedwars.BedWars", "net.gegy1000.gl.GameLib"]
   },
   "mixins": ["bw.mixins.json", "gl.mixins.json"],
   "accessWidener": "gl.accesswidener",

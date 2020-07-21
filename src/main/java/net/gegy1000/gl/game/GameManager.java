@@ -1,11 +1,11 @@
 package net.gegy1000.gl.game;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import net.gegy1000.gl.game.config.GameConfig;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,95 +18,86 @@ public final class GameManager {
                     .build()
     );
 
-    private static State state = Inactive.INSTANCE;
+    private static State state = Closed.INSTANCE;
 
-    @SuppressWarnings("unchecked")
     @Nullable
-    public static <T extends Game> T openFor(GameType<T, ?> gameType) {
-        Optional<Open<?>> activeOpt = open();
-        if (activeOpt.isPresent()) {
-            Open<?> open = activeOpt.get();
-            GameAndConfig<?> game = open.game;
-            if (game.getConfigured().getType().equals(gameType)) {
-                return (T) game.getGame();
-            }
+    public static Closed closed() {
+        if (state instanceof Closed) {
+            return (Closed) state;
+        } else {
+            return null;
         }
-        return null;
     }
 
-    public static Optional<Inactive> inactive() {
-        fixState();
-        if (state instanceof Inactive) {
-            return Optional.of((Inactive) state);
-        }
-        return Optional.empty();
-    }
-
-    public static Optional<Open<?>> open() {
-        fixState();
-        if (state instanceof Open<?>) {
-            return Optional.of((Open<?>) state);
-        }
-        return Optional.empty();
-    }
-
-    private static void fixState() {
+    @Nullable
+    public static Open open() {
         if (state instanceof Open) {
-            Open<?> open = (Open<?>) GameManager.state;
-            if (open.game.getGame().isClosed()) {
-                state = Inactive.INSTANCE;
-            }
+            return (Open) state;
+        } else {
+            return null;
         }
     }
 
-    public interface State {
-    }
-
-    public static class Inactive implements State {
-        public static final Inactive INSTANCE = new Inactive();
-
-        private Inactive() {
-        }
-
-        public <T extends Game> CompletableFuture<GameAndConfig<T>> open(
-                MinecraftServer server,
-                ConfiguredGame<T, ?> configuredGame
-        ) {
-            state = new Starting();
-
-            return configuredGame.open(server).thenApplyAsync(game -> {
-                GameAndConfig<T> gameAndConfig = new GameAndConfig<>(game, configuredGame);
-                state = new Open<>(gameAndConfig);
-                return gameAndConfig;
-            }, server);
+    @Nullable
+    public static Game openGame() {
+        if (state instanceof Open) {
+            return ((Open) state).game;
+        } else {
+            return null;
         }
     }
 
-    public static class Starting implements State {
+    private interface State {
     }
 
-    public static class Open<T extends Game> implements State {
-        final GameAndConfig<T> game;
+    public static class Closed implements State {
+        static final Closed INSTANCE = new Closed();
 
-        Open(GameAndConfig<T> game) {
+        Closed() {
+        }
+
+        public <C extends GameConfig> CompletableFuture<GameAndConfig<C>> open(MinecraftServer server, ConfiguredGame<C> configuredGame) {
+            state = Opening.INSTANCE;
+            return configuredGame.open(server).thenApply(game -> {
+                state = new Open(game);
+                return new GameAndConfig<>(game, configuredGame);
+            });
+        }
+    }
+
+    public static class Opening implements State {
+        static final Opening INSTANCE = new Opening();
+
+        Opening() {
+        }
+    }
+
+    public static class Open implements State {
+        private final Game game;
+
+        public Open(Game game) {
             this.game = game;
         }
 
-        public String getName() {
-            return this.game.getConfigured().getName();
+        public JoinResult offerPlayer(ServerPlayerEntity player) {
+            return this.game.offerPlayer(player);
         }
 
         public StartResult requestStart() {
-            return this.game.getGame().requestStart();
+            StartResult result = this.game.requestStart();
+            if (result.isOk()) {
+                Game newGame = result.getGame();
+                if (this.game != newGame) {
+                    newGame.copyPlayersFrom(this.game);
+                    state = new Open(newGame);
+                }
+            }
+            return result;
         }
 
-        public JoinResult offerPlayer(ServerPlayerEntity player) {
-            return this.game.getGame().offerPlayer(player);
-        }
-
-        public CompletableFuture<GameAndConfig<T>> stop() {
-            state = Inactive.INSTANCE;
-            return this.game.getGame().stop().thenApply(v -> this.game);
+        public void close() {
+            this.game.close();
+            state = Closed.INSTANCE;
         }
     }
 }

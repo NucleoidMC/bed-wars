@@ -27,6 +27,8 @@ public final class GameMap {
     final MapTickets tickets;
 
     private final ImmutableList<GameRegion> regions;
+
+    // TODO: move out of standard GameMap?
     private final LongSet protectedBlocks;
 
     GameMap(

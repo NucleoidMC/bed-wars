@@ -32,6 +32,12 @@ public final class BlockBounds {
                 && pos.getX() <= this.max.getX() && pos.getY() <= this.max.getY() && pos.getZ() <= this.max.getZ();
     }
 
+    public boolean intersects(BlockBounds bounds) {
+        return this.max.getX() >= bounds.min.getX() && this.min.getX() <= bounds.max.getX()
+                && this.max.getZ() >= bounds.min.getY() && this.min.getX() <= bounds.max.getY()
+                && this.max.getZ() >= bounds.min.getZ() && this.min.getX() <= bounds.max.getZ();
+    }
+
     public BlockPos getMin() {
         return this.min;
     }

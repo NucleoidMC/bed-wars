@@ -1,7 +1,9 @@
 package net.gegy1000.bedwars.mixin;
 
+import net.gegy1000.bedwars.BedWars;
+import net.gegy1000.gl.game.Game;
 import net.gegy1000.gl.game.GameManager;
-import net.gegy1000.bedwars.game.BedWars;
+import net.gegy1000.gl.game.rule.RuleResult;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.StainedGlassBlock;
 import net.minecraft.fluid.FluidState;
@@ -26,10 +28,13 @@ public class DefaultExplosionBehaviorMixin {
             BlockPos pos, BlockState block, FluidState fluid,
             CallbackInfoReturnable<Optional<Float>> ci
     ) {
-        BedWars game = GameManager.openFor(BedWars.TYPE);
-        if (game != null && game.map.contains(pos)) {
-            if (block.getBlock() instanceof StainedGlassBlock) {
-                ci.setReturnValue(GLASS_RESISTANCE);
+        Game game = GameManager.openGame();
+        if (game != null && game.containsPos(pos)) {
+            RuleResult result = game.testRule(BedWars.BLAST_PROOF_GLASS_RULE);
+            if (result == RuleResult.ALLOW) {
+                if (block.getBlock() instanceof StainedGlassBlock) {
+                    ci.setReturnValue(GLASS_RESISTANCE);
+                }
             }
         }
     }

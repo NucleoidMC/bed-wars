@@ -1,13 +1,11 @@
 package net.gegy1000.bedwars.game.active.shop;
 
 import net.gegy1000.bedwars.custom.BwCustomItems;
-import net.gegy1000.bedwars.game.BedWars;
 import net.gegy1000.bedwars.game.active.BwActive;
 import net.gegy1000.bedwars.game.active.BwParticipant;
-import net.gegy1000.bedwars.game.active.upgrade.Upgrade;
 import net.gegy1000.bedwars.game.active.upgrade.PlayerUpgrades;
+import net.gegy1000.bedwars.game.active.upgrade.Upgrade;
 import net.gegy1000.bedwars.game.active.upgrade.UpgradeType;
-import net.gegy1000.gl.game.GameManager;
 import net.gegy1000.gl.shop.Cost;
 import net.gegy1000.gl.shop.ShopBuilder;
 import net.gegy1000.gl.shop.ShopUi;
@@ -23,16 +21,10 @@ import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 
 public final class BwItemShop {
-
     //TODO: reorganize shop layout
-    public static ShopUi create(ServerPlayerEntity player) {
+    public static ShopUi create(ServerPlayerEntity player, BwActive game) {
         return ShopUi.create(new LiteralText("Item Shop"), shop -> {
-            BedWars bedWars = GameManager.openFor(BedWars.TYPE);
-            if (bedWars == null || !(bedWars.phase instanceof BwActive)) return;
-
-            BwActive active = (BwActive) bedWars.phase;
-
-            BwParticipant participant = active.getParticipant(player);
+            BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
                 DyeColor color = participant.team.getDye();
                 shop.addItem(new ItemStack(ColoredBlocks.wool(color), 16), Cost.ofIron(4));

@@ -2,7 +2,7 @@ package net.gegy1000.bedwars.game.generator;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.gegy1000.bedwars.BedWarsMod;
+import net.gegy1000.bedwars.BedWars;
 import net.gegy1000.gl.game.GameTeam;
 import net.gegy1000.bedwars.game.BwConfig;
 import net.gegy1000.bedwars.game.generator.island.CenterIslandGen;
@@ -37,7 +37,7 @@ public final class ProceduralMapProvider implements MapProvider<BwConfig> {
     }
 
     public static void register() {
-        MapProvider.REGISTRY.register(new Identifier(BedWarsMod.ID, "procedural"), CODEC);
+        MapProvider.REGISTRY.register(new Identifier(BedWars.ID, "procedural"), CODEC);
     }
 
     @Override

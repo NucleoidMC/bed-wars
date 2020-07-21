@@ -1,19 +1,21 @@
 package net.gegy1000.gl.game;
 
-public final class GameAndConfig<T extends Game> {
-    private final T game;
-    private final ConfiguredGame<T, ?> configured;
+import net.gegy1000.gl.game.config.GameConfig;
 
-    public GameAndConfig(T game, ConfiguredGame<T, ?> configured) {
+public final class GameAndConfig<C extends GameConfig> {
+    private final Game game;
+    private final ConfiguredGame<C> configured;
+
+    public GameAndConfig(Game game, ConfiguredGame<C> configured) {
         this.game = game;
         this.configured = configured;
     }
 
-    public T getGame() {
+    public Game getGame() {
         return this.game;
     }
 
-    public ConfiguredGame<T, ?> getConfigured() {
+    public ConfiguredGame<C> getConfigured() {
         return this.configured;
     }
 }

@@ -5,11 +5,15 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "custom.EntityMixin",
-    "event.CraftingResultInventoryMixin",
+    "custom.ServerPlayNetworkHandlerMixin",
     "event.ServerPlayerEntityMixin",
     "event.ServerPlayerInteractionManagerMixin",
-    "event.ServerPlayNetworkHandlerMixin",
-    "event.ServerWorldMixin"
+    "event.ServerWorldMixin",
+    "map.ServerPlayerEntityMixin",
+    "rule.CraftingResultInventoryMixin",
+    "rule.NetherPortalBlockMixin",
+    "rule.ServerPlayerEntityMixin",
+    "rule.TntBlockMixin"
   ],
   "injectors": {
     "defaultRequire": 1

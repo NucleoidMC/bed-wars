@@ -1,7 +1,7 @@
 package net.gegy1000.bedwars.game.active;
 
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
-import net.gegy1000.bedwars.game.BedWars;
+import net.gegy1000.bedwars.BedWars;
 import net.gegy1000.bedwars.game.BwMap;
 import net.gegy1000.gl.util.ItemUtil;
 import net.minecraft.enchantment.Enchantment;
@@ -57,8 +57,7 @@ public final class BwPlayerLogic {
     }
 
     public void spawnPlayer(ServerPlayerEntity player, BwMap.TeamSpawn spawn) {
-        BedWars.resetPlayer(player);
-        player.setGameMode(GameMode.SURVIVAL);
+        BedWars.resetPlayer(player, GameMode.SURVIVAL);
 
         BwParticipant participant = this.game.getParticipant(player);
         if (participant != null) {
@@ -100,12 +99,13 @@ public final class BwPlayerLogic {
     }
 
     public void respawnOnTimer(ServerPlayerEntity player, BwMap.TeamSpawn spawn) {
-        this.game.playerTracker.spawnAtCenter(player, GameMode.SPECTATOR);
+        BedWars.resetPlayer(player, GameMode.SPECTATOR);
+        this.game.map.spawnAtCenter(player);
 
         BwParticipant participant = this.game.getParticipant(player);
         if (participant != null) {
             participant.startRespawning(spawn);
-            player.sendMessage(new LiteralText("You will respawn in " + BedWars.RESPAWN_TIME_SECONDS + " seconds..").formatted(Formatting.BOLD), false);
+            player.sendMessage(new LiteralText("You will respawn in " + BwActive.RESPAWN_TIME_SECONDS + " seconds..").formatted(Formatting.BOLD), false);
         }
     }
 }

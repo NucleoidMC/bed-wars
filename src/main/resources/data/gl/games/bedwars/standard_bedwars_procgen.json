@@ -1,0 +1,77 @@
+{
+  "type": "bedwars:bed_wars",
+  "map": {
+    "dimension": "gl:void",
+    "origin": [0, 64, 0],
+    "provider": {
+      "type": "bedwars:procedural",
+      "generator": {
+        "diamond_generator": {
+          "radius": 10,
+          "falloff_multiplier": 1.0,
+          "falloff_strength": 40.0,
+          "falloff_offset": -4.25,
+          "horizontal_frequency": 0.125,
+          "vertical_frequency": 0.0833,
+          "tree_amt": 2,
+          "tree_amt_rand": 2,
+          "tree_extra_amt_chance": 0,
+          "grass_amt": 8,
+          "check_space": false,
+          "use_aspen_trees": false
+        },
+        "center_generator": {
+          "radius": 20,
+          "falloff_multiplier": 0.75,
+          "falloff_strength": 90.0,
+          "falloff_offset": -3.4,
+          "horizontal_frequency": 0.0833,
+          "vertical_frequency": 0.0625,
+          "tree_amt": 4,
+          "tree_amt_rand": 4,
+          "tree_extra_amt_chance": 0,
+          "grass_amt": 16,
+          "check_space": false,
+          "use_aspen_trees": false
+        },
+        "small_island_generator": {
+          "radius": 5,
+          "falloff_multiplier": 0.5,
+          "falloff_strength": 10.0,
+          "falloff_offset": -2,
+          "horizontal_frequency": 0.1666,
+          "vertical_frequency": 0.125,
+          "tree_amt": 0,
+          "tree_amt_rand": 0,
+          "tree_extra_amt_chance": 6,
+          "grass_amt": 4,
+          "check_space": false,
+          "use_aspen_trees": false
+        },
+        "spawn_island_distance": 120,
+        "diamond_island_distance": 65,
+        "small_island_count": 20,
+        "small_island_horizontal_spread": 120,
+        "small_island_vertical_spread": 10,
+        "small_island_cutoff": 25
+      }
+    }
+  },
+  "players": {
+    "min": 1,
+    "max": 100
+  },
+  "combat": {
+    "old_mechanics": true
+  },
+  "teams": [
+    {"key": "white", "display": "White", "color": "white"},
+    {"key": "yellow", "display": "Yellow", "color": "yellow"},
+    {"key": "lime", "display": "Lime", "color": "lime"},
+    {"key": "pink", "display": "Pink", "color": "pink"},
+    {"key": "cyan", "display": "Cyan", "color": "cyan"},
+    {"key": "blue", "display": "Blue", "color": "blue"},
+    {"key": "red", "display": "Red", "color": "red"},
+    {"key": "black", "display": "Black", "color": "black"}
+  ]
+}

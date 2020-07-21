@@ -74,13 +74,4 @@ public final class OldCombat {
         }
         return 0;
     }
-
-    private static void applyDefaultFrom(
-            ItemStack stack, EntityAttribute attribute,
-            Multimap<EntityAttribute, EntityAttributeModifier> defaultModifiers
-    ) {
-        for (EntityAttributeModifier modifier : defaultModifiers.get(attribute)) {
-            stack.addAttributeModifier(attribute, modifier, EquipmentSlot.MAINHAND);
-        }
-    }
 }

@@ -1,7 +1,6 @@
 package net.gegy1000.bedwars.game.active.modifiers;
 
-import net.gegy1000.bedwars.BedWarsMod;
-import net.gegy1000.gl.game.modifier.GameTrigger;
+import net.gegy1000.bedwars.BedWars;
 import net.minecraft.util.Identifier;
 
 public final class BwGameTriggers {
@@ -18,6 +17,6 @@ public final class BwGameTriggers {
     }
 
     private static void register(String identifier, GameTrigger trigger) {
-        GameTrigger.REGISTRY.register(new Identifier(BedWarsMod.ID, identifier), trigger);
+        GameTrigger.REGISTRY.register(new Identifier(BedWars.ID, identifier), trigger);
     }
 }

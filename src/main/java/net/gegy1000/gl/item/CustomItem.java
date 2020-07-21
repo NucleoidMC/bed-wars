@@ -3,7 +3,6 @@ package net.gegy1000.gl.item;
 import com.google.common.base.Preconditions;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.gegy1000.gl.GameLib;
-import net.gegy1000.gl.event.SwingHandCallback;
 import net.gegy1000.gl.registry.TinyRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -26,7 +25,7 @@ public final class CustomItem {
     private final Text name;
 
     private UseItemCallback use;
-    private SwingHandCallback swingHand;
+    private SwingHand swingHand;
 
     private CustomItem(Identifier identifier, Text name) {
         this.id = identifier;
@@ -93,7 +92,7 @@ public final class CustomItem {
         private Identifier id;
         private Text name;
         private UseItemCallback use;
-        private SwingHandCallback swingHand;
+        private SwingHand swingHand;
 
         private Builder() {
         }
@@ -113,7 +112,7 @@ public final class CustomItem {
             return this;
         }
 
-        public Builder onSwingHand(SwingHandCallback swingHand) {
+        public Builder onSwingHand(SwingHand swingHand) {
             this.swingHand = swingHand;
             return this;
         }
@@ -132,5 +131,9 @@ public final class CustomItem {
 
             return item;
         }
+    }
+
+    public interface SwingHand {
+        void onSwingHand(ServerPlayerEntity player, Hand hand);
     }
 }

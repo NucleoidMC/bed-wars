@@ -2,16 +2,15 @@ package net.gegy1000.bedwars.game;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import net.gegy1000.bedwars.BedWarsMod;
-import net.gegy1000.bedwars.custom.BwCustomEntities;
+import net.gegy1000.bedwars.BedWars;
+import net.gegy1000.bedwars.custom.ShopVillagerEntity;
 import net.gegy1000.bedwars.game.active.BwActive;
 import net.gegy1000.bedwars.game.active.GeneratorPool;
-import net.gegy1000.gl.entity.CustomEntity;
-import net.gegy1000.gl.game.GameTeam;
-import net.gegy1000.gl.game.map.GameMap;
-import net.gegy1000.gl.game.config.GameMapConfig;
-import net.gegy1000.gl.world.BlockBounds;
 import net.gegy1000.gl.entity.FloatingText;
+import net.gegy1000.gl.game.GameTeam;
+import net.gegy1000.gl.game.config.GameMapConfig;
+import net.gegy1000.gl.game.map.GameMap;
+import net.gegy1000.gl.world.BlockBounds;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
@@ -30,6 +29,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.Heightmap;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.World;
 
@@ -96,61 +96,49 @@ public final class BwMap {
                 this.teamSpawns.put(team, teamSpawn);
                 this.generators.add(teamSpawn.generator);
             } else {
-                BedWarsMod.LOGGER.warn("Missing spawn for {}", team.getKey());
+                BedWars.LOGGER.warn("Missing spawn for {}", team.getKey());
             }
 
             this.teamRegions.put(team, regions);
         }
     }
 
-    public void spawnShopkeepers(BwConfig config) {
+    public void spawnShopkeepers(BwActive game, BwConfig config) {
         for (GameTeam team : config.getTeams()) {
             TeamRegions regions = this.getTeamRegions(team);
 
             if (regions.teamShop != null) {
-                this.trySpawn(EntityType.VILLAGER, BwCustomEntities.TEAM_SHOP, regions.teamShop);
+                this.trySpawn(ShopVillagerEntity.team(this.world, game), regions.teamShop);
             } else {
-                BedWarsMod.LOGGER.warn("Missing team shop for {}", team.getDisplay());
+                BedWars.LOGGER.warn("Missing team shop for {}", team.getDisplay());
             }
 
             if (regions.itemShop != null) {
-                this.trySpawn(EntityType.VILLAGER, BwCustomEntities.ITEM_SHOP, regions.itemShop);
+                this.trySpawn(ShopVillagerEntity.item(this.world, game), regions.itemShop);
             } else {
-                BedWarsMod.LOGGER.warn("Missing item shop for {}", team.getDisplay());
+                BedWars.LOGGER.warn("Missing item shop for {}", team.getDisplay());
             }
         }
     }
 
-    @Nullable
-    private Entity trySpawn(EntityType<?> type, CustomEntity custom, BlockBounds bounds) {
+    private boolean trySpawn(Entity entity, BlockBounds bounds) {
         Vec3d center = bounds.getCenter();
-
-        Entity entity = type.create(this.world);
-        if (entity == null) {
-            BedWarsMod.LOGGER.warn("Failed to spawn entity of type {}", type);
-            return null;
-        }
-
-        custom.applyTo(entity);
 
         entity.refreshPositionAndAngles(center.x, bounds.getMin().getY(), center.z, 0.0F, 0.0F);
 
         if (entity instanceof MobEntity) {
             MobEntity mob = (MobEntity) entity;
-            mob.setAiDisabled(true);
-            mob.setInvulnerable(true);
-            mob.setCustomNameVisible(true);
 
             LocalDifficulty difficulty = this.world.getLocalDifficulty(mob.getBlockPos());
             mob.initialize(this.world, difficulty, SpawnReason.COMMAND, null, null);
         }
 
         if (!this.world.spawnEntity(entity)) {
-            BedWarsMod.LOGGER.warn("Tried to spawn entity of type {} but the chunk was not loaded", type);
-            return null;
+            BedWars.LOGGER.warn("Tried to spawn entity ({}) but the chunk was not loaded", entity);
+            return false;
         }
 
-        return entity;
+        return true;
     }
 
     public ServerWorld getWorld() {
@@ -201,6 +189,19 @@ public final class BwMap {
 
     public Vec3d getCenter() {
         return this.map.getBounds().getCenter();
+    }
+
+    public void spawnAtCenter(ServerPlayerEntity player) {
+        ServerWorld world = this.map.getWorld();
+
+        BlockPos center = new BlockPos(this.getCenter());
+        int topY = world.getTopY(Heightmap.Type.MOTION_BLOCKING, center.getX(), center.getZ());
+
+        player.teleport(world, center.getX() + 0.5, topY + 0.5, center.getZ() + 0.5, 0.0F, 0.0F);
+    }
+
+    public GameMap asInner() {
+        return this.map;
     }
 
     public static class TeamSpawn {

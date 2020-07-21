@@ -4,15 +4,8 @@
   "package": "net.gegy1000.bedwars.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "BedBlockMixin",
     "ChorusFruitItemMixin",
-    "DefaultExplosionBehaviorMixin",
-    "ExplosionMixin",
-    "FireChargeItemMixin",
-    "NetherPortalBlockMixin",
-    "ServerPlayerEntityMixin",
-    "TntBlockMixin",
-    "VillagerEntityMixin"
+    "DefaultExplosionBehaviorMixin"
   ],
   "injectors": {
     "defaultRequire": 1

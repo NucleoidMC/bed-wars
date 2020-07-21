@@ -31,8 +31,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 
-import java.util.Optional;
-
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -47,22 +45,6 @@ public final class GameCommand {
 
     public static final SimpleCommandExceptionType NOT_RECRUITING = new SimpleCommandExceptionType(
             new LiteralText("Game not recruiting!")
-    );
-
-    public static final SimpleCommandExceptionType GAME_FULL = new SimpleCommandExceptionType(
-            new LiteralText("Game full! :(")
-    );
-
-    public static final SimpleCommandExceptionType ALREADY_JOINED = new SimpleCommandExceptionType(
-            new LiteralText("Already joined game!")
-    );
-
-    public static final SimpleCommandExceptionType NOT_ENOUGH_PLAYERS = new SimpleCommandExceptionType(
-            new LiteralText("Game does not have enough players yet!")
-    );
-
-    public static final SimpleCommandExceptionType ALREADY_ACTIVE = new SimpleCommandExceptionType(
-            new LiteralText("Game is already running!")
     );
 
     public static final SimpleCommandExceptionType NOT_ACTIVE = new SimpleCommandExceptionType(
@@ -90,20 +72,20 @@ public final class GameCommand {
 
         Identifier gameTypeId = IdentifierArgumentType.getIdentifier(context, "game_type");
 
-        ConfiguredGame<?, ?> game = GameConfigs.get(gameTypeId);
+        ConfiguredGame<?> game = GameConfigs.get(gameTypeId);
         if (game == null) {
             throw GAME_NOT_FOUND.create(gameTypeId);
         }
 
-        Optional<GameManager.Inactive> inactive = GameManager.inactive();
-        if (!inactive.isPresent()) {
+        GameManager.Closed closed = GameManager.closed();
+        if (closed == null) {
             throw ALREADY_OPEN.create();
         }
 
         PlayerManager playerManager = server.getPlayerManager();
-        playerManager.broadcastChatMessage(new LiteralText(game.getName() + " is opening! Hold tight.."), MessageType.SYSTEM, Util.NIL_UUID);
+        playerManager.broadcastChatMessage(new LiteralText("Game is opening! Hold tight.."), MessageType.SYSTEM, Util.NIL_UUID);
 
-        inactive.get().open(server, game)
+        closed.open(server, game)
                 .handle((gameAndConfig, throwable) -> {
                     if (throwable == null) {
                         onOpenSuccess(game, playerManager);
@@ -116,7 +98,7 @@ public final class GameCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static void onOpenSuccess(ConfiguredGame<?, ?> game, PlayerManager playerManager) {
+    private static void onOpenSuccess(ConfiguredGame<?> game, PlayerManager playerManager) {
         ClickEvent joinClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/game join");
         HoverEvent joinHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("/game join"));
         Style joinStyle = Style.EMPTY
@@ -125,7 +107,7 @@ public final class GameCommand {
                 .withClickEvent(joinClick)
                 .setHoverEvent(joinHover);
 
-        Text openMessage = new LiteralText(game.getName() + " has opened! ")
+        Text openMessage = new LiteralText("Game has opened! ")
                 .append(new LiteralText("Click here to join").setStyle(joinStyle));
         playerManager.broadcastChatMessage(openMessage, MessageType.SYSTEM, Util.NIL_UUID);
     }
@@ -140,18 +122,16 @@ public final class GameCommand {
         ServerPlayerEntity player = source.getPlayer();
         PlayerManager playerManager = source.getMinecraftServer().getPlayerManager();
 
-        Optional<GameManager.Open<?>> openOpt = GameManager.open();
-        if (!openOpt.isPresent()) {
+        GameManager.Open open = GameManager.open();
+        if (open == null) {
             throw NOT_RECRUITING.create();
         }
 
-        JoinResult joinResult = openOpt.get().offerPlayer(player);
-        if (joinResult == JoinResult.GAME_FULL) {
-            throw GAME_FULL.create();
-        }
+        JoinResult joinResult = open.offerPlayer(player);
 
-        if (joinResult == JoinResult.ALREADY_JOINED) {
-            throw ALREADY_JOINED.create();
+        if (joinResult.isErr()) {
+            Text error = joinResult.getError();
+            throw new SimpleCommandExceptionType(error).create();
         }
 
         Text joinMessage = player.getDisplayName().shallowCopy()
@@ -165,50 +145,36 @@ public final class GameCommand {
     private static int startGame(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
 
-        Optional<GameManager.Open<?>> openOpt = GameManager.open();
-        if (!openOpt.isPresent()) {
+        GameManager.Open open = GameManager.open();
+        if (open == null) {
             throw NOT_RECRUITING.create();
         }
 
-        GameManager.Open<?> open = openOpt.get();
-
-        StartResult result = open.requestStart();
-        if (result == StartResult.NOT_ENOUGH_PLAYERS) {
-            throw NOT_ENOUGH_PLAYERS.create();
-        } else if (result == StartResult.ALREADY_STARTED) {
-            throw ALREADY_ACTIVE.create();
+        StartResult startResult = open.requestStart();
+        if (startResult.isErr()) {
+            Text error = startResult.getError();
+            throw new SimpleCommandExceptionType(error).create();
         }
 
         MinecraftServer server = source.getMinecraftServer();
         PlayerManager playerManager = server.getPlayerManager();
-        playerManager.broadcastChatMessage(new LiteralText(open.getName() + " is starting!"), MessageType.SYSTEM, Util.NIL_UUID);
+        playerManager.broadcastChatMessage(new LiteralText("Game is starting!"), MessageType.SYSTEM, Util.NIL_UUID);
 
         return Command.SINGLE_SUCCESS;
     }
 
     private static int stopGame(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Optional<GameManager.Open<?>> activeOpt = GameManager.open();
-        if (!activeOpt.isPresent()) {
-            throw NOT_ACTIVE.create();
+        GameManager.Open open = GameManager.open();
+        if (open == null) {
+            throw NOT_RECRUITING.create();
         }
 
-        GameManager.Open<?> open = activeOpt.get();
+        open.close();
 
-        ServerCommandSource source = context.getSource();
+        MinecraftServer server = context.getSource().getMinecraftServer();
 
-        open.stop().handle((game, throwable) -> {
-            if (throwable == null) {
-                MinecraftServer server = source.getMinecraftServer();
-
-                LiteralText message = new LiteralText(game.getConfigured().getName() + " has been stopped");
-                server.getPlayerManager().broadcastChatMessage(message, MessageType.SYSTEM, Util.NIL_UUID);
-            } else {
-                source.sendError(new LiteralText("Failed to stop game: " + throwable.getClass()));
-                GameLib.LOGGER.error("Failed to stop game", throwable);
-            }
-
-            return null;
-        });
+        LiteralText message = new LiteralText("Game has been stopped");
+        server.getPlayerManager().broadcastChatMessage(message, MessageType.SYSTEM, Util.NIL_UUID);
 
         return Command.SINGLE_SUCCESS;
     }

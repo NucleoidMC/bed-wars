@@ -1,6 +1,8 @@
 package net.gegy1000.gl.mixin.event;
 
-import net.gegy1000.gl.event.PlayerDeathCallback;
+import net.gegy1000.gl.game.Game;
+import net.gegy1000.gl.game.GameManager;
+import net.gegy1000.gl.game.event.PlayerDeathListener;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,9 +14,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ServerPlayerEntityMixin {
     @Inject(method = "onDeath", at = @At("HEAD"), cancellable = true)
     private void onDeath(DamageSource source, CallbackInfo ci) {
-        boolean cancel = PlayerDeathCallback.EVENT.invoker().onDeath((ServerPlayerEntity) (Object) this, source);
-        if (cancel) {
-            ci.cancel();
+        ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
+        if (player.world.isClient) {
+            return;
+        }
+
+        Game game = GameManager.openGame();
+        if (game != null && game.containsPlayer(player)) {
+            boolean cancel = game.invoker(PlayerDeathListener.EVENT).onDeath(game, player, source);
+            if (cancel) {
+                ci.cancel();
+            }
         }
     }
 }

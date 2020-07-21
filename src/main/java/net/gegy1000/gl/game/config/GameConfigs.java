@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 public final class GameConfigs {
-    private static final Map<Identifier, ConfiguredGame<?, ?>> CONFIGURED_GAMES = new HashMap<>();
+    private static final Map<Identifier, ConfiguredGame<?>> CONFIGURED_GAMES = new HashMap<>();
 
     public static void register() {
         ResourceManagerHelper serverData = ResourceManagerHelper.get(ResourceType.SERVER_DATA);
@@ -51,10 +51,10 @@ public final class GameConfigs {
 
                             Identifier identifier = identifierFromPath(path);
 
-                            DataResult<Pair<ConfiguredGame<?, ?>, JsonElement>> decode = ConfiguredGame.CODEC.decode(JsonOps.INSTANCE, json);
+                            DataResult<Pair<ConfiguredGame<?>, JsonElement>> decode = ConfiguredGame.CODEC.decode(JsonOps.INSTANCE, json);
 
                             decode.result().ifPresent(result -> {
-                                ConfiguredGame<?, ?> game = result.getFirst();
+                                ConfiguredGame<?> game = result.getFirst();
                                 CONFIGURED_GAMES.put(identifier, game);
                             });
 
@@ -83,7 +83,7 @@ public final class GameConfigs {
     }
 
     @Nullable
-    public static ConfiguredGame<?, ?> get(Identifier identifier) {
+    public static ConfiguredGame<?> get(Identifier identifier) {
         return CONFIGURED_GAMES.get(identifier);
     }
 

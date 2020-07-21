@@ -3,8 +3,6 @@ package net.gegy1000.bedwars.game.active.modifiers;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.gegy1000.bedwars.game.active.BwActive;
-import net.gegy1000.gl.game.modifier.GameModifier;
-import net.gegy1000.gl.game.modifier.GameTrigger;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LightningEntity;
 import net.minecraft.server.world.ServerWorld;

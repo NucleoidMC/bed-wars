@@ -1,0 +1,28 @@
+{
+  "type": "bedwars:bed_wars",
+  "map": {
+    "dimension": "gl:void",
+    "origin": [0, 64, 0],
+    "provider": {
+      "type": "gl:path",
+      "path": "bedwars:bed_wars_1"
+    }
+  },
+  "players": {
+    "min": 1,
+    "max": 100
+  },
+  "combat": {
+    "old_mechanics": true
+  },
+  "teams": [
+    {"key": "white", "display": "White", "color": "white"},
+    {"key": "yellow", "display": "Yellow", "color": "yellow"},
+    {"key": "lime", "display": "Lime", "color": "lime"},
+    {"key": "pink", "display": "Pink", "color": "pink"},
+    {"key": "cyan", "display": "Cyan", "color": "cyan"},
+    {"key": "blue", "display": "Blue", "color": "blue"},
+    {"key": "red", "display": "Red", "color": "red"},
+    {"key": "black", "display": "Black", "color": "black"}
+  ]
+}

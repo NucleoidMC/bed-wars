@@ -66,8 +66,4 @@ public final class TinyRegistry<T> implements Codec<T> {
     public Set<Identifier> keySet() {
         return this.map.keySet();
     }
-
-    public T[] toArray(T[] array) {
-        return this.map.values().toArray(array);
-    }
 }

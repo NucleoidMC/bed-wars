@@ -7,7 +7,7 @@ import net.gegy1000.gl.game.config.CombatConfig;
 import net.gegy1000.gl.game.config.GameConfig;
 import net.gegy1000.gl.game.config.GameMapConfig;
 import net.gegy1000.gl.game.config.PlayerConfig;
-import net.gegy1000.gl.game.modifier.GameModifier;
+import net.gegy1000.bedwars.game.active.modifiers.GameModifier;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
