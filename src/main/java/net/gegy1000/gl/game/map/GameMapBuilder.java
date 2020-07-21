@@ -8,6 +8,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.Heightmap;
 
 public final class GameMapBuilder {
     private final ServerWorld world;
@@ -52,6 +53,12 @@ public final class GameMapBuilder {
 
     public BlockState getBlockState(BlockPos pos) {
         return this.world.getBlockState(this.localToGlobal(pos));
+    }
+
+    public int getTopY(Heightmap.Type heightmap, BlockPos pos) {
+        int x = pos.getX() + this.origin.getX();
+        int z = pos.getZ() + this.origin.getZ();
+        return this.world.getTopY(heightmap, x, z) - this.origin.getY();
     }
 
     public void setBlockEntity(BlockPos pos, BlockEntity blockEntity) {

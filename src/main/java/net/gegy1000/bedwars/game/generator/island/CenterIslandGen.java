@@ -9,6 +9,7 @@ import net.gegy1000.gl.world.BlockBounds;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.Heightmap;
 
 public class CenterIslandGen implements MapGen {
     private final NoiseIslandGen generator;
@@ -31,17 +32,10 @@ public class CenterIslandGen implements MapGen {
 
     @Override
     public void addRegionsTo(GameMapBuilder builder) {
-        BlockPos start = origin;
-        for (int i = 0; i < generator.getRadius(); i++) {
-            if (builder.getBlockState(origin.up(i)) == Blocks.GRASS_BLOCK.getDefaultState()) {
-                start = origin.up(i);
-                break;
-            }
-        }
+        int y = builder.getTopY(Heightmap.Type.MOTION_BLOCKING, this.origin);
+        BlockPos start = new BlockPos(this.origin.getX(), y, this.origin.getZ());
 
         builder.setBlockState(start, Blocks.EMERALD_BLOCK.getDefaultState());
-        builder.addRegion(new GameRegion("emerald_spawn", new BlockBounds(
-                start.up()
-        )));
+        builder.addRegion(new GameRegion("emerald_spawn", new BlockBounds(start.up())));
     }
 }
