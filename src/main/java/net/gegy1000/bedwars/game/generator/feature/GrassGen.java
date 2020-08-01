@@ -32,7 +32,7 @@ public class GrassGen implements MapGen {
 			int aZ = random.nextInt(8) - random.nextInt(8);
 			BlockPos pos = origin.add(aX, aY, aZ);
 
-			if (builder.getBlockState(pos.down()) == Blocks.GRASS_BLOCK.getDefaultState()) {
+			if (builder.getBlockState(pos.down()) == Blocks.GRASS_BLOCK.getDefaultState() && builder.getBlockState(pos).isAir()) {
 				builder.setBlockState(pos, state, false);
 			}
 		}
