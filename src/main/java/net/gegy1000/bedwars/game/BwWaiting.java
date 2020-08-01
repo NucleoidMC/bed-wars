@@ -9,6 +9,7 @@ import net.gegy1000.gl.game.GameTeam;
 import net.gegy1000.gl.game.JoinResult;
 import net.gegy1000.gl.game.StartResult;
 import net.gegy1000.gl.game.config.PlayerConfig;
+import net.gegy1000.gl.game.event.GameCloseListener;
 import net.gegy1000.gl.game.event.OfferPlayerListener;
 import net.gegy1000.gl.game.event.PlayerAddListener;
 import net.gegy1000.gl.game.event.PlayerDeathListener;
@@ -66,6 +67,11 @@ public final class BwWaiting {
 
         builder.on(UseItemListener.EVENT, waiting::onUseItem);
 
+        // TODO: should the root Game be responsible for deleting the map?
+        builder.on(GameCloseListener.EVENT, game -> {
+            waiting.map.delete();
+        });
+
         return builder.build();
     }
 
@@ -122,6 +128,8 @@ public final class BwWaiting {
 
     private void spawnPlayer(ServerPlayerEntity player) {
         BedWars.resetPlayer(player, GameMode.ADVENTURE);
+        player.getEnderChestInventory().clear();
+
         this.map.spawnAtCenter(player);
 
         List<GameTeam> teams = this.config.getTeams();
