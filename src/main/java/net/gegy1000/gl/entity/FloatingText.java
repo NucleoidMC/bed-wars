@@ -29,6 +29,7 @@ public final class FloatingText {
         entity.setInvisible(true);
         entity.setInvulnerable(true);
         entity.setNoGravity(true);
+        entity.setMarker(true);
 
         entity.setCustomName(text);
         entity.setCustomNameVisible(true);

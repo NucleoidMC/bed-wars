@@ -6,6 +6,7 @@
   "mixins": [
     "custom.EntityMixin",
     "custom.ServerPlayNetworkHandlerMixin",
+    "event.ExplosionMixin",
     "event.ServerPlayerEntityMixin",
     "event.ServerPlayerInteractionManagerMixin",
     "event.ServerWorldMixin",

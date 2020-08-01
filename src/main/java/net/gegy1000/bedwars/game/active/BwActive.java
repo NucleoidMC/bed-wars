@@ -15,6 +15,7 @@ import net.gegy1000.gl.game.GameTeam;
 import net.gegy1000.gl.game.JoinResult;
 import net.gegy1000.gl.game.event.AttackEntityListener;
 import net.gegy1000.gl.game.event.BreakBlockListener;
+import net.gegy1000.gl.game.event.ExplosionListener;
 import net.gegy1000.gl.game.event.GameCloseListener;
 import net.gegy1000.gl.game.event.GameOpenListener;
 import net.gegy1000.gl.game.event.GameTickListener;
@@ -87,6 +88,9 @@ public final class BwActive {
     public final BwMapLogic mapLogic;
     public final BwPlayerLogic playerLogic;
 
+    private long startTime;
+    private boolean destroyedBeds;
+
     private long lastWinCheck;
 
     private GameTeam winningTeam;
@@ -99,9 +103,6 @@ public final class BwActive {
         this.config = config;
 
         this.scoreboard = BwScoreboard.create(this);
-        for (GameTeam team : config.getTeams()) {
-            this.scoreboard.addTeam(team);
-        }
 
         this.broadcast = new BwBroadcast(this);
         this.teamLogic = new BwTeamLogic(this);
@@ -114,6 +115,10 @@ public final class BwActive {
     public static Game open(BwMap map, BwConfig config, Multimap<GameTeam, ServerPlayerEntity> players) {
         BwActive active = new BwActive(map, config);
         active.addPlayers(players);
+
+        for (GameTeam team : config.getTeams()) {
+            active.scoreboard.addTeam(team);
+        }
 
         Game.Builder builder = Game.builder();
         builder.setMap(map.asInner());
@@ -139,6 +144,10 @@ public final class BwActive {
         builder.on(AttackEntityListener.EVENT, active::onAttackEntity);
         builder.on(UseBlockListener.EVENT, active::onUseBlock);
         builder.on(UseItemListener.EVENT, active::onUseItem);
+
+        builder.on(ExplosionListener.EVENT, (game, affectedBlocks) -> {
+            affectedBlocks.removeIf(map::isProtectedBlock);
+        });
 
         return builder.build();
     }
@@ -182,6 +191,8 @@ public final class BwActive {
 
         this.map.spawnShopkeepers(this, this.config);
         this.triggerModifiers(BwGameTriggers.GAME_RUNNING);
+
+        this.startTime = game.getWorld().getTime();
     }
 
     private void addPlayer(Game game, ServerPlayerEntity player) {
@@ -367,6 +378,21 @@ public final class BwActive {
                 game.close();
             }
             return;
+        }
+
+        // TODO: this should be modular
+        if (!this.destroyedBeds) {
+            long time = game.getWorld().getTime();
+            if (time - this.startTime > 20 * 60 * 20) {
+                this.destroyedBeds = true;
+
+                for (GameTeam team : this.config.getTeams()) {
+                    this.teamLogic.removeBed(team);
+                }
+
+                this.broadcast.broadcast(this.broadcast.everyone(), new LiteralText("Destroyed all beds!").formatted(Formatting.RED));
+                this.broadcast.broadcastSound(this.broadcast.everyone(), SoundEvents.BLOCK_END_PORTAL_SPAWN);
+            }
         }
 
         BwWinStateLogic.WinResult winResult = this.tickActive();

@@ -94,6 +94,8 @@ public final class ProceduralMapProvider implements MapProvider<BwConfig> {
         }
 
         private void addIslands(List<GameTeam> teams, Random random) {
+            islands.clear();
+
             // Add team islands
             for (int i = 0; i < teams.size(); i++) {
                 GameTeam team = teams.get(i);
