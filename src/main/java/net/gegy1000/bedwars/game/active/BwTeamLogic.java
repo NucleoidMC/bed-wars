@@ -45,7 +45,7 @@ public final class BwTeamLogic {
         GameTeam destroyerTeam = null;
 
         BwParticipant participant = this.game.getParticipant(player);
-        if (participant != null) {
+        if (participant != null && !participant.eliminated) {
             destroyerTeam = participant.team;
         }
 
@@ -54,15 +54,22 @@ public final class BwTeamLogic {
             return;
         }
 
+        this.game.broadcast.broadcastBedBroken(player, bed.team, destroyerTeam);
+
+        this.removeBed(bed.team);
+    }
+
+    public void removeBed(GameTeam team) {
+        BlockBounds bed = this.game.map.getTeamRegions(team).bed;
+
         ServerWorld world = this.game.map.getWorld();
-        bed.bounds.iterate().forEach(p -> {
+        bed.iterate().forEach(p -> {
             world.setBlockState(p, Blocks.AIR.getDefaultState(), 0b100010);
         });
 
-        this.game.broadcast.broadcastBedBroken(player, bed.team, destroyerTeam);
         this.game.triggerModifiers(BwGameTriggers.BED_BROKEN);
 
-        BwActive.TeamState teamState = this.game.getTeam(bed.team);
+        BwActive.TeamState teamState = this.game.getTeam(team);
         if (teamState != null) {
             teamState.hasBed = false;
         }

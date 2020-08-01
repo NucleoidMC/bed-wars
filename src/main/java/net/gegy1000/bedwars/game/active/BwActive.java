@@ -88,6 +88,9 @@ public final class BwActive {
     public final BwMapLogic mapLogic;
     public final BwPlayerLogic playerLogic;
 
+    private long startTime;
+    private boolean destroyedBeds;
+
     private long lastWinCheck;
 
     private GameTeam winningTeam;
@@ -188,6 +191,8 @@ public final class BwActive {
 
         this.map.spawnShopkeepers(this, this.config);
         this.triggerModifiers(BwGameTriggers.GAME_RUNNING);
+
+        this.startTime = game.getWorld().getTime();
     }
 
     private void addPlayer(Game game, ServerPlayerEntity player) {
@@ -373,6 +378,21 @@ public final class BwActive {
                 game.close();
             }
             return;
+        }
+
+        // TODO: this should be modular
+        if (!this.destroyedBeds) {
+            long time = game.getWorld().getTime();
+            if (time - this.startTime > 20 * 60 * 20) {
+                this.destroyedBeds = true;
+
+                for (GameTeam team : this.config.getTeams()) {
+                    this.teamLogic.removeBed(team);
+                }
+
+                this.broadcast.broadcast(this.broadcast.everyone(), new LiteralText("Destroyed all beds!").formatted(Formatting.RED));
+                this.broadcast.broadcastSound(this.broadcast.everyone(), SoundEvents.BLOCK_END_PORTAL_SPAWN);
+            }
         }
 
         BwWinStateLogic.WinResult winResult = this.tickActive();
