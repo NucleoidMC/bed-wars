@@ -42,6 +42,11 @@ public final class BwPlayerLogic {
                 this.spawnPlayer(player, participant.respawningAt);
                 participant.stopRespawning();
             }
+
+            // Instakill players when below y0
+            if (player.getY() <= 0) {
+                player.kill();
+            }
         });
 
         if (time - this.lastEnchantmentCheck > 20) {
