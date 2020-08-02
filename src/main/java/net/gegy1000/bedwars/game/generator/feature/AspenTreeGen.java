@@ -4,7 +4,7 @@ import java.util.Random;
 import java.util.function.Consumer;
 
 import net.gegy1000.bedwars.game.generator.MapGen;
-import net.gegy1000.gl.game.map.GameMapBuilder;
+import net.gegy1000.plasmid.game.map.GameMapBuilder;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.state.property.Properties;

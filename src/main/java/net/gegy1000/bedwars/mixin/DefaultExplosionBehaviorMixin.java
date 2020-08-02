@@ -1,9 +1,9 @@
 package net.gegy1000.bedwars.mixin;
 
 import net.gegy1000.bedwars.BedWars;
-import net.gegy1000.gl.game.Game;
-import net.gegy1000.gl.game.GameManager;
-import net.gegy1000.gl.game.rule.RuleResult;
+import net.gegy1000.plasmid.game.Game;
+import net.gegy1000.plasmid.game.GameManager;
+import net.gegy1000.plasmid.game.rule.RuleResult;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.StainedGlassBlock;
 import net.minecraft.fluid.FluidState;

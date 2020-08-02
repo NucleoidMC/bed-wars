@@ -1,6 +1,6 @@
 package net.gegy1000.bedwars.game.active;
 
-import net.gegy1000.gl.game.GameTeam;
+import net.gegy1000.plasmid.game.GameTeam;
 import net.minecraft.scoreboard.AbstractTeam;
 import net.minecraft.scoreboard.ScoreboardCriterion;
 import net.minecraft.scoreboard.ScoreboardObjective;

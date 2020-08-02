@@ -1,6 +1,6 @@
 package net.gegy1000.bedwars.game.active.upgrade;
 
-import net.gegy1000.gl.shop.Cost;
+import net.gegy1000.plasmid.shop.Cost;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

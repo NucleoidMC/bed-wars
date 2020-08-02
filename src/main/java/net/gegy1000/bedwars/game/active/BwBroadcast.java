@@ -1,6 +1,6 @@
 package net.gegy1000.bedwars.game.active;
 
-import net.gegy1000.gl.game.GameTeam;
+import net.gegy1000.plasmid.game.GameTeam;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;

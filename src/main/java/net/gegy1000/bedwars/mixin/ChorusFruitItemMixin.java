@@ -1,6 +1,6 @@
 package net.gegy1000.bedwars.mixin;
 
-import net.gegy1000.gl.item.CustomItem;
+import net.gegy1000.plasmid.item.CustomItem;
 import net.gegy1000.bedwars.custom.BwCustomItems;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;

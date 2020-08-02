@@ -1,10 +1,10 @@
 package net.gegy1000.bedwars.game.generator.island;
 
-import net.gegy1000.gl.game.GameTeam;
+import net.gegy1000.plasmid.game.GameTeam;
 import net.gegy1000.bedwars.game.generator.MapGen;
-import net.gegy1000.gl.game.map.GameMapBuilder;
-import net.gegy1000.gl.world.BlockBounds;
-import net.gegy1000.gl.util.ColoredBlocks;
+import net.gegy1000.plasmid.game.map.GameMapBuilder;
+import net.gegy1000.plasmid.world.BlockBounds;
+import net.gegy1000.plasmid.util.ColoredBlocks;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;

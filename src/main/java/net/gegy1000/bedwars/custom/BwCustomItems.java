@@ -1,7 +1,7 @@
 package net.gegy1000.bedwars.custom;
 
 import net.gegy1000.bedwars.BedWars;
-import net.gegy1000.gl.item.CustomItem;
+import net.gegy1000.plasmid.item.CustomItem;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
 

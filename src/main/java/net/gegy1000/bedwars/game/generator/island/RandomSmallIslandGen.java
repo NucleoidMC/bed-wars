@@ -3,7 +3,7 @@ package net.gegy1000.bedwars.game.generator.island;
 import kdotjpg.opensimplex.OpenSimplexNoise;
 import net.gegy1000.bedwars.game.generator.MapGen;
 import net.gegy1000.bedwars.game.generator.NoiseIslandGen;
-import net.gegy1000.gl.game.map.GameMapBuilder;
+import net.gegy1000.plasmid.game.map.GameMapBuilder;
 
 import net.minecraft.util.math.BlockPos;
 

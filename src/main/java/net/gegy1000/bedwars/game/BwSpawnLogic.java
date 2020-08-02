@@ -1,6 +1,6 @@
 package net.gegy1000.bedwars.game;
 
-import net.gegy1000.gl.game.map.GameMap;
+import net.gegy1000.plasmid.game.map.GameMap;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;

@@ -2,7 +2,7 @@ package net.gegy1000.bedwars.game.active;
 
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
 import net.gegy1000.bedwars.game.BwMap;
-import net.gegy1000.gl.util.ItemUtil;
+import net.gegy1000.plasmid.util.ItemUtil;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.player.HungerManager;

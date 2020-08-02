@@ -1,7 +1,7 @@
 package net.gegy1000.bedwars.game.active;
 
-import net.gegy1000.gl.entity.FloatingText;
-import net.gegy1000.gl.world.BlockBounds;
+import net.gegy1000.plasmid.entity.FloatingText;
+import net.gegy1000.plasmid.world.BlockBounds;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;

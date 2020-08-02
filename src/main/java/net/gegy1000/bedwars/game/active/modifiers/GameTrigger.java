@@ -1,7 +1,7 @@
 package net.gegy1000.bedwars.game.active.modifiers;
 
 import com.mojang.serialization.Codec;
-import net.gegy1000.gl.registry.TinyRegistry;
+import net.gegy1000.plasmid.registry.TinyRegistry;
 import net.minecraft.util.Identifier;
 
 public final class GameTrigger {

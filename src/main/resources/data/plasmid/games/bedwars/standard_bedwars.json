@@ -1,10 +1,10 @@
 {
   "type": "bedwars:bed_wars",
   "map": {
-    "dimension": "gl:void",
+    "dimension": "plasmid:void",
     "origin": [0, 64, 0],
     "provider": {
-      "type": "gl:path",
+      "type": "plasmid:path",
       "path": "bedwars:bed_wars_1"
     }
   },

@@ -1,7 +1,7 @@
 package net.gegy1000.bedwars.custom;
 
-import net.gegy1000.gl.game.Game;
-import net.gegy1000.gl.game.GameManager;
+import net.gegy1000.plasmid.game.Game;
+import net.gegy1000.plasmid.game.GameManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.thrown.EggEntity;

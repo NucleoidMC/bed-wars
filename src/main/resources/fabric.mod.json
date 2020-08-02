@@ -8,13 +8,13 @@
   "license": "LGPLv3",
   "environment": "*",
   "entrypoints": {
-    "main": ["net.gegy1000.bedwars.BedWars", "net.gegy1000.gl.GameLib"]
+    "main": ["net.gegy1000.bedwars.BedWars"]
   },
-  "mixins": ["bw.mixins.json", "gl.mixins.json"],
-  "accessWidener": "gl.accesswidener",
+  "mixins": ["bw.mixins.json"],
   "depends": {
     "fabricloader": ">=0.8.9",
     "fabric": "*",
-    "minecraft": "1.16.x"
+    "minecraft": "1.16.x",
+    "plasmid": "0.1.x"
   }
 }

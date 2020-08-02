@@ -2,11 +2,11 @@ package net.gegy1000.bedwars.game;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.gegy1000.gl.game.GameTeam;
-import net.gegy1000.gl.game.config.CombatConfig;
-import net.gegy1000.gl.game.config.GameConfig;
-import net.gegy1000.gl.game.config.GameMapConfig;
-import net.gegy1000.gl.game.config.PlayerConfig;
+import net.gegy1000.plasmid.game.GameTeam;
+import net.gegy1000.plasmid.game.config.CombatConfig;
+import net.gegy1000.plasmid.game.config.GameConfig;
+import net.gegy1000.plasmid.game.config.GameMapConfig;
+import net.gegy1000.plasmid.game.config.PlayerConfig;
 import net.gegy1000.bedwars.game.active.modifiers.GameModifier;
 
 import javax.annotation.Nullable;
