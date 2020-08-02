@@ -190,7 +190,7 @@ public final class BwActive {
             } else {
                 BedWars.LOGGER.warn("No spawn for player {}", participant.playerId);
 
-                this.spawnLogic.respawnPlayer(player, GameMode.SPECTATOR);
+                this.spawnLogic.resetPlayer(player, GameMode.SPECTATOR);
                 this.spawnLogic.spawnAtCenter(player);
             }
         });
