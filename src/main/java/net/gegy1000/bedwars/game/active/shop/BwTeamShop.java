@@ -4,6 +4,7 @@ import net.gegy1000.bedwars.game.BwMap;
 import net.gegy1000.bedwars.game.active.BwActive;
 import net.gegy1000.bedwars.game.active.BwParticipant;
 import net.gegy1000.plasmid.shop.Cost;
+import net.gegy1000.plasmid.shop.ShopEntry;
 import net.gegy1000.plasmid.shop.ShopUi;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Items;
@@ -21,53 +22,91 @@ public final class BwTeamShop {
             BwActive.TeamState teamState = game.getTeam(participant.team);
             if (teamState != null) {
                 Cost trapCost = !teamState.trapSet ? Cost.ofDiamonds(1) : Cost.no();
-                shop.add(Items.REDSTONE_TORCH, trapCost, new LiteralText("Activate Base Trap"), () -> {
-                    teamState.trapSet = true;
-                    game.broadcast.broadcastTeamUpgrade(participant, new LiteralText("activated the base trap!"));
-                });
+
+                shop.add(ShopEntry.ofIcon(Items.REDSTONE_TORCH)
+                        .withName(new LiteralText("Activate Base Trap"))
+                        .addLore(new LiteralText("When an enemy player enters the base,"))
+                        .addLore(new LiteralText("they will receive blindness and slowness"))
+                        .withCost(trapCost)
+                        .onBuy(p -> {
+                            teamState.trapSet = true;
+                            game.broadcast.broadcastTeamUpgrade(participant, new LiteralText("activated the base trap!"));
+                        })
+                );
 
                 Cost healPoolCost = !teamState.healPool ? Cost.ofDiamonds(3) : Cost.no();
-                shop.add(Blocks.BEACON, healPoolCost, new LiteralText("Activate Heal Pool"), () -> {
-                    teamState.healPool = true;
-                    game.broadcast.broadcastTeamUpgrade(participant, new LiteralText("activated a heal pool!"));
-                });
+                shop.add(ShopEntry.ofIcon(Blocks.BEACON)
+                        .withName(new LiteralText("Activate Heal Pool"))
+                        .addLore(new LiteralText("Friendly players will receive"))
+                        .addLore(new LiteralText("regeneration in their base"))
+                        .withCost(healPoolCost)
+                        .onBuy(p -> {
+                            teamState.healPool = true;
+                            game.broadcast.broadcastTeamUpgrade(participant, new LiteralText("activated a heal pool!"));
+                        })
+                );
 
                 Cost hasteCost = !teamState.hasteEnabled ? Cost.ofDiamonds(3) : Cost.no();
-                shop.add(Items.GOLDEN_PICKAXE, hasteCost, new LiteralText("Haste"), () -> {
-                    teamState.hasteEnabled = true;
-                    game.broadcast.broadcastTeamUpgrade(participant, new LiteralText("activated haste!"));
-                });
+                shop.add(ShopEntry.ofIcon(Items.GOLDEN_PICKAXE)
+                        .withName(new LiteralText("Activate Haste"))
+                        .addLore(new LiteralText("All team members will get"))
+                        .addLore(new LiteralText("a permanent haste effect"))
+                        .withCost(hasteCost)
+                        .onBuy(p -> {
+                            teamState.hasteEnabled = true;
+                            game.broadcast.broadcastTeamUpgrade(participant, new LiteralText("activated haste!"));
+                        })
+                );
 
                 int sharpness = teamState.swordSharpness;
                 int nextSharpness = Math.min(sharpness + 1, BwActive.TeamState.MAX_SHARPNESS);
 
                 Cost sharpnessCost = sharpness != nextSharpness ? Cost.ofDiamonds(stagedUpgrade(4, sharpness)) : Cost.no();
-                shop.add(Items.DIAMOND_SWORD, sharpnessCost, new LiteralText("Sword Sharpness " + nextSharpness), () -> {
-                    teamState.swordSharpness = Math.max(nextSharpness, teamState.swordSharpness);
-                    game.teamLogic.applyEnchantments(participant.team);
-                    game.broadcast.broadcastTeamUpgrade(participant, new LiteralText("added Sword Sharpness " + teamState.swordSharpness));
-                });
+                shop.add(ShopEntry.ofIcon(Items.DIAMOND_SWORD)
+                        .withName(new LiteralText("Sword Sharpness " + nextSharpness))
+                        .addLore(new LiteralText("All team members will get"))
+                        .addLore(new LiteralText("sharpness applied to their swords"))
+                        .withCost(sharpnessCost)
+                        .onBuy(p -> {
+                            teamState.swordSharpness = Math.max(nextSharpness, teamState.swordSharpness);
+                            game.teamLogic.applyEnchantments(participant.team);
+                            game.broadcast.broadcastTeamUpgrade(participant, new LiteralText("added Sword Sharpness " + teamState.swordSharpness));
+                        })
+                );
 
                 int protection = teamState.armorProtection;
                 int nextProtection = Math.min(protection + 1, BwActive.TeamState.MAX_PROTECTION);
 
                 Cost protectionCost = protection != nextProtection ? Cost.ofDiamonds(stagedUpgrade(4, protection)) : Cost.no();
-                shop.add(Items.DIAMOND_CHESTPLATE, protectionCost, new LiteralText("Armor Protection " + nextProtection), () -> {
-                    teamState.armorProtection = Math.max(nextProtection, teamState.armorProtection);
-                    game.teamLogic.applyEnchantments(participant.team);
-                    game.broadcast.broadcastTeamUpgrade(participant, new LiteralText("added Armor Protection " + teamState.armorProtection));
-                });
+                shop.add(ShopEntry.ofIcon(Items.DIAMOND_CHESTPLATE)
+                        .withName(new LiteralText("Armor Protection " + nextProtection))
+                        .addLore(new LiteralText("All team members will get"))
+                        .addLore(new LiteralText("protection applied to their armor"))
+                        .withCost(protectionCost)
+                        .onBuy(p -> {
+                            teamState.armorProtection = Math.max(nextProtection, teamState.armorProtection);
+                            game.teamLogic.applyEnchantments(participant.team);
+                            game.broadcast.broadcastTeamUpgrade(participant, new LiteralText("added Armor Protection " + teamState.armorProtection));
+                        })
+                );
             }
 
             BwMap.TeamSpawn teamSpawn = game.map.getTeamSpawn(participant.team);
             if (teamSpawn != null) {
                 int level = teamSpawn.getLevel();
                 int nextLevel = Math.min(level + 1, BwMap.TeamSpawn.MAX_LEVEL);
-                Cost cost = level != nextLevel ? Cost.ofDiamonds(stagedUpgrade(2, level)) : Cost.no();
-                shop.add(Items.FURNACE, cost, new LiteralText("Upgrade Generator"), () -> {
-                    teamSpawn.setLevel(nextLevel);
-                    game.broadcast.broadcastTeamUpgrade(participant, new LiteralText("upgraded to Generator " + teamSpawn.getLevel()));
-                });
+                Cost generatorCost = level != nextLevel ? Cost.ofDiamonds(stagedUpgrade(2, level)) : Cost.no();
+
+                shop.add(ShopEntry.ofIcon(Blocks.FURNACE)
+                        .withName(new LiteralText("Upgrade Generator"))
+                        .addLore(new LiteralText("The generator in your team base"))
+                        .addLore(new LiteralText("will spawn items faster"))
+                        .withCost(generatorCost)
+                        .onBuy(p -> {
+                            teamSpawn.setLevel(nextLevel);
+                            game.broadcast.broadcastTeamUpgrade(participant, new LiteralText("upgraded to Generator " + teamSpawn.getLevel()));
+                        })
+                );
             }
         });
     }

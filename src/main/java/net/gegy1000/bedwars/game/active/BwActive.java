@@ -32,7 +32,7 @@ import net.gegy1000.plasmid.game.rule.RuleResult;
 import net.gegy1000.plasmid.item.CustomItem;
 import net.gegy1000.plasmid.logic.combat.OldCombat;
 import net.gegy1000.plasmid.util.ColoredBlocks;
-import net.gegy1000.plasmid.util.ItemUtil;
+import net.gegy1000.plasmid.util.ItemStackBuilder;
 import net.gegy1000.plasmid.world.BlockBounds;
 import net.minecraft.block.AbstractChestBlock;
 import net.minecraft.block.BlockState;
@@ -132,6 +132,7 @@ public final class BwActive {
         builder.setRule(GameRule.INSTANT_LIGHT_TNT, RuleResult.ALLOW);
         builder.setRule(GameRule.ALLOW_CRAFTING, RuleResult.DENY);
         builder.setRule(GameRule.FALL_DAMAGE, RuleResult.ALLOW);
+        builder.setRule(GameRule.ENABLE_HUNGER, RuleResult.DENY);
         builder.setRule(BedWars.BLAST_PROOF_GLASS_RULE, RuleResult.ALLOW);
 
         builder.on(GameOpenListener.EVENT, active::open);
@@ -488,11 +489,11 @@ public final class BwActive {
     }
 
     public ItemStack createArmor(ItemStack stack) {
-        return ItemUtil.unbreakable(stack);
+        return ItemStackBuilder.of(stack).setUnbreakable().build();
     }
 
     public ItemStack createTool(ItemStack stack) {
-        stack = ItemUtil.unbreakable(stack);
+        stack = ItemStackBuilder.of(stack).setUnbreakable().build();
         if (this.config.getCombatConfig().isOldMechanics()) {
             stack = OldCombat.applyTo(stack);
         }

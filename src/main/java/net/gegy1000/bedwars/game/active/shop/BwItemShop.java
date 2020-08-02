@@ -8,9 +8,10 @@ import net.gegy1000.bedwars.game.active.upgrade.Upgrade;
 import net.gegy1000.bedwars.game.active.upgrade.UpgradeType;
 import net.gegy1000.plasmid.shop.Cost;
 import net.gegy1000.plasmid.shop.ShopBuilder;
+import net.gegy1000.plasmid.shop.ShopEntry;
 import net.gegy1000.plasmid.shop.ShopUi;
 import net.gegy1000.plasmid.util.ColoredBlocks;
-import net.gegy1000.plasmid.util.ItemUtil;
+import net.gegy1000.plasmid.util.ItemStackBuilder;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
@@ -29,8 +30,12 @@ public final class BwItemShop {
                 DyeColor color = participant.team.getDye();
                 shop.addItem(new ItemStack(ColoredBlocks.wool(color), 16), Cost.ofIron(4));
                 shop.addItem(new ItemStack(ColoredBlocks.terracotta(color), 16), Cost.ofIron(16));
-                ItemStack glass = new ItemStack(ColoredBlocks.glass(color), 4);
-                glass.setCustomName(new LiteralText("Shatterproof Glass"));
+
+                ItemStack glass = ItemStackBuilder.of(ColoredBlocks.glass(color))
+                        .setName(new LiteralText("Shatterproof Glass"))
+                        .setCount(4)
+                        .build();
+
                 shop.addItem(glass, Cost.ofIron(12));
             }
 
@@ -41,12 +46,15 @@ public final class BwItemShop {
             shop.addItem(new ItemStack(Items.COBWEB, 4), Cost.ofGold(8));
             shop.addItem(new ItemStack(Items.SCAFFOLDING, 8), Cost.ofGold(4));
 
-            shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.SHIELD)), Cost.ofGold(10));
-            shop.addItem(ItemUtil.unbreakable(new ItemStack(Items.BOW)), Cost.ofGold(20));
-            shop.addItem(new ItemStack(Items.ARROW, 2), Cost.ofGold(1));
+            shop.addItem(ItemStackBuilder.of(Items.SHIELD).setUnbreakable().build(), Cost.ofGold(10));
+            shop.addItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().build(), Cost.ofGold(20));
+            shop.addItem(new ItemStack(Items.ARROW, 4), Cost.ofGold(2));
 
-            ItemStack trident = ItemUtil.unbreakable(new ItemStack(Items.TRIDENT));
-            trident.addEnchantment(Enchantments.LOYALTY, 1);
+            ItemStack trident = ItemStackBuilder.of(Items.TRIDENT)
+                    .setUnbreakable()
+                    .addEnchantment(Enchantments.LOYALTY, 1)
+                    .build();
+
             shop.addItem(trident, Cost.ofEmeralds(6));
 
             shop.addItem(new ItemStack(Blocks.TNT), Cost.ofGold(8));
@@ -81,13 +89,16 @@ public final class BwItemShop {
 
         T nextUpgrade = type.forLevel(nextLevel);
         if (nextUpgrade != null) {
-            shop.add(nextUpgrade.getIcon(), nextUpgrade.getCost(), name, () -> {
-                upgrades.applyLevel(type, nextLevel);
-            });
+            shop.add(ShopEntry.ofIcon(nextUpgrade.getIcon())
+                    .withName(name)
+                    .withCost(nextUpgrade.getCost())
+                    .onBuy(p -> {
+                        upgrades.applyLevel(type, nextLevel);
+                    }));
         } else {
             T currentUpgrade = type.forLevel(currentLevel);
             if (currentUpgrade != null) {
-                shop.add(currentUpgrade.getIcon(), Cost.no(), name, () -> {});
+                shop.add(ShopEntry.ofIcon(currentUpgrade.getIcon()).withName(name));
             }
         }
     }

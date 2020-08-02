@@ -25,7 +25,7 @@ dependencies {
 
 	implementation 'com.google.code.findbugs:jsr305:3.0.1'
 
-	modImplementation 'net.gegy1000:plasmid:0.1.0+build.10'
+	modImplementation 'net.gegy1000:plasmid:0.1.0+build.15'
 
 	implementation 'kdotjpg:open-simplex:2.0'
 	include 'kdotjpg:open-simplex:2.0'

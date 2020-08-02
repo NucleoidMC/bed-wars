@@ -5,7 +5,6 @@ import net.gegy1000.bedwars.game.BwMap;
 import net.gegy1000.plasmid.util.ItemUtil;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.player.HungerManager;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
@@ -31,11 +30,6 @@ public final class BwPlayerLogic {
         this.game.participants().forEach(participant -> {
             ServerPlayerEntity player = participant.player();
             if (player == null) return;
-
-            HungerManager hungerManager = player.getHungerManager();
-            if (hungerManager.isNotFull()) {
-                hungerManager.setFoodLevel(20);
-            }
 
             if (participant.isRespawning() && time >= participant.respawnTime) {
                 this.spawnPlayer(player, participant.respawningAt);
