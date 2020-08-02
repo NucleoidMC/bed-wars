@@ -136,7 +136,7 @@ public final class BwScoreboard implements AutoCloseable {
                 String descriptionFormat = Formatting.RESET.toString() + Formatting.RED.toString();
 
                 String name = teamState.team.getDisplay();
-                lines.add("  " + nameFormat + name + ": " + descriptionFormat + "eliminated!");
+                lines.add("  " + nameFormat + name + descriptionFormat + ": eliminated!");
             }
         });
 

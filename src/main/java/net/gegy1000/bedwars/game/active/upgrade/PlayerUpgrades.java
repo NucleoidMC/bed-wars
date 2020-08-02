@@ -41,6 +41,7 @@ public final class PlayerUpgrades {
 
             Upgrade upgrade = type.forLevel(level);
             if (upgrade != null) {
+                upgrade.removeFrom(this.game, player);
                 upgrade.applyTo(this.game, player, this.participant);
             }
         }

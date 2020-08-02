@@ -184,13 +184,13 @@ public final class BwActive {
                 return;
             }
 
+            this.spawnLogic.resetPlayer(player, GameMode.SPECTATOR);
+
             BwMap.TeamSpawn spawn = this.teamLogic.tryRespawn(participant);
             if (spawn != null) {
                 this.playerLogic.spawnPlayer(player, spawn);
             } else {
                 BedWars.LOGGER.warn("No spawn for player {}", participant.playerId);
-
-                this.spawnLogic.resetPlayer(player, GameMode.SPECTATOR);
                 this.spawnLogic.spawnAtCenter(player);
             }
         });

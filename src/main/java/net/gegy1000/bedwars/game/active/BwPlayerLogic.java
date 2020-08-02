@@ -59,11 +59,11 @@ public final class BwPlayerLogic {
 
         if (!this.game.config.shouldKeepInventory()) {
             player.inventory.clear();
+        }
 
-            BwParticipant participant = this.game.getParticipant(player);
-            if (participant != null) {
-                this.equipDefault(player, participant);
-            }
+        BwParticipant participant = this.game.getParticipant(player);
+        if (participant != null) {
+            this.equipDefault(player, participant);
         }
 
         spawn.placePlayer(player, this.game.map.getWorld());
