@@ -1,7 +1,6 @@
 package net.gegy1000.bedwars.game.active;
 
 import com.google.common.collect.Sets;
-import net.gegy1000.bedwars.BedWars;
 import net.gegy1000.bedwars.game.BwMap;
 import net.gegy1000.bedwars.game.active.modifiers.BwGameTriggers;
 import net.gegy1000.bedwars.game.active.upgrade.UpgradeType;
@@ -98,8 +97,8 @@ public final class BwKillLogic {
     private void onFinalDeath(BwParticipant participant, ServerPlayerEntity player) {
         this.dropEnderChest(player, participant);
 
-        BedWars.resetPlayer(player, GameMode.SPECTATOR);
-        this.game.map.spawnAtCenter(player);
+        this.game.spawnLogic.resetPlayer(player, GameMode.SPECTATOR);
+        this.game.spawnLogic.spawnAtCenter(player);
 
         this.game.winStateLogic.eliminatePlayer(participant);
 

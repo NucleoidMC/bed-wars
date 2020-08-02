@@ -7,6 +7,7 @@ import net.gegy1000.bedwars.custom.BwCustomItems;
 import net.gegy1000.bedwars.custom.BwFireballEntity;
 import net.gegy1000.bedwars.game.BwConfig;
 import net.gegy1000.bedwars.game.BwMap;
+import net.gegy1000.bedwars.game.BwSpawnLogic;
 import net.gegy1000.bedwars.game.active.modifiers.BwGameTriggers;
 import net.gegy1000.bedwars.game.active.modifiers.GameModifier;
 import net.gegy1000.bedwars.game.active.modifiers.GameTrigger;
@@ -25,6 +26,7 @@ import net.gegy1000.gl.game.event.PlayerDeathListener;
 import net.gegy1000.gl.game.event.PlayerRejoinListener;
 import net.gegy1000.gl.game.event.UseBlockListener;
 import net.gegy1000.gl.game.event.UseItemListener;
+import net.gegy1000.gl.game.map.GameMap;
 import net.gegy1000.gl.game.rule.GameRule;
 import net.gegy1000.gl.game.rule.RuleResult;
 import net.gegy1000.gl.item.CustomItem;
@@ -87,6 +89,7 @@ public final class BwActive {
     public final BwWinStateLogic winStateLogic;
     public final BwMapLogic mapLogic;
     public final BwPlayerLogic playerLogic;
+    public final BwSpawnLogic spawnLogic;
 
     private long startTime;
     private boolean destroyedBeds;
@@ -98,8 +101,8 @@ public final class BwActive {
 
     private boolean closed;
 
-    private BwActive(BwMap map, BwConfig config) {
-        this.map = map;
+    private BwActive(GameMap map, BwConfig config) {
+        this.map = BwMap.open(map, config);
         this.config = config;
 
         this.scoreboard = BwScoreboard.create(this);
@@ -110,9 +113,10 @@ public final class BwActive {
         this.winStateLogic = new BwWinStateLogic(this);
         this.mapLogic = new BwMapLogic(this);
         this.playerLogic = new BwPlayerLogic(this);
+        this.spawnLogic = new BwSpawnLogic(map);
     }
 
-    public static Game open(BwMap map, BwConfig config, Multimap<GameTeam, ServerPlayerEntity> players) {
+    public static Game open(GameMap map, BwConfig config, Multimap<GameTeam, ServerPlayerEntity> players) {
         BwActive active = new BwActive(map, config);
         active.addPlayers(players);
 
@@ -121,7 +125,7 @@ public final class BwActive {
         }
 
         Game.Builder builder = Game.builder();
-        builder.setMap(map.asInner());
+        builder.setMap(map);
 
         builder.setRule(GameRule.ALLOW_PORTALS, RuleResult.DENY);
         builder.setRule(GameRule.ALLOW_PVP, RuleResult.ALLOW);
@@ -184,8 +188,8 @@ public final class BwActive {
             } else {
                 BedWars.LOGGER.warn("No spawn for player {}", participant.playerId);
 
-                BedWars.resetPlayer(player, GameMode.SPECTATOR);
-                this.map.spawnAtCenter(player);
+                this.spawnLogic.respawnPlayer(player, GameMode.SPECTATOR);
+                this.spawnLogic.spawnAtCenter(player);
             }
         });
 
@@ -201,10 +205,8 @@ public final class BwActive {
             return;
         }
 
-        BedWars.resetPlayer(player, GameMode.SPECTATOR);
-        player.getEnderChestInventory().clear();
-
-        this.map.spawnAtCenter(player);
+        this.spawnLogic.resetPlayer(player, GameMode.SPECTATOR);
+        this.spawnLogic.spawnAtCenter(player);
     }
 
     private void rejoinPlayer(Game game, ServerPlayerEntity player) {
@@ -215,8 +217,8 @@ public final class BwActive {
             if (spawn != null) {
                 this.playerLogic.respawnOnTimer(player, spawn);
             } else {
-                BedWars.resetPlayer(player, GameMode.SPECTATOR);
-                this.map.spawnAtCenter(player);
+                this.spawnLogic.respawnPlayer(player, GameMode.SPECTATOR);
+                this.spawnLogic.spawnAtCenter(player);
             }
 
             this.scoreboard.markDirty();
@@ -224,7 +226,7 @@ public final class BwActive {
     }
 
     private boolean onBreakBlock(Game game, ServerPlayerEntity player, BlockPos pos) {
-        if (this.map.contains(pos) && this.map.isProtectedBlock(pos)) {
+        if (game.containsPos(pos) && this.map.isProtectedBlock(pos)) {
             for (GameTeam team : this.config.getTeams()) {
                 BlockBounds bed = this.map.getTeamRegions(team).bed;
                 if (bed != null && bed.contains(pos)) {
@@ -258,9 +260,9 @@ public final class BwActive {
 
         BwParticipant participant = this.getParticipant(player);
         if (participant != null) {
-            if (this.map.contains(pos)) {
+            if (game.containsPos(pos)) {
                 if (player.getStackInHand(hand).getItem() == Items.FIRE_CHARGE) {
-                    return ActionResult.PASS;
+                    return ActionResult.CONSUME;
                 }
 
                 BlockState state = this.map.getWorld().getBlockState(pos);
@@ -481,8 +483,6 @@ public final class BwActive {
 
         this.closed = true;
         this.scoreboard.close();
-
-        // TODO: async?
         this.map.delete();
     }
 

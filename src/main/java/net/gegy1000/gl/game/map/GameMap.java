@@ -14,8 +14,10 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 public final class GameMap {
     static final int SET_BLOCK_FLAGS = 0b0110011;
@@ -54,6 +56,17 @@ public final class GameMap {
 
     public List<GameRegion> getRegions() {
         return this.regions;
+    }
+
+    public Stream<BlockBounds> getRegions(String key) {
+        return this.regions.stream()
+                .filter(region -> region.getMarker().equals(key))
+                .map(GameRegion::getBounds);
+    }
+
+    @Nullable
+    public BlockBounds getFirstRegion(String key) {
+        return this.getRegions(key).findFirst().orElse(null);
     }
 
     public boolean isProtectedBlock(BlockPos pos) {

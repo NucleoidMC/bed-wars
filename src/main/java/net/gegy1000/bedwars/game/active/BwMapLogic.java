@@ -22,7 +22,9 @@ public final class BwMapLogic {
     public void tick() {
         ServerWorld world = this.game.map.getWorld();
 
-        this.game.map.generators().forEach(generator -> generator.tick(world, this.game));
+        for (BwItemGenerator generator : this.game.map.getGenerators()) {
+            generator.tick(world, this.game);
+        }
 
         if (world.getTime() % 20 == 0) {
             this.game.teams().forEach(team -> {

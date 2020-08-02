@@ -1,95 +1,68 @@
 package net.gegy1000.bedwars.game;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 import net.gegy1000.bedwars.BedWars;
 import net.gegy1000.bedwars.custom.ShopVillagerEntity;
 import net.gegy1000.bedwars.game.active.BwActive;
-import net.gegy1000.bedwars.game.active.GeneratorPool;
-import net.gegy1000.gl.entity.FloatingText;
+import net.gegy1000.bedwars.game.active.BwItemGenerator;
+import net.gegy1000.bedwars.game.active.ItemGeneratorPool;
 import net.gegy1000.gl.game.GameTeam;
-import net.gegy1000.gl.game.config.GameMapConfig;
 import net.gegy1000.gl.game.map.GameMap;
 import net.gegy1000.gl.world.BlockBounds;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.s2c.play.ItemPickupAnimationS2CPacket;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.Heightmap;
 import net.minecraft.world.LocalDifficulty;
-import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Stream;
 
-// TODO: Map should not hold state! For generators it should just store the location
 public final class BwMap {
     private final ServerWorld world;
     private final GameMap map;
-    private final Multimap<String, BlockBounds> regions = HashMultimap.create();
 
     private final Map<GameTeam, TeamSpawn> teamSpawns = new HashMap<>();
     private final Map<GameTeam, TeamRegions> teamRegions = new HashMap<>();
 
-    private final Collection<Generator> generators = new ArrayList<>();
+    private final Collection<BwItemGenerator> generators = new ArrayList<>();
 
-    private BwMap(ServerWorld world, GameMap map) {
-        this.world = world;
+    private BwMap(GameMap map) {
+        this.world = map.getWorld();
         this.map = map;
     }
 
-    public static CompletableFuture<BwMap> create(MinecraftServer server, BwConfig config) {
-        GameMapConfig<BwConfig> mapConfig = config.getMapConfig();
-        RegistryKey<World> dimension = mapConfig.getDimension();
-        ServerWorld world = server.getWorld(dimension);
-
-        return mapConfig.getProvider().createAt(world, mapConfig.getOrigin(), config)
-                .thenApplyAsync(map -> {
-                    BwMap bwMap = new BwMap(world, map);
-                    bwMap.initializeMap(config);
-                    return bwMap;
-                }, server);
+    public static BwMap open(GameMap map, BwConfig config) {
+        BwMap bwMap = new BwMap(map);
+        bwMap.initializeMap(config);
+        return bwMap;
     }
 
     private void initializeMap(BwConfig config) {
-        this.map.getRegions().forEach(region -> {
-            String marker = region.getMarker();
-            this.regions.put(marker, region.getBounds());
+        this.map.getRegions("diamond_spawn").forEach(bounds -> {
+            this.generators.add(new BwItemGenerator(bounds)
+                    .setPool(ItemGeneratorPool.DIAMOND)
+                    .maxItems(6)
+                    .addTimerText()
+            );
         });
 
-        this.getRegions("diamond_spawn").forEach(bounds -> {
-            this.generators.add(new Generator(bounds).setPool(GeneratorPool.DIAMOND).maxItems(6).addTimerText());
-        });
-
-        this.getRegions("emerald_spawn").forEach(bounds -> {
-            this.generators.add(new Generator(bounds).setPool(GeneratorPool.EMERALD).maxItems(3).addTimerText());
+        this.map.getRegions("emerald_spawn").forEach(bounds -> {
+            this.generators.add(new BwItemGenerator(bounds)
+                    .setPool(ItemGeneratorPool.EMERALD)
+                    .maxItems(3)
+                    .addTimerText()
+            );
         });
 
         for (GameTeam team : config.getTeams()) {
-            TeamRegions regions = TeamRegions.read(team, this);
+            TeamRegions regions = TeamRegions.read(team, this.map);
 
             if (regions.spawn != null) {
                 TeamSpawn teamSpawn = new TeamSpawn(regions.spawn);
@@ -108,20 +81,20 @@ public final class BwMap {
             TeamRegions regions = this.getTeamRegions(team);
 
             if (regions.teamShop != null) {
-                this.trySpawn(ShopVillagerEntity.team(this.world, game), regions.teamShop);
+                this.trySpawnEntity(ShopVillagerEntity.team(this.world, game), regions.teamShop);
             } else {
                 BedWars.LOGGER.warn("Missing team shop for {}", team.getDisplay());
             }
 
             if (regions.itemShop != null) {
-                this.trySpawn(ShopVillagerEntity.item(this.world, game), regions.itemShop);
+                this.trySpawnEntity(ShopVillagerEntity.item(this.world, game), regions.itemShop);
             } else {
                 BedWars.LOGGER.warn("Missing item shop for {}", team.getDisplay());
             }
         }
     }
 
-    private boolean trySpawn(Entity entity, BlockBounds bounds) {
+    private boolean trySpawnEntity(Entity entity, BlockBounds bounds) {
         Vec3d center = bounds.getCenter();
 
         entity.refreshPositionAndAngles(center.x, bounds.getMin().getY(), center.z, 0.0F, 0.0F);
@@ -155,66 +128,31 @@ public final class BwMap {
         return this.teamRegions.getOrDefault(team, TeamRegions.EMPTY);
     }
 
-    public Stream<TeamSpawn> teamSpawns() {
-        return this.teamSpawns.values().stream();
+    public Collection<BwItemGenerator> getGenerators() {
+        return this.generators;
     }
 
-    public Stream<Generator> generators() {
-        return this.generators.stream();
-    }
-
-    public Collection<BlockBounds> getRegions(String key) {
-        return this.regions.get(key);
-    }
-
-    @Nullable
-    public BlockBounds getFirstRegion(String key) {
-        Iterator<BlockBounds> iterator = this.regions.get(key).iterator();
-        return iterator.hasNext() ? iterator.next() : null;
-    }
-
-    public boolean contains(BlockPos pos) {
-        return this.map.getBounds().contains(pos);
-    }
-
-    public CompletableFuture<Void> delete() {
-        this.generators.forEach(Generator::remove);
-
-        return this.map.delete();
+    public void delete() {
+        for (BwItemGenerator generator : this.generators) {
+            generator.remove();
+        }
     }
 
     public boolean isProtectedBlock(BlockPos pos) {
         return this.map.isProtectedBlock(pos);
     }
 
-    public Vec3d getCenter() {
-        return this.map.getBounds().getCenter();
-    }
-
-    public void spawnAtCenter(ServerPlayerEntity player) {
-        ServerWorld world = this.map.getWorld();
-
-        BlockPos center = new BlockPos(this.getCenter());
-        int topY = world.getTopY(Heightmap.Type.MOTION_BLOCKING, center.getX(), center.getZ());
-
-        player.teleport(world, center.getX() + 0.5, topY + 0.5, center.getZ() + 0.5, 0.0F, 0.0F);
-    }
-
-    public GameMap asInner() {
-        return this.map;
-    }
-
     public static class TeamSpawn {
         public static final int MAX_LEVEL = 3;
 
         private final BlockBounds region;
-        private final Generator generator;
+        private final BwItemGenerator generator;
 
         private int level = 1;
 
         TeamSpawn(BlockBounds region) {
             this.region = region;
-            this.generator = new Generator(region)
+            this.generator = new BwItemGenerator(region)
                     .setPool(poolForLevel(this.level))
                     .maxItems(64)
                     .allowDuplication();
@@ -236,162 +174,15 @@ public final class BwMap {
             return this.level;
         }
 
-        private static GeneratorPool poolForLevel(int level) {
+        private static ItemGeneratorPool poolForLevel(int level) {
             if (level == 1) {
-                return GeneratorPool.TEAM_LVL_1;
+                return ItemGeneratorPool.TEAM_LVL_1;
             } else if (level == 2) {
-                return GeneratorPool.TEAM_LVL_2;
+                return ItemGeneratorPool.TEAM_LVL_2;
             } else if (level == 3) {
-                return GeneratorPool.TEAM_LVL_3;
+                return ItemGeneratorPool.TEAM_LVL_3;
             }
-            return GeneratorPool.TEAM_LVL_1;
-        }
-    }
-
-    public static class Generator {
-        private final BlockBounds bounds;
-        private GeneratorPool pool;
-
-        private long lastItemSpawn;
-
-        private int maxItems = 4;
-        private boolean allowDuplication;
-
-        private boolean hasTimerText;
-        private FloatingText timerText;
-
-        public Generator(BlockBounds bounds) {
-            this.bounds = bounds;
-        }
-
-        public Generator setPool(GeneratorPool pool) {
-            this.pool = pool;
-            return this;
-        }
-
-        public Generator allowDuplication() {
-            this.allowDuplication = true;
-            return this;
-        }
-
-        public Generator maxItems(int maxItems) {
-            this.maxItems = maxItems;
-            return this;
-        }
-
-        public Generator addTimerText() {
-            this.hasTimerText = true;
-            return this;
-        }
-
-        public void tick(ServerWorld world, BwActive game) {
-            if (this.pool == null) return;
-
-            long time = world.getTime();
-
-            if (this.hasTimerText) {
-                this.tickTimerText(world);
-            }
-
-            if (time - this.lastItemSpawn > this.pool.getSpawnInterval()) {
-                this.spawnItems(world, game);
-                this.lastItemSpawn = time;
-            }
-        }
-
-        private void tickTimerText(ServerWorld world) {
-            long time = world.getTime();
-
-            if (this.timerText == null) {
-                Vec3d textPos = this.bounds.getCenter();
-                textPos = textPos.add(0.0, 2.0, 0.0);
-
-                this.timerText = FloatingText.spawn(world, textPos, this.getTimerText(time));
-            }
-
-            if (this.timerText != null && time % 20 == 0) {
-                this.timerText.setText(this.getTimerText(time));
-            }
-        }
-
-        private Text getTimerText(long time) {
-            long timeSinceSpawn = time - this.lastItemSpawn;
-
-            long timeUntilSpawn = this.pool.getSpawnInterval() - timeSinceSpawn;
-            timeUntilSpawn = Math.max(0, timeUntilSpawn);
-
-            // TODO: duplication with scoreboard
-            long seconds = (timeUntilSpawn / 20) % 60;
-            long minutes = timeUntilSpawn / (20 * 60);
-
-            Formatting titleFormatting = Formatting.GOLD;
-
-            Formatting numberFormatting = Formatting.WHITE;
-
-            long secondsUntilSpawn = timeUntilSpawn / 20;
-            if (secondsUntilSpawn < 5) {
-                if ((secondsUntilSpawn & 1) == 0) {
-                    numberFormatting = Formatting.AQUA;
-                }
-            }
-
-            MutableText titleText = new LiteralText("Next spawn in: ");
-            MutableText numberText = new LiteralText(String.format("%02d:%02d", minutes, seconds));
-
-            return titleText.formatted(titleFormatting).append(numberText.formatted(numberFormatting));
-        }
-
-        private void spawnItems(ServerWorld world, BwActive game) {
-            Random random = world.random;
-            ItemStack stack = this.pool.sample(random).copy();
-
-            Box box = this.bounds.toBox();
-
-            int itemCount = 0;
-            for (ItemEntity entity : world.getEntities(EntityType.ITEM, box.expand(1.0), entity -> true)) {
-                itemCount += entity.getStack().getCount();
-            }
-
-            if (itemCount >= this.maxItems) {
-                return;
-            }
-
-            Box spawnBox = box.expand(-0.5, 0.0, -0.5);
-            double x = spawnBox.minX + (spawnBox.maxX - spawnBox.minX) * random.nextDouble();
-            double y = spawnBox.minY + 0.5;
-            double z = spawnBox.minZ + (spawnBox.maxZ - spawnBox.minZ) * random.nextDouble();
-
-            ItemEntity itemEntity = new ItemEntity(world, x, y, z, stack);
-            itemEntity.setVelocity(Vec3d.ZERO);
-
-            if (this.allowDuplication) {
-                if (this.giveItems(world, game, itemEntity)) {
-                    return;
-                }
-            }
-
-            world.spawnEntity(itemEntity);
-        }
-
-        private boolean giveItems(ServerWorld world, BwActive game, ItemEntity entity) {
-            List<ServerPlayerEntity> players = world.getEntities(ServerPlayerEntity.class, this.bounds.toBox(), game::isParticipant);
-            for (ServerPlayerEntity player : players) {
-                ItemStack stack = entity.getStack();
-
-                player.giveItemStack(stack.copy());
-                player.networkHandler.sendPacket(entity.createSpawnPacket());
-                player.networkHandler.sendPacket(new ItemPickupAnimationS2CPacket(entity.getEntityId(), player.getEntityId(), stack.getCount()));
-
-                player.inventory.markDirty();
-            }
-
-            return !players.isEmpty();
-        }
-
-        public void remove() {
-            if (this.timerText != null) {
-                this.timerText.remove();
-            }
+            return ItemGeneratorPool.TEAM_LVL_1;
         }
     }
 
@@ -414,7 +205,7 @@ public final class BwMap {
             this.teamChest = teamChest;
         }
 
-        static TeamRegions read(GameTeam team, BwMap map) {
+        static TeamRegions read(GameTeam team, GameMap map) {
             String teamKey = team.getKey();
 
             // TODO: consolidate the team tags and check for ones contained within the team_base

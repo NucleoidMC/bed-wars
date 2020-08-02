@@ -1,7 +1,6 @@
 package net.gegy1000.bedwars.game.active;
 
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
-import net.gegy1000.bedwars.BedWars;
 import net.gegy1000.bedwars.game.BwMap;
 import net.gegy1000.gl.util.ItemUtil;
 import net.minecraft.enchantment.Enchantment;
@@ -62,7 +61,7 @@ public final class BwPlayerLogic {
     }
 
     public void spawnPlayer(ServerPlayerEntity player, BwMap.TeamSpawn spawn) {
-        BedWars.resetPlayer(player, GameMode.SURVIVAL);
+        this.game.spawnLogic.respawnPlayer(player, GameMode.SURVIVAL);
 
         BwParticipant participant = this.game.getParticipant(player);
         if (participant != null) {
@@ -104,8 +103,8 @@ public final class BwPlayerLogic {
     }
 
     public void respawnOnTimer(ServerPlayerEntity player, BwMap.TeamSpawn spawn) {
-        BedWars.resetPlayer(player, GameMode.SPECTATOR);
-        this.game.map.spawnAtCenter(player);
+        this.game.spawnLogic.respawnPlayer(player, GameMode.SPECTATOR);
+        this.game.spawnLogic.spawnAtCenter(player);
 
         BwParticipant participant = this.game.getParticipant(player);
         if (participant != null) {

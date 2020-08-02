@@ -9,12 +9,12 @@ import net.gegy1000.gl.game.GameTeam;
 import net.gegy1000.gl.game.JoinResult;
 import net.gegy1000.gl.game.StartResult;
 import net.gegy1000.gl.game.config.PlayerConfig;
-import net.gegy1000.gl.game.event.GameCloseListener;
 import net.gegy1000.gl.game.event.OfferPlayerListener;
 import net.gegy1000.gl.game.event.PlayerAddListener;
 import net.gegy1000.gl.game.event.PlayerDeathListener;
 import net.gegy1000.gl.game.event.RequestStartListener;
 import net.gegy1000.gl.game.event.UseItemListener;
+import net.gegy1000.gl.game.map.GameMap;
 import net.gegy1000.gl.game.player.TeamAllocator;
 import net.gegy1000.gl.game.rule.GameRule;
 import net.gegy1000.gl.game.rule.RuleResult;
@@ -40,21 +40,25 @@ import java.util.UUID;
 public final class BwWaiting {
     private static final String TEAM_KEY = BedWars.ID + ":team";
 
-    private final BwMap map;
+    private final GameMap map;
     private final BwConfig config;
+
+    private final BwSpawnLogic spawnLogic;
 
     private final Map<UUID, GameTeam> requestedTeams = new HashMap<>();
 
-    private BwWaiting(BwMap map, BwConfig config) {
+    private BwWaiting(GameMap map, BwConfig config) {
         this.map = map;
         this.config = config;
+
+        this.spawnLogic = new BwSpawnLogic(map);
     }
 
-    public static Game build(BwMap map, BwConfig config) {
+    public static Game build(GameMap map, BwConfig config) {
         BwWaiting waiting = new BwWaiting(map, config);
 
         Game.Builder builder = Game.builder();
-        builder.setMap(map.asInner());
+        builder.setMap(map);
 
         builder.setRule(GameRule.ALLOW_PVP, RuleResult.DENY);
         builder.setRule(GameRule.ALLOW_CRAFTING, RuleResult.DENY);
@@ -66,11 +70,6 @@ public final class BwWaiting {
         builder.on(PlayerDeathListener.EVENT, waiting::onPlayerDeath);
 
         builder.on(UseItemListener.EVENT, waiting::onUseItem);
-
-        // TODO: should the root Game be responsible for deleting the map?
-        builder.on(GameCloseListener.EVENT, game -> {
-            waiting.map.delete();
-        });
 
         return builder.build();
     }
@@ -127,10 +126,8 @@ public final class BwWaiting {
     }
 
     private void spawnPlayer(ServerPlayerEntity player) {
-        BedWars.resetPlayer(player, GameMode.ADVENTURE);
-        player.getEnderChestInventory().clear();
-
-        this.map.spawnAtCenter(player);
+        this.spawnLogic.resetPlayer(player, GameMode.ADVENTURE);
+        this.spawnLogic.spawnAtCenter(player);
 
         List<GameTeam> teams = this.config.getTeams();
         for (int i = 0; i < teams.size(); i++) {

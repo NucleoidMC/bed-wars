@@ -138,6 +138,8 @@ public final class Game {
                 entry.getValue().restore(player);
             }
         }
+
+        this.map.delete();
     }
 
     @SuppressWarnings("unchecked")
