@@ -24,7 +24,6 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -150,15 +149,10 @@ public final class BwWaiting {
     private Multimap<GameTeam, ServerPlayerEntity> allocatePlayers(Game game) {
         TeamAllocator<GameTeam, ServerPlayerEntity> allocator = new TeamAllocator<>(this.config.getTeams());
 
-        ServerWorld world = game.getWorld();
-
-        for (UUID uuid : game.getPlayers()) {
-            ServerPlayerEntity player = (ServerPlayerEntity) world.getPlayerByUuid(uuid);
-            if (player != null) {
-                GameTeam requestedTeam = this.requestedTeams.get(uuid);
-                allocator.add(player, requestedTeam);
-            }
-        }
+        game.onlinePlayers().forEach(player -> {
+            GameTeam requestedTeam = this.requestedTeams.get(player.getUuid());
+            allocator.add(player, requestedTeam);
+        });
 
         return allocator.build();
     }

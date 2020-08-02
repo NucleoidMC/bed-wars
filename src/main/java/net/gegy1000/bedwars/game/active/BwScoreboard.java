@@ -89,7 +89,7 @@ public final class BwScoreboard implements AutoCloseable {
             if (scoreboardTeam == null) {
                 scoreboardTeam = scoreboard.addTeam(teamKey);
                 scoreboardTeam.setColor(team.getFormatting());
-                scoreboardTeam.setCollisionRule(AbstractTeam.CollisionRule.PUSH_OTHER_TEAMS);
+                scoreboardTeam.setCollisionRule(AbstractTeam.CollisionRule.NEVER);
             }
             return scoreboardTeam;
         });
