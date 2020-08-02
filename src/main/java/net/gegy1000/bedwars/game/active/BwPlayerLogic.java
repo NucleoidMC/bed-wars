@@ -55,15 +55,15 @@ public final class BwPlayerLogic {
     }
 
     public void spawnPlayer(ServerPlayerEntity player, BwMap.TeamSpawn spawn) {
-        if (!this.game.config.shouldKeepInventory()) {
-            player.inventory.clear();
-        }
-
         this.game.spawnLogic.respawnPlayer(player, GameMode.SURVIVAL);
 
-        BwParticipant participant = this.game.getParticipant(player);
-        if (participant != null) {
-            this.equipDefault(player, participant);
+        if (!this.game.config.shouldKeepInventory()) {
+            player.inventory.clear();
+
+            BwParticipant participant = this.game.getParticipant(player);
+            if (participant != null) {
+                this.equipDefault(player, participant);
+            }
         }
 
         spawn.placePlayer(player, this.game.map.getWorld());
