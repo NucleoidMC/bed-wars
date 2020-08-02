@@ -179,14 +179,20 @@ public final class NoiseIslandGen {
 
             // Get a random pos
             BlockPos pos = surfaceBlocks.get(random.nextInt(surfaceBlocks.size()));
+
+            // Remove this position
+            surfaceBlocks.remove(pos);
+
+            // Lazy way of making sure trees and spawners don't conflict
+            if (pos.getX() == this.origin.getX() && pos.getZ() == this.origin.getZ()) {
+                continue;
+            }
+
             if (useAspenTrees) {
                 new AspenTreeGen(pos.up()).addTo(builder);
             } else {
                 new TreeGen(pos.up()).addTo(builder);
             }
-
-            // Remove this position
-            surfaceBlocks.remove(pos);
         }
 
         for (int i = 0; i < grassAmt; i++) {
