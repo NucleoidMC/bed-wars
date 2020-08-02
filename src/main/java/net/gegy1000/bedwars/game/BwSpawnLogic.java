@@ -14,6 +14,7 @@ public final class BwSpawnLogic {
         this.map = map;
     }
 
+    // TODO: resetting inventory should be handled by the Game instance
     public void resetPlayer(ServerPlayerEntity player, GameMode gameMode) {
         player.getEnderChestInventory().clear();
         this.respawnPlayer(player, gameMode);

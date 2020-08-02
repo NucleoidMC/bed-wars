@@ -62,6 +62,7 @@ public final class BwWaiting {
 
         builder.setRule(GameRule.ALLOW_PVP, RuleResult.DENY);
         builder.setRule(GameRule.ALLOW_CRAFTING, RuleResult.DENY);
+        builder.setRule(GameRule.FALL_DAMAGE, RuleResult.DENY);
 
         builder.on(RequestStartListener.EVENT, waiting::requestStart);
         builder.on(OfferPlayerListener.EVENT, waiting::offerPlayer);

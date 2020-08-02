@@ -131,6 +131,7 @@ public final class BwActive {
         builder.setRule(GameRule.ALLOW_PVP, RuleResult.ALLOW);
         builder.setRule(GameRule.INSTANT_LIGHT_TNT, RuleResult.ALLOW);
         builder.setRule(GameRule.ALLOW_CRAFTING, RuleResult.DENY);
+        builder.setRule(GameRule.FALL_DAMAGE, RuleResult.ALLOW);
         builder.setRule(BedWars.BLAST_PROOF_GLASS_RULE, RuleResult.ALLOW);
 
         builder.on(GameOpenListener.EVENT, active::open);
