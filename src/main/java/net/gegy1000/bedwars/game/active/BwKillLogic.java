@@ -37,7 +37,10 @@ public final class BwKillLogic {
     }
 
     public void onPlayerDeath(BwParticipant participant, ServerPlayerEntity player, DamageSource source) {
-        this.applyDowngrades(participant);
+        if (!this.game.config.shouldKeepInventory()) {
+            this.applyDowngrades(participant);
+        }
+
         this.transferResources(player, source);
 
         BwMap.TeamSpawn spawn = this.game.teamLogic.tryRespawn(participant);

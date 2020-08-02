@@ -120,16 +120,24 @@ public final class BwScoreboard implements AutoCloseable {
                     .filter(participant -> !participant.eliminated)
                     .count();
 
-            String state = alivePlayerCount + "/" + totalPlayerCount;
-            if (!teamState.hasBed) {
-                state += " (no bed)";
+            if (!teamState.eliminated) {
+                String state = alivePlayerCount + "/" + totalPlayerCount;
+                if (!teamState.hasBed) {
+                    state += " (no bed)";
+                }
+
+                String nameFormat = teamState.team.getFormatting().toString() + Formatting.BOLD.toString();
+                String descriptionFormat = Formatting.RESET.toString() + Formatting.GRAY.toString();
+
+                String name = teamState.team.getDisplay();
+                lines.add("  " + nameFormat + name + ": " + descriptionFormat + state);
+            } else {
+                String nameFormat = teamState.team.getFormatting().toString() + Formatting.BOLD.toString() + Formatting.STRIKETHROUGH.toString();
+                String descriptionFormat = Formatting.RESET.toString() + Formatting.RED.toString();
+
+                String name = teamState.team.getDisplay();
+                lines.add("  " + nameFormat + name + ": " + descriptionFormat + "eliminated!");
             }
-
-            String nameFormat = teamState.team.getFormatting().toString() + Formatting.BOLD.toString();
-            String descriptionFormat = Formatting.RESET.toString() + Formatting.GRAY.toString();
-
-            String name = teamState.team.getDisplay();
-            lines.add("  " + nameFormat + name + ": " + descriptionFormat + state);
         });
 
         this.render(lines.toArray(new String[0]));

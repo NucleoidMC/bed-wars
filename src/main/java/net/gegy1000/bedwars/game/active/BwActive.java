@@ -269,7 +269,7 @@ public final class BwActive {
 
                 BlockState state = this.map.getWorld().getBlockState(pos);
                 if (state.getBlock() instanceof AbstractChestBlock) {
-                    return this.onUseChest(participant, pos);
+                    return this.onUseChest(player, participant, pos);
                 } else if (state.getBlock().isIn(BlockTags.BEDS)) {
                     return ActionResult.CONSUME;
                 }
@@ -281,11 +281,11 @@ public final class BwActive {
         return ActionResult.PASS;
     }
 
-    private ActionResult onUseChest(BwParticipant participant, BlockPos pos) {
+    private ActionResult onUseChest(ServerPlayerEntity player, BwParticipant participant, BlockPos pos) {
         GameTeam team = participant.team;
 
         GameTeam chestTeam = this.getOwningTeamForChest(pos);
-        if (chestTeam == null || chestTeam.equals(team)) {
+        if (chestTeam == null || chestTeam.equals(team) || player.isSpectator()) {
             return ActionResult.PASS;
         }
 
@@ -294,10 +294,7 @@ public final class BwActive {
             return ActionResult.PASS;
         }
 
-        ServerPlayerEntity player = participant.player();
-        if (player != null) {
-            player.sendMessage(new LiteralText("You cannot access this team's chest!").formatted(Formatting.RED), true);
-        }
+        player.sendMessage(new LiteralText("You cannot access this team's chest!").formatted(Formatting.RED), true);
 
         return ActionResult.FAIL;
     }

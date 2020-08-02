@@ -22,7 +22,8 @@ public final class BwConfig implements GameConfig {
                 CombatConfig.CODEC.fieldOf("combat").withDefault(CombatConfig.DEFAULT).forGetter(BwConfig::getCombatConfig),
                 GameModifier.CODEC.listOf().fieldOf("modifiers").withDefault(Collections.emptyList()).forGetter(BwConfig::getModifiers),
                 GameTeam.CODEC.listOf().fieldOf("teams").forGetter(BwConfig::getTeams),
-                PlayerConfig.CODEC.fieldOf("players").forGetter(BwConfig::getPlayerConfig)
+                PlayerConfig.CODEC.fieldOf("players").forGetter(BwConfig::getPlayerConfig),
+                Codec.BOOL.optionalFieldOf("keep_inventory", false).forGetter(BwConfig::shouldKeepInventory)
         ).apply(instance, BwConfig::new);
     });
 
@@ -31,19 +32,22 @@ public final class BwConfig implements GameConfig {
     private final List<GameModifier> modifiers;
     private final List<GameTeam> teams;
     private final PlayerConfig playerConfig;
+    private final boolean keepInventory;
 
     public BwConfig(
             GameMapConfig<BwConfig> mapConfig,
             CombatConfig combatConfig,
             List<GameModifier> modifiers,
             List<GameTeam> teams,
-            PlayerConfig playerConfig
+            PlayerConfig playerConfig,
+            boolean keepInventory
     ) {
         this.mapConfig = mapConfig;
         this.combatConfig = combatConfig;
         this.modifiers = modifiers;
         this.teams = teams;
         this.playerConfig = playerConfig;
+        this.keepInventory = keepInventory;
     }
 
     public GameMapConfig<BwConfig> getMapConfig() {
@@ -64,6 +68,10 @@ public final class BwConfig implements GameConfig {
 
     public PlayerConfig getPlayerConfig() {
         return this.playerConfig;
+    }
+
+    public boolean shouldKeepInventory() {
+        return this.keepInventory;
     }
 
     @Nullable

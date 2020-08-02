@@ -55,6 +55,10 @@ public final class BwPlayerLogic {
     }
 
     public void spawnPlayer(ServerPlayerEntity player, BwMap.TeamSpawn spawn) {
+        if (!this.game.config.shouldKeepInventory()) {
+            player.inventory.clear();
+        }
+
         this.game.spawnLogic.respawnPlayer(player, GameMode.SURVIVAL);
 
         BwParticipant participant = this.game.getParticipant(player);

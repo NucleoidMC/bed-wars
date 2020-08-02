@@ -36,6 +36,6 @@ public class DiamondIslandGen implements MapGen {
         BlockPos start = new BlockPos(this.origin.getX(), y, this.origin.getZ());
 
         builder.setBlockState(start, Blocks.DIAMOND_BLOCK.getDefaultState());
-        builder.addRegion(new GameRegion("diamond_spawn", new BlockBounds(start.up())));
+        builder.addRegion(new GameRegion("diamond_spawn", new BlockBounds(start.up(2))));
     }
 }

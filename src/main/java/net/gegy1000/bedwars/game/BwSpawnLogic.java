@@ -16,12 +16,13 @@ public final class BwSpawnLogic {
 
     // TODO: resetting inventory should be handled by the Game instance
     public void resetPlayer(ServerPlayerEntity player, GameMode gameMode) {
+        player.inventory.clear();
         player.getEnderChestInventory().clear();
+
         this.respawnPlayer(player, gameMode);
     }
 
     public void respawnPlayer(ServerPlayerEntity player, GameMode gameMode) {
-        player.inventory.clear();
         player.clearStatusEffects();
         player.setHealth(20.0F);
         player.getHungerManager().setFoodLevel(20);
