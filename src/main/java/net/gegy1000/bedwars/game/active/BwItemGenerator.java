@@ -146,6 +146,11 @@ public final class BwItemGenerator {
     private boolean giveItems(ServerWorld world, BwActive game, ItemEntity entity) {
         List<ServerPlayerEntity> players = world.getEntities(ServerPlayerEntity.class, this.bounds.toBox(), game::isParticipant);
         for (ServerPlayerEntity player : players) {
+            // Don't gen split to spectator or creative players
+            if (player.abilities.allowFlying) {
+                continue;
+            }
+
             ItemStack stack = entity.getStack();
 
             player.giveItemStack(stack.copy());

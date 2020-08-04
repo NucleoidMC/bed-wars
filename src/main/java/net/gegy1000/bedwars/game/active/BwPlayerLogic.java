@@ -38,7 +38,11 @@ public final class BwPlayerLogic {
 
             // Instakill players when below y0
             if (player.getY() <= 0) {
-                player.kill();
+
+                // Don't kill spectators and creative players
+                if (!player.abilities.allowFlying) {
+                    player.kill();
+                }
             }
         });
 
