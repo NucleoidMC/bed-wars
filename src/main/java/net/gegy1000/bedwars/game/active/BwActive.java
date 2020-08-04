@@ -263,8 +263,10 @@ public final class BwActive {
         BwParticipant participant = this.getParticipant(player);
         if (participant != null) {
             if (game.containsPos(pos)) {
-                if (player.getStackInHand(hand).getItem() == Items.FIRE_CHARGE) {
-                    return ActionResult.CONSUME;
+                ItemStack heldStack = player.getStackInHand(hand);
+                if (heldStack.getItem() == Items.FIRE_CHARGE) {
+                    this.onUseFireball(player, heldStack);
+                    return ActionResult.SUCCESS;
                 }
 
                 BlockState state = this.map.getWorld().getBlockState(pos);

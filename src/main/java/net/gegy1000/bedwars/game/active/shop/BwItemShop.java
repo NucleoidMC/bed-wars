@@ -54,7 +54,7 @@ public final class BwItemShop {
                             .addEnchantment(Enchantments.KNOCKBACK, 3)
                             .addLore(new LiteralText("Haha, target go zoom"))
                             .build(),
-                    Cost.ofGold(20)
+                    Cost.ofGold(10)
             );
 
             ItemStack trident = ItemStackBuilder.of(Items.TRIDENT)
