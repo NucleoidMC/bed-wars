@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+// TODO: there's a lot of common logic in waiting lobbies that can be extracted generically
 public final class BwWaiting {
     private static final String TEAM_KEY = BedWars.ID + ":team";
 

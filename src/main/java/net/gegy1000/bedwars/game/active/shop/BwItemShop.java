@@ -49,6 +49,13 @@ public final class BwItemShop {
             shop.addItem(ItemStackBuilder.of(Items.SHIELD).setUnbreakable().build(), Cost.ofGold(10));
             shop.addItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().build(), Cost.ofGold(20));
             shop.addItem(new ItemStack(Items.ARROW, 4), Cost.ofGold(2));
+            shop.addItem(
+                    ItemStackBuilder.of(Items.STICK)
+                            .addEnchantment(Enchantments.KNOCKBACK, 3)
+                            .addLore(new LiteralText("Haha, target go zoom"))
+                            .build(),
+                    Cost.ofGold(20)
+            );
 
             ItemStack trident = ItemStackBuilder.of(Items.TRIDENT)
                     .setUnbreakable()
