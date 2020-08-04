@@ -41,7 +41,7 @@ public class CenterIslandGen implements MapGen {
     }
 
     private void addEmeraldSpawner(GameMapBuilder builder, BlockPos pos) {
-        int y = builder.getTopY(Heightmap.Type.MOTION_BLOCKING, pos);
+        int y = builder.getTopY(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, pos);
         BlockPos start = new BlockPos(pos.getX(), y, pos.getZ());
 
         builder.setBlockState(start, Blocks.EMERALD_BLOCK.getDefaultState());

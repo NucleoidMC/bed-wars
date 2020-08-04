@@ -32,7 +32,7 @@ public class DiamondIslandGen implements MapGen {
 
     @Override
     public void addRegionsTo(GameMapBuilder builder) {
-        int y = builder.getTopY(Heightmap.Type.MOTION_BLOCKING, this.origin);
+        int y = builder.getTopY(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, this.origin);
         BlockPos start = new BlockPos(this.origin.getX(), y, this.origin.getZ());
 
         builder.setBlockState(start, Blocks.DIAMOND_BLOCK.getDefaultState());
