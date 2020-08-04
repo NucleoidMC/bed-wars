@@ -9,14 +9,14 @@ import java.util.Random;
 public final class ItemGeneratorPool {
     public static final ItemGeneratorPool TEAM_LVL_1 = new ItemGeneratorPool()
             .add(new ItemStack(Items.IRON_INGOT, 1), 10)
-            .add(new ItemStack(Items.GOLD_INGOT, 1), 2)
+            .add(new ItemStack(Items.GOLD_INGOT, 1), 3)
             .spawnInterval(30);
 
     public static final ItemGeneratorPool TEAM_LVL_2 = new ItemGeneratorPool()
             .add(new ItemStack(Items.IRON_INGOT, 1), 10)
+            .add(new ItemStack(Items.GOLD_INGOT, 1), 3)
             .add(new ItemStack(Items.IRON_INGOT, 2), 8)
-            .add(new ItemStack(Items.GOLD_INGOT, 1), 2)
-            .add(new ItemStack(Items.GOLD_INGOT, 2), 1)
+            .add(new ItemStack(Items.GOLD_INGOT, 2), 2)
             .spawnInterval(26);
 
     public static final ItemGeneratorPool TEAM_LVL_3 = new ItemGeneratorPool()
