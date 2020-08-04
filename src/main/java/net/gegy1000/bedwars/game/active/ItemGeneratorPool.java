@@ -17,13 +17,13 @@ public final class ItemGeneratorPool {
             .add(new ItemStack(Items.IRON_INGOT, 2), 8)
             .add(new ItemStack(Items.GOLD_INGOT, 1), 2)
             .add(new ItemStack(Items.GOLD_INGOT, 2), 1)
-            .spawnInterval(20);
+            .spawnInterval(26);
 
     public static final ItemGeneratorPool TEAM_LVL_3 = new ItemGeneratorPool()
-            .add(new ItemStack(Items.IRON_INGOT, 2), 10)
-            .add(new ItemStack(Items.GOLD_INGOT, 1), 4)
+            .add(new ItemStack(Items.IRON_INGOT, 2), 14)
+            .add(new ItemStack(Items.GOLD_INGOT, 1), 3)
             .add(new ItemStack(Items.EMERALD, 1), 1)
-            .spawnInterval(18);
+            .spawnInterval(22);
 
     public static final ItemGeneratorPool DIAMOND = new ItemGeneratorPool()
             .add(new ItemStack(Items.DIAMOND, 1), 1)
