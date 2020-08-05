@@ -5,6 +5,8 @@ import net.gegy1000.bedwars.game.BwMap;
 import net.gegy1000.plasmid.util.ItemUtil;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
@@ -60,6 +62,10 @@ public final class BwPlayerLogic {
 
     public void spawnPlayer(ServerPlayerEntity player, BwMap.TeamSpawn spawn) {
         this.game.spawnLogic.respawnPlayer(player, GameMode.SURVIVAL);
+
+        player.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 20 * 5, 2));
+        player.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 20 * 5, 2));
+        player.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 20 * 5, 2));
 
         if (!this.game.config.shouldKeepInventory()) {
             player.inventory.clear();

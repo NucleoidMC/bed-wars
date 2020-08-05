@@ -51,7 +51,7 @@ public final class BwItemShop {
             shop.addItem(new ItemStack(Items.ARROW, 4), Cost.ofGold(2));
             shop.addItem(
                     ItemStackBuilder.of(Items.STICK)
-                            .addEnchantment(Enchantments.KNOCKBACK, 3)
+                            .addEnchantment(Enchantments.KNOCKBACK, 1)
                             .addLore(new LiteralText("Haha, target go zoom"))
                             .build(),
                     Cost.ofGold(10)
