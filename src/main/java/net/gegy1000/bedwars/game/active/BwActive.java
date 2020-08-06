@@ -33,6 +33,7 @@ import net.gegy1000.plasmid.item.CustomItem;
 import net.gegy1000.plasmid.logic.combat.OldCombat;
 import net.gegy1000.plasmid.util.ColoredBlocks;
 import net.gegy1000.plasmid.util.ItemStackBuilder;
+import net.gegy1000.plasmid.util.PlayerRef;
 import net.gegy1000.plasmid.world.BlockBounds;
 import net.minecraft.block.AbstractChestBlock;
 import net.minecraft.block.BlockState;
@@ -67,7 +68,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -79,7 +79,7 @@ public final class BwActive {
     public final BwMap map;
     public final BwConfig config;
 
-    private final Map<UUID, BwParticipant> participants = new HashMap<>();
+    private final Map<PlayerRef, BwParticipant> participants = new HashMap<>();
     private final Map<GameTeam, TeamState> teams = new HashMap<>();
 
     public final BwScoreboard scoreboard;
@@ -160,7 +160,7 @@ public final class BwActive {
 
     private void addPlayers(Multimap<GameTeam, ServerPlayerEntity> players) {
         players.forEach((team, player) -> {
-            this.participants.put(player.getUuid(), new BwParticipant(this, player, team));
+            this.participants.put(PlayerRef.of(player), new BwParticipant(this, player, team));
         });
 
         for (GameTeam team : this.config.getTeams()) {
@@ -169,7 +169,7 @@ public final class BwActive {
             if (!participants.isEmpty()) {
                 TeamState teamState = new TeamState(team);
                 participants.forEach(participant -> {
-                    teamState.players.add(participant.playerId);
+                    teamState.players.add(participant.playerRef);
                 });
 
                 this.teams.put(team, teamState);
@@ -190,7 +190,7 @@ public final class BwActive {
             if (spawn != null) {
                 this.playerLogic.spawnPlayer(player, spawn);
             } else {
-                BedWars.LOGGER.warn("No spawn for player {}", participant.playerId);
+                BedWars.LOGGER.warn("No spawn for player {}", participant.playerRef);
                 this.spawnLogic.spawnAtCenter(player);
             }
         });
@@ -242,14 +242,26 @@ public final class BwActive {
         return false;
     }
 
-    private ActionResult onAttackEntity(Game game, ServerPlayerEntity player, Hand hand, Entity entity, EntityHitResult hitResult) {
-        BwParticipant participant = this.getParticipant(player);
-        BwParticipant attackedParticipant = this.getParticipant(entity.getUuid());
-        if (participant != null && attackedParticipant != null) {
-            if (participant.team == attackedParticipant.team) {
-                return ActionResult.FAIL;
-            }
+    private ActionResult onAttackEntity(Game game, ServerPlayerEntity attackerPlayer, Hand hand, Entity attackedEntity, EntityHitResult hitResult) {
+        if (attackedEntity instanceof ServerPlayerEntity) {
+            return this.onAttackPlayer(attackerPlayer, (ServerPlayerEntity) attackedEntity);
         }
+
+        return ActionResult.PASS;
+    }
+
+    private ActionResult onAttackPlayer(ServerPlayerEntity attackerPlayer, ServerPlayerEntity attackedPlayer) {
+        BwParticipant attackerParticipant = this.getParticipant(attackerPlayer);
+        BwParticipant attackedParticipant = this.getParticipant(attackedPlayer);
+        if (attackerParticipant == null || attackedParticipant == null) {
+            return ActionResult.PASS;
+        }
+
+        if (attackerParticipant.team == attackedParticipant.team) {
+            return ActionResult.FAIL;
+        }
+
+        attackedParticipant.lastAttack = AttackRecord.fromAttacker(attackerPlayer);
 
         return ActionResult.PASS;
     }
@@ -354,7 +366,7 @@ public final class BwActive {
         );
 
         // Get player wool color
-        GameTeam team = this.getTeam(player.getUuid());
+        GameTeam team = this.getTeam(PlayerRef.of(player));
         if (team == null) {
             return TypedActionResult.pass(stack);
         }
@@ -510,25 +522,25 @@ public final class BwActive {
 
     @Nullable
     public BwParticipant getParticipant(PlayerEntity player) {
-        return this.participants.get(player.getUuid());
+        return this.participants.get(PlayerRef.of(player));
     }
 
     @Nullable
-    public GameTeam getTeam(UUID id) {
-        BwParticipant participant = this.participants.get(id);
+    public BwParticipant getParticipant(PlayerRef player) {
+        return this.participants.get(player);
+    }
+
+    @Nullable
+    public GameTeam getTeam(PlayerRef player) {
+        BwParticipant participant = this.participants.get(player);
         if (participant != null) {
             return participant.team;
         }
         return null;
     }
 
-    @Nullable
-    public BwParticipant getParticipant(UUID id) {
-        return this.participants.get(id);
-    }
-
     public boolean isParticipant(PlayerEntity player) {
-        return this.participants.containsKey(player.getUuid());
+        return this.participants.containsKey(PlayerRef.of(player));
     }
 
     public Stream<BwParticipant> participantsFor(GameTeam team) {
@@ -560,7 +572,7 @@ public final class BwActive {
         public static final int MAX_SHARPNESS = 3;
         public static final int MAX_PROTECTION = 3;
 
-        final Set<UUID> players = new HashSet<>();
+        final Set<PlayerRef> players = new HashSet<>();
         final GameTeam team;
         boolean hasBed = true;
         boolean eliminated;

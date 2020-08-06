@@ -1,7 +1,6 @@
 package net.gegy1000.bedwars.game.active;
 
 import net.gegy1000.plasmid.game.GameTeam;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -9,6 +8,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -56,21 +56,20 @@ public final class BwBroadcast {
         }
     }
 
-    public void broadcastDeath(ServerPlayerEntity player, DamageSource source, boolean eliminated) {
-        Entity attacker = source.getAttacker();
-        Text deathAnnouncement;
-        if (attacker != null) {
-            deathAnnouncement = player.getDisplayName().shallowCopy()
-                    .append(new LiteralText(eliminated ? " was eliminated by " : " was killed by ").formatted(Formatting.GRAY))
-                    .append(attacker.getDisplayName())
-                    .formatted(Formatting.ITALIC);
-        } else {
-            deathAnnouncement = player.getDisplayName().shallowCopy()
-                    .append(new LiteralText(eliminated ? " was eliminated" : " died").formatted(Formatting.GRAY))
-                    .formatted(Formatting.ITALIC);
+    public void broadcastDeath(ServerPlayerEntity player, ServerPlayerEntity killer, DamageSource source, boolean eliminated) {
+        // TODO: we can do more specific messages in the future
+        MutableText announcement = player.getDisplayName().shallowCopy()
+                .append(new LiteralText(" was killed").formatted(Formatting.GRAY));
+
+        if (killer != null) {
+            announcement = announcement.append(" by ").append(killer.getDisplayName());
         }
 
-        this.broadcast(this.everyone(), deathAnnouncement);
+        if (eliminated) {
+            announcement = announcement.append(" They are now eliminated!");
+        }
+
+        this.broadcast(this.everyone(), announcement);
     }
 
     public void broadcastBedBroken(ServerPlayerEntity player, GameTeam bedTeam, @Nullable GameTeam destroyerTeam) {

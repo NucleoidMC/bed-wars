@@ -108,7 +108,7 @@ public final class BwScoreboard implements AutoCloseable {
         lines.add(String.format("%sTime: %s%02d:%02d", Formatting.RED.toString() + Formatting.BOLD, Formatting.RESET, minutes, seconds));
 
         long playersAlive = this.game.participants()
-                .filter(participant -> !participant.eliminated && participant.inGame())
+                .filter(participant -> !participant.eliminated && participant.isOnline())
                 .count();
         lines.add(Formatting.BLUE.toString() + playersAlive + " players alive");
         lines.add("");

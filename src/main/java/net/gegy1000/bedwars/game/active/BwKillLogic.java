@@ -4,9 +4,11 @@ import com.google.common.collect.Sets;
 import net.gegy1000.bedwars.game.BwMap;
 import net.gegy1000.bedwars.game.active.modifiers.BwGameTriggers;
 import net.gegy1000.bedwars.game.active.upgrade.UpgradeType;
+import net.gegy1000.plasmid.util.PlayerRef;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.EnderChestInventory;
 import net.minecraft.item.Item;
@@ -41,10 +43,15 @@ public final class BwKillLogic {
             this.applyDowngrades(participant);
         }
 
-        this.transferResources(player, source);
+        BwParticipant killerParticipant = this.getKillerParticipant(player.world.getTime(), participant, source);
+        ServerPlayerEntity killerPlayer = killerParticipant != null ? killerParticipant.player() : null;
+
+        if (killerPlayer != null) {
+            this.transferResources(player, killerPlayer);
+        }
 
         BwMap.TeamSpawn spawn = this.game.teamLogic.tryRespawn(participant);
-        this.game.broadcast.broadcastDeath(player, source, spawn == null);
+        this.game.broadcast.broadcastDeath(player, killerPlayer, source, spawn == null);
 
         // Run death modifiers
         this.game.triggerModifiers(BwGameTriggers.PLAYER_DEATH);
@@ -58,25 +65,33 @@ public final class BwKillLogic {
         this.game.scoreboard.markDirty();
     }
 
+    private BwParticipant getKillerParticipant(long time, BwParticipant participant, DamageSource source) {
+        BwParticipant attackerParticipant = null;
+        Entity attacker = source.getAttacker();
+        if (attacker instanceof ServerPlayerEntity) {
+            attackerParticipant = this.game.getParticipant(PlayerRef.of((PlayerEntity) attacker));
+        }
+
+        if (attackerParticipant == null) {
+            AttackRecord lastAttack = participant.lastAttack;
+            if (lastAttack != null && lastAttack.isValid(time)) {
+                attackerParticipant = this.game.getParticipant(lastAttack.player);
+            }
+        }
+
+        return attackerParticipant;
+    }
+
     private void applyDowngrades(BwParticipant participant) {
         participant.upgrades.tryDowngrade(UpgradeType.SWORD);
         participant.upgrades.tryDowngrade(UpgradeType.PICKAXE);
         participant.upgrades.tryDowngrade(UpgradeType.AXE);
     }
 
-    private void transferResources(ServerPlayerEntity player, DamageSource source) {
-        BwParticipant attackerParticipant = null;
-        Entity attacker = source.getAttacker();
-        if (attacker != null && attacker instanceof ServerPlayerEntity) {
-            attackerParticipant = this.game.getParticipant(attacker.getUuid());
-        }
-
+    private void transferResources(ServerPlayerEntity player, ServerPlayerEntity killerPlayer) {
         Collection<ItemStack> resources = this.takeResources(player);
-        if (attackerParticipant != null) {
-            ServerPlayerEntity attackerPlayer = (ServerPlayerEntity) attacker;
-            for (ItemStack resource : resources) {
-                attackerPlayer.inventory.offerOrDrop(this.game.map.getWorld(), resource);
-            }
+        for (ItemStack resource : resources) {
+            killerPlayer.inventory.offerOrDrop(this.game.map.getWorld(), resource);
         }
     }
 

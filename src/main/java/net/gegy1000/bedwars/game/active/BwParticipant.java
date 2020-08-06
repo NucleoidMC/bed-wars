@@ -4,18 +4,20 @@ import net.gegy1000.bedwars.game.BwMap;
 import net.gegy1000.bedwars.game.active.upgrade.PlayerUpgrades;
 import net.gegy1000.bedwars.game.active.upgrade.UpgradeType;
 import net.gegy1000.plasmid.game.GameTeam;
+import net.gegy1000.plasmid.util.PlayerRef;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 
 import javax.annotation.Nullable;
-import java.util.UUID;
 
 public final class BwParticipant {
     private final ServerWorld world;
-    public final UUID playerId;
+    public final PlayerRef playerRef;
     public final GameTeam team;
 
     public final PlayerUpgrades upgrades;
+
+    AttackRecord lastAttack;
 
     BwMap.TeamSpawn respawningAt;
     long respawnTime = -1;
@@ -23,7 +25,7 @@ public final class BwParticipant {
 
     BwParticipant(BwActive game, ServerPlayerEntity player, GameTeam team) {
         this.world = player.getServerWorld();
-        this.playerId = player.getUuid();
+        this.playerRef = PlayerRef.of(player);
         this.team = team;
 
         this.upgrades = new PlayerUpgrades(game, this);
@@ -51,10 +53,10 @@ public final class BwParticipant {
 
     @Nullable
     public ServerPlayerEntity player() {
-        return this.world.getServer().getPlayerManager().getPlayer(this.playerId);
+        return this.playerRef.getEntity(this.world);
     }
 
-    public boolean inGame() {
-        return this.player() != null;
+    public boolean isOnline() {
+        return this.playerRef.isOnline(this.world);
     }
 }
