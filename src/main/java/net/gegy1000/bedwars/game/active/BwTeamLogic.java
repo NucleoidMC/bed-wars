@@ -60,6 +60,13 @@ public final class BwTeamLogic {
     }
 
     public void removeBed(GameTeam team) {
+        BwActive.TeamState teamState = this.game.getTeam(team);
+        if (teamState == null || !teamState.hasBed) {
+            return;
+        }
+
+        teamState.hasBed = false;
+
         BlockBounds bed = this.game.map.getTeamRegions(team).bed;
 
         ServerWorld world = this.game.map.getWorld();
@@ -68,11 +75,6 @@ public final class BwTeamLogic {
         });
 
         this.game.triggerModifiers(BwGameTriggers.BED_BROKEN);
-
-        BwActive.TeamState teamState = this.game.getTeam(team);
-        if (teamState != null) {
-            teamState.hasBed = false;
-        }
 
         this.game.scoreboard.markDirty();
     }
