@@ -1,5 +1,8 @@
 package net.gegy1000.bedwars.game.generator;
 
+import java.util.Random;
+
+import net.gegy1000.bedwars.game.generator.feature.PoplarTreeFeature;
 import net.gegy1000.plasmid.game.map.template.MapTemplate;
 import net.gegy1000.plasmid.game.map.template.TemplateChunkGenerator;
 import net.minecraft.block.BlockState;
@@ -12,6 +15,9 @@ import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkRandom;
 import net.minecraft.world.gen.StructureAccessor;
+import net.minecraft.world.gen.feature.DefaultBiomeFeatures;
+import net.minecraft.world.gen.feature.DefaultFeatureConfig;
+import net.minecraft.world.gen.feature.Feature;
 
 public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
     private static final BlockState STONE = Blocks.STONE.getDefaultState();
@@ -47,6 +53,22 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
 
     @Override
     public void generateFeatures(ChunkRegion region, StructureAccessor structures) {
-        // TODO
+        // So this somehow works without registering the features but we *probably* should...
+        Random random = new Random();
+        for (int i = 0; i < 3; i++) {
+            int x = (region.getCenterChunkX() * 16) + random.nextInt(16);
+            int z = (region.getCenterChunkZ() * 16) + random.nextInt(16);
+            int y = region.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
+
+            PoplarTreeFeature.INSTANCE.generate(region, structures, this, random, new BlockPos(x, y, z), DefaultFeatureConfig.DEFAULT);
+        }
+
+        for (int i = 0; i < 4; i++) {
+            int x = (region.getCenterChunkX() * 16) + random.nextInt(16);
+            int z = (region.getCenterChunkZ() * 16) + random.nextInt(16);
+            int y = region.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
+
+            Feature.RANDOM_PATCH.generate(region, structures, this, random, new BlockPos(x, y, z), DefaultBiomeFeatures.GRASS_CONFIG);
+        }
     }
 }

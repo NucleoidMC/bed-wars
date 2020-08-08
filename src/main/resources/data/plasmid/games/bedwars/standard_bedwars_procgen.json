@@ -12,8 +12,7 @@
       "tree_amt_rand": 2,
       "tree_extra_amt_chance": 0,
       "grass_amt": 8,
-      "check_space": false,
-      "use_aspen_trees": false
+      "check_space": false
     },
     "center_generator": {
       "radius": 20,
@@ -26,8 +25,7 @@
       "tree_amt_rand": 4,
       "tree_extra_amt_chance": 0,
       "grass_amt": 16,
-      "check_space": false,
-      "use_aspen_trees": false
+      "check_space": false
     },
     "small_island_generator": {
       "radius": 5,
@@ -40,8 +38,7 @@
       "tree_amt_rand": 0,
       "tree_extra_amt_chance": 6,
       "grass_amt": 4,
-      "check_space": false,
-      "use_aspen_trees": false
+      "check_space": true
     },
     "spawn_island_distance": 120,
     "diamond_island_distance": 65,
