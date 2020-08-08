@@ -1,9 +1,9 @@
-package net.gegy1000.bedwars.game.generator.feature;
+/*package net.gegy1000.bedwars.game.generator.legacy.feature;
 
 import java.util.Random;
 import java.util.function.Consumer;
 
-import net.gegy1000.bedwars.game.generator.MapGen;
+import net.gegy1000.plasmid.game.map.GameMap;
 import net.gegy1000.plasmid.game.map.GameMapBuilder;
 
 import net.minecraft.block.Blocks;
@@ -19,7 +19,7 @@ public class AspenTreeGen implements MapGen {
 	}
 
 	@Override
-	public void addTo(GameMapBuilder builder) {
+	public void addTo(GameMap map) {
 		Random random = new Random();
 
 		double maxRadius = 2 + ((random.nextDouble() - 0.5) * 0.2);
@@ -27,11 +27,11 @@ public class AspenTreeGen implements MapGen {
 
 		BlockPos.Mutable mutable = origin.mutableCopy();
 		for (int y = 0; y < 8; y++) {
-			builder.setBlockState(mutable, Blocks.BIRCH_LOG.getDefaultState(), false);
+			map.setBlockState(mutable, Blocks.BIRCH_LOG.getDefaultState(), false);
 			//add branch blocks
 			if (maxRadius * radius(y / 7.f) > 2.1) {
 				Direction.Axis axis = getAxis(random);
-				builder.setBlockState(mutable.offset(getDirection(axis, random)).up(leafDistance), Blocks.BIRCH_LOG.getDefaultState().with(Properties.AXIS, axis), false);
+				map.setBlockState(mutable.offset(getDirection(axis, random)).up(leafDistance), Blocks.BIRCH_LOG.getDefaultState().with(Properties.AXIS, axis), false);
 			}
 
 			mutable.move(Direction.UP);
@@ -42,8 +42,8 @@ public class AspenTreeGen implements MapGen {
 
 		for (int y = 0; y < 8; y++) {
 			circle(mutable.mutableCopy(), maxRadius * radius(y / 7.f), leafPos -> {
-				if (builder.getBlockState(leafPos).isAir()) {
-					builder.setBlockState(leafPos, Blocks.BIRCH_LEAVES.getDefaultState(), false);
+				if (map.getBlockState(leafPos).isAir()) {
+					map.setBlockState(leafPos, Blocks.BIRCH_LEAVES.getDefaultState(), false);
 				}
 			});
 			mutable.move(Direction.UP);
@@ -67,8 +67,7 @@ public class AspenTreeGen implements MapGen {
 	}
 
 	@Override
-	public void addRegionsTo(GameMapBuilder builder) {
-
+	public void addRegionsTo(GameMap map) {
 	}
 
 	// Code used from Terraform
@@ -91,4 +90,4 @@ public class AspenTreeGen implements MapGen {
 		}
 
 	}
-}
+}*/

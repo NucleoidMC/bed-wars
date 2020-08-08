@@ -1,6 +1,6 @@
 package net.gegy1000.bedwars.game.active;
 
-import net.gegy1000.plasmid.game.GameTeam;
+import net.gegy1000.plasmid.game.player.GameTeam;
 import net.minecraft.scoreboard.AbstractTeam;
 import net.minecraft.scoreboard.ScoreboardCriterion;
 import net.minecraft.scoreboard.ScoreboardObjective;
@@ -9,7 +9,6 @@ import net.minecraft.scoreboard.ServerScoreboard;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Formatting;
 
@@ -35,9 +34,7 @@ public final class BwScoreboard implements AutoCloseable {
     }
 
     public static BwScoreboard create(BwActive game) {
-        ServerWorld world = game.map.getWorld();
-        MinecraftServer server = world.getServer();
-
+        MinecraftServer server = game.world.getServer();
         ServerScoreboard scoreboard = server.getScoreboard();
 
         ScoreboardObjective objective = new ScoreboardObjective(
@@ -72,8 +69,7 @@ public final class BwScoreboard implements AutoCloseable {
     }
 
     private void addPlayer(ServerPlayerEntity player, GameTeam team) {
-        ServerWorld world = this.game.map.getWorld();
-        MinecraftServer server = world.getServer();
+        MinecraftServer server = this.game.world.getServer();
 
         ServerScoreboard scoreboard = server.getScoreboard();
         scoreboard.addPlayerToTeam(player.getEntityName(), this.scoreboardTeam(team));
@@ -81,8 +77,7 @@ public final class BwScoreboard implements AutoCloseable {
 
     public Team scoreboardTeam(GameTeam team) {
         return this.scoreboardTeams.computeIfAbsent(team, t -> {
-            ServerWorld world = this.game.map.getWorld();
-            MinecraftServer server = world.getServer();
+            MinecraftServer server = this.game.world.getServer();
             ServerScoreboard scoreboard = server.getScoreboard();
             String teamKey = t.getDisplay();
             Team scoreboardTeam = scoreboard.getTeam(teamKey);
@@ -144,8 +139,7 @@ public final class BwScoreboard implements AutoCloseable {
     }
 
     private void render(String[] lines) {
-        ServerWorld world = this.game.map.getWorld();
-        MinecraftServer server = world.getServer();
+        MinecraftServer server = this.game.world.getServer();
         ServerScoreboard scoreboard = server.getScoreboard();
 
         render(scoreboard, this.objective, lines);
@@ -168,8 +162,7 @@ public final class BwScoreboard implements AutoCloseable {
 
     @Override
     public void close() {
-        ServerWorld world = this.game.map.getWorld();
-        MinecraftServer server = world.getServer();
+        MinecraftServer server = this.game.world.getServer();
 
         ServerScoreboard scoreboard = server.getScoreboard();
         this.scoreboardTeams.values().forEach(scoreboard::removeTeam);

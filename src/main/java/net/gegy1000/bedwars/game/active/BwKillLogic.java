@@ -39,7 +39,7 @@ public final class BwKillLogic {
     }
 
     public void onPlayerDeath(BwParticipant participant, ServerPlayerEntity player, DamageSource source) {
-        if (!this.game.config.shouldKeepInventory()) {
+        if (!this.game.config.keepInventory) {
             this.applyDowngrades(participant);
         }
 
@@ -91,7 +91,7 @@ public final class BwKillLogic {
     private void transferResources(ServerPlayerEntity player, ServerPlayerEntity killerPlayer) {
         Collection<ItemStack> resources = this.takeResources(player);
         for (ItemStack resource : resources) {
-            killerPlayer.inventory.offerOrDrop(this.game.map.getWorld(), resource);
+            killerPlayer.inventory.offerOrDrop(this.game.world, resource);
         }
     }
 
@@ -125,7 +125,7 @@ public final class BwKillLogic {
     }
 
     private void dropEnderChest(ServerPlayerEntity player, BwParticipant participant) {
-        ServerWorld world = this.game.map.getWorld();
+        ServerWorld world = this.game.world;
         EnderChestInventory enderChest = player.getEnderChestInventory();
 
         BwMap.TeamRegions teamRegions = this.game.map.getTeamRegions(participant.team);

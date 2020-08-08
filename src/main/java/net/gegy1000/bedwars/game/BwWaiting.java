@@ -4,17 +4,17 @@ import com.google.common.collect.Multimap;
 import net.gegy1000.bedwars.BedWars;
 import net.gegy1000.bedwars.custom.BwCustomItems;
 import net.gegy1000.bedwars.game.active.BwActive;
-import net.gegy1000.plasmid.game.Game;
-import net.gegy1000.plasmid.game.GameTeam;
-import net.gegy1000.plasmid.game.JoinResult;
+import net.gegy1000.bedwars.game.generator.BwSkyMapBuilder;
+import net.gegy1000.plasmid.game.GameWorld;
+import net.gegy1000.plasmid.game.GameWorldState;
 import net.gegy1000.plasmid.game.StartResult;
-import net.gegy1000.plasmid.game.config.PlayerConfig;
 import net.gegy1000.plasmid.game.event.OfferPlayerListener;
 import net.gegy1000.plasmid.game.event.PlayerAddListener;
 import net.gegy1000.plasmid.game.event.PlayerDeathListener;
 import net.gegy1000.plasmid.game.event.RequestStartListener;
 import net.gegy1000.plasmid.game.event.UseItemListener;
-import net.gegy1000.plasmid.game.map.GameMap;
+import net.gegy1000.plasmid.game.player.GameTeam;
+import net.gegy1000.plasmid.game.player.JoinResult;
 import net.gegy1000.plasmid.game.player.TeamAllocator;
 import net.gegy1000.plasmid.game.rule.GameRule;
 import net.gegy1000.plasmid.game.rule.RuleResult;
@@ -35,76 +35,80 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 // TODO: there's a lot of common logic in waiting lobbies that can be extracted generically
 public final class BwWaiting {
     private static final String TEAM_KEY = BedWars.ID + ":team";
 
-    private final GameMap map;
+    private final GameWorld gameWorld;
+    private final BwMap map;
     private final BwConfig config;
 
     private final BwSpawnLogic spawnLogic;
 
     private final Map<UUID, GameTeam> requestedTeams = new HashMap<>();
 
-    private BwWaiting(GameMap map, BwConfig config) {
+    private BwWaiting(GameWorld gameWorld, BwMap map, BwConfig config) {
+        this.gameWorld = gameWorld;
         this.map = map;
         this.config = config;
 
-        this.spawnLogic = new BwSpawnLogic(map);
+        this.spawnLogic = new BwSpawnLogic(gameWorld.getWorld(), map);
     }
 
-    public static Game build(GameMap map, BwConfig config) {
-        BwWaiting waiting = new BwWaiting(map, config);
+    public static CompletableFuture<Void> open(GameWorldState gameState, BwConfig config) {
+        BwSkyMapBuilder mapBuilder = new BwSkyMapBuilder(config);
 
-        Game.Builder builder = Game.builder();
-        builder.setMap(map);
+        return mapBuilder.create().thenAccept(map -> {
+            GameWorld gameWorld = gameState.openWorld(map.getChunkGenerator());
+            BwWaiting waiting = new BwWaiting(gameWorld, map, config);
 
-        builder.setRule(GameRule.ALLOW_PVP, RuleResult.DENY);
-        builder.setRule(GameRule.ALLOW_CRAFTING, RuleResult.DENY);
-        builder.setRule(GameRule.ENABLE_HUNGER, RuleResult.DENY);
-        builder.setRule(GameRule.FALL_DAMAGE, RuleResult.DENY);
+            gameWorld.newGame(game -> {
+                game.setRule(GameRule.ALLOW_PVP, RuleResult.DENY);
+                game.setRule(GameRule.ALLOW_CRAFTING, RuleResult.DENY);
+                game.setRule(GameRule.ENABLE_HUNGER, RuleResult.DENY);
+                game.setRule(GameRule.FALL_DAMAGE, RuleResult.DENY);
 
-        builder.on(RequestStartListener.EVENT, waiting::requestStart);
-        builder.on(OfferPlayerListener.EVENT, waiting::offerPlayer);
+                game.on(RequestStartListener.EVENT, waiting::requestStart);
+                game.on(OfferPlayerListener.EVENT, waiting::offerPlayer);
 
-        builder.on(PlayerAddListener.EVENT, waiting::addPlayer);
-        builder.on(PlayerDeathListener.EVENT, waiting::onPlayerDeath);
+                game.on(PlayerAddListener.EVENT, waiting::addPlayer);
+                game.on(PlayerDeathListener.EVENT, waiting::onPlayerDeath);
 
-        builder.on(UseItemListener.EVENT, waiting::onUseItem);
-
-        return builder.build();
+                game.on(UseItemListener.EVENT, waiting::onUseItem);
+            });
+        });
     }
 
-    private JoinResult offerPlayer(Game game, ServerPlayerEntity player) {
-        if (game.getPlayerCount() >= this.config.getPlayerConfig().getMaxPlayers()) {
+    private JoinResult offerPlayer(ServerPlayerEntity player) {
+        if (this.gameWorld.getPlayerCount() >= this.config.players.getMaxPlayers()) {
             return JoinResult.gameFull();
         }
 
         return JoinResult.ok();
     }
 
-    private StartResult requestStart(Game game) {
-        PlayerConfig playerConfig = this.config.getPlayerConfig();
-        if (game.getPlayerCount() < playerConfig.getMinPlayers()) {
+    private StartResult requestStart() {
+        if (this.gameWorld.getPlayerCount() < this.config.players.getMinPlayers()) {
             return StartResult.notEnoughPlayers();
         }
 
-        Multimap<GameTeam, ServerPlayerEntity> players = this.allocatePlayers(game);
-        Game active = BwActive.open(this.map, this.config, players);
-        return StartResult.ok(active);
+        Multimap<GameTeam, ServerPlayerEntity> players = this.allocatePlayers();
+        BwActive.open(this.gameWorld, this.map, this.config, players);
+        return StartResult.ok();
     }
 
-    private void addPlayer(Game game, ServerPlayerEntity player) {
+    private void addPlayer(ServerPlayerEntity player) {
         this.spawnPlayer(player);
     }
 
-    private boolean onPlayerDeath(Game game, ServerPlayerEntity player, DamageSource source) {
+    private boolean onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
         this.spawnPlayer(player);
         return true;
     }
 
-    private TypedActionResult<ItemStack> onUseItem(Game game, ServerPlayerEntity player, Hand hand) {
+    private TypedActionResult<ItemStack> onUseItem(ServerPlayerEntity player, Hand hand) {
         ItemStack stack = player.getStackInHand(hand);
 
         if (CustomItem.match(stack) == BwCustomItems.TEAM_SELECTOR) {
@@ -131,7 +135,7 @@ public final class BwWaiting {
         this.spawnLogic.resetPlayer(player, GameMode.ADVENTURE);
         this.spawnLogic.spawnAtCenter(player);
 
-        List<GameTeam> teams = this.config.getTeams();
+        List<GameTeam> teams = this.config.teams;
         for (int i = 0; i < teams.size(); i++) {
             GameTeam team = teams.get(i);
 
@@ -147,13 +151,13 @@ public final class BwWaiting {
         }
     }
 
-    private Multimap<GameTeam, ServerPlayerEntity> allocatePlayers(Game game) {
-        TeamAllocator<GameTeam, ServerPlayerEntity> allocator = new TeamAllocator<>(this.config.getTeams());
+    private Multimap<GameTeam, ServerPlayerEntity> allocatePlayers() {
+        TeamAllocator<GameTeam, ServerPlayerEntity> allocator = new TeamAllocator<>(this.config.teams);
 
-        game.onlinePlayers().forEach(player -> {
+        for (ServerPlayerEntity player : this.gameWorld.getPlayers()) {
             GameTeam requestedTeam = this.requestedTeams.get(player.getUuid());
             allocator.add(player, requestedTeam);
-        });
+        }
 
         return allocator.build();
     }

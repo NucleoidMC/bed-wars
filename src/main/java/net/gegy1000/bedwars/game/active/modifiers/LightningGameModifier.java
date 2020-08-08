@@ -32,7 +32,7 @@ public class LightningGameModifier implements GameModifier {
     @Override
     public void init(BwActive game) {
         game.players().forEach(player -> {
-            ServerWorld world = game.map.getWorld();
+            ServerWorld world = game.world;
 
             LightningEntity entity = EntityType.LIGHTNING_BOLT.create(world);
             if (entity == null) {

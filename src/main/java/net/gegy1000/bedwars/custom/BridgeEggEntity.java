@@ -1,7 +1,6 @@
 package net.gegy1000.bedwars.custom;
 
-import net.gegy1000.plasmid.game.Game;
-import net.gegy1000.plasmid.game.GameManager;
+import net.gegy1000.plasmid.game.GameWorld;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.thrown.EggEntity;
@@ -29,25 +28,24 @@ public class BridgeEggEntity extends EggEntity {
             return;
         }
 
-        Game game = GameManager.openGame();
-        BlockPos pos = this.getBlockPos().down();
-
-        if (game == null || !game.containsPos(pos)) {
+        GameWorld game = GameWorld.forWorld(this.world);
+        if (game == null) {
             this.remove();
             return;
         }
 
-        this.tryPlaceAt(game, pos);
+        BlockPos pos = this.getBlockPos().down();
+        this.tryPlaceAt(pos);
 
         for (Direction direction : DIRECTIONS) {
             if (this.random.nextInt(3) != 0) {
-                this.tryPlaceAt(game, pos.offset(direction));
+                this.tryPlaceAt(pos.offset(direction));
             }
         }
     }
 
-    private void tryPlaceAt(Game game, BlockPos pos) {
-        if (game.containsPos(pos) && this.world.getBlockState(pos).isAir()) {
+    private void tryPlaceAt(BlockPos pos) {
+        if (this.world.getBlockState(pos).isAir()) {
             this.world.setBlockState(pos, this.trailBlock);
         }
     }

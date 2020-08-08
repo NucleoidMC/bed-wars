@@ -20,9 +20,9 @@ public final class BwMapLogic {
     }
 
     public void tick() {
-        ServerWorld world = this.game.map.getWorld();
+        ServerWorld world = this.game.world;
 
-        for (BwItemGenerator generator : this.game.map.getGenerators()) {
+        for (BwItemGenerator generator : this.game.map.getItemGenerators()) {
             generator.tick(world, this.game);
         }
 
@@ -47,7 +47,7 @@ public final class BwMapLogic {
     }
 
     private boolean tickTrap(BwActive.TeamState teamState) {
-        ServerWorld world = this.game.map.getWorld();
+        ServerWorld world = this.game.world;
         BwMap.TeamRegions regions = this.game.map.getTeamRegions(teamState.team);
 
         if (regions.base != null) {
@@ -74,7 +74,7 @@ public final class BwMapLogic {
     }
 
     private void tickHealPool(BwActive.TeamState teamState) {
-        ServerWorld world = this.game.map.getWorld();
+        ServerWorld world = this.game.world;
         BwMap.TeamRegions regions = this.game.map.getTeamRegions(teamState.team);
 
         if (regions.base != null) {

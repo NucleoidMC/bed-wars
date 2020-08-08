@@ -27,7 +27,7 @@ public final class BwPlayerLogic {
     }
 
     public void tick() {
-        long time = this.game.map.getWorld().getTime();
+        long time = this.game.world.getTime();
 
         this.game.participants().forEach(participant -> {
             ServerPlayerEntity player = participant.player();
@@ -67,7 +67,7 @@ public final class BwPlayerLogic {
         player.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 20 * 5, 2));
         player.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 20 * 5, 2));
 
-        if (!this.game.config.shouldKeepInventory()) {
+        if (!this.game.config.keepInventory) {
             player.inventory.clear();
         }
 
@@ -76,9 +76,10 @@ public final class BwPlayerLogic {
             this.equipDefault(player, participant);
         }
 
-        spawn.placePlayer(player, this.game.map.getWorld());
+        spawn.placePlayer(player, this.game.world);
     }
 
+    // TODO: integrate enchantment system as "modifiers" to upgrades
     public void applyEnchantments(ServerPlayerEntity player, BwParticipant participant) {
         BwActive.TeamState teamState = this.game.getTeam(participant.team);
         if (teamState == null) {

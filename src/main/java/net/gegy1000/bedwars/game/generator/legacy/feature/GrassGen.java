@@ -1,8 +1,9 @@
-package net.gegy1000.bedwars.game.generator.feature;
+/*
+package net.gegy1000.bedwars.game.generator.legacy.feature;
 
 import java.util.Random;
 
-import net.gegy1000.bedwars.game.generator.MapGen;
+import net.gegy1000.plasmid.game.map.GameMap;
 import net.gegy1000.plasmid.game.map.GameMapBuilder;
 
 import net.minecraft.block.BlockState;
@@ -22,7 +23,7 @@ public class GrassGen implements MapGen {
 	}
 
 	@Override
-	public void addTo(GameMapBuilder builder) {
+	public void addTo(GameMap builder) {
 		Random random = new Random();
 		BlockState state = STATES.pickRandom(random);
 
@@ -39,7 +40,7 @@ public class GrassGen implements MapGen {
 	}
 
 	@Override
-	public void addRegionsTo(GameMapBuilder builder) {
-
+	public void addRegionsTo(GameMap map) {
 	}
 }
+*/

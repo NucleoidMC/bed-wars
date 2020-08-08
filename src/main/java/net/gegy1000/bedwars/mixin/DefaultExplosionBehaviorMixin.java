@@ -1,14 +1,15 @@
 package net.gegy1000.bedwars.mixin;
 
 import net.gegy1000.bedwars.BedWars;
-import net.gegy1000.plasmid.game.Game;
-import net.gegy1000.plasmid.game.GameManager;
+import net.gegy1000.plasmid.game.GameWorld;
 import net.gegy1000.plasmid.game.rule.RuleResult;
+import net.minecraft.block.AbstractGlassBlock;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.StainedGlassBlock;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 import net.minecraft.world.explosion.DefaultExplosionBehavior;
 import net.minecraft.world.explosion.Explosion;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,16 +25,20 @@ public class DefaultExplosionBehaviorMixin {
 
     @Inject(method = "getBlastResistance", at = @At("HEAD"), cancellable = true)
     private void getBlastResistance(
-            Explosion explosion, BlockView world,
+            Explosion explosion, BlockView blockView,
             BlockPos pos, BlockState block, FluidState fluid,
             CallbackInfoReturnable<Optional<Float>> ci
     ) {
-        Game game = GameManager.openGame();
-        if (game != null && game.containsPos(pos)) {
-            RuleResult result = game.testRule(BedWars.BLAST_PROOF_GLASS_RULE);
-            if (result == RuleResult.ALLOW) {
-                if (block.getBlock() instanceof StainedGlassBlock) {
-                    ci.setReturnValue(GLASS_RESISTANCE);
+        if (blockView instanceof WorldAccess) {
+            World world = ((WorldAccess) blockView).getWorld();
+
+            GameWorld gameWorld = GameWorld.forWorld(world);
+            if (gameWorld != null) {
+                RuleResult result = gameWorld.testRule(BedWars.BLAST_PROOF_GLASS_RULE);
+                if (result == RuleResult.ALLOW) {
+                    if (block.getBlock() instanceof AbstractGlassBlock) {
+                        ci.setReturnValue(GLASS_RESISTANCE);
+                    }
                 }
             }
         }

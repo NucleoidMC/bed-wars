@@ -13,7 +13,7 @@
     "max": 100
   },
   "combat": {
-    "old_mechanics": true
+    "old_mechanics": false
   },
   "teams": [
     {"key": "white", "display": "White", "color": "white"},

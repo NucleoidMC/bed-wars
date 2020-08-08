@@ -1,16 +1,19 @@
 package net.gegy1000.bedwars.game;
 
-import net.gegy1000.plasmid.game.map.GameMap;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.GameMode;
-import net.minecraft.world.Heightmap;
+import net.minecraft.world.chunk.ChunkStatus;
 
 public final class BwSpawnLogic {
-    private final GameMap map;
+    private final ServerWorld world;
+    private final BwMap map;
 
-    public BwSpawnLogic(GameMap map) {
+    public BwSpawnLogic(ServerWorld world, BwMap map) {
+        this.world = world;
         this.map = map;
     }
 
@@ -31,11 +34,13 @@ public final class BwSpawnLogic {
     }
 
     public void spawnAtCenter(ServerPlayerEntity player) {
-        ServerWorld world = this.map.getWorld();
+        BlockPos pos = this.map.getCenterSpawn();
 
-        BlockPos center = new BlockPos(this.map.getBounds().getCenter());
-        int topY = world.getTopY(Heightmap.Type.MOTION_BLOCKING, center.getX(), center.getZ());
+        ChunkPos chunkPos = new ChunkPos(pos);
+        this.world.getChunkManager().addTicket(ChunkTicketType.field_19347, chunkPos, 1, player.getEntityId());
 
-        player.teleport(world, center.getX() + 0.5, topY + 0.5, center.getZ() + 0.5, 0.0F, 0.0F);
+        this.world.getChunk(chunkPos.x, chunkPos.z, ChunkStatus.FULL);
+
+        player.teleport(this.world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 0.0F, 0.0F);
     }
 }

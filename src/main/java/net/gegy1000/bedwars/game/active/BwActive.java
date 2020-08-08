@@ -11,9 +11,7 @@ import net.gegy1000.bedwars.game.BwSpawnLogic;
 import net.gegy1000.bedwars.game.active.modifiers.BwGameTriggers;
 import net.gegy1000.bedwars.game.active.modifiers.GameModifier;
 import net.gegy1000.bedwars.game.active.modifiers.GameTrigger;
-import net.gegy1000.plasmid.game.Game;
-import net.gegy1000.plasmid.game.GameTeam;
-import net.gegy1000.plasmid.game.JoinResult;
+import net.gegy1000.plasmid.game.GameWorld;
 import net.gegy1000.plasmid.game.event.AttackEntityListener;
 import net.gegy1000.plasmid.game.event.BreakBlockListener;
 import net.gegy1000.plasmid.game.event.ExplosionListener;
@@ -23,18 +21,18 @@ import net.gegy1000.plasmid.game.event.GameTickListener;
 import net.gegy1000.plasmid.game.event.OfferPlayerListener;
 import net.gegy1000.plasmid.game.event.PlayerAddListener;
 import net.gegy1000.plasmid.game.event.PlayerDeathListener;
-import net.gegy1000.plasmid.game.event.PlayerRejoinListener;
 import net.gegy1000.plasmid.game.event.UseBlockListener;
 import net.gegy1000.plasmid.game.event.UseItemListener;
-import net.gegy1000.plasmid.game.map.GameMap;
+import net.gegy1000.plasmid.game.player.GameTeam;
+import net.gegy1000.plasmid.game.player.JoinResult;
 import net.gegy1000.plasmid.game.rule.GameRule;
 import net.gegy1000.plasmid.game.rule.RuleResult;
 import net.gegy1000.plasmid.item.CustomItem;
 import net.gegy1000.plasmid.logic.combat.OldCombat;
+import net.gegy1000.plasmid.util.BlockBounds;
 import net.gegy1000.plasmid.util.ColoredBlocks;
 import net.gegy1000.plasmid.util.ItemStackBuilder;
 import net.gegy1000.plasmid.util.PlayerRef;
-import net.gegy1000.plasmid.world.BlockBounds;
 import net.minecraft.block.AbstractChestBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -76,6 +74,9 @@ public final class BwActive {
     public static final long RESPAWN_TICKS = 20 * RESPAWN_TIME_SECONDS;
     public static final long CLOSE_TICKS = 10 * 20;
 
+    public final ServerWorld world;
+    private final GameWorld gameWorld;
+
     public final BwMap map;
     public final BwConfig config;
 
@@ -91,6 +92,8 @@ public final class BwActive {
     public final BwPlayerLogic playerLogic;
     public final BwSpawnLogic spawnLogic;
 
+    private boolean opened;
+
     private long startTime;
     private boolean destroyedBeds;
 
@@ -101,8 +104,11 @@ public final class BwActive {
 
     private boolean closed;
 
-    private BwActive(GameMap map, BwConfig config) {
-        this.map = BwMap.open(map, config);
+    private BwActive(GameWorld gameWorld, BwMap map, BwConfig config) {
+        this.world = gameWorld.getWorld();
+        this.gameWorld = gameWorld;
+
+        this.map = map;
         this.config = config;
 
         this.scoreboard = BwScoreboard.create(this);
@@ -113,49 +119,45 @@ public final class BwActive {
         this.winStateLogic = new BwWinStateLogic(this);
         this.mapLogic = new BwMapLogic(this);
         this.playerLogic = new BwPlayerLogic(this);
-        this.spawnLogic = new BwSpawnLogic(map);
+        this.spawnLogic = new BwSpawnLogic(this.world, map);
     }
 
-    public static Game open(GameMap map, BwConfig config, Multimap<GameTeam, ServerPlayerEntity> players) {
-        BwActive active = new BwActive(map, config);
+    public static void open(GameWorld gameWorld, BwMap map, BwConfig config, Multimap<GameTeam, ServerPlayerEntity> players) {
+        BwActive active = new BwActive(gameWorld, map, config);
         active.addPlayers(players);
 
-        for (GameTeam team : config.getTeams()) {
+        for (GameTeam team : config.teams) {
             active.scoreboard.addTeam(team);
         }
 
-        Game.Builder builder = Game.builder();
-        builder.setMap(map);
+        gameWorld.newGame(game -> {
+            game.setRule(GameRule.ALLOW_PORTALS, RuleResult.DENY);
+            game.setRule(GameRule.ALLOW_PVP, RuleResult.ALLOW);
+            game.setRule(GameRule.INSTANT_LIGHT_TNT, RuleResult.ALLOW);
+            game.setRule(GameRule.ALLOW_CRAFTING, RuleResult.DENY);
+            game.setRule(GameRule.FALL_DAMAGE, RuleResult.ALLOW);
+            game.setRule(GameRule.ENABLE_HUNGER, RuleResult.DENY);
+            game.setRule(BedWars.BLAST_PROOF_GLASS_RULE, RuleResult.ALLOW);
 
-        builder.setRule(GameRule.ALLOW_PORTALS, RuleResult.DENY);
-        builder.setRule(GameRule.ALLOW_PVP, RuleResult.ALLOW);
-        builder.setRule(GameRule.INSTANT_LIGHT_TNT, RuleResult.ALLOW);
-        builder.setRule(GameRule.ALLOW_CRAFTING, RuleResult.DENY);
-        builder.setRule(GameRule.FALL_DAMAGE, RuleResult.ALLOW);
-        builder.setRule(GameRule.ENABLE_HUNGER, RuleResult.DENY);
-        builder.setRule(BedWars.BLAST_PROOF_GLASS_RULE, RuleResult.ALLOW);
+            game.on(GameOpenListener.EVENT, active::onOpen);
+            game.on(GameCloseListener.EVENT, active::onClose);
 
-        builder.on(GameOpenListener.EVENT, active::open);
-        builder.on(GameCloseListener.EVENT, active::close);
+            game.on(OfferPlayerListener.EVENT, player -> JoinResult.ok());
+            game.on(PlayerAddListener.EVENT, active::addPlayer);
 
-        builder.on(OfferPlayerListener.EVENT, (game, player) -> JoinResult.ok());
-        builder.on(PlayerAddListener.EVENT, active::addPlayer);
+            game.on(GameTickListener.EVENT, active::tick);
 
-        builder.on(GameTickListener.EVENT, active::tick);
+            game.on(PlayerDeathListener.EVENT, active::onPlayerDeath);
 
-        builder.on(PlayerDeathListener.EVENT, active::onPlayerDeath);
-        builder.on(PlayerRejoinListener.EVENT, active::rejoinPlayer);
+            game.on(BreakBlockListener.EVENT, active::onBreakBlock);
+            game.on(AttackEntityListener.EVENT, active::onAttackEntity);
+            game.on(UseBlockListener.EVENT, active::onUseBlock);
+            game.on(UseItemListener.EVENT, active::onUseItem);
 
-        builder.on(BreakBlockListener.EVENT, active::onBreakBlock);
-        builder.on(AttackEntityListener.EVENT, active::onAttackEntity);
-        builder.on(UseBlockListener.EVENT, active::onUseBlock);
-        builder.on(UseItemListener.EVENT, active::onUseItem);
-
-        builder.on(ExplosionListener.EVENT, (game, affectedBlocks) -> {
-            affectedBlocks.removeIf(map::isProtectedBlock);
+            game.on(ExplosionListener.EVENT, affectedBlocks -> {
+                affectedBlocks.removeIf(map::isProtectedBlock);
+            });
         });
-
-        return builder.build();
     }
 
     private void addPlayers(Multimap<GameTeam, ServerPlayerEntity> players) {
@@ -163,7 +165,7 @@ public final class BwActive {
             this.participants.put(PlayerRef.of(player), new BwParticipant(this, player, team));
         });
 
-        for (GameTeam team : this.config.getTeams()) {
+        for (GameTeam team : this.config.teams) {
             List<BwParticipant> participants = this.participantsFor(team).collect(Collectors.toList());
 
             if (!participants.isEmpty()) {
@@ -177,7 +179,7 @@ public final class BwActive {
         }
     }
 
-    private void open(Game game) {
+    private void onOpen() {
         this.participants().forEach(participant -> {
             ServerPlayerEntity player = participant.player();
             if (player == null) {
@@ -195,23 +197,23 @@ public final class BwActive {
             }
         });
 
-        this.map.spawnShopkeepers(this, this.config);
+        this.map.spawnShopkeepers(this.world, this, this.config);
         this.triggerModifiers(BwGameTriggers.GAME_RUNNING);
 
-        this.startTime = game.getWorld().getTime();
+        this.startTime = this.world.getTime();
+        this.opened = true;
     }
 
-    private void addPlayer(Game game, ServerPlayerEntity player) {
-        // player has already joined the game
-        if (this.isParticipant(player)) {
-            return;
+    private void addPlayer(ServerPlayerEntity player) {
+        if (this.opened && this.isParticipant(player)) {
+            this.rejoinPlayer(player);
+        } else {
+            this.spawnLogic.resetPlayer(player, GameMode.SPECTATOR);
+            this.spawnLogic.spawnAtCenter(player);
         }
-
-        this.spawnLogic.resetPlayer(player, GameMode.SPECTATOR);
-        this.spawnLogic.spawnAtCenter(player);
     }
 
-    private void rejoinPlayer(Game game, ServerPlayerEntity player) {
+    private void rejoinPlayer(ServerPlayerEntity player) {
         BwParticipant participant = this.getParticipant(player);
 
         if (participant != null) {
@@ -227,9 +229,9 @@ public final class BwActive {
         }
     }
 
-    private boolean onBreakBlock(Game game, ServerPlayerEntity player, BlockPos pos) {
-        if (game.containsPos(pos) && this.map.isProtectedBlock(pos)) {
-            for (GameTeam team : this.config.getTeams()) {
+    private boolean onBreakBlock(ServerPlayerEntity player, BlockPos pos) {
+        if (this.map.isProtectedBlock(pos)) {
+            for (GameTeam team : this.config.teams) {
                 BlockBounds bed = this.map.getTeamRegions(team).bed;
                 if (bed != null && bed.contains(pos)) {
                     this.teamLogic.onBedBroken(player, pos);
@@ -242,7 +244,7 @@ public final class BwActive {
         return false;
     }
 
-    private ActionResult onAttackEntity(Game game, ServerPlayerEntity attackerPlayer, Hand hand, Entity attackedEntity, EntityHitResult hitResult) {
+    private ActionResult onAttackEntity(ServerPlayerEntity attackerPlayer, Hand hand, Entity attackedEntity, EntityHitResult hitResult) {
         if (attackedEntity instanceof ServerPlayerEntity) {
             return this.onAttackPlayer(attackerPlayer, (ServerPlayerEntity) attackedEntity);
         }
@@ -266,7 +268,7 @@ public final class BwActive {
         return ActionResult.PASS;
     }
 
-    private ActionResult onUseBlock(Game game, ServerPlayerEntity player, Hand hand, BlockHitResult hitResult) {
+    private ActionResult onUseBlock(ServerPlayerEntity player, Hand hand, BlockHitResult hitResult) {
         BlockPos pos = hitResult.getBlockPos();
         if (pos == null) {
             return ActionResult.PASS;
@@ -274,21 +276,17 @@ public final class BwActive {
 
         BwParticipant participant = this.getParticipant(player);
         if (participant != null) {
-            if (game.containsPos(pos)) {
-                ItemStack heldStack = player.getStackInHand(hand);
-                if (heldStack.getItem() == Items.FIRE_CHARGE) {
-                    this.onUseFireball(player, heldStack);
-                    return ActionResult.SUCCESS;
-                }
+            ItemStack heldStack = player.getStackInHand(hand);
+            if (heldStack.getItem() == Items.FIRE_CHARGE) {
+                this.onUseFireball(player, heldStack);
+                return ActionResult.SUCCESS;
+            }
 
-                BlockState state = this.map.getWorld().getBlockState(pos);
-                if (state.getBlock() instanceof AbstractChestBlock) {
-                    return this.onUseChest(player, participant, pos);
-                } else if (state.getBlock().isIn(BlockTags.BEDS)) {
-                    return ActionResult.CONSUME;
-                }
-            } else {
-                return ActionResult.FAIL;
+            BlockState state = this.world.getBlockState(pos);
+            if (state.getBlock() instanceof AbstractChestBlock) {
+                return this.onUseChest(player, participant, pos);
+            } else if (state.getBlock().isIn(BlockTags.BEDS)) {
+                return ActionResult.CONSUME;
             }
         }
 
@@ -315,7 +313,7 @@ public final class BwActive {
 
     @Nullable
     private GameTeam getOwningTeamForChest(BlockPos pos) {
-        for (GameTeam team : this.config.getTeams()) {
+        for (GameTeam team : this.config.teams) {
             BwMap.TeamRegions regions = this.map.getTeamRegions(team);
             if (regions.teamChest != null && regions.teamChest.contains(pos)) {
                 return team;
@@ -324,7 +322,7 @@ public final class BwActive {
         return null;
     }
 
-    private TypedActionResult<ItemStack> onUseItem(Game game, ServerPlayerEntity player, Hand hand) {
+    private TypedActionResult<ItemStack> onUseItem(ServerPlayerEntity player, Hand hand) {
         ItemStack stack = player.getStackInHand(hand);
         if (stack.isEmpty()) {
             return TypedActionResult.pass(ItemStack.EMPTY);
@@ -340,15 +338,13 @@ public final class BwActive {
     }
 
     private TypedActionResult<ItemStack> onUseFireball(ServerPlayerEntity player, ItemStack stack) {
-        ServerWorld world = this.map.getWorld();
-
         Vec3d dir = player.getRotationVec(1.0F);
 
-        BwFireballEntity fireball = new BwFireballEntity(world, player, dir.x * 0.5, dir.y * 0.5, dir.z * 0.5);
+        BwFireballEntity fireball = new BwFireballEntity(this.world, player, dir.x * 0.5, dir.y * 0.5, dir.z * 0.5);
         fireball.explosionPower = 2;
         fireball.updatePosition(player.getX() + dir.x, player.getEyeY() + dir.y, fireball.getZ() + dir.z);
 
-        world.spawnEntity(fireball);
+        this.world.spawnEntity(fireball);
 
         player.getItemCooldownManager().set(Items.FIRE_CHARGE, 20);
         stack.decrement(1);
@@ -357,12 +353,10 @@ public final class BwActive {
     }
 
     private TypedActionResult<ItemStack> onUseBridgeEgg(ServerPlayerEntity player, ItemStack stack) {
-        ServerWorld world = this.map.getWorld();
-
-        world.playSound(
+        this.world.playSound(
                 null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.ENTITY_EGG_THROW, SoundCategory.PLAYERS,
-                0.5F, 0.4F / (world.random.nextFloat() * 0.4F + 0.8F)
+                0.5F, 0.4F / (this.world.random.nextFloat() * 0.4F + 0.8F)
         );
 
         // Get player wool color
@@ -374,11 +368,11 @@ public final class BwActive {
         BlockState state = ColoredBlocks.wool(team.getDye()).getDefaultState();
 
         // Spawn egg
-        BridgeEggEntity eggEntity = new BridgeEggEntity(world, player, state);
+        BridgeEggEntity eggEntity = new BridgeEggEntity(this.world, player, state);
         eggEntity.setItem(stack);
         eggEntity.setProperties(player, player.pitch, player.yaw, 0.0F, 1.5F, 1.0F);
 
-        world.spawnEntity(eggEntity);
+        this.world.spawnEntity(eggEntity);
 
         if (!player.abilities.creativeMode) {
             stack.decrement(1);
@@ -387,21 +381,21 @@ public final class BwActive {
         return TypedActionResult.consume(stack);
     }
 
-    private void tick(Game game) {
+    private void tick() {
         if (this.winningTeam != null) {
             if (this.tickClosing()) {
-                game.close();
+                this.gameWorld.closeWorld();
             }
             return;
         }
 
         // TODO: this should be modular
         if (!this.destroyedBeds) {
-            long time = game.getWorld().getTime();
+            long time = this.world.getTime();
             if (time - this.startTime > 20 * 60 * 20) {
                 this.destroyedBeds = true;
 
-                for (GameTeam team : this.config.getTeams()) {
+                for (GameTeam team : this.config.teams) {
                     this.teamLogic.removeBed(team);
                 }
 
@@ -413,14 +407,13 @@ public final class BwActive {
         BwWinStateLogic.WinResult winResult = this.tickActive();
         if (winResult != null) {
             this.winningTeam = winResult.getTeam();
-            this.closeTime = this.map.getWorld().getTime() + CLOSE_TICKS;
+            this.closeTime = this.world.getTime() + CLOSE_TICKS;
         }
     }
 
     @Nullable
     private BwWinStateLogic.WinResult tickActive() {
-        ServerWorld world = this.map.getWorld();
-        long time = world.getTime();
+        long time = this.world.getTime();
 
         if (time - this.lastWinCheck > 20) {
             BwWinStateLogic.WinResult winResult = this.winStateLogic.checkWinResult();
@@ -438,7 +431,7 @@ public final class BwActive {
         this.playerLogic.tick();
 
         // Tick modifiers
-        for (GameModifier modifier : this.config.getModifiers()) {
+        for (GameModifier modifier : this.config.modifiers) {
             if (modifier.getTrigger().tickable) {
                 modifier.tick(this);
             }
@@ -452,12 +445,11 @@ public final class BwActive {
             this.spawnFireworks(this.winningTeam);
         }
 
-        return this.map.getWorld().getTime() >= this.closeTime;
+        return this.world.getTime() >= this.closeTime;
     }
 
     private void spawnFireworks(GameTeam team) {
-        ServerWorld world = this.map.getWorld();
-        Random random = world.random;
+        Random random = this.world.random;
 
         if (random.nextInt(18) == 0) {
             List<ServerPlayerEntity> players = this.players().collect(Collectors.toList());
@@ -466,18 +458,18 @@ public final class BwActive {
             int flight = random.nextInt(3);
             FireworkItem.Type type = random.nextInt(4) == 0 ? FireworkItem.Type.STAR : FireworkItem.Type.BURST;
             FireworkRocketEntity firework = new FireworkRocketEntity(
-                    world,
+                    this.world,
                     player.getX(),
                     player.getEyeY(),
                     player.getZ(),
                     team.createFirework(flight, type)
             );
 
-            world.spawnEntity(firework);
+            this.world.spawnEntity(firework);
         }
     }
 
-    private boolean onPlayerDeath(Game game, ServerPlayerEntity player, DamageSource source) {
+    private boolean onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
         BwParticipant participant = this.getParticipant(player);
 
         // TODO: cancel if cause is own player
@@ -489,7 +481,7 @@ public final class BwActive {
         return false;
     }
 
-    private void close(Game game) {
+    private void onClose() {
         if (this.closed) {
             return;
         }
@@ -505,7 +497,7 @@ public final class BwActive {
 
     public ItemStack createTool(ItemStack stack) {
         stack = ItemStackBuilder.of(stack).setUnbreakable().build();
-        if (this.config.getCombatConfig().isOldMechanics()) {
+        if (this.config.combat.isOldMechanics()) {
             stack = OldCombat.applyTo(stack);
         }
 
@@ -513,7 +505,7 @@ public final class BwActive {
     }
 
     public void triggerModifiers(GameTrigger type) {
-        for (GameModifier modifier : this.config.getModifiers()) {
+        for (GameModifier modifier : this.config.modifiers) {
             if (modifier.getTrigger() == type) {
                 modifier.init(this);
             }

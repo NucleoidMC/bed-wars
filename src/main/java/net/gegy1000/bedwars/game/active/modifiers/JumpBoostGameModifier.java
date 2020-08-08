@@ -31,7 +31,7 @@ public class JumpBoostGameModifier implements GameModifier {
 
     @Override
     public void tick(BwActive game) {
-        if (game.map.getWorld().getTime() % 20 == 0) {
+        if (game.world.getTime() % 20 == 0) {
             game.players().forEach(this::addEffect);
         }
     }

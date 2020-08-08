@@ -2,8 +2,8 @@ package net.gegy1000.bedwars.game.active;
 
 import net.gegy1000.bedwars.game.BwMap;
 import net.gegy1000.bedwars.game.active.modifiers.BwGameTriggers;
-import net.gegy1000.plasmid.game.GameTeam;
-import net.gegy1000.plasmid.world.BlockBounds;
+import net.gegy1000.plasmid.game.player.GameTeam;
+import net.gegy1000.plasmid.util.BlockBounds;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -69,7 +69,7 @@ public final class BwTeamLogic {
 
         BlockBounds bed = this.game.map.getTeamRegions(team).bed;
 
-        ServerWorld world = this.game.map.getWorld();
+        ServerWorld world = this.game.world;
         bed.iterate().forEach(p -> {
             world.setBlockState(p, Blocks.AIR.getDefaultState(), 0b100010);
         });
@@ -81,7 +81,7 @@ public final class BwTeamLogic {
 
     @Nullable
     private Bed findBed(BlockPos pos) {
-        for (GameTeam team : this.game.config.getTeams()) {
+        for (GameTeam team : this.game.config.teams) {
             BwMap.TeamRegions teamRegions = this.game.map.getTeamRegions(team);
             BlockBounds bed = teamRegions.bed;
             if (bed != null && bed.contains(pos)) {

@@ -1,13 +1,15 @@
 package net.gegy1000.bedwars.game;
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.gegy1000.bedwars.BedWars;
 import net.gegy1000.bedwars.custom.ShopVillagerEntity;
 import net.gegy1000.bedwars.game.active.BwActive;
 import net.gegy1000.bedwars.game.active.BwItemGenerator;
 import net.gegy1000.bedwars.game.active.ItemGeneratorPool;
-import net.gegy1000.plasmid.game.GameTeam;
-import net.gegy1000.plasmid.game.map.GameMap;
-import net.gegy1000.plasmid.world.BlockBounds;
+import net.gegy1000.plasmid.game.map.template.MapTemplate;
+import net.gegy1000.plasmid.game.player.GameTeam;
+import net.gegy1000.plasmid.util.BlockBounds;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.mob.MobEntity;
@@ -16,6 +18,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LocalDifficulty;
+import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,76 +28,90 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class BwMap {
-    private final ServerWorld world;
-    private final GameMap map;
+    private ChunkGenerator chunkGenerator;
 
     private final Map<GameTeam, TeamSpawn> teamSpawns = new HashMap<>();
     private final Map<GameTeam, TeamRegions> teamRegions = new HashMap<>();
 
-    private final Collection<BwItemGenerator> generators = new ArrayList<>();
+    private final Collection<BwItemGenerator> itemGenerators = new ArrayList<>();
 
-    private BwMap(GameMap map) {
-        this.world = map.getWorld();
-        this.map = map;
+    private BlockPos centerSpawn = BlockPos.ORIGIN;
+
+    private final LongSet protectedBlocks = new LongOpenHashSet();
+
+    public void setChunkGenerator(ChunkGenerator chunkGenerator) {
+        this.chunkGenerator = chunkGenerator;
     }
 
-    public static BwMap open(GameMap map, BwConfig config) {
-        BwMap bwMap = new BwMap(map);
-        bwMap.initializeMap(config);
-        return bwMap;
+    public void addDiamondGenerator(BlockBounds bounds) {
+        this.itemGenerators.add(new BwItemGenerator(bounds)
+                .setPool(ItemGeneratorPool.DIAMOND)
+                .maxItems(6)
+                .addTimerText()
+        );
+
+        this.addProtectedBlocks(bounds);
     }
 
-    private void initializeMap(BwConfig config) {
-        this.map.getRegions("diamond_spawn").forEach(bounds -> {
-            this.generators.add(new BwItemGenerator(bounds)
-                    .setPool(ItemGeneratorPool.DIAMOND)
-                    .maxItems(6)
-                    .addTimerText()
-            );
-        });
+    public void addEmeraldGenerator(BlockBounds bounds) {
+        this.itemGenerators.add(new BwItemGenerator(bounds)
+                .setPool(ItemGeneratorPool.EMERALD)
+                .maxItems(3)
+                .addTimerText()
+        );
 
-        this.map.getRegions("emerald_spawn").forEach(bounds -> {
-            this.generators.add(new BwItemGenerator(bounds)
-                    .setPool(ItemGeneratorPool.EMERALD)
-                    .maxItems(3)
-                    .addTimerText()
-            );
-        });
+        this.addProtectedBlocks(bounds);
+    }
 
-        for (GameTeam team : config.getTeams()) {
-            TeamRegions regions = TeamRegions.read(team, this.map);
+    public void addTeamRegions(GameTeam team, TeamRegions regions) {
+        this.teamRegions.put(team, regions);
 
-            if (regions.spawn != null) {
-                TeamSpawn teamSpawn = new TeamSpawn(regions.spawn);
-                this.teamSpawns.put(team, teamSpawn);
-                this.generators.add(teamSpawn.generator);
-            } else {
-                BedWars.LOGGER.warn("Missing spawn for {}", team.getKey());
-            }
+        if (regions.base != null) {
+            this.addProtectedBlocks(regions.base);
+        }
 
-            this.teamRegions.put(team, regions);
+        if (regions.spawn != null) {
+            TeamSpawn teamSpawn = new TeamSpawn(regions.spawn);
+            this.teamSpawns.put(team, teamSpawn);
+            this.itemGenerators.add(teamSpawn.generator);
+        } else {
+            BedWars.LOGGER.warn("Missing spawn for {}", team.getKey());
         }
     }
 
-    public void spawnShopkeepers(BwActive game, BwConfig config) {
-        for (GameTeam team : config.getTeams()) {
+    public void setCenterSpawn(BlockPos pos) {
+        this.centerSpawn = pos;
+    }
+
+    public void addProtectedBlock(long pos) {
+        this.protectedBlocks.add(pos);
+    }
+
+    public void addProtectedBlocks(BlockBounds bounds) {
+        for (BlockPos pos : bounds.iterate()) {
+            this.protectedBlocks.add(pos.asLong());
+        }
+    }
+
+    public void spawnShopkeepers(ServerWorld world, BwActive game, BwConfig config) {
+        for (GameTeam team : config.teams) {
             TeamRegions regions = this.getTeamRegions(team);
 
             if (regions.teamShop != null) {
-                this.trySpawnEntity(ShopVillagerEntity.team(this.world, game), regions.teamShop);
+                this.trySpawnEntity(ShopVillagerEntity.team(world, game), regions.teamShop);
             } else {
                 BedWars.LOGGER.warn("Missing team shop for {}", team.getDisplay());
             }
 
             if (regions.itemShop != null) {
-                this.trySpawnEntity(ShopVillagerEntity.item(this.world, game), regions.itemShop);
+                this.trySpawnEntity(ShopVillagerEntity.item(world, game), regions.itemShop);
             } else {
                 BedWars.LOGGER.warn("Missing item shop for {}", team.getDisplay());
             }
         }
     }
 
-    private boolean trySpawnEntity(Entity entity, BlockBounds bounds) {
+    private void trySpawnEntity(Entity entity, BlockBounds bounds) {
         Vec3d center = bounds.getCenter();
 
         entity.refreshPositionAndAngles(center.x, bounds.getMin().getY(), center.z, 0.0F, 0.0F);
@@ -102,20 +119,13 @@ public final class BwMap {
         if (entity instanceof MobEntity) {
             MobEntity mob = (MobEntity) entity;
 
-            LocalDifficulty difficulty = this.world.getLocalDifficulty(mob.getBlockPos());
-            mob.initialize(this.world, difficulty, SpawnReason.COMMAND, null, null);
+            LocalDifficulty difficulty = entity.world.getLocalDifficulty(mob.getBlockPos());
+            mob.initialize(entity.world, difficulty, SpawnReason.COMMAND, null, null);
         }
 
-        if (!this.world.spawnEntity(entity)) {
+        if (!entity.world.spawnEntity(entity)) {
             BedWars.LOGGER.warn("Tried to spawn entity ({}) but the chunk was not loaded", entity);
-            return false;
         }
-
-        return true;
-    }
-
-    public ServerWorld getWorld() {
-        return this.world;
     }
 
     @Nullable
@@ -128,18 +138,26 @@ public final class BwMap {
         return this.teamRegions.getOrDefault(team, TeamRegions.EMPTY);
     }
 
-    public Collection<BwItemGenerator> getGenerators() {
-        return this.generators;
+    public Collection<BwItemGenerator> getItemGenerators() {
+        return this.itemGenerators;
     }
 
     public void delete() {
-        for (BwItemGenerator generator : this.generators) {
+        for (BwItemGenerator generator : this.itemGenerators) {
             generator.remove();
         }
     }
 
     public boolean isProtectedBlock(BlockPos pos) {
-        return this.map.isProtectedBlock(pos);
+        return this.protectedBlocks.contains(pos.asLong());
+    }
+
+    public BlockPos getCenterSpawn() {
+        return this.centerSpawn;
+    }
+
+    public ChunkGenerator getChunkGenerator() {
+        return this.chunkGenerator;
     }
 
     public static class TeamSpawn {
@@ -187,7 +205,7 @@ public final class BwMap {
     }
 
     public static class TeamRegions {
-        static final TeamRegions EMPTY = new TeamRegions(null, null, null, null, null, null);
+        public static final TeamRegions EMPTY = new TeamRegions(null, null, null, null, null, null);
 
         public final BlockBounds base;
         public final BlockBounds spawn;
@@ -196,7 +214,7 @@ public final class BwMap {
         public final BlockBounds teamShop;
         public final BlockBounds teamChest;
 
-        TeamRegions(BlockBounds spawn, BlockBounds bed, BlockBounds base, BlockBounds itemShop, BlockBounds teamShop, BlockBounds teamChest) {
+        public TeamRegions(BlockBounds spawn, BlockBounds bed, BlockBounds base, BlockBounds itemShop, BlockBounds teamShop, BlockBounds teamChest) {
             this.spawn = spawn;
             this.bed = bed;
             this.base = base;
@@ -205,16 +223,15 @@ public final class BwMap {
             this.teamChest = teamChest;
         }
 
-        static TeamRegions read(GameTeam team, GameMap map) {
+        public static TeamRegions fromTemplate(GameTeam team, MapTemplate template) {
             String teamKey = team.getKey();
 
-            // TODO: consolidate the team tags and check for ones contained within the team_base
-            BlockBounds base = map.getFirstRegion(teamKey + "_base");
-            BlockBounds spawn = map.getFirstRegion(teamKey + "_spawn");
-            BlockBounds bed = map.getFirstRegion(teamKey + "_bed");
-            BlockBounds itemShop = map.getFirstRegion(teamKey + "_item_shop");
-            BlockBounds teamShop = map.getFirstRegion(teamKey + "_team_shop");
-            BlockBounds teamChest = map.getFirstRegion(teamKey + "_chest");
+            BlockBounds base = template.getFirstRegion(teamKey + "_base");
+            BlockBounds spawn = template.getFirstRegion(teamKey + "_spawn");
+            BlockBounds bed = template.getFirstRegion(teamKey + "_bed");
+            BlockBounds itemShop = template.getFirstRegion(teamKey + "_item_shop");
+            BlockBounds teamShop = template.getFirstRegion(teamKey + "_team_shop");
+            BlockBounds teamChest = template.getFirstRegion(teamKey + "_chest");
 
             return new TeamRegions(spawn, bed, base, itemShop, teamShop, teamChest);
         }

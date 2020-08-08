@@ -1,6 +1,6 @@
 package net.gegy1000.bedwars.game.active;
 
-import net.gegy1000.plasmid.game.GameTeam;
+import net.gegy1000.plasmid.game.player.GameTeam;
 
 import javax.annotation.Nullable;
 import java.util.List;
