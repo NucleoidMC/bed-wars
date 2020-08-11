@@ -66,8 +66,7 @@ public final class BwWinStateLogic {
 
     private long countRemainingPlayers(GameTeam team) {
         return this.game.participantsFor(team)
-                .filter(p -> !p.eliminated)
-                .filter(BwParticipant::isOnline)
+                .filter(BwParticipant::isAlive)
                 .count();
     }
 

@@ -103,7 +103,7 @@ public final class BwScoreboard implements AutoCloseable {
         lines.add(String.format("%sTime: %s%02d:%02d", Formatting.RED.toString() + Formatting.BOLD, Formatting.RESET, minutes, seconds));
 
         long playersAlive = this.game.participants()
-                .filter(participant -> !participant.eliminated && participant.isOnline())
+                .filter(BwParticipant::isAlive)
                 .count();
         lines.add(Formatting.BLUE.toString() + playersAlive + " players alive");
         lines.add("");
@@ -112,7 +112,7 @@ public final class BwScoreboard implements AutoCloseable {
         this.game.teams().forEach(teamState -> {
             long totalPlayerCount = this.game.participantsFor(teamState.team).count();
             long alivePlayerCount = this.game.participantsFor(teamState.team)
-                    .filter(participant -> !participant.eliminated)
+                    .filter(BwParticipant::isAlive)
                     .count();
 
             if (!teamState.eliminated) {

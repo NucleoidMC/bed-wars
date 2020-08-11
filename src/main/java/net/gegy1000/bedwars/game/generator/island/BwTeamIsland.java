@@ -62,14 +62,20 @@ public final class BwTeamIsland {
                 this.origin.add(1, 1, 1)
         );
         BlockBounds base = new BlockBounds(
-                this.bounds.getMin().down(-1),
+                this.bounds.getMin().down(1),
                 this.bounds.getMax().up(4)
         );
 
         BlockBounds chest = BlockBounds.of(this.origin.add(0, 1, -2));
+        BlockBounds enderChest = BlockBounds.of(this.origin.add(0, 1, 2));
         BlockBounds teamShop = BlockBounds.of(this.origin.add(-2, 1, -1));
         BlockBounds itemShop = BlockBounds.of(this.origin.add(-2, 1, 1));
         BlockBounds bed = BlockBounds.of(this.origin.add(5, 1, 0));
+
+        map.addProtectedBlocks(this.bounds);
+        map.addProtectedBlocks(chest);
+        map.addProtectedBlocks(enderChest);
+        map.addProtectedBlocks(bed);
 
         map.addTeamRegions(this.team, new BwMap.TeamRegions(spawn, bed, base, itemShop, teamShop, chest));
     }

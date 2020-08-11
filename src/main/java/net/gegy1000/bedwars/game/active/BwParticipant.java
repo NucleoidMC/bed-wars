@@ -23,8 +23,6 @@ public final class BwParticipant {
     long respawnTime = -1;
     boolean eliminated;
 
-    boolean spawned;
-
     BwParticipant(BwActive game, ServerPlayerEntity player, GameTeam team) {
         this.world = player.getServerWorld();
         this.playerRef = PlayerRef.of(player);
@@ -56,6 +54,10 @@ public final class BwParticipant {
     @Nullable
     public ServerPlayerEntity player() {
         return this.playerRef.getEntity(this.world);
+    }
+
+    public boolean isAlive() {
+        return !this.eliminated && this.isOnline();
     }
 
     public boolean isOnline() {

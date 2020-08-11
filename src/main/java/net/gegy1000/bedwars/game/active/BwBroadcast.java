@@ -62,11 +62,11 @@ public final class BwBroadcast {
                 .append(new LiteralText(" was killed").formatted(Formatting.GRAY));
 
         if (killer != null) {
-            announcement = announcement.append(" by ").append(killer.getDisplayName());
+            announcement = announcement.append(new LiteralText(" by ").formatted(Formatting.GRAY)).append(killer.getDisplayName());
         }
 
         if (eliminated) {
-            announcement = announcement.append(" They are now eliminated!");
+            announcement = announcement.append(new LiteralText(". They are now eliminated!").formatted(Formatting.GRAY));
         }
 
         this.broadcast(this.everyone(), announcement);

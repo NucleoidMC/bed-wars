@@ -27,6 +27,6 @@ public final class BwDiamondIsland {
         BlockPos surfacePos = template.getTopPos(this.origin.getX(), this.origin.getZ(), Heightmap.Type.WORLD_SURFACE_WG);
 
         template.setBlockState(surfacePos, Blocks.DIAMOND_BLOCK.getDefaultState());
-        map.addDiamondGenerator(BlockBounds.of(surfacePos.up()));
+        map.addDiamondGenerator(BlockBounds.of(surfacePos));
     }
 }

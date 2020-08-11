@@ -66,10 +66,6 @@ public final class BwMap {
     public void addTeamRegions(GameTeam team, TeamRegions regions) {
         this.teamRegions.put(team, regions);
 
-        if (regions.base != null) {
-            this.addProtectedBlocks(regions.base);
-        }
-
         if (regions.spawn != null) {
             TeamSpawn teamSpawn = new TeamSpawn(regions.spawn);
             this.teamSpawns.put(team, teamSpawn);
