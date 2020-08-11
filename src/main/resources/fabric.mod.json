@@ -8,7 +8,7 @@
   "license": "LGPLv3",
   "environment": "*",
   "entrypoints": {
-    "main": ["net.gegy1000.bedwars.BedWars"]
+    "main": ["xyz.nucleoid.bedwars.BedWars"]
   },
   "mixins": ["bw.mixins.json"],
   "depends": {
