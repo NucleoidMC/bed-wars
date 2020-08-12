@@ -118,7 +118,7 @@ public final class BwItemGenerator {
         Box box = this.bounds.toBox();
 
         int itemCount = 0;
-        for (ItemEntity entity : world.getEntities(EntityType.ITEM, box.expand(1.0), entity -> true)) {
+        for (ItemEntity entity : world.getEntitiesByType(EntityType.ITEM, box.expand(1.0), entity -> true)) {
             itemCount += entity.getStack().getCount();
         }
 
@@ -144,7 +144,7 @@ public final class BwItemGenerator {
     }
 
     private boolean giveItems(ServerWorld world, BwActive game, ItemEntity entity) {
-        List<ServerPlayerEntity> players = world.getEntities(ServerPlayerEntity.class, this.bounds.toBox(), game::isParticipant);
+        List<ServerPlayerEntity> players = world.getEntitiesByClass(ServerPlayerEntity.class, this.bounds.toBox(), game::isParticipant);
         for (ServerPlayerEntity player : players) {
             // Don't gen split to spectator or creative players
             if (player.abilities.allowFlying) {

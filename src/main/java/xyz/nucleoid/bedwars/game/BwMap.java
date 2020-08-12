@@ -116,7 +116,7 @@ public final class BwMap {
             MobEntity mob = (MobEntity) entity;
 
             LocalDifficulty difficulty = entity.world.getLocalDifficulty(mob.getBlockPos());
-            mob.initialize(entity.world, difficulty, SpawnReason.COMMAND, null, null);
+            mob.initialize((ServerWorld) entity.world, difficulty, SpawnReason.COMMAND, null, null);
         }
 
         if (!entity.world.spawnEntity(entity)) {

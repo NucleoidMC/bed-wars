@@ -12,7 +12,7 @@ public class LightningGameModifier implements GameModifier {
     public static final Codec<LightningGameModifier> CODEC = RecordCodecBuilder.create(instance -> {
         return instance.group(
                 GameTrigger.CODEC.fieldOf("trigger").forGetter(LightningGameModifier::getTrigger),
-                Codec.BOOL.fieldOf("cosmetic").withDefault(false).forGetter(modifier -> modifier.cosmetic)
+                Codec.BOOL.fieldOf("cosmetic").orElse(false).forGetter(modifier -> modifier.cosmetic)
         ).apply(instance, LightningGameModifier::new);
     });
 
@@ -39,8 +39,8 @@ public class LightningGameModifier implements GameModifier {
                 return;
             }
 
-            entity.method_29495(Vec3d.ofBottomCenter(player.getBlockPos()));
-            entity.method_29498(this.cosmetic);
+            entity.refreshPositionAfterTeleport(Vec3d.ofBottomCenter(player.getBlockPos()));
+            entity.setCosmetic(this.cosmetic);
             world.spawnEntity(entity);
         });
     }

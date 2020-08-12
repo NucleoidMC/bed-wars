@@ -1,10 +1,5 @@
 package xyz.nucleoid.bedwars.game.generator;
 
-import java.util.Random;
-
-import xyz.nucleoid.bedwars.game.generator.feature.PoplarTreeFeature;
-import xyz.nucleoid.plasmid.game.map.template.MapTemplate;
-import xyz.nucleoid.plasmid.game.map.template.TemplateChunkGenerator;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -15,9 +10,14 @@ import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkRandom;
 import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.feature.DefaultBiomeFeatures;
+import net.minecraft.world.gen.feature.ConfiguredFeatures;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
+import xyz.nucleoid.bedwars.game.generator.feature.PoplarTreeFeature;
+import xyz.nucleoid.plasmid.game.map.template.MapTemplate;
+import xyz.nucleoid.plasmid.game.map.template.TemplateChunkGenerator;
+
+import java.util.Random;
 
 public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
     private static final BlockState STONE = Blocks.STONE.getDefaultState();
@@ -60,7 +60,7 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
             int z = (region.getCenterChunkZ() * 16) + random.nextInt(16);
             int y = region.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
 
-            PoplarTreeFeature.INSTANCE.generate(region, structures, this, random, new BlockPos(x, y, z), DefaultFeatureConfig.DEFAULT);
+            PoplarTreeFeature.INSTANCE.generate(region, this, random, new BlockPos(x, y, z), DefaultFeatureConfig.DEFAULT);
         }
 
         for (int i = 0; i < 4; i++) {
@@ -68,7 +68,7 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
             int z = (region.getCenterChunkZ() * 16) + random.nextInt(16);
             int y = region.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
 
-            Feature.RANDOM_PATCH.generate(region, structures, this, random, new BlockPos(x, y, z), DefaultBiomeFeatures.GRASS_CONFIG);
+            Feature.RANDOM_PATCH.generate(region, this, random, new BlockPos(x, y, z), ConfiguredFeatures.Configs.GRASS_CONFIG);
         }
     }
 }

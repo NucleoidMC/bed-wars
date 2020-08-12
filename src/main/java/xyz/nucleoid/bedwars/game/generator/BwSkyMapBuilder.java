@@ -25,7 +25,7 @@ public final class BwSkyMapBuilder {
     }
 
     public CompletableFuture<BwMap> create() {
-        return CompletableFuture.supplyAsync(this::build, Util.getServerWorkerExecutor());
+        return CompletableFuture.supplyAsync(this::build, Util.getMainWorkerExecutor());
     }
 
     private BwMap build() {
