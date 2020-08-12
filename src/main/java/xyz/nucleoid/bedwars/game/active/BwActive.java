@@ -130,13 +130,13 @@ public final class BwActive {
             active.scoreboard.addTeam(team);
         }
 
-        gameWorld.newGame(game -> {
-            game.setRule(GameRule.ALLOW_PORTALS, RuleResult.DENY);
-            game.setRule(GameRule.ALLOW_PVP, RuleResult.ALLOW);
-            game.setRule(GameRule.INSTANT_LIGHT_TNT, RuleResult.ALLOW);
-            game.setRule(GameRule.ALLOW_CRAFTING, RuleResult.DENY);
+        gameWorld.openGame(game -> {
+            game.setRule(GameRule.PORTALS, RuleResult.DENY);
+            game.setRule(GameRule.PVP, RuleResult.ALLOW);
+            game.setRule(GameRule.UNSTABLE_TNT, RuleResult.ALLOW);
+            game.setRule(GameRule.CRAFTING, RuleResult.DENY);
             game.setRule(GameRule.FALL_DAMAGE, RuleResult.ALLOW);
-            game.setRule(GameRule.ENABLE_HUNGER, RuleResult.DENY);
+            game.setRule(GameRule.HUNGER, RuleResult.DENY);
             game.setRule(BedWars.BLAST_PROOF_GLASS_RULE, RuleResult.ALLOW);
 
             game.on(GameOpenListener.EVENT, active::onOpen);
@@ -384,7 +384,7 @@ public final class BwActive {
     private void tick() {
         if (this.winningTeam != null) {
             if (this.tickClosing()) {
-                this.gameWorld.closeWorld();
+                this.gameWorld.close();
             }
             return;
         }

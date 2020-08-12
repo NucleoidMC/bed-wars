@@ -2,6 +2,7 @@ package xyz.nucleoid.bedwars.game.generator;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.ChunkRegion;
@@ -23,8 +24,8 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
     private static final BlockState STONE = Blocks.STONE.getDefaultState();
     private static final BlockState WATER = Blocks.WATER.getDefaultState();
 
-    public BwSkyChunkGenerator(MapTemplate template) {
-        super(template, BlockPos.ORIGIN);
+    public BwSkyChunkGenerator(MinecraftServer server, MapTemplate template) {
+        super(server, template, BlockPos.ORIGIN);
     }
 
     @Override

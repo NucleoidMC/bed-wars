@@ -61,7 +61,7 @@ public final class BwWaiting {
     public static CompletableFuture<Void> open(MinecraftServer server, BwConfig config) {
         BwSkyMapBuilder mapBuilder = new BwSkyMapBuilder(config);
 
-        return mapBuilder.create().thenAccept(map -> {
+        return mapBuilder.create(server).thenAccept(map -> {
             BubbleWorldConfig worldConfig = new BubbleWorldConfig()
                     .setGenerator(map.getChunkGenerator())
                     .setDefaultGameMode(GameMode.SPECTATOR);
@@ -69,10 +69,10 @@ public final class BwWaiting {
             GameWorld gameWorld = GameWorld.open(server, worldConfig);
             BwWaiting waiting = new BwWaiting(gameWorld, map, config);
 
-            gameWorld.newGame(game -> {
-                game.setRule(GameRule.ALLOW_PVP, RuleResult.DENY);
-                game.setRule(GameRule.ALLOW_CRAFTING, RuleResult.DENY);
-                game.setRule(GameRule.ENABLE_HUNGER, RuleResult.DENY);
+            gameWorld.openGame(game -> {
+                game.setRule(GameRule.PVP, RuleResult.DENY);
+                game.setRule(GameRule.CRAFTING, RuleResult.DENY);
+                game.setRule(GameRule.HUNGER, RuleResult.DENY);
                 game.setRule(GameRule.FALL_DAMAGE, RuleResult.DENY);
 
                 game.on(RequestStartListener.EVENT, waiting::requestStart);
