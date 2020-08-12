@@ -469,16 +469,16 @@ public final class BwActive {
         }
     }
 
-    private boolean onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
+    private ActionResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
         BwParticipant participant = this.getParticipant(player);
 
         // TODO: cancel if cause is own player
         if (participant != null) {
             this.killLogic.onPlayerDeath(participant, player, source);
-            return true;
+            return ActionResult.FAIL;
         }
 
-        return false;
+        return ActionResult.SUCCESS;
     }
 
     private void onClose() {

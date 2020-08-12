@@ -11,10 +11,9 @@ import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkRandom;
 import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.feature.ConfiguredFeatures;
-import net.minecraft.world.gen.feature.DefaultFeatureConfig;
-import net.minecraft.world.gen.feature.Feature;
-import xyz.nucleoid.bedwars.game.generator.feature.PoplarTreeFeature;
+
+import xyz.nucleoid.plasmid.game.gen.feature.GrassGen;
+import xyz.nucleoid.plasmid.game.gen.feature.PoplarTreeGen;
 import xyz.nucleoid.plasmid.game.map.template.MapTemplate;
 import xyz.nucleoid.plasmid.game.map.template.TemplateChunkGenerator;
 
@@ -54,14 +53,14 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
 
     @Override
     public void generateFeatures(ChunkRegion region, StructureAccessor structures) {
-        // So this somehow works without registering the features but we *probably* should...
+        BlockPos.Mutable mutable = new BlockPos.Mutable();
         Random random = new Random();
         for (int i = 0; i < 3; i++) {
             int x = (region.getCenterChunkX() * 16) + random.nextInt(16);
             int z = (region.getCenterChunkZ() * 16) + random.nextInt(16);
             int y = region.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
 
-            PoplarTreeFeature.INSTANCE.generate(region, this, random, new BlockPos(x, y, z), DefaultFeatureConfig.DEFAULT);
+            PoplarTreeGen.INSTANCE.generate(region, mutable.set(x, y, z).toImmutable(), random);
         }
 
         for (int i = 0; i < 4; i++) {
@@ -69,7 +68,7 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
             int z = (region.getCenterChunkZ() * 16) + random.nextInt(16);
             int y = region.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
 
-            Feature.RANDOM_PATCH.generate(region, this, random, new BlockPos(x, y, z), ConfiguredFeatures.Configs.GRASS_CONFIG);
+            GrassGen.INSTANCE.generate(region, mutable.set(x, y, z).toImmutable(), random);
         }
     }
 }

@@ -27,6 +27,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -108,9 +109,9 @@ public final class BwWaiting {
         this.spawnPlayer(player);
     }
 
-    private boolean onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
+    private ActionResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
         this.spawnPlayer(player);
-        return true;
+        return ActionResult.SUCCESS;
     }
 
     private TypedActionResult<ItemStack> onUseItem(ServerPlayerEntity player, Hand hand) {
