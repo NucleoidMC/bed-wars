@@ -138,12 +138,6 @@ public final class BwMap {
         return this.itemGenerators;
     }
 
-    public void delete() {
-        for (BwItemGenerator generator : this.itemGenerators) {
-            generator.remove();
-        }
-    }
-
     public boolean isProtectedBlock(BlockPos pos) {
         return this.protectedBlocks.contains(pos.asLong());
     }

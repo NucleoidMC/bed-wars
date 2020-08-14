@@ -1,33 +1,33 @@
-package xyz.nucleoid.bedwars.mixin;
+package xyz.nucleoid.bedwars.custom;
 
-import xyz.nucleoid.plasmid.item.CustomItem;
-import xyz.nucleoid.bedwars.custom.BwCustomItems;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ChorusFruitItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import xyz.nucleoid.plasmid.fake.FakeItem;
 
 import javax.annotation.Nullable;
 import java.util.Random;
 
-@Mixin(ChorusFruitItem.class)
-public abstract class ChorusFruitItemMixin {
+public final class BwChorusFruitItem extends ChorusFruitItem implements FakeItem {
     private static final int ATTEMPTS = 32;
     private static final double MIN_DISTANCE_SQ = 6.0 * 6.0;
 
-    @Inject(method = "finishUsing", at = @At("HEAD"), cancellable = true)
-    private void finishUsing(ItemStack stack, World world, LivingEntity entity, CallbackInfoReturnable<ItemStack> ci) {
-        if (!world.isClient && CustomItem.match(stack) == BwCustomItems.BW_CHORUS_FRUIT) {
+    public BwChorusFruitItem(Item.Settings settings) {
+        super(settings);
+    }
+
+    @Override
+    public ItemStack finishUsing(ItemStack stack, World world, LivingEntity entity) {
+        if (!world.isClient) {
             ItemStack resultStack = entity.eatFood(world, stack);
 
             double originX = entity.getX();
@@ -56,8 +56,10 @@ public abstract class ChorusFruitItemMixin {
                 ((PlayerEntity) entity).getItemCooldownManager().set(stack.getItem(), 20);
             }
 
-            ci.setReturnValue(resultStack);
+            return resultStack;
         }
+
+        return stack;
     }
 
     @Nullable
@@ -77,5 +79,10 @@ public abstract class ChorusFruitItemMixin {
                 MathHelper.clamp(entity.getY() + deltaY, 0.0, entity.world.getDimensionHeight() - 1),
                 entity.getZ() + deltaZ
         );
+    }
+
+    @Override
+    public Item asProxy() {
+        return Items.CHORUS_FRUIT;
     }
 }

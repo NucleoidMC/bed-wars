@@ -1,6 +1,6 @@
 package xyz.nucleoid.bedwars.game.active.shop;
 
-import xyz.nucleoid.bedwars.custom.BwCustomItems;
+import xyz.nucleoid.bedwars.custom.BwItems;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.active.BwParticipant;
 import xyz.nucleoid.bedwars.game.active.upgrade.PlayerUpgrades;
@@ -70,8 +70,8 @@ public final class BwItemShop {
             shop.addItem(new ItemStack(Items.WATER_BUCKET), Cost.ofGold(10));
             shop.addItem(new ItemStack(Items.LAVA_BUCKET), Cost.ofGold(24));
             shop.addItem(new ItemStack(Items.GOLDEN_APPLE), Cost.ofGold(3));
-            shop.addItem(BwCustomItems.BW_CHORUS_FRUIT.applyTo(new ItemStack(Items.CHORUS_FRUIT, 4)), Cost.ofGold(8));
-            shop.addItem(BwCustomItems.BRIDGE_EGG.applyTo(new ItemStack(Items.EGG)), Cost.ofEmeralds(2));
+            shop.addItem(new ItemStack(BwItems.CHORUS_FRUIT, 4), Cost.ofGold(8));
+            shop.addItem(new ItemStack(BwItems.BRIDGE_EGG), Cost.ofEmeralds(2));
 
             if (participant != null) {
                 PlayerUpgrades upgrades = participant.upgrades;

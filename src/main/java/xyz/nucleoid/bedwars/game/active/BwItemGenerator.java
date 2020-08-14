@@ -162,10 +162,4 @@ public final class BwItemGenerator {
 
         return !players.isEmpty();
     }
-
-    public void remove() {
-        if (this.timerText != null) {
-            this.timerText.remove();
-        }
-    }
 }

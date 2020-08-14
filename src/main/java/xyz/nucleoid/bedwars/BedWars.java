@@ -2,7 +2,7 @@ package xyz.nucleoid.bedwars;
 
 import com.google.common.reflect.Reflection;
 import net.fabricmc.api.ModInitializer;
-import xyz.nucleoid.bedwars.custom.BwCustomItems;
+import xyz.nucleoid.bedwars.custom.BwItems;
 import xyz.nucleoid.bedwars.game.BwConfig;
 import xyz.nucleoid.bedwars.game.BwWaiting;
 import xyz.nucleoid.bedwars.game.active.modifiers.BwGameModifiers;
@@ -27,7 +27,7 @@ public final class BedWars implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        Reflection.initialize(BwCustomItems.class);
+        Reflection.initialize(BwItems.class);
 
         BwGameTriggers.register();
         BwGameModifiers.register();

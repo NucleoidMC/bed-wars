@@ -56,13 +56,9 @@
     "old_mechanics": false
   },
   "teams": [
-    {"key": "white", "display": "White", "color": "white"},
     {"key": "yellow", "display": "Yellow", "color": "yellow"},
-    {"key": "lime", "display": "Lime", "color": "lime"},
-    {"key": "pink", "display": "Pink", "color": "pink"},
-    {"key": "cyan", "display": "Cyan", "color": "cyan"},
+    {"key": "green", "display": "Green", "color": "green"},
     {"key": "blue", "display": "Blue", "color": "blue"},
-    {"key": "red", "display": "Red", "color": "red"},
-    {"key": "black", "display": "Black", "color": "black"}
+    {"key": "red", "display": "Red", "color": "red"}
   ]
 }

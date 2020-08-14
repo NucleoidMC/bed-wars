@@ -4,7 +4,6 @@
   "package": "xyz.nucleoid.bedwars.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "ChorusFruitItemMixin",
     "ExplosionBehaviorMixin"
   ],
   "injectors": {

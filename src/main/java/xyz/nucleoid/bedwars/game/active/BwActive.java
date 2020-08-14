@@ -1,38 +1,6 @@
 package xyz.nucleoid.bedwars.game.active;
 
 import com.google.common.collect.Multimap;
-import xyz.nucleoid.bedwars.BedWars;
-import xyz.nucleoid.bedwars.custom.BridgeEggEntity;
-import xyz.nucleoid.bedwars.custom.BwCustomItems;
-import xyz.nucleoid.bedwars.custom.BwFireballEntity;
-import xyz.nucleoid.bedwars.game.BwConfig;
-import xyz.nucleoid.bedwars.game.BwMap;
-import xyz.nucleoid.bedwars.game.BwSpawnLogic;
-import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
-import xyz.nucleoid.bedwars.game.active.modifiers.GameModifier;
-import xyz.nucleoid.bedwars.game.active.modifiers.GameTrigger;
-import xyz.nucleoid.plasmid.game.GameWorld;
-import xyz.nucleoid.plasmid.game.event.AttackEntityListener;
-import xyz.nucleoid.plasmid.game.event.BreakBlockListener;
-import xyz.nucleoid.plasmid.game.event.ExplosionListener;
-import xyz.nucleoid.plasmid.game.event.GameCloseListener;
-import xyz.nucleoid.plasmid.game.event.GameOpenListener;
-import xyz.nucleoid.plasmid.game.event.GameTickListener;
-import xyz.nucleoid.plasmid.game.event.OfferPlayerListener;
-import xyz.nucleoid.plasmid.game.event.PlayerAddListener;
-import xyz.nucleoid.plasmid.game.event.PlayerDeathListener;
-import xyz.nucleoid.plasmid.game.event.UseBlockListener;
-import xyz.nucleoid.plasmid.game.event.UseItemListener;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
-import xyz.nucleoid.plasmid.game.player.JoinResult;
-import xyz.nucleoid.plasmid.game.rule.GameRule;
-import xyz.nucleoid.plasmid.game.rule.RuleResult;
-import xyz.nucleoid.plasmid.item.CustomItem;
-import xyz.nucleoid.plasmid.logic.combat.OldCombat;
-import xyz.nucleoid.plasmid.util.BlockBounds;
-import xyz.nucleoid.plasmid.util.ColoredBlocks;
-import xyz.nucleoid.plasmid.util.ItemStackBuilder;
-import xyz.nucleoid.plasmid.util.PlayerRef;
 import net.minecraft.block.AbstractChestBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -57,6 +25,36 @@ import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
+import xyz.nucleoid.bedwars.BedWars;
+import xyz.nucleoid.bedwars.custom.BridgeEggEntity;
+import xyz.nucleoid.bedwars.custom.BwFireballEntity;
+import xyz.nucleoid.bedwars.custom.BwItems;
+import xyz.nucleoid.bedwars.game.BwConfig;
+import xyz.nucleoid.bedwars.game.BwMap;
+import xyz.nucleoid.bedwars.game.BwSpawnLogic;
+import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
+import xyz.nucleoid.bedwars.game.active.modifiers.GameModifier;
+import xyz.nucleoid.bedwars.game.active.modifiers.GameTrigger;
+import xyz.nucleoid.plasmid.game.GameWorld;
+import xyz.nucleoid.plasmid.game.event.AttackEntityListener;
+import xyz.nucleoid.plasmid.game.event.BreakBlockListener;
+import xyz.nucleoid.plasmid.game.event.ExplosionListener;
+import xyz.nucleoid.plasmid.game.event.GameOpenListener;
+import xyz.nucleoid.plasmid.game.event.GameTickListener;
+import xyz.nucleoid.plasmid.game.event.OfferPlayerListener;
+import xyz.nucleoid.plasmid.game.event.PlayerAddListener;
+import xyz.nucleoid.plasmid.game.event.PlayerDeathListener;
+import xyz.nucleoid.plasmid.game.event.UseBlockListener;
+import xyz.nucleoid.plasmid.game.event.UseItemListener;
+import xyz.nucleoid.plasmid.game.player.GameTeam;
+import xyz.nucleoid.plasmid.game.player.JoinResult;
+import xyz.nucleoid.plasmid.game.rule.GameRule;
+import xyz.nucleoid.plasmid.game.rule.RuleResult;
+import xyz.nucleoid.plasmid.logic.combat.OldCombat;
+import xyz.nucleoid.plasmid.util.BlockBounds;
+import xyz.nucleoid.plasmid.util.ColoredBlocks;
+import xyz.nucleoid.plasmid.util.ItemStackBuilder;
+import xyz.nucleoid.plasmid.util.PlayerRef;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -102,8 +100,6 @@ public final class BwActive {
     private GameTeam winningTeam;
     private long closeTime;
 
-    private boolean closed;
-
     private BwActive(GameWorld gameWorld, BwMap map, BwConfig config) {
         this.world = gameWorld.getWorld();
         this.gameWorld = gameWorld;
@@ -111,7 +107,7 @@ public final class BwActive {
         this.map = map;
         this.config = config;
 
-        this.scoreboard = BwScoreboard.create(this);
+        this.scoreboard = gameWorld.addResource(BwScoreboard.create(this));
 
         this.broadcast = new BwBroadcast(this);
         this.teamLogic = new BwTeamLogic(this);
@@ -140,7 +136,6 @@ public final class BwActive {
             game.setRule(BedWars.BLAST_PROOF_GLASS_RULE, RuleResult.ALLOW);
 
             game.on(GameOpenListener.EVENT, active::onOpen);
-            game.on(GameCloseListener.EVENT, active::onClose);
 
             game.on(OfferPlayerListener.EVENT, player -> JoinResult.ok());
             game.on(PlayerAddListener.EVENT, active::addPlayer);
@@ -330,7 +325,7 @@ public final class BwActive {
 
         if (stack.getItem() == Items.FIRE_CHARGE) {
             return this.onUseFireball(player, stack);
-        } else if (CustomItem.match(stack) == BwCustomItems.BRIDGE_EGG) {
+        } else if (stack.getItem() == BwItems.BRIDGE_EGG) {
             return this.onUseBridgeEgg(player, stack);
         }
 
@@ -479,16 +474,6 @@ public final class BwActive {
         }
 
         return ActionResult.SUCCESS;
-    }
-
-    private void onClose() {
-        if (this.closed) {
-            return;
-        }
-
-        this.closed = true;
-        this.scoreboard.close();
-        this.map.delete();
     }
 
     public ItemStack createArmor(ItemStack stack) {

@@ -1,11 +1,22 @@
 package xyz.nucleoid.bedwars.game;
 
 import com.google.common.collect.Multimap;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.tag.ItemTags;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
+import net.minecraft.util.TypedActionResult;
+import net.minecraft.world.GameMode;
 import xyz.nucleoid.bedwars.BedWars;
-import xyz.nucleoid.bedwars.custom.BwCustomItems;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.generator.BwSkyMapBuilder;
+import xyz.nucleoid.plasmid.game.GameOpenContext;
 import xyz.nucleoid.plasmid.game.GameWorld;
 import xyz.nucleoid.plasmid.game.StartResult;
 import xyz.nucleoid.plasmid.game.event.OfferPlayerListener;
@@ -19,19 +30,7 @@ import xyz.nucleoid.plasmid.game.player.TeamAllocator;
 import xyz.nucleoid.plasmid.game.rule.GameRule;
 import xyz.nucleoid.plasmid.game.rule.RuleResult;
 import xyz.nucleoid.plasmid.game.world.bubble.BubbleWorldConfig;
-import xyz.nucleoid.plasmid.item.CustomItem;
 import xyz.nucleoid.plasmid.util.ColoredBlocks;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.world.GameMode;
 
 import java.util.HashMap;
 import java.util.List;
@@ -59,15 +58,16 @@ public final class BwWaiting {
         this.spawnLogic = new BwSpawnLogic(gameWorld.getWorld(), map);
     }
 
-    public static CompletableFuture<Void> open(MinecraftServer server, BwConfig config) {
+    public static CompletableFuture<Void> open(GameOpenContext<BwConfig> context) {
+        BwConfig config = context.getConfig();
         BwSkyMapBuilder mapBuilder = new BwSkyMapBuilder(config);
 
-        return mapBuilder.create(server).thenAccept(map -> {
+        return mapBuilder.create(context.getServer()).thenAccept(map -> {
             BubbleWorldConfig worldConfig = new BubbleWorldConfig()
                     .setGenerator(map.getChunkGenerator())
                     .setDefaultGameMode(GameMode.SPECTATOR);
 
-            GameWorld gameWorld = GameWorld.open(server, worldConfig);
+            GameWorld gameWorld = context.openWorld(worldConfig);
             BwWaiting waiting = new BwWaiting(gameWorld, map, config);
 
             gameWorld.openGame(game -> {
@@ -75,6 +75,7 @@ public final class BwWaiting {
                 game.setRule(GameRule.CRAFTING, RuleResult.DENY);
                 game.setRule(GameRule.HUNGER, RuleResult.DENY);
                 game.setRule(GameRule.FALL_DAMAGE, RuleResult.DENY);
+                game.setRule(GameRule.THROW_ITEMS, RuleResult.DENY);
 
                 game.on(RequestStartListener.EVENT, waiting::requestStart);
                 game.on(OfferPlayerListener.EVENT, waiting::offerPlayer);
@@ -117,7 +118,7 @@ public final class BwWaiting {
     private TypedActionResult<ItemStack> onUseItem(ServerPlayerEntity player, Hand hand) {
         ItemStack stack = player.getStackInHand(hand);
 
-        if (CustomItem.match(stack) == BwCustomItems.TEAM_SELECTOR) {
+        if (stack.getItem().isIn(ItemTags.WOOL)) {
             CompoundTag tag = stack.getOrCreateTag();
             String teamKey = tag.getString(TEAM_KEY);
 
@@ -153,7 +154,7 @@ public final class BwWaiting {
 
             selectorStack.getOrCreateTag().putString(TEAM_KEY, team.getKey());
 
-            player.inventory.setStack(i, BwCustomItems.TEAM_SELECTOR.applyTo(selectorStack));
+            player.inventory.setStack(i, selectorStack);
         }
     }
 
