@@ -133,6 +133,7 @@ public final class BwActive {
             game.setRule(GameRule.CRAFTING, RuleResult.DENY);
             game.setRule(GameRule.FALL_DAMAGE, RuleResult.ALLOW);
             game.setRule(GameRule.HUNGER, RuleResult.DENY);
+            game.setRule(GameRule.TEAM_CHAT, RuleResult.ALLOW);
             game.setRule(BedWars.BLAST_PROOF_GLASS_RULE, RuleResult.ALLOW);
 
             game.on(GameOpenListener.EVENT, active::onOpen);
