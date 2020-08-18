@@ -225,7 +225,7 @@ public final class BwActive {
         }
     }
 
-    private boolean onBreakBlock(ServerPlayerEntity player, BlockPos pos) {
+    private ActionResult onBreakBlock(ServerPlayerEntity player, BlockPos pos) {
         if (this.map.isProtectedBlock(pos)) {
             for (GameTeam team : this.config.teams) {
                 BlockBounds bed = this.map.getTeamRegions(team).bed;
@@ -234,10 +234,10 @@ public final class BwActive {
                 }
             }
 
-            return true;
+            return ActionResult.FAIL;
         }
 
-        return false;
+        return ActionResult.PASS;
     }
 
     private ActionResult onAttackEntity(ServerPlayerEntity attackerPlayer, Hand hand, Entity attackedEntity, EntityHitResult hitResult) {

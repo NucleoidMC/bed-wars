@@ -19,18 +19,14 @@ import xyz.nucleoid.bedwars.game.generator.BwSkyMapBuilder;
 import xyz.nucleoid.plasmid.game.GameOpenContext;
 import xyz.nucleoid.plasmid.game.GameWorld;
 import xyz.nucleoid.plasmid.game.StartResult;
-import xyz.nucleoid.plasmid.game.event.OfferPlayerListener;
-import xyz.nucleoid.plasmid.game.event.PlayerAddListener;
-import xyz.nucleoid.plasmid.game.event.PlayerDeathListener;
-import xyz.nucleoid.plasmid.game.event.RequestStartListener;
-import xyz.nucleoid.plasmid.game.event.UseItemListener;
+import xyz.nucleoid.plasmid.game.event.*;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 import xyz.nucleoid.plasmid.game.player.JoinResult;
 import xyz.nucleoid.plasmid.game.player.TeamAllocator;
 import xyz.nucleoid.plasmid.game.rule.GameRule;
 import xyz.nucleoid.plasmid.game.rule.RuleResult;
-import xyz.nucleoid.plasmid.game.world.bubble.BubbleWorldConfig;
 import xyz.nucleoid.plasmid.util.ColoredBlocks;
+import xyz.nucleoid.plasmid.world.bubble.BubbleWorldConfig;
 
 import java.util.HashMap;
 import java.util.List;
@@ -58,32 +54,35 @@ public final class BwWaiting {
         this.spawnLogic = new BwSpawnLogic(gameWorld.getWorld(), map);
     }
 
-    public static CompletableFuture<Void> open(GameOpenContext<BwConfig> context) {
+    public static CompletableFuture<GameWorld> open(GameOpenContext<BwConfig> context) {
         BwConfig config = context.getConfig();
         BwSkyMapBuilder mapBuilder = new BwSkyMapBuilder(config);
 
-        return mapBuilder.create(context.getServer()).thenAccept(map -> {
+        return mapBuilder.create(context.getServer()).thenCompose(map -> {
             BubbleWorldConfig worldConfig = new BubbleWorldConfig()
                     .setGenerator(map.getChunkGenerator())
                     .setDefaultGameMode(GameMode.SPECTATOR);
 
-            GameWorld gameWorld = context.openWorld(worldConfig);
-            BwWaiting waiting = new BwWaiting(gameWorld, map, config);
+            return context.openWorld(worldConfig).thenApply(gameWorld -> {
+                BwWaiting waiting = new BwWaiting(gameWorld, map, config);
 
-            gameWorld.openGame(game -> {
-                game.setRule(GameRule.PVP, RuleResult.DENY);
-                game.setRule(GameRule.CRAFTING, RuleResult.DENY);
-                game.setRule(GameRule.HUNGER, RuleResult.DENY);
-                game.setRule(GameRule.FALL_DAMAGE, RuleResult.DENY);
-                game.setRule(GameRule.THROW_ITEMS, RuleResult.DENY);
+                gameWorld.openGame(game -> {
+                    game.setRule(GameRule.PVP, RuleResult.DENY);
+                    game.setRule(GameRule.CRAFTING, RuleResult.DENY);
+                    game.setRule(GameRule.HUNGER, RuleResult.DENY);
+                    game.setRule(GameRule.FALL_DAMAGE, RuleResult.DENY);
+                    game.setRule(GameRule.THROW_ITEMS, RuleResult.DENY);
 
-                game.on(RequestStartListener.EVENT, waiting::requestStart);
-                game.on(OfferPlayerListener.EVENT, waiting::offerPlayer);
+                    game.on(RequestStartListener.EVENT, waiting::requestStart);
+                    game.on(OfferPlayerListener.EVENT, waiting::offerPlayer);
 
-                game.on(PlayerAddListener.EVENT, waiting::addPlayer);
-                game.on(PlayerDeathListener.EVENT, waiting::onPlayerDeath);
+                    game.on(PlayerAddListener.EVENT, waiting::addPlayer);
+                    game.on(PlayerDeathListener.EVENT, waiting::onPlayerDeath);
 
-                game.on(UseItemListener.EVENT, waiting::onUseItem);
+                    game.on(UseItemListener.EVENT, waiting::onUseItem);
+                });
+
+                return gameWorld;
             });
         });
     }
@@ -98,12 +97,12 @@ public final class BwWaiting {
 
     private StartResult requestStart() {
         if (this.gameWorld.getPlayerCount() < this.config.players.getMinPlayers()) {
-            return StartResult.notEnoughPlayers();
+            return StartResult.NOT_ENOUGH_PLAYERS;
         }
 
         Multimap<GameTeam, ServerPlayerEntity> players = this.allocatePlayers();
         BwActive.open(this.gameWorld, this.map, this.config, players);
-        return StartResult.ok();
+        return StartResult.OK;
     }
 
     private void addPlayer(ServerPlayerEntity player) {
