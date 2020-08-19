@@ -75,8 +75,6 @@ public final class BwTeamLogic {
         });
 
         this.game.triggerModifiers(BwGameTriggers.BED_BROKEN);
-
-        this.game.scoreboard.markDirty();
     }
 
     @Nullable

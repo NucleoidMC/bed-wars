@@ -60,8 +60,6 @@ public final class BwWinStateLogic {
                 this.eliminateTeam(teamState);
             }
         }
-
-        this.game.scoreboard.markDirty();
     }
 
     private long countRemainingPlayers(GameTeam team) {
@@ -78,7 +76,6 @@ public final class BwWinStateLogic {
         });
 
         this.game.broadcast.broadcastTeamEliminated(teamState.team);
-        this.game.scoreboard.markDirty();
     }
 
     public static class WinResult {

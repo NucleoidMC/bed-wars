@@ -1,19 +1,17 @@
 package xyz.nucleoid.bedwars.game.active;
 
-import xyz.nucleoid.plasmid.game.player.GameTeam;
 import net.minecraft.scoreboard.AbstractTeam;
-import net.minecraft.scoreboard.ScoreboardCriterion;
-import net.minecraft.scoreboard.ScoreboardObjective;
-import net.minecraft.scoreboard.ScoreboardPlayerScore;
 import net.minecraft.scoreboard.ServerScoreboard;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import xyz.nucleoid.plasmid.game.player.GameTeam;
+import xyz.nucleoid.plasmid.widget.SidebarWidget;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,40 +20,24 @@ public final class BwScoreboard implements AutoCloseable {
     private final BwActive game;
 
     private final Map<GameTeam, Team> scoreboardTeams = new HashMap<>();
-    private final ScoreboardObjective objective;
-
-    private boolean dirty = true;
+    private final SidebarWidget sidebar;
 
     private long ticks;
 
-    private BwScoreboard(BwActive game, ScoreboardObjective objective) {
+    private BwScoreboard(BwActive game, SidebarWidget sidebar) {
         this.game = game;
-        this.objective = objective;
+        this.sidebar = sidebar;
     }
 
     public static BwScoreboard create(BwActive game) {
-        MinecraftServer server = game.world.getServer();
-        ServerScoreboard scoreboard = server.getScoreboard();
-
-        ScoreboardObjective objective = new ScoreboardObjective(
-                scoreboard, "bedwars",
-                ScoreboardCriterion.DUMMY,
-                new LiteralText("BedWars").formatted(Formatting.GOLD, Formatting.BOLD),
-                ScoreboardCriterion.RenderType.INTEGER
-        );
-        scoreboard.addScoreboardObjective(objective);
-
-        scoreboard.setObjectiveSlot(1, objective);
-
-        return new BwScoreboard(game, objective);
+        Text title = new LiteralText("BedWars").formatted(Formatting.GOLD, Formatting.BOLD);
+        SidebarWidget sidebar = SidebarWidget.open(title, game.gameWorld.getPlayerSet());
+        return new BwScoreboard(game, sidebar);
     }
 
     public void tick() {
-        this.ticks++;
-
-        if (this.dirty || this.ticks % 20 == 0) {
-            this.rerender();
-            this.dirty = false;
+        if (this.ticks++ % 20 == 0) {
+            this.render();
         }
     }
 
@@ -90,11 +72,7 @@ public final class BwScoreboard implements AutoCloseable {
         });
     }
 
-    public void markDirty() {
-        this.dirty = true;
-    }
-
-    private void rerender() {
+    private void render() {
         List<String> lines = new ArrayList<>(10);
 
         long seconds = (this.ticks / 20) % 60;
@@ -135,29 +113,7 @@ public final class BwScoreboard implements AutoCloseable {
             }
         });
 
-        this.render(lines.toArray(new String[0]));
-    }
-
-    private void render(String[] lines) {
-        MinecraftServer server = this.game.world.getServer();
-        ServerScoreboard scoreboard = server.getScoreboard();
-
-        render(scoreboard, this.objective, lines);
-    }
-
-    private static void render(ServerScoreboard scoreboard, ScoreboardObjective objective, String[] lines) {
-        clear(scoreboard, objective);
-        for (int i = 0; i < lines.length; i++) {
-            String line = lines[i];
-            scoreboard.getPlayerScore(line, objective).setScore(lines.length - i);
-        }
-    }
-
-    private static void clear(ServerScoreboard scoreboard, ScoreboardObjective objective) {
-        Collection<ScoreboardPlayerScore> existing = scoreboard.getAllPlayerScores(objective);
-        for (ScoreboardPlayerScore score : existing) {
-            scoreboard.resetPlayerScore(score.getPlayerName(), objective);
-        }
+        this.sidebar.set(lines.toArray(new String[0]));
     }
 
     @Override
@@ -167,6 +123,6 @@ public final class BwScoreboard implements AutoCloseable {
         ServerScoreboard scoreboard = server.getScoreboard();
         this.scoreboardTeams.values().forEach(scoreboard::removeTeam);
 
-        scoreboard.removeObjective(this.objective);
+        this.sidebar.close();
     }
 }

@@ -61,8 +61,6 @@ public final class BwKillLogic {
         } else {
             this.onFinalDeath(participant, player);
         }
-
-        this.game.scoreboard.markDirty();
     }
 
     private BwParticipant getKillerParticipant(long time, BwParticipant participant, DamageSource source) {

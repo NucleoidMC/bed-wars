@@ -73,7 +73,7 @@ public final class BwActive {
     public static final long CLOSE_TICKS = 10 * 20;
 
     public final ServerWorld world;
-    private final GameWorld gameWorld;
+    public final GameWorld gameWorld;
 
     public final BwMap map;
     public final BwConfig config;
@@ -220,8 +220,6 @@ public final class BwActive {
                 this.spawnLogic.respawnPlayer(player, GameMode.SPECTATOR);
                 this.spawnLogic.spawnAtCenter(player);
             }
-
-            this.scoreboard.markDirty();
         }
     }
 
