@@ -1,5 +1,7 @@
 package xyz.nucleoid.bedwars.game.generator.island;
 
+import java.util.Random;
+
 import kdotjpg.opensimplex.OpenSimplexNoise;
 import xyz.nucleoid.plasmid.game.map.template.MapTemplate;
 import xyz.nucleoid.plasmid.util.BlockBounds;
@@ -33,9 +35,12 @@ public final class NoiseIslandGenerator {
         int radius = this.config.radius;
         int radius2 = radius * radius;
 
-        BlockState stone = Blocks.STONE.getDefaultState();
+        BlockState state;
+        Random random = new Random();
 
         for (BlockPos pos : this.bounds.iterate()) {
+            state = Blocks.STONE.getDefaultState();
+
             int localX = pos.getX() - origin.getX();
             int localY = pos.getY() - origin.getY();
             int localZ = pos.getZ() - origin.getZ();
@@ -50,8 +55,14 @@ public final class NoiseIslandGenerator {
                 double noise = noiseSampler.eval(noiseX, noiseY, noiseZ);
                 noise += this.computeNoiseFalloff(localY);
 
+                if (localY < 0) {
+                    if (config.oreChance > 1 && random.nextInt(config.oreChance) == 0) {
+                        state = Blocks.DIAMOND_ORE.getDefaultState();
+                    }
+                }
+
                 if (noise > 0) {
-                    template.setBlockState(pos, stone);
+                    template.setBlockState(pos, state);
                 }
             }
         }

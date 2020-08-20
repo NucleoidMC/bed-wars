@@ -25,7 +25,8 @@
       "tree_amt_rand": 4,
       "tree_extra_amt_chance": 0,
       "grass_amt": 16,
-      "check_space": false
+      "check_space": false,
+      "ore_chance": 320
     },
     "small_island_generator": {
       "radius": 5,
