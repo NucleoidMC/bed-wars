@@ -17,14 +17,15 @@ import xyz.nucleoid.bedwars.BedWars;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.generator.BwSkyMapBuilder;
 import xyz.nucleoid.plasmid.game.GameOpenContext;
+import xyz.nucleoid.plasmid.game.GameWaitingLobby;
 import xyz.nucleoid.plasmid.game.GameWorld;
 import xyz.nucleoid.plasmid.game.StartResult;
-import xyz.nucleoid.plasmid.game.event.*;
+import xyz.nucleoid.plasmid.game.event.PlayerAddListener;
+import xyz.nucleoid.plasmid.game.event.PlayerDeathListener;
+import xyz.nucleoid.plasmid.game.event.RequestStartListener;
+import xyz.nucleoid.plasmid.game.event.UseItemListener;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
-import xyz.nucleoid.plasmid.game.player.JoinResult;
 import xyz.nucleoid.plasmid.game.player.TeamAllocator;
-import xyz.nucleoid.plasmid.game.rule.GameRule;
-import xyz.nucleoid.plasmid.game.rule.RuleResult;
 import xyz.nucleoid.plasmid.util.ColoredBlocks;
 import xyz.nucleoid.plasmid.world.bubble.BubbleWorldConfig;
 
@@ -66,40 +67,19 @@ public final class BwWaiting {
             return context.openWorld(worldConfig).thenApply(gameWorld -> {
                 BwWaiting waiting = new BwWaiting(gameWorld, map, config);
 
-                gameWorld.openGame(game -> {
-                    game.setRule(GameRule.PVP, RuleResult.DENY);
-                    game.setRule(GameRule.CRAFTING, RuleResult.DENY);
-                    game.setRule(GameRule.HUNGER, RuleResult.DENY);
-                    game.setRule(GameRule.FALL_DAMAGE, RuleResult.DENY);
-                    game.setRule(GameRule.THROW_ITEMS, RuleResult.DENY);
-
+                return GameWaitingLobby.open(gameWorld, config.players, game -> {
                     game.on(RequestStartListener.EVENT, waiting::requestStart);
-                    game.on(OfferPlayerListener.EVENT, waiting::offerPlayer);
 
                     game.on(PlayerAddListener.EVENT, waiting::addPlayer);
                     game.on(PlayerDeathListener.EVENT, waiting::onPlayerDeath);
 
                     game.on(UseItemListener.EVENT, waiting::onUseItem);
                 });
-
-                return gameWorld;
             });
         });
     }
 
-    private JoinResult offerPlayer(ServerPlayerEntity player) {
-        if (this.gameWorld.getPlayerCount() >= this.config.players.getMaxPlayers()) {
-            return JoinResult.gameFull();
-        }
-
-        return JoinResult.ok();
-    }
-
     private StartResult requestStart() {
-        if (this.gameWorld.getPlayerCount() < this.config.players.getMinPlayers()) {
-            return StartResult.NOT_ENOUGH_PLAYERS;
-        }
-
         Multimap<GameTeam, ServerPlayerEntity> players = this.allocatePlayers();
         BwActive.open(this.gameWorld, this.map, this.config, players);
         return StartResult.OK;
