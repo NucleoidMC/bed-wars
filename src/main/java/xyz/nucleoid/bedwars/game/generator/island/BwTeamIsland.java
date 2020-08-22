@@ -1,13 +1,16 @@
 package xyz.nucleoid.bedwars.game.generator.island;
 
+import net.minecraft.block.BedBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.enums.BedPart;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.plasmid.game.map.template.MapTemplate;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 import xyz.nucleoid.plasmid.util.BlockBounds;
 import xyz.nucleoid.plasmid.util.ColoredBlocks;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.math.BlockPos;
 
 public final class BwTeamIsland {
     private static final int RADIUS = 10;
@@ -50,8 +53,13 @@ public final class BwTeamIsland {
         mutablePos.set(origin.getX(), origin.getY() + 1, origin.getZ() + 2);
         template.setBlockState(mutablePos, Blocks.ENDER_CHEST.getDefaultState());
 
+        BlockState bed = ColoredBlocks.bed(this.team.getDye()).getDefaultState()
+                .with(BedBlock.FACING, Direction.EAST);
+
         mutablePos.set(origin.getX() + 5, origin.getY() + 1, origin.getZ());
-        template.setBlockState(mutablePos, Blocks.RESPAWN_ANCHOR.getDefaultState());
+        template.setBlockState(mutablePos, bed.with(BedBlock.PART, BedPart.FOOT));
+        mutablePos.move(Direction.EAST, 1);
+        template.setBlockState(mutablePos, bed.with(BedBlock.PART, BedPart.HEAD));
 
         this.addRegionsTo(map);
     }
@@ -70,7 +78,10 @@ public final class BwTeamIsland {
         BlockBounds enderChest = BlockBounds.of(this.origin.add(0, 1, 2));
         BlockBounds teamShop = BlockBounds.of(this.origin.add(-2, 1, -1));
         BlockBounds itemShop = BlockBounds.of(this.origin.add(-2, 1, 1));
-        BlockBounds bed = BlockBounds.of(this.origin.add(5, 1, 0));
+        BlockBounds bed = new BlockBounds(
+                this.origin.add(5, 1, 0),
+                this.origin.add(6, 1, 0)
+        );
 
         map.addProtectedBlocks(this.bounds);
         map.addProtectedBlocks(chest);

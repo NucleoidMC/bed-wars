@@ -26,6 +26,8 @@ import xyz.nucleoid.plasmid.game.event.RequestStartListener;
 import xyz.nucleoid.plasmid.game.event.UseItemListener;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 import xyz.nucleoid.plasmid.game.player.TeamAllocator;
+import xyz.nucleoid.plasmid.game.rule.GameRule;
+import xyz.nucleoid.plasmid.game.rule.RuleResult;
 import xyz.nucleoid.plasmid.util.ColoredBlocks;
 import xyz.nucleoid.plasmid.world.bubble.BubbleWorldConfig;
 
@@ -68,6 +70,8 @@ public final class BwWaiting {
                 BwWaiting waiting = new BwWaiting(gameWorld, map, config);
 
                 return GameWaitingLobby.open(gameWorld, config.players, game -> {
+                    game.setRule(GameRule.INTERACTION, RuleResult.ALLOW);
+
                     game.on(RequestStartListener.EVENT, waiting::requestStart);
 
                     game.on(PlayerAddListener.EVENT, waiting::addPlayer);

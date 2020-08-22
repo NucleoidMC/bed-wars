@@ -71,6 +71,7 @@ public final class BwActive {
     public static final int RESPAWN_TIME_SECONDS = 5;
     public static final long RESPAWN_TICKS = 20 * RESPAWN_TIME_SECONDS;
     public static final long CLOSE_TICKS = 10 * 20;
+    public static final int BED_GONE_TICKS = 20 * 60 * 20;
 
     public final ServerWorld world;
     public final GameWorld gameWorld;
@@ -89,6 +90,7 @@ public final class BwActive {
     public final BwMapLogic mapLogic;
     public final BwPlayerLogic playerLogic;
     public final BwSpawnLogic spawnLogic;
+    private final BwBar bar;
 
     private boolean opened;
 
@@ -116,6 +118,7 @@ public final class BwActive {
         this.mapLogic = new BwMapLogic(this);
         this.playerLogic = new BwPlayerLogic(this);
         this.spawnLogic = new BwSpawnLogic(this.world, map);
+        this.bar = gameWorld.addResource(new BwBar(gameWorld));
     }
 
     public static void open(GameWorld gameWorld, BwMap map, BwConfig config, Multimap<GameTeam, ServerPlayerEntity> players) {
@@ -383,10 +386,11 @@ public final class BwActive {
             return;
         }
 
+        long time = this.world.getTime();
+
         // TODO: this should be modular
         if (!this.destroyedBeds) {
-            long time = this.world.getTime();
-            if (time - this.startTime > 20 * 60 * 20) {
+            if (time - this.startTime > BED_GONE_TICKS) {
                 this.destroyedBeds = true;
 
                 for (GameTeam team : this.config.teams) {
@@ -396,6 +400,11 @@ public final class BwActive {
                 this.broadcast.broadcast(this.broadcast.everyone(), new LiteralText("Destroyed all beds!").formatted(Formatting.RED));
                 this.broadcast.broadcastSound(this.broadcast.everyone(), SoundEvents.BLOCK_END_PORTAL_SPAWN);
             }
+        }
+
+        if (time % 20 == 0) {
+            long bedGoneTime = this.startTime + BED_GONE_TICKS;
+            this.bar.update(bedGoneTime - time, BED_GONE_TICKS);
         }
 
         BwWinStateLogic.WinResult winResult = this.tickActive();
