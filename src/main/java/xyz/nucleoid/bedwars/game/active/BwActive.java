@@ -36,16 +36,7 @@ import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameModifier;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameTrigger;
 import xyz.nucleoid.plasmid.game.GameWorld;
-import xyz.nucleoid.plasmid.game.event.AttackEntityListener;
-import xyz.nucleoid.plasmid.game.event.BreakBlockListener;
-import xyz.nucleoid.plasmid.game.event.ExplosionListener;
-import xyz.nucleoid.plasmid.game.event.GameOpenListener;
-import xyz.nucleoid.plasmid.game.event.GameTickListener;
-import xyz.nucleoid.plasmid.game.event.OfferPlayerListener;
-import xyz.nucleoid.plasmid.game.event.PlayerAddListener;
-import xyz.nucleoid.plasmid.game.event.PlayerDeathListener;
-import xyz.nucleoid.plasmid.game.event.UseBlockListener;
-import xyz.nucleoid.plasmid.game.event.UseItemListener;
+import xyz.nucleoid.plasmid.game.event.*;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 import xyz.nucleoid.plasmid.game.player.JoinResult;
 import xyz.nucleoid.plasmid.game.rule.GameRule;
@@ -152,12 +143,14 @@ public final class BwActive {
             game.on(AttackEntityListener.EVENT, active::onAttackEntity);
             game.on(UseBlockListener.EVENT, active::onUseBlock);
             game.on(UseItemListener.EVENT, active::onUseItem);
-
+            game.on(PlayerDamageListener.EVENT, active::onTakeDamage);
             game.on(ExplosionListener.EVENT, affectedBlocks -> {
                 affectedBlocks.removeIf(map::isProtectedBlock);
             });
         });
     }
+
+
 
     private void addPlayers(Multimap<GameTeam, ServerPlayerEntity> players) {
         players.forEach((team, player) -> {
@@ -211,7 +204,12 @@ public final class BwActive {
             this.spawnLogic.spawnAtCenter(player);
         }
     }
-
+    private boolean onTakeDamage(ServerPlayerEntity player, DamageSource source, float v){
+        if (source == DamageSource.OUT_OF_WORLD && player.isSpectator()){
+            return true;
+        }
+        return false;
+    }
     private void rejoinPlayer(ServerPlayerEntity player) {
         BwParticipant participant = this.getParticipant(player);
 
