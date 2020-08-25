@@ -205,7 +205,7 @@ public final class BwActive {
         }
     }
     private boolean onTakeDamage(ServerPlayerEntity player, DamageSource source, float v){
-        if (source == DamageSource.OUT_OF_WORLD && player.isSpectator()){
+        if (source == DamageSource.OUT_OF_WORLD && player.isSpectator()) {
             return true;
         }
         return false;
