@@ -204,7 +204,7 @@ public final class BwActive {
             this.spawnLogic.spawnAtCenter(player);
         }
     }
-    private boolean onTakeDamage(ServerPlayerEntity player, DamageSource source, float v){
+    private boolean onTakeDamage(ServerPlayerEntity player, DamageSource source, float amount) {
         if (source == DamageSource.OUT_OF_WORLD && player.isSpectator()) {
             return true;
         }
