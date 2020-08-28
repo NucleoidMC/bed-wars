@@ -24,6 +24,7 @@ public final class BedWars implements ModInitializer {
     );
 
     public static final GameRule BLAST_PROOF_GLASS_RULE = new GameRule();
+    public static final GameRule TRIDENTS_LOYAL_IN_VOID = new GameRule();
 
     @Override
     public void onInitialize() {

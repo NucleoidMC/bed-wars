@@ -4,7 +4,8 @@
   "package": "xyz.nucleoid.bedwars.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "ExplosionBehaviorMixin"
+    "ExplosionBehaviorMixin",
+    "TridentEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

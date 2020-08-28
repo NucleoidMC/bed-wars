@@ -122,6 +122,7 @@ public final class BwActive {
             game.setRule(GameRule.HUNGER, RuleResult.DENY);
             game.setRule(GameRule.TEAM_CHAT, RuleResult.ALLOW);
             game.setRule(BedWars.BLAST_PROOF_GLASS_RULE, RuleResult.ALLOW);
+            game.setRule(BedWars.TRIDENTS_LOYAL_IN_VOID, RuleResult.ALLOW);
 
             game.on(GameOpenListener.EVENT, active::onOpen);
 
