@@ -43,7 +43,7 @@ public final class BwKillLogic {
             this.applyDowngrades(participant);
         }
 
-        BwParticipant killerParticipant = this.getKillerParticipant(player.world.getTime(), participant, source);
+        BwParticipant killerParticipant = this.getAttackerParticipant(participant, source);
         ServerPlayerEntity killerPlayer = killerParticipant != null ? killerParticipant.player() : null;
 
         if (killerPlayer != null) {
@@ -63,7 +63,7 @@ public final class BwKillLogic {
         }
     }
 
-    private BwParticipant getKillerParticipant(long time, BwParticipant participant, DamageSource source) {
+    private BwParticipant getAttackerParticipant(BwParticipant participant, DamageSource source) {
         BwParticipant attackerParticipant = null;
         Entity attacker = source.getAttacker();
         if (attacker instanceof ServerPlayerEntity) {
@@ -72,7 +72,7 @@ public final class BwKillLogic {
 
         if (attackerParticipant == null) {
             AttackRecord lastAttack = participant.lastAttack;
-            if (lastAttack != null && lastAttack.isValid(time)) {
+            if (lastAttack != null && lastAttack.isValid(this.game.world.getTime())) {
                 attackerParticipant = this.game.getParticipant(lastAttack.player);
             }
         }

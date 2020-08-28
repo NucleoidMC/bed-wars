@@ -21,7 +21,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
@@ -36,16 +35,7 @@ import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameModifier;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameTrigger;
 import xyz.nucleoid.plasmid.game.GameWorld;
-import xyz.nucleoid.plasmid.game.event.AttackEntityListener;
-import xyz.nucleoid.plasmid.game.event.BreakBlockListener;
-import xyz.nucleoid.plasmid.game.event.ExplosionListener;
-import xyz.nucleoid.plasmid.game.event.GameOpenListener;
-import xyz.nucleoid.plasmid.game.event.GameTickListener;
-import xyz.nucleoid.plasmid.game.event.OfferPlayerListener;
-import xyz.nucleoid.plasmid.game.event.PlayerAddListener;
-import xyz.nucleoid.plasmid.game.event.PlayerDeathListener;
-import xyz.nucleoid.plasmid.game.event.UseBlockListener;
-import xyz.nucleoid.plasmid.game.event.UseItemListener;
+import xyz.nucleoid.plasmid.game.event.*;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 import xyz.nucleoid.plasmid.game.player.JoinResult;
 import xyz.nucleoid.plasmid.game.rule.GameRule;
@@ -57,13 +47,7 @@ import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -149,7 +133,7 @@ public final class BwActive {
             game.on(PlayerDeathListener.EVENT, active::onPlayerDeath);
 
             game.on(BreakBlockListener.EVENT, active::onBreakBlock);
-            game.on(AttackEntityListener.EVENT, active::onAttackEntity);
+            game.on(PlayerDamageListener.EVENT, active::onPlayerDamage);
             game.on(UseBlockListener.EVENT, active::onUseBlock);
             game.on(UseItemListener.EVENT, active::onUseItem);
 
@@ -241,28 +225,27 @@ public final class BwActive {
         return ActionResult.PASS;
     }
 
-    private ActionResult onAttackEntity(ServerPlayerEntity attackerPlayer, Hand hand, Entity attackedEntity, EntityHitResult hitResult) {
-        if (attackedEntity instanceof ServerPlayerEntity) {
-            return this.onAttackPlayer(attackerPlayer, (ServerPlayerEntity) attackedEntity);
-        }
-
-        return ActionResult.PASS;
-    }
-
-    private ActionResult onAttackPlayer(ServerPlayerEntity attackerPlayer, ServerPlayerEntity attackedPlayer) {
-        BwParticipant attackerParticipant = this.getParticipant(attackerPlayer);
+    private boolean onPlayerDamage(ServerPlayerEntity attackedPlayer, DamageSource source, float amount) {
         BwParticipant attackedParticipant = this.getParticipant(attackedPlayer);
-        if (attackerParticipant == null || attackedParticipant == null) {
-            return ActionResult.PASS;
+        if (attackedParticipant == null) {
+            return false;
         }
 
-        if (attackerParticipant.team == attackedParticipant.team) {
-            return ActionResult.FAIL;
+        Entity attacker = source.getAttacker();
+        if (attacker instanceof ServerPlayerEntity) {
+            ServerPlayerEntity attackerPlayer = (ServerPlayerEntity) attacker;
+            BwParticipant attackerParticipant = this.getParticipant(attackerPlayer);
+
+            if (attackerParticipant != null) {
+                if (attackerParticipant.team == attackedParticipant.team) {
+                    return true;
+                }
+
+                attackedParticipant.lastAttack = AttackRecord.fromAttacker(attackerPlayer);
+            }
         }
 
-        attackedParticipant.lastAttack = AttackRecord.fromAttacker(attackerPlayer);
-
-        return ActionResult.PASS;
+        return false;
     }
 
     private ActionResult onUseBlock(ServerPlayerEntity player, Hand hand, BlockHitResult hitResult) {
