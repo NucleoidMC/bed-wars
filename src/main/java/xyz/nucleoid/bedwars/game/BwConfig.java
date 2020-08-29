@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.dimension.DimensionType;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameModifier;
 import xyz.nucleoid.bedwars.game.generator.BwSkyMapConfig;
 import xyz.nucleoid.plasmid.game.config.CombatConfig;
@@ -17,6 +18,7 @@ import java.util.List;
 public final class BwConfig {
     public static final Codec<BwConfig> CODEC = RecordCodecBuilder.create(instance -> {
         return instance.group(
+                Identifier.CODEC.optionalFieldOf("dimension", DimensionType.OVERWORLD_ID).forGetter(config -> config.dimension),
                 Codec.either(BwSkyMapConfig.CODEC, Identifier.CODEC).fieldOf("map").forGetter(config -> config.map),
                 CombatConfig.CODEC.optionalFieldOf("combat", CombatConfig.DEFAULT).forGetter(config -> config.combat),
                 GameModifier.CODEC.listOf().optionalFieldOf("modifiers", Collections.emptyList()).forGetter(config -> config.modifiers),
@@ -26,6 +28,7 @@ public final class BwConfig {
         ).apply(instance, BwConfig::new);
     });
 
+    public final Identifier dimension;
     public final Either<BwSkyMapConfig, Identifier> map;
     public final CombatConfig combat;
     public final List<GameModifier> modifiers;
@@ -34,6 +37,7 @@ public final class BwConfig {
     public final boolean keepInventory;
 
     public BwConfig(
+            Identifier dimension,
             Either<BwSkyMapConfig, Identifier> map,
             CombatConfig combat,
             List<GameModifier> modifiers,
@@ -41,6 +45,7 @@ public final class BwConfig {
             PlayerConfig players,
             boolean keepInventory
     ) {
+        this.dimension = dimension;
         this.map = map;
         this.combat = combat;
         this.modifiers = modifiers;

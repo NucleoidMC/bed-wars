@@ -1,5 +1,6 @@
 {
   "type": "bedwars:bed_wars",
+  "dimension": "minecraft:overworld",
   "map": {
     "diamond_generator": {
       "radius": 10,

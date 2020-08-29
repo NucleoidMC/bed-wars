@@ -12,6 +12,8 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.GameMode;
 import xyz.nucleoid.bedwars.BedWars;
 import xyz.nucleoid.bedwars.game.active.BwActive;
@@ -19,10 +21,7 @@ import xyz.nucleoid.plasmid.game.GameOpenContext;
 import xyz.nucleoid.plasmid.game.GameWaitingLobby;
 import xyz.nucleoid.plasmid.game.GameWorld;
 import xyz.nucleoid.plasmid.game.StartResult;
-import xyz.nucleoid.plasmid.game.event.PlayerAddListener;
-import xyz.nucleoid.plasmid.game.event.PlayerDeathListener;
-import xyz.nucleoid.plasmid.game.event.RequestStartListener;
-import xyz.nucleoid.plasmid.game.event.UseItemListener;
+import xyz.nucleoid.plasmid.game.event.*;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 import xyz.nucleoid.plasmid.game.player.TeamAllocator;
 import xyz.nucleoid.plasmid.game.rule.GameRule;
@@ -63,6 +62,7 @@ public final class BwWaiting {
         return mapBuilder.create(context.getServer()).thenCompose(map -> {
             BubbleWorldConfig worldConfig = new BubbleWorldConfig()
                     .setGenerator(map.getChunkGenerator())
+                    .setDimensionType(RegistryKey.of(Registry.DIMENSION_TYPE_KEY, config.dimension))
                     .setDefaultGameMode(GameMode.SPECTATOR);
 
             return context.openWorld(worldConfig).thenApply(gameWorld -> {
@@ -75,6 +75,7 @@ public final class BwWaiting {
 
                     game.on(PlayerAddListener.EVENT, waiting::addPlayer);
                     game.on(PlayerDeathListener.EVENT, waiting::onPlayerDeath);
+                    game.on(PlayerDamageListener.EVENT, waiting::onPlayerDamage);
 
                     game.on(UseItemListener.EVENT, waiting::onUseItem);
                 });
@@ -92,9 +93,16 @@ public final class BwWaiting {
         this.spawnPlayer(player);
     }
 
+    private boolean onPlayerDamage(ServerPlayerEntity player, DamageSource source, float amount) {
+        if (amount > 1.0F) {
+            this.spawnPlayer(player);
+        }
+        return true;
+    }
+
     private ActionResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
         this.spawnPlayer(player);
-        return ActionResult.SUCCESS;
+        return ActionResult.FAIL;
     }
 
     private TypedActionResult<ItemStack> onUseItem(ServerPlayerEntity player, Hand hand) {

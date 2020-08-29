@@ -4,11 +4,13 @@ import net.minecraft.block.BlockState;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.Heightmap;
 import xyz.nucleoid.bedwars.game.generator.BwSkyMapBuilder;
 import xyz.nucleoid.plasmid.game.map.template.MapTemplate;
 import xyz.nucleoid.plasmid.game.map.template.MapTemplateSerializer;
 import xyz.nucleoid.plasmid.game.map.template.TemplateChunkGenerator;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
+import xyz.nucleoid.plasmid.util.BlockBounds;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -46,6 +48,18 @@ public final class BwMapBuilder {
                 map.addProtectedBlock(pos.asLong());
             }
         }
+
+        template.getRegions("illegal").forEach(map::addIllegalRegion);
+
+        BlockBounds centerSpawnBounds = template.getFirstRegion("center_spawn");
+        if (centerSpawnBounds == null) {
+            centerSpawnBounds = template.getBounds();
+        }
+
+        BlockPos centerSpawn = new BlockPos(centerSpawnBounds.getCenter());
+        centerSpawn = template.getTopPos(centerSpawn.getX(), centerSpawn.getZ(), Heightmap.Type.WORLD_SURFACE).up();
+
+        map.setCenterSpawn(centerSpawn);
 
         map.setChunkGenerator(new TemplateChunkGenerator(server, template, BlockPos.ORIGIN));
 

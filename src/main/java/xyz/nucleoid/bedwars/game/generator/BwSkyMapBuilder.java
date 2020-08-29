@@ -28,10 +28,10 @@ public final class BwSkyMapBuilder {
     }
 
     public CompletableFuture<BwMap> create(MinecraftServer server) {
-        return CompletableFuture.supplyAsync(() -> this.builder(server), Util.getMainWorkerExecutor());
+        return CompletableFuture.supplyAsync(() -> this.build(server), Util.getMainWorkerExecutor());
     }
 
-    private BwMap builder(MinecraftServer server) {
+    private BwMap build(MinecraftServer server) {
         BwMap map = new BwMap();
 
         MapTemplate template = MapTemplate.createEmpty();

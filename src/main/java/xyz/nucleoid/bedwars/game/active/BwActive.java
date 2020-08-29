@@ -393,6 +393,12 @@ public final class BwActive {
         if (time % 20 == 0) {
             long bedGoneTime = this.startTime + BED_GONE_TICKS;
             this.bar.update(bedGoneTime - time, BED_GONE_TICKS);
+
+            for (ServerPlayerEntity player : this.gameWorld.getPlayerSet()) {
+                if (!player.isSpectator() && !this.map.isLegalAt(player.getBlockPos())) {
+                    player.damage(DamageSource.OUT_OF_WORLD, 10000.0F);
+                }
+            }
         }
 
         BwWinStateLogic.WinResult winResult = this.tickActive();

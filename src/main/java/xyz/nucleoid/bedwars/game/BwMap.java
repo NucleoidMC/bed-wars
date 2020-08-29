@@ -22,10 +22,7 @@ import xyz.nucleoid.plasmid.util.BlockBounds;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public final class BwMap {
     private ChunkGenerator chunkGenerator;
@@ -34,6 +31,8 @@ public final class BwMap {
     private final Map<GameTeam, TeamRegions> teamRegions = new HashMap<>();
 
     private final Collection<BwItemGenerator> itemGenerators = new ArrayList<>();
+
+    private final List<BlockBounds> illegalBounds = new ArrayList<>();
 
     private BlockPos centerSpawn = BlockPos.ORIGIN;
 
@@ -89,6 +88,10 @@ public final class BwMap {
         }
     }
 
+    public void addIllegalRegion(BlockBounds bounds) {
+        this.illegalBounds.add(bounds);
+    }
+
     public void spawnShopkeepers(ServerWorld world, BwActive game, BwConfig config) {
         for (GameTeam team : config.teams) {
             TeamRegions regions = this.getTeamRegions(team);
@@ -140,6 +143,15 @@ public final class BwMap {
 
     public boolean isProtectedBlock(BlockPos pos) {
         return this.protectedBlocks.contains(pos.asLong());
+    }
+
+    public boolean isLegalAt(BlockPos pos) {
+        for (BlockBounds bounds : this.illegalBounds) {
+            if (bounds.contains(pos)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public BlockPos getCenterSpawn() {
