@@ -227,6 +227,10 @@ public final class BwActive {
     }
 
     private boolean onPlayerDamage(ServerPlayerEntity attackedPlayer, DamageSource source, float amount) {
+        if (source == DamageSource.OUT_OF_WORLD && attackedPlayer.isSpectator()) {
+            return true;
+        }
+
         BwParticipant attackedParticipant = this.getParticipant(attackedPlayer);
         if (attackedParticipant == null) {
             return false;
