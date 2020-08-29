@@ -15,7 +15,6 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.GameMode;
 import xyz.nucleoid.bedwars.BedWars;
 import xyz.nucleoid.bedwars.game.active.BwActive;
-import xyz.nucleoid.bedwars.game.generator.BwSkyMapBuilder;
 import xyz.nucleoid.plasmid.game.GameOpenContext;
 import xyz.nucleoid.plasmid.game.GameWaitingLobby;
 import xyz.nucleoid.plasmid.game.GameWorld;
@@ -59,7 +58,7 @@ public final class BwWaiting {
 
     public static CompletableFuture<GameWorld> open(GameOpenContext<BwConfig> context) {
         BwConfig config = context.getConfig();
-        BwSkyMapBuilder mapBuilder = new BwSkyMapBuilder(config);
+        BwMapBuilder mapBuilder = new BwMapBuilder(config);
 
         return mapBuilder.create(context.getServer()).thenCompose(map -> {
             BubbleWorldConfig worldConfig = new BubbleWorldConfig()

@@ -1,7 +1,9 @@
 package xyz.nucleoid.bedwars.game;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.util.Identifier;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameModifier;
 import xyz.nucleoid.bedwars.game.generator.BwSkyMapConfig;
 import xyz.nucleoid.plasmid.game.config.CombatConfig;
@@ -15,7 +17,7 @@ import java.util.List;
 public final class BwConfig {
     public static final Codec<BwConfig> CODEC = RecordCodecBuilder.create(instance -> {
         return instance.group(
-                BwSkyMapConfig.CODEC.fieldOf("map").forGetter(config -> config.map),
+                Codec.either(BwSkyMapConfig.CODEC, Identifier.CODEC).fieldOf("map").forGetter(config -> config.map),
                 CombatConfig.CODEC.optionalFieldOf("combat", CombatConfig.DEFAULT).forGetter(config -> config.combat),
                 GameModifier.CODEC.listOf().optionalFieldOf("modifiers", Collections.emptyList()).forGetter(config -> config.modifiers),
                 GameTeam.CODEC.listOf().fieldOf("teams").forGetter(config -> config.teams),
@@ -24,7 +26,7 @@ public final class BwConfig {
         ).apply(instance, BwConfig::new);
     });
 
-    public final BwSkyMapConfig map;
+    public final Either<BwSkyMapConfig, Identifier> map;
     public final CombatConfig combat;
     public final List<GameModifier> modifiers;
     public final List<GameTeam> teams;
@@ -32,7 +34,7 @@ public final class BwConfig {
     public final boolean keepInventory;
 
     public BwConfig(
-            BwSkyMapConfig map,
+            Either<BwSkyMapConfig, Identifier> map,
             CombatConfig combat,
             List<GameModifier> modifiers,
             List<GameTeam> teams,

@@ -20,24 +20,25 @@ import java.util.concurrent.CompletableFuture;
 
 public final class BwSkyMapBuilder {
     private final BwConfig config;
+    private final BwSkyMapConfig skyConfig;
 
-    public BwSkyMapBuilder(BwConfig config) {
+    public BwSkyMapBuilder(BwConfig config, BwSkyMapConfig skyConfig) {
         this.config = config;
+        this.skyConfig = skyConfig;
     }
 
     public CompletableFuture<BwMap> create(MinecraftServer server) {
-        return CompletableFuture.supplyAsync(() -> this.build(server), Util.getMainWorkerExecutor());
+        return CompletableFuture.supplyAsync(() -> this.builder(server), Util.getMainWorkerExecutor());
     }
 
-    private BwMap build(MinecraftServer server) {
-        MapTemplate template = MapTemplate.createEmpty();
+    private BwMap builder(MinecraftServer server) {
         BwMap map = new BwMap();
 
-        BwSkyMapConfig mapConfig = this.config.map;
+        MapTemplate template = MapTemplate.createEmpty();
 
-        BwCenterIsland centerIsland = this.buildCenterIsland(mapConfig);
-        List<BwDiamondIsland> diamondIslands = this.buildDiamondIslands(mapConfig);
-        List<BwTeamIsland> teamIslands = this.buildTeamIslands(mapConfig);
+        BwCenterIsland centerIsland = this.buildCenterIsland();
+        List<BwDiamondIsland> diamondIslands = this.buildDiamondIslands();
+        List<BwTeamIsland> teamIslands = this.buildTeamIslands();
 
         Random random = new Random();
 
@@ -51,7 +52,7 @@ public final class BwSkyMapBuilder {
             teamIsland.addTo(map, template);
         }
 
-        this.addSmallIslands(template, mapConfig, random);
+        this.addSmallIslands(template, random);
 
         template.setBiome(BuiltinBiomes.PLAINS);
 
@@ -61,23 +62,26 @@ public final class BwSkyMapBuilder {
         return map;
     }
 
-    private BwCenterIsland buildCenterIsland(BwSkyMapConfig mapConfig) {
-        return new BwCenterIsland(mapConfig.centerGenerator, new BlockPos(0, 72, 0));
+    private BwCenterIsland buildCenterIsland() {
+        return new BwCenterIsland(this.skyConfig.centerGenerator, new BlockPos(0, 72, 0));
     }
 
-    private List<BwDiamondIsland> buildDiamondIslands(BwSkyMapConfig mapConfig) {
+    private List<BwDiamondIsland> buildDiamondIslands() {
         List<BwDiamondIsland> diamondIslands = new ArrayList<>();
 
         // TODO: vary based on team count
-        diamondIslands.add(new BwDiamondIsland(mapConfig.diamondGenerator, new BlockPos(mapConfig.diamondIslandDistance, 72, mapConfig.diamondIslandDistance)));
-        diamondIslands.add(new BwDiamondIsland(mapConfig.diamondGenerator, new BlockPos(-mapConfig.diamondIslandDistance, 72, mapConfig.diamondIslandDistance)));
-        diamondIslands.add(new BwDiamondIsland(mapConfig.diamondGenerator, new BlockPos(mapConfig.diamondIslandDistance, 72, -mapConfig.diamondIslandDistance)));
-        diamondIslands.add(new BwDiamondIsland(mapConfig.diamondGenerator, new BlockPos(-mapConfig.diamondIslandDistance, 72, -mapConfig.diamondIslandDistance)));
+        NoiseIslandConfig diamondGenerator = this.skyConfig.diamondGenerator;
+        double diamondIslandDistance = this.skyConfig.diamondIslandDistance;
+
+        diamondIslands.add(new BwDiamondIsland(diamondGenerator, new BlockPos(diamondIslandDistance, 72, diamondIslandDistance)));
+        diamondIslands.add(new BwDiamondIsland(diamondGenerator, new BlockPos(-diamondIslandDistance, 72, diamondIslandDistance)));
+        diamondIslands.add(new BwDiamondIsland(diamondGenerator, new BlockPos(diamondIslandDistance, 72, -diamondIslandDistance)));
+        diamondIslands.add(new BwDiamondIsland(diamondGenerator, new BlockPos(-diamondIslandDistance, 72, -diamondIslandDistance)));
 
         return diamondIslands;
     }
 
-    private List<BwTeamIsland> buildTeamIslands(BwSkyMapConfig mapConfig) {
+    private List<BwTeamIsland> buildTeamIslands() {
         List<BwTeamIsland> teamIslands = new ArrayList<>();
 
         List<GameTeam> teams = this.config.teams;
@@ -85,8 +89,8 @@ public final class BwSkyMapBuilder {
             GameTeam team = teams.get(i);
 
             double theta = ((double) i / teams.size()) * (2 * Math.PI);
-            double x = Math.cos(theta) * mapConfig.spawnIslandDistance;
-            double z = Math.sin(theta) * mapConfig.spawnIslandDistance;
+            double x = Math.cos(theta) * this.skyConfig.spawnIslandDistance;
+            double z = Math.sin(theta) * this.skyConfig.spawnIslandDistance;
 
             BlockPos pos = new BlockPos(x, 72, z);
             teamIslands.add(new BwTeamIsland(pos, team));
@@ -95,21 +99,21 @@ public final class BwSkyMapBuilder {
         return teamIslands;
     }
 
-    private void addSmallIslands(MapTemplate template, BwSkyMapConfig config, Random random) {
-        for (int i = 0; i < config.smallIslandCount; i++) {
-            int x = random.nextInt(config.smallIslandHorizontalSpread) - random.nextInt(config.smallIslandHorizontalSpread);
-            int y = random.nextInt(config.smallIslandVerticalSpread) - random.nextInt(config.smallIslandVerticalSpread);
-            int z = random.nextInt(config.smallIslandHorizontalSpread) - random.nextInt(config.smallIslandHorizontalSpread);
+    private void addSmallIslands(MapTemplate template, Random random) {
+        for (int i = 0; i < this.skyConfig.smallIslandCount; i++) {
+            int x = random.nextInt(this.skyConfig.smallIslandHorizontalSpread) - random.nextInt(this.skyConfig.smallIslandHorizontalSpread);
+            int y = random.nextInt(this.skyConfig.smallIslandVerticalSpread) - random.nextInt(this.skyConfig.smallIslandVerticalSpread);
+            int z = random.nextInt(this.skyConfig.smallIslandHorizontalSpread) - random.nextInt(this.skyConfig.smallIslandHorizontalSpread);
 
             // Avoid generating at the center
-            if (Math.abs(x) < config.smallIslandCutoff && Math.abs(z) < config.smallIslandCutoff) {
+            if (Math.abs(x) < this.skyConfig.smallIslandCutoff && Math.abs(z) < this.skyConfig.smallIslandCutoff) {
                 continue;
             }
 
             long seed = random.nextLong();
 
             // Add symmetrical islands
-            NoiseIslandConfig smallIsland = config.smallIslandGenerator;
+            NoiseIslandConfig smallIsland = this.skyConfig.smallIslandGenerator;
             smallIsland.createGenerator(new BlockPos(x, 72 + y, z), seed).addTo(template);
             smallIsland.createGenerator(new BlockPos(-x, 72 + y, -z), seed).addTo(template);
         }
