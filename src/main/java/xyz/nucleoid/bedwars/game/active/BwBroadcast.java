@@ -1,5 +1,6 @@
 package xyz.nucleoid.bedwars.game.active;
 
+import net.minecraft.text.TranslatableText;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
@@ -27,8 +28,8 @@ public final class BwBroadcast {
     public void broadcastTrapSetOff(BwActive.TeamState team) {
         Target target = this.team(team.team);
 
-        this.broadcast(target, new LiteralText("A player set off your team trap!").formatted(Formatting.BOLD, Formatting.RED));
-        this.broadcastTitle(target, new LiteralText("Trap activated!").formatted(Formatting.RED), null);
+        this.broadcast(target, new TranslatableText("text.bedwars.game.team.trap.player").formatted(Formatting.BOLD, Formatting.RED));
+        this.broadcastTitle(target, new TranslatableText("text.bedwars.game.team.trap.enabled").formatted(Formatting.RED), null);
         this.broadcastSound(target, SoundEvents.BLOCK_BELL_USE);
     }
 
@@ -48,53 +49,55 @@ public final class BwBroadcast {
     public void broadcastGameOver(BwWinStateLogic.WinResult winResult) {
         GameTeam winningTeam = winResult.getTeam();
         if (winningTeam != null) {
-            this.broadcast(this.everyone(), new LiteralText(winningTeam.getDisplay() + " team won the game!")
+            this.broadcast(this.everyone(), new TranslatableText("text.bedwars.game.win", winningTeam.getDisplay())
                     .formatted(winningTeam.getFormatting(), Formatting.BOLD)
             );
         } else {
-            this.broadcast(this.everyone(), new LiteralText("The game ended in a draw!").formatted(Formatting.BOLD));
+            this.broadcast(this.everyone(), new TranslatableText("text.bedwars.game.win.nobody").formatted(Formatting.BOLD));
         }
     }
 
     public void broadcastDeath(ServerPlayerEntity player, ServerPlayerEntity killer, DamageSource source, boolean eliminated) {
         // TODO: we can do more specific messages in the future
-        MutableText announcement = player.getDisplayName().shallowCopy()
-                .append(new LiteralText(" was killed").formatted(Formatting.GRAY));
-
-        if (killer != null) {
-            announcement = announcement.append(new LiteralText(" by ").formatted(Formatting.GRAY)).append(killer.getDisplayName());
-        }
+        MutableText announcement = new TranslatableText("text.bedwars.game.killed", player.getDisplayName()).formatted(Formatting.GRAY);
 
         if (eliminated) {
-            announcement = announcement.append(new LiteralText(". They are now eliminated!").formatted(Formatting.GRAY));
+            if (killer != null) {
+                announcement = new TranslatableText("text.bedwars.game.killed.eliminated.player", player.getDisplayName(), killer.getDisplayName()).formatted(Formatting.GRAY);
+            } else {
+                announcement = new TranslatableText("text.bedwars.game.killed.eliminated", player.getDisplayName()).formatted(Formatting.GRAY);
+            }
+        } else if (killer != null) {
+            announcement = new TranslatableText("text.bedwars.game.killed.player", player.getDisplayName(), killer.getDisplayName()).formatted(Formatting.GRAY);
         }
 
         this.broadcast(this.everyone(), announcement);
     }
 
     public void broadcastBedBroken(ServerPlayerEntity player, GameTeam bedTeam, @Nullable GameTeam destroyerTeam) {
-        Text announcement = new LiteralText(bedTeam.getDisplay()).formatted(bedTeam.getFormatting())
-                .append(new LiteralText(" bed was destroyed by ").formatted(Formatting.GRAY))
-                .append(player.getDisplayName().shallowCopy().formatted(destroyerTeam != null ? destroyerTeam.getFormatting() : Formatting.OBFUSCATED));
+        Text announcement = new TranslatableText("text.bedwars.game.bed_destroyed", bedTeam.getDisplay(),
+                player.getDisplayName().shallowCopy().formatted(destroyerTeam != null ? destroyerTeam.getFormatting() : Formatting.OBFUSCATED))
+                .formatted(Formatting.GRAY);
 
         this.broadcast(this.everyone(), announcement);
         this.broadcastSound(this.everyone(), SoundEvents.BLOCK_END_PORTAL_SPAWN);
 
         Target teamTarget = this.team(bedTeam);
 
-        this.broadcast(teamTarget, new LiteralText("Your bed has been destroyed! You can no longer respawn!").formatted(Formatting.RED));
+        this.broadcast(teamTarget, new TranslatableText("text.bedwars.game.bed_destroyed.team").formatted(Formatting.RED));
 
         this.broadcastTitle(
                 teamTarget,
-                new LiteralText("Bed destroyed!").formatted(Formatting.RED),
-                new LiteralText("You can no longer respawn!").formatted(Formatting.GOLD)
+                new TranslatableText("text.bedwars.game.bed_destroyed.title").formatted(Formatting.RED),
+                new TranslatableText("text.bedwars.game.bed_destroyed.title.sub").formatted(Formatting.GOLD)
         );
     }
 
     public void broadcastTeamEliminated(GameTeam team) {
         this.broadcast(this.team(team),
-                new LiteralText(team.getDisplay()).formatted(team.getFormatting())
-                        .append(new LiteralText(" Team was eliminated!").formatted(Formatting.BOLD))
+                new TranslatableText("text.bedwars.game.team.eliminated",
+                        new LiteralText(team.getDisplay()).formatted(team.getFormatting()))
+                        .formatted(Formatting.BOLD)
         );
     }
 

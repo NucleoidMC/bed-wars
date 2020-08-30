@@ -1,6 +1,8 @@
 package xyz.nucleoid.bedwars.game;
 
 import com.google.common.collect.Multimap;
+import fr.catcore.server.translations.api.LocalizableText;
+import fr.catcore.server.translations.api.LocalizationTarget;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
@@ -8,6 +10,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.tag.ItemTags;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -116,8 +119,7 @@ public final class BwWaiting {
             if (team != null) {
                 this.requestedTeams.put(player.getUuid(), team);
 
-                Text message = new LiteralText("You have requested to join the ")
-                        .append(new LiteralText(team.getDisplay() + " Team").formatted(team.getFormatting()));
+                Text message = new TranslatableText("text.bedwars.team.join", new LiteralText(team.getDisplay()).formatted(team.getFormatting()));
 
                 player.sendMessage(message, false);
 
@@ -136,11 +138,11 @@ public final class BwWaiting {
         for (int i = 0; i < teams.size(); i++) {
             GameTeam team = teams.get(i);
 
-            Text selectorName = new LiteralText("Request " + team.getDisplay() + " Team")
+            Text selectorName = new TranslatableText("text.bedwars.team.join.item", team.getDisplay())
                     .formatted(Formatting.BOLD, team.getFormatting());
 
             ItemStack selectorStack = new ItemStack(ColoredBlocks.wool(team.getDye()));
-            selectorStack.setCustomName(selectorName);
+            selectorStack.setCustomName(LocalizableText.asLocalizedFor(selectorName, (LocalizationTarget) player));
 
             selectorStack.getOrCreateTag().putString(TEAM_KEY, team.getKey());
 

@@ -16,6 +16,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -291,7 +292,7 @@ public final class BwActive {
             return ActionResult.PASS;
         }
 
-        player.sendMessage(new LiteralText("You cannot access this team's chest!").formatted(Formatting.RED), true);
+        player.sendMessage(new TranslatableText("text.bedwars.game.error.other_team_chest").formatted(Formatting.RED), true);
 
         return ActionResult.FAIL;
     }
@@ -385,7 +386,7 @@ public final class BwActive {
                     this.teamLogic.removeBed(team);
                 }
 
-                this.broadcast.broadcast(this.broadcast.everyone(), new LiteralText("Destroyed all beds!").formatted(Formatting.RED));
+                this.broadcast.broadcast(this.broadcast.everyone(), new TranslatableText("text.bedwars.game.bed_destroyed.all").formatted(Formatting.RED));
                 this.broadcast.broadcastSound(this.broadcast.everyone(), SoundEvents.BLOCK_END_PORTAL_SPAWN);
             }
         }

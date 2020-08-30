@@ -2,6 +2,7 @@ package xyz.nucleoid.bedwars.game.active;
 
 import net.minecraft.entity.boss.BossBar;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
 import xyz.nucleoid.plasmid.game.GameWorld;
 import xyz.nucleoid.plasmid.game.player.PlayerSet;
 import xyz.nucleoid.plasmid.widget.BossBarWidget;
@@ -18,10 +19,10 @@ public final class BwBar implements AutoCloseable {
         if (ticksUntilBedGone > 0) {
             String time = this.formatTime(ticksUntilBedGone);
 
-            this.bar.setTitle(new LiteralText("Beds destroyed in " + time + "..."));
+            this.bar.setTitle(new TranslatableText("text.bedwars.game.bed_destroyed.all.bar", time));
             this.bar.setProgress((float) ticksUntilBedGone / totalTicksUntilBedGone);
         } else {
-            this.bar.setTitle(new LiteralText("All beds destroyed!"));
+            this.bar.setTitle(new TranslatableText("text.bedwars.game.bed_destroyed.all.bar.done"));
             this.bar.setProgress(0.0F);
         }
     }

@@ -1,0 +1,33 @@
+{
+  "text.bedwars.team.join": "You have requested to join the %s Team",
+  "text.bedwars.team.join.item": "Request %s Team",
+
+  "text.bedwars.game.error.other_team_chest": "You cannot access this team's chest!",
+  "text.bedwars.game.bed_destroyed": "%1$s bed was destroyed by %2$s",
+  "text.bedwars.game.bed_destroyed.team": "Your bed has been destroyed! You can no longer respawn!",
+  "text.bedwars.game.bed_destroyed.title": "Bed destroyed!",
+  "text.bedwars.game.bed_destroyed.title.sub": "You can no longer respawn!",
+  "text.bedwars.game.bed_destroyed.all": "Destroyed all beds!",
+  "text.bedwars.game.bed_destroyed.all.bar.done": "All beds destroyed!",
+  "text.bedwars.game.bed_destroyed.all.bar": "Beds destroyed in %s...",
+  "text.bedwars.game.team.eliminated": "%s Team was eliminated!",
+  "text.bedwars.game.team.trap.enabled": "Trap activated!",
+  "text.bedwars.game.team.trap.player": "A player set off your team trap!",
+  "text.bedwars.game.win": "%s team won the game!",
+  "text.bedwars.game.win.nobody": "The game ended in a draw!",
+  "text.bedwars.game.killed": "%s was killed",
+  "text.bedwars.game.killed.player": "%1$s was killed by %2$s",
+  "text.bedwars.game.killed.eliminated": "%s was killed. They are now eliminated!",
+  "text.bedwars.game.killed.eliminated.player": "%1$s was killed by %2$s. They are now eliminated!",
+  "text.bedwars.game.respawn": "You will respawn in %s seconds...",
+
+  "text.bedwars.game.gui.item_shop": "Item Shop",
+  "text.bedwars.game.gui.team_shop": "Team Shop",
+
+  "text.bedwars.game.item.shatterproof_glass": "Shatterproof Glass",
+  "text.bedwars.game.item.knockback_stick.lore": "Haha, target go zoom",
+
+  "text.game_gui.game_type.bedwars.bed_wars.title": "Bedwars",
+  "text.game_gui.game_config.bedwars.hellish_nightmare.title": "Nether 4 Teams",
+  "text.game_gui.game_config.bedwars.standard_procgen.title": "Standard 4 Teams"
+}

@@ -1,5 +1,8 @@
 package xyz.nucleoid.bedwars.game.active.shop;
 
+import fr.catcore.server.translations.api.LocalizableText;
+import fr.catcore.server.translations.api.LocalizationTarget;
+import net.minecraft.text.TranslatableText;
 import xyz.nucleoid.bedwars.custom.BwItems;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.active.BwParticipant;
@@ -24,7 +27,9 @@ import net.minecraft.util.DyeColor;
 public final class BwItemShop {
     //TODO: reorganize shop layout
     public static ShopUi create(ServerPlayerEntity player, BwActive game) {
-        return ShopUi.create(new LiteralText("Item Shop"), shop -> {
+        return ShopUi.create(LocalizableText.asLocalizedFor(
+                new TranslatableText("text.bedwars.game.gui.item_shop"), (LocalizationTarget) player),
+                shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
                 DyeColor color = participant.team.getDye();
@@ -32,7 +37,8 @@ public final class BwItemShop {
                 shop.addItem(new ItemStack(ColoredBlocks.terracotta(color), 16), Cost.ofIron(16));
 
                 ItemStack glass = ItemStackBuilder.of(ColoredBlocks.glass(color))
-                        .setName(new LiteralText("Shatterproof Glass"))
+                        .setName(LocalizableText.asLocalizedFor(new TranslatableText("text.bedwars.game.item.shatterproof_glass"),
+                                (LocalizationTarget) player))
                         .setCount(4)
                         .build();
 
@@ -52,7 +58,8 @@ public final class BwItemShop {
             shop.addItem(
                     ItemStackBuilder.of(Items.STICK)
                             .addEnchantment(Enchantments.KNOCKBACK, 1)
-                            .addLore(new LiteralText("Haha, target go zoom"))
+                            .addLore(LocalizableText.asLocalizedFor(new TranslatableText("text.bedwars.game.item.knockback_stick.lore"),
+                                    (LocalizationTarget) player))
                             .build(),
                     Cost.ofGold(10)
             );

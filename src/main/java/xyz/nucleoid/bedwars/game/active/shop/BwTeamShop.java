@@ -1,5 +1,8 @@
 package xyz.nucleoid.bedwars.game.active.shop;
 
+import fr.catcore.server.translations.api.LocalizableText;
+import fr.catcore.server.translations.api.LocalizationTarget;
+import net.minecraft.text.TranslatableText;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.active.BwParticipant;
@@ -14,7 +17,9 @@ import net.minecraft.util.math.MathHelper;
 
 public final class BwTeamShop {
     public static ShopUi create(ServerPlayerEntity player, BwActive game) {
-        return ShopUi.create(new LiteralText("Team Shop"), shop -> {
+        return ShopUi.create(LocalizableText.asLocalizedFor(
+                new TranslatableText("text.bedwars.game.gui.team_shop"), (LocalizationTarget) player),
+                shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant == null) return;
 
