@@ -46,7 +46,7 @@
   "text.bedwars.game.item.generator.desc.1": "The generator in your team base",
   "text.bedwars.game.item.generator.desc.2": "will spawn items faster",
 
-  "text.game_gui.game_type.bedwars.bed_wars.title": "Bedwars",
-  "text.game_gui.game_config.bedwars.hellish_nightmare.title": "Nether 4 Teams",
-  "text.game_gui.game_config.bedwars.standard_procgen.title": "Standard 4 Teams"
+  "gameType.bedwars.bed_wars.title": "Bedwars",
+  "gameConfig.bedwars.hellish_nightmare.title": "Nether 4 Teams",
+  "gameConfig.bedwars.standard_procgen.title": "Standard 4 Teams"
 }
