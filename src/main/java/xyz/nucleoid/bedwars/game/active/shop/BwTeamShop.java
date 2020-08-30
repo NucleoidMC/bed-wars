@@ -29,9 +29,12 @@ public final class BwTeamShop {
                 Cost trapCost = !teamState.trapSet ? Cost.ofDiamonds(1) : Cost.no();
 
                 shop.add(ShopEntry.ofIcon(Items.REDSTONE_TORCH)
-                        .withName(new LiteralText("Activate Base Trap"))
-                        .addLore(new LiteralText("When an enemy player enters the base,"))
-                        .addLore(new LiteralText("they will receive blindness and slowness"))
+                        .withName(LocalizableText.asLocalizedFor(
+                                new TranslatableText("text.bedwars.game.item.trap"), (LocalizationTarget) player))
+                        .addLore(LocalizableText.asLocalizedFor(
+                                new TranslatableText("text.bedwars.game.item.trap.desc.1"), (LocalizationTarget) player))
+                        .addLore(LocalizableText.asLocalizedFor(
+                                new TranslatableText("text.bedwars.game.item.trap.desc.2"), (LocalizationTarget) player))
                         .withCost(trapCost)
                         .onBuy(p -> {
                             teamState.trapSet = true;
@@ -41,9 +44,12 @@ public final class BwTeamShop {
 
                 Cost healPoolCost = !teamState.healPool ? Cost.ofDiamonds(3) : Cost.no();
                 shop.add(ShopEntry.ofIcon(Blocks.BEACON)
-                        .withName(new LiteralText("Activate Heal Pool"))
-                        .addLore(new LiteralText("Friendly players will receive"))
-                        .addLore(new LiteralText("regeneration in their base"))
+                        .withName(LocalizableText.asLocalizedFor(
+                                new TranslatableText("text.bedwars.game.item.heal"), (LocalizationTarget) player))
+                        .addLore(LocalizableText.asLocalizedFor(
+                                new TranslatableText("text.bedwars.game.item.heal.desc.1"), (LocalizationTarget) player))
+                        .addLore(LocalizableText.asLocalizedFor(
+                                new TranslatableText("text.bedwars.game.item.heal.desc.2"), (LocalizationTarget) player))
                         .withCost(healPoolCost)
                         .onBuy(p -> {
                             teamState.healPool = true;
@@ -53,9 +59,12 @@ public final class BwTeamShop {
 
                 Cost hasteCost = !teamState.hasteEnabled ? Cost.ofDiamonds(3) : Cost.no();
                 shop.add(ShopEntry.ofIcon(Items.GOLDEN_PICKAXE)
-                        .withName(new LiteralText("Activate Haste"))
-                        .addLore(new LiteralText("All team members will get"))
-                        .addLore(new LiteralText("a permanent haste effect"))
+                        .withName(LocalizableText.asLocalizedFor(
+                                new TranslatableText("text.bedwars.game.item.haste"), (LocalizationTarget) player))
+                        .addLore(LocalizableText.asLocalizedFor(
+                                new TranslatableText("text.bedwars.game.item.haste.desc.1"), (LocalizationTarget) player))
+                        .addLore(LocalizableText.asLocalizedFor(
+                                new TranslatableText("text.bedwars.game.item.haste.desc.2"), (LocalizationTarget) player))
                         .withCost(hasteCost)
                         .onBuy(p -> {
                             teamState.hasteEnabled = true;
@@ -68,9 +77,12 @@ public final class BwTeamShop {
 
                 Cost sharpnessCost = sharpness != nextSharpness ? Cost.ofDiamonds(stagedUpgrade(4, sharpness)) : Cost.no();
                 shop.add(ShopEntry.ofIcon(Items.DIAMOND_SWORD)
-                        .withName(new LiteralText("Sword Sharpness " + nextSharpness))
-                        .addLore(new LiteralText("All team members will get"))
-                        .addLore(new LiteralText("sharpness applied to their swords"))
+                        .withName(LocalizableText.asLocalizedFor(
+                                new TranslatableText("text.bedwars.game.item.sharpness", nextSharpness), (LocalizationTarget) player))
+                        .addLore(LocalizableText.asLocalizedFor(
+                                new TranslatableText("text.bedwars.game.item.sharpness.desc.1"), (LocalizationTarget) player))
+                        .addLore(LocalizableText.asLocalizedFor(
+                                new TranslatableText("text.bedwars.game.item.sharpness.desc.2"), (LocalizationTarget) player))
                         .withCost(sharpnessCost)
                         .onBuy(p -> {
                             teamState.swordSharpness = Math.max(nextSharpness, teamState.swordSharpness);
@@ -84,9 +96,12 @@ public final class BwTeamShop {
 
                 Cost protectionCost = protection != nextProtection ? Cost.ofDiamonds(stagedUpgrade(4, protection)) : Cost.no();
                 shop.add(ShopEntry.ofIcon(Items.DIAMOND_CHESTPLATE)
-                        .withName(new LiteralText("Armor Protection " + nextProtection))
-                        .addLore(new LiteralText("All team members will get"))
-                        .addLore(new LiteralText("protection applied to their armor"))
+                        .withName(LocalizableText.asLocalizedFor(
+                                new TranslatableText("text.bedwars.game.item.protection", nextProtection), (LocalizationTarget) player))
+                        .addLore(LocalizableText.asLocalizedFor(
+                                new TranslatableText("text.bedwars.game.item.protection.desc.1"), (LocalizationTarget) player))
+                        .addLore(LocalizableText.asLocalizedFor(
+                                new TranslatableText("text.bedwars.game.item.protection.desc.2"), (LocalizationTarget) player))
                         .withCost(protectionCost)
                         .onBuy(p -> {
                             teamState.armorProtection = Math.max(nextProtection, teamState.armorProtection);
@@ -103,9 +118,12 @@ public final class BwTeamShop {
                 Cost generatorCost = level != nextLevel ? Cost.ofDiamonds(stagedUpgrade(2, level)) : Cost.no();
 
                 shop.add(ShopEntry.ofIcon(Blocks.FURNACE)
-                        .withName(new LiteralText("Upgrade Generator"))
-                        .addLore(new LiteralText("The generator in your team base"))
-                        .addLore(new LiteralText("will spawn items faster"))
+                        .withName(LocalizableText.asLocalizedFor(
+                                new TranslatableText("text.bedwars.game.item.generator"), (LocalizationTarget) player))
+                        .addLore(LocalizableText.asLocalizedFor(
+                                new TranslatableText("text.bedwars.game.item.generator.desc.1"), (LocalizationTarget) player))
+                        .addLore(LocalizableText.asLocalizedFor(
+                                new TranslatableText("text.bedwars.game.item.generator.desc.2"), (LocalizationTarget) player))
                         .withCost(generatorCost)
                         .onBuy(p -> {
                             teamSpawn.setLevel(nextLevel);
