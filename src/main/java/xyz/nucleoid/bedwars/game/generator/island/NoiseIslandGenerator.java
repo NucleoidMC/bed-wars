@@ -38,6 +38,16 @@ public final class NoiseIslandGenerator {
         BlockState state;
         Random random = new Random();
 
+        // Check space if enabled
+        if (config.checkSpace) {
+            for (BlockPos pos : this.bounds.iterate()) {
+                // Don't generate if there is something blocking here
+                if (!template.getBlockState(pos).isAir()) {
+                    return;
+                }
+            }
+        }
+
         for (BlockPos pos : this.bounds.iterate()) {
             state = Blocks.STONE.getDefaultState();
 
