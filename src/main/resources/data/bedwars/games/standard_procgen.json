@@ -27,7 +27,8 @@
       "tree_extra_amt_chance": 0,
       "grass_amt": 16,
       "check_space": false,
-      "ore_chance": 320
+      "diamond_ore_chance": 320,
+      "gold_ore_chance": 180
     },
     "small_island_generator": {
       "radius": 5,

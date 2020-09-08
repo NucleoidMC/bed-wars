@@ -18,7 +18,8 @@ public final class NoiseIslandConfig {
             Codec.INT.fieldOf("tree_extra_amt_chance").forGetter(generator -> generator.treeAmtRand),
             Codec.INT.fieldOf("grass_amt").forGetter(generator -> generator.grassAmt),
             Codec.BOOL.fieldOf("check_space").forGetter(generator -> generator.checkSpace),
-            Codec.INT.optionalFieldOf("ore_chance", -1).forGetter(generator -> generator.oreChance)
+            Codec.INT.optionalFieldOf("diamond_ore_chance", -1).forGetter(generator -> generator.diamondOreChance),
+            Codec.INT.optionalFieldOf("gold_ore_chance", -1).forGetter(generator -> generator.goldOreChance)
     ).apply(instance, NoiseIslandConfig::new));
 
     public final int radius;
@@ -32,9 +33,10 @@ public final class NoiseIslandConfig {
     public final int treeExtraAmtChance;
     public final int grassAmt;
     public final boolean checkSpace;
-    public final int oreChance;
+    public final int diamondOreChance;
+    public final int goldOreChance;
 
-    public NoiseIslandConfig(int radius, double falloffMultiplier, double falloffStrength, double falloffOffset, double noiseHorizontalFrequency, double noiseVerticalFrequency, int treeAmt, int treeAmtRand, int treeExtraAmtChance, int grassAmt, boolean checkSpace, int oreChance) {
+    public NoiseIslandConfig(int radius, double falloffMultiplier, double falloffStrength, double falloffOffset, double noiseHorizontalFrequency, double noiseVerticalFrequency, int treeAmt, int treeAmtRand, int treeExtraAmtChance, int grassAmt, boolean checkSpace, int diamondOreChance, int goldOreChance) {
         this.radius = radius;
         this.falloffMultiplier = falloffMultiplier;
         this.falloffStrength = falloffStrength;
@@ -46,7 +48,8 @@ public final class NoiseIslandConfig {
         this.treeExtraAmtChance = treeExtraAmtChance;
         this.grassAmt = grassAmt;
         this.checkSpace = checkSpace;
-        this.oreChance = oreChance;
+        this.diamondOreChance = diamondOreChance;
+        this.goldOreChance = goldOreChance;
     }
 
     public NoiseIslandGenerator createGenerator(BlockPos origin, long seed) {

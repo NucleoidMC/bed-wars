@@ -46,6 +46,8 @@ public final class BwItemShop {
             shop.addItem(new ItemStack(Items.COBWEB, 4), Cost.ofGold(8));
             shop.addItem(new ItemStack(Items.SCAFFOLDING, 8), Cost.ofGold(4));
 
+            shop.addItem(new ItemStack(Items.TORCH, 8), Cost.ofGold(1));
+
             shop.addItem(ItemStackBuilder.of(Items.SHIELD).setUnbreakable().build(), Cost.ofGold(10));
             shop.addItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().build(), Cost.ofGold(20));
             shop.addItem(new ItemStack(Items.ARROW, 4), Cost.ofGold(2));
@@ -83,6 +85,12 @@ public final class BwItemShop {
 
                 addUpgrade(shop, upgrades, UpgradeType.ARMOR, new LiteralText("Upgrade Armor"));
             }
+
+            shop.addItem(
+                    ItemStackBuilder.of(new ItemStack(Items.GOLD_INGOT, 2))
+                            .addLore(new LiteralText("Trade Gold Ore for 2 gold ingots!"))
+                            .build(),
+                    Cost.ofItem(Blocks.GOLD_ORE.asItem(), 1, new LiteralText("1 Gold Ore")));
         });
     }
 

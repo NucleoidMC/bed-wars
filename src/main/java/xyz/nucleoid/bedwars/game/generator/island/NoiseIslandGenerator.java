@@ -65,10 +65,12 @@ public final class NoiseIslandGenerator {
                 double noise = noiseSampler.eval(noiseX, noiseY, noiseZ);
                 noise += this.computeNoiseFalloff(localY);
 
-                if (localY < 0) {
-                    if (config.oreChance > 1 && random.nextInt(config.oreChance) == 0) {
-                        state = Blocks.DIAMOND_ORE.getDefaultState();
-                    }
+                if (config.goldOreChance > 1 && random.nextInt(config.goldOreChance) == 0) {
+                    state = Blocks.GOLD_ORE.getDefaultState();
+                }
+
+                if (config.diamondOreChance > 1 && random.nextInt(config.diamondOreChance) == 0) {
+                    state = Blocks.DIAMOND_ORE.getDefaultState();
                 }
 
                 if (noise > 0) {
