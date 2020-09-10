@@ -30,6 +30,7 @@ public final class BwSpawnLogic {
         player.setHealth(20.0F);
         player.getHungerManager().setFoodLevel(20);
         player.fallDistance = 0.0F;
+        player.setFireTicks(0);
         player.setGameMode(gameMode);
     }
 
