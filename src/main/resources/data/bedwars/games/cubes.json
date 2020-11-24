@@ -1,0 +1,21 @@
+{
+  "type": "bedwars:bed_wars",
+  "name": "BedWars: Cubes",
+  "map": "bedwars:cubes",
+  "dimension": "minecraft:overworld",
+  "players": {
+    "min": 1,
+    "max": 100,
+    "threshold": 4
+  },
+  "keep_inventory": true,
+  "combat": {
+    "old_mechanics": false
+  },
+  "teams": [
+    {"key": "red", "display": "Red", "color": "red"},
+    {"key": "green", "display": "Green", "color": "green"},
+    {"key": "blue", "display": "Blue", "color": "blue"},
+    {"key": "yellow", "display": "Yellow", "color": "yellow"}
+  ]
+}
