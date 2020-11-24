@@ -12,7 +12,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Stream;

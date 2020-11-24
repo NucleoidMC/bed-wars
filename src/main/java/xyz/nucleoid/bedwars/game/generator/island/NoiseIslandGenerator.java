@@ -1,13 +1,13 @@
 package xyz.nucleoid.bedwars.game.generator.island;
 
-import java.util.Random;
-
 import kdotjpg.opensimplex.OpenSimplexNoise;
-import xyz.nucleoid.plasmid.game.map.template.MapTemplate;
-import xyz.nucleoid.plasmid.util.BlockBounds;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
+import xyz.nucleoid.plasmid.map.template.MapTemplate;
+import xyz.nucleoid.plasmid.util.BlockBounds;
+
+import java.util.Random;
 
 public final class NoiseIslandGenerator {
     private final NoiseIslandConfig config;
@@ -40,7 +40,7 @@ public final class NoiseIslandGenerator {
 
         // Check space if enabled
         if (config.checkSpace) {
-            for (BlockPos pos : this.bounds.iterate()) {
+            for (BlockPos pos : this.bounds) {
                 // Don't generate if there is something blocking here
                 if (!template.getBlockState(pos).isAir()) {
                     return;
@@ -48,7 +48,7 @@ public final class NoiseIslandGenerator {
             }
         }
 
-        for (BlockPos pos : this.bounds.iterate()) {
+        for (BlockPos pos : this.bounds) {
             state = Blocks.STONE.getDefaultState();
 
             int localX = pos.getX() - origin.getX();

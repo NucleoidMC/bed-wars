@@ -5,13 +5,13 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.dimension.DimensionType;
+import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameModifier;
 import xyz.nucleoid.bedwars.game.generator.BwSkyMapConfig;
 import xyz.nucleoid.plasmid.game.config.CombatConfig;
 import xyz.nucleoid.plasmid.game.config.PlayerConfig;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 

@@ -7,14 +7,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.Heightmap;
-import net.minecraft.world.biome.Biomes;
+import net.minecraft.world.biome.BuiltinBiomes;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkRandom;
 import net.minecraft.world.gen.StructureAccessor;
 import xyz.nucleoid.plasmid.game.gen.feature.GrassGen;
 import xyz.nucleoid.plasmid.game.gen.feature.tree.PoplarTreeGen;
-import xyz.nucleoid.plasmid.game.map.template.MapTemplate;
-import xyz.nucleoid.plasmid.game.map.template.TemplateChunkGenerator;
+import xyz.nucleoid.plasmid.map.template.MapTemplate;
+import xyz.nucleoid.plasmid.map.template.TemplateChunkGenerator;
 
 import java.util.Random;
 
@@ -23,7 +23,7 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
     private static final BlockState WATER = Blocks.WATER.getDefaultState();
 
     public BwSkyChunkGenerator(MinecraftServer server, MapTemplate template) {
-        super(server, template, BlockPos.ORIGIN);
+        super(server, template);
     }
 
     @Override
@@ -45,7 +45,7 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
                 int height = chunk.sampleHeightmap(Heightmap.Type.WORLD_SURFACE_WG, x, z) + 1;
 
                 mutablePos.set(minWorldX + x, height, minWorldZ + z);
-                Biomes.PLAINS.buildSurface(chunkRandom, chunk, worldX, worldZ, height, 0.0, STONE, WATER, 0, seed);
+                BuiltinBiomes.PLAINS.buildSurface(chunkRandom, chunk, worldX, worldZ, height, 0.0, STONE, WATER, 0, seed);
             }
         }
     }

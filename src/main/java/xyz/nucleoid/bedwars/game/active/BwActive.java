@@ -24,6 +24,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
+import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.bedwars.BedWars;
 import xyz.nucleoid.bedwars.custom.BridgeEggEntity;
 import xyz.nucleoid.bedwars.custom.BwFireballEntity;
@@ -34,8 +35,17 @@ import xyz.nucleoid.bedwars.game.BwSpawnLogic;
 import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameModifier;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameTrigger;
-import xyz.nucleoid.plasmid.game.GameWorld;
-import xyz.nucleoid.plasmid.game.event.*;
+import xyz.nucleoid.plasmid.game.GameSpace;
+import xyz.nucleoid.plasmid.game.event.BreakBlockListener;
+import xyz.nucleoid.plasmid.game.event.ExplosionListener;
+import xyz.nucleoid.plasmid.game.event.GameOpenListener;
+import xyz.nucleoid.plasmid.game.event.GameTickListener;
+import xyz.nucleoid.plasmid.game.event.OfferPlayerListener;
+import xyz.nucleoid.plasmid.game.event.PlayerAddListener;
+import xyz.nucleoid.plasmid.game.event.PlayerDamageListener;
+import xyz.nucleoid.plasmid.game.event.PlayerDeathListener;
+import xyz.nucleoid.plasmid.game.event.UseBlockListener;
+import xyz.nucleoid.plasmid.game.event.UseItemListener;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 import xyz.nucleoid.plasmid.game.player.JoinResult;
 import xyz.nucleoid.plasmid.game.rule.GameRule;
@@ -45,9 +55,15 @@ import xyz.nucleoid.plasmid.util.BlockBounds;
 import xyz.nucleoid.plasmid.util.ColoredBlocks;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 import xyz.nucleoid.plasmid.util.PlayerRef;
+import xyz.nucleoid.plasmid.widget.GlobalWidgets;
 
-import javax.annotation.Nullable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -58,7 +74,7 @@ public final class BwActive {
     public static final int BED_GONE_TICKS = 20 * 60 * 20;
 
     public final ServerWorld world;
-    public final GameWorld gameWorld;
+    public final GameSpace gameSpace;
 
     public final BwMap map;
     public final BwConfig config;
@@ -86,14 +102,14 @@ public final class BwActive {
     private GameTeam winningTeam;
     private long closeTime;
 
-    private BwActive(GameWorld gameWorld, BwMap map, BwConfig config) {
-        this.world = gameWorld.getWorld();
-        this.gameWorld = gameWorld;
+    private BwActive(GameSpace gameSpace, BwMap map, BwConfig config, GlobalWidgets widgets) {
+        this.world = gameSpace.getWorld();
+        this.gameSpace = gameSpace;
 
         this.map = map;
         this.config = config;
 
-        this.scoreboard = gameWorld.addResource(BwScoreboard.create(this));
+        this.scoreboard = BwScoreboard.create(this, widgets);
 
         this.broadcast = new BwBroadcast(this);
         this.teamLogic = new BwTeamLogic(this);
@@ -102,18 +118,21 @@ public final class BwActive {
         this.mapLogic = new BwMapLogic(this);
         this.playerLogic = new BwPlayerLogic(this);
         this.spawnLogic = new BwSpawnLogic(this.world, map);
-        this.bar = gameWorld.addResource(new BwBar(gameWorld));
+
+        this.bar = BwBar.create(widgets);
     }
 
-    public static void open(GameWorld gameWorld, BwMap map, BwConfig config, Multimap<GameTeam, ServerPlayerEntity> players) {
-        BwActive active = new BwActive(gameWorld, map, config);
-        active.addPlayers(players);
+    public static void open(GameSpace gameSpace, BwMap map, BwConfig config, Multimap<GameTeam, ServerPlayerEntity> players) {
+        gameSpace.openGame(game -> {
+            GlobalWidgets widgets = new GlobalWidgets(game);
 
-        for (GameTeam team : config.teams) {
-            active.scoreboard.addTeam(team);
-        }
+            BwActive active = new BwActive(gameSpace, map, config, widgets);
+            active.addPlayers(players);
 
-        gameWorld.openGame(game -> {
+            for (GameTeam team : config.teams) {
+                active.scoreboard.addTeam(team);
+            }
+
             game.setRule(GameRule.PORTALS, RuleResult.DENY);
             game.setRule(GameRule.PVP, RuleResult.ALLOW);
             game.setRule(GameRule.UNSTABLE_TNT, RuleResult.ALLOW);
@@ -226,14 +245,14 @@ public final class BwActive {
         return ActionResult.PASS;
     }
 
-    private boolean onPlayerDamage(ServerPlayerEntity attackedPlayer, DamageSource source, float amount) {
+    private ActionResult onPlayerDamage(ServerPlayerEntity attackedPlayer, DamageSource source, float amount) {
         if (source == DamageSource.OUT_OF_WORLD && attackedPlayer.isSpectator()) {
-            return true;
+            return ActionResult.FAIL;
         }
 
         BwParticipant attackedParticipant = this.getParticipant(attackedPlayer);
         if (attackedParticipant == null) {
-            return false;
+            return ActionResult.PASS;
         }
 
         Entity attacker = source.getAttacker();
@@ -243,14 +262,14 @@ public final class BwActive {
 
             if (attackerParticipant != null) {
                 if (attackerParticipant.team == attackedParticipant.team) {
-                    return true;
+                    return ActionResult.FAIL;
                 }
 
                 attackedParticipant.lastAttack = AttackRecord.fromAttacker(attackerPlayer);
             }
         }
 
-        return false;
+        return ActionResult.PASS;
     }
 
     private ActionResult onUseBlock(ServerPlayerEntity player, Hand hand, BlockHitResult hitResult) {
@@ -369,7 +388,7 @@ public final class BwActive {
     private void tick() {
         if (this.winningTeam != null) {
             if (this.tickClosing()) {
-                this.gameWorld.close();
+                this.gameSpace.close();
             }
             return;
         }
@@ -394,7 +413,7 @@ public final class BwActive {
             long bedGoneTime = this.startTime + BED_GONE_TICKS;
             this.bar.update(bedGoneTime - time, BED_GONE_TICKS);
 
-            for (ServerPlayerEntity player : this.gameWorld.getPlayerSet()) {
+            for (ServerPlayerEntity player : this.gameSpace.getPlayers()) {
                 if (!player.isSpectator() && !this.map.isLegalAt(player.getBlockPos())) {
                     player.damage(DamageSource.OUT_OF_WORLD, 10000.0F);
                 }

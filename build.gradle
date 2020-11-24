@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.4-SNAPSHOT'
+	id 'fabric-loom' version '0.5-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -23,9 +23,7 @@ dependencies {
 
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	implementation 'com.google.code.findbugs:jsr305:3.0.1'
-
-	modImplementation 'xyz.nucleoid:plasmid:0.3.11'
+	modImplementation 'xyz.nucleoid:plasmid:0.4.0'
 
 	implementation 'kdotjpg:open-simplex:2.0'
 	include 'kdotjpg:open-simplex:2.0'

@@ -38,7 +38,7 @@ public final class BwSpawnLogic {
         BlockPos pos = this.map.getCenterSpawn();
 
         ChunkPos chunkPos = new ChunkPos(pos);
-        this.world.getChunkManager().addTicket(ChunkTicketType.field_19347, chunkPos, 1, player.getEntityId());
+        this.world.getChunkManager().addTicket(ChunkTicketType.POST_TELEPORT, chunkPos, 1, player.getEntityId());
 
         this.world.getChunk(chunkPos.x, chunkPos.z, ChunkStatus.FULL);
 

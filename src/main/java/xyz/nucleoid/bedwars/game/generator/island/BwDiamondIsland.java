@@ -1,11 +1,11 @@
 package xyz.nucleoid.bedwars.game.generator.island;
 
-import xyz.nucleoid.bedwars.game.BwMap;
-import xyz.nucleoid.plasmid.game.map.template.MapTemplate;
-import xyz.nucleoid.plasmid.util.BlockBounds;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Heightmap;
+import xyz.nucleoid.bedwars.game.BwMap;
+import xyz.nucleoid.plasmid.map.template.MapTemplate;
+import xyz.nucleoid.plasmid.util.BlockBounds;
 
 public final class BwDiamondIsland {
     private final NoiseIslandConfig config;

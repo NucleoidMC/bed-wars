@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.nucleoid.bedwars.BedWars;
-import xyz.nucleoid.plasmid.game.GameWorld;
+import xyz.nucleoid.plasmid.game.ManagedGameSpace;
 import xyz.nucleoid.plasmid.game.rule.RuleResult;
 
 @Mixin(TridentEntity.class)
@@ -25,8 +25,8 @@ public abstract class TridentEntityMixin extends PersistentProjectileEntity {
     @Inject(method = "tick", at = @At("HEAD"))
     private void tick(CallbackInfo ci) {
         if (!this.dealtDamage && this.getY() <= 0.0) {
-            GameWorld gameWorld = GameWorld.forWorld(this.world);
-            if (gameWorld != null && gameWorld.testRule(BedWars.TRIDENTS_LOYAL_IN_VOID) == RuleResult.ALLOW) {
+            ManagedGameSpace gameSpace = ManagedGameSpace.forWorld(this.world);
+            if (gameSpace != null && gameSpace.testRule(BedWars.TRIDENTS_LOYAL_IN_VOID) == RuleResult.ALLOW) {
                 this.dealtDamage = true;
                 this.setVelocity(0.0, 0.0, 0.0);
             }

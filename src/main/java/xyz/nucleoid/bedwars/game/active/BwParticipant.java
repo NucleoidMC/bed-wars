@@ -8,7 +8,7 @@ import xyz.nucleoid.plasmid.util.PlayerRef;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public final class BwParticipant {
     private final ServerWorld world;

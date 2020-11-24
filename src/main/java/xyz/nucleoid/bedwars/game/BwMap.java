@@ -11,18 +11,22 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.bedwars.BedWars;
 import xyz.nucleoid.bedwars.custom.ShopVillagerEntity;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.active.BwItemGenerator;
 import xyz.nucleoid.bedwars.game.active.ItemGeneratorPool;
-import xyz.nucleoid.plasmid.game.map.template.MapTemplate;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
+import xyz.nucleoid.plasmid.map.template.MapTemplateMetadata;
 import xyz.nucleoid.plasmid.util.BlockBounds;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class BwMap {
     private ChunkGenerator chunkGenerator;
@@ -83,7 +87,7 @@ public final class BwMap {
     }
 
     public void addProtectedBlocks(BlockBounds bounds) {
-        for (BlockPos pos : bounds.iterate()) {
+        for (BlockPos pos : bounds) {
             this.protectedBlocks.add(pos.asLong());
         }
     }
@@ -132,7 +136,7 @@ public final class BwMap {
         return this.teamSpawns.get(team);
     }
 
-    @Nonnull
+    @NotNull
     public TeamRegions getTeamRegions(GameTeam team) {
         return this.teamRegions.getOrDefault(team, TeamRegions.EMPTY);
     }
@@ -225,15 +229,15 @@ public final class BwMap {
             this.teamChest = teamChest;
         }
 
-        public static TeamRegions fromTemplate(GameTeam team, MapTemplate template) {
+        public static TeamRegions fromTemplate(GameTeam team, MapTemplateMetadata metadata) {
             String teamKey = team.getKey();
 
-            BlockBounds base = template.getFirstRegion(teamKey + "_base");
-            BlockBounds spawn = template.getFirstRegion(teamKey + "_spawn");
-            BlockBounds bed = template.getFirstRegion(teamKey + "_bed");
-            BlockBounds itemShop = template.getFirstRegion(teamKey + "_item_shop");
-            BlockBounds teamShop = template.getFirstRegion(teamKey + "_team_shop");
-            BlockBounds teamChest = template.getFirstRegion(teamKey + "_chest");
+            BlockBounds base = metadata.getFirstRegionBounds(teamKey + "_base");
+            BlockBounds spawn = metadata.getFirstRegionBounds(teamKey + "_spawn");
+            BlockBounds bed = metadata.getFirstRegionBounds(teamKey + "_bed");
+            BlockBounds itemShop = metadata.getFirstRegionBounds(teamKey + "_item_shop");
+            BlockBounds teamShop = metadata.getFirstRegionBounds(teamKey + "_team_shop");
+            BlockBounds teamChest = metadata.getFirstRegionBounds(teamKey + "_chest");
 
             return new TeamRegions(spawn, bed, base, itemShop, teamShop, teamChest);
         }

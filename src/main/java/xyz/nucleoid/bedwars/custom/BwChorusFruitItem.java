@@ -14,7 +14,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import xyz.nucleoid.plasmid.fake.FakeItem;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Random;
 
 public final class BwChorusFruitItem extends ChorusFruitItem implements FakeItem {

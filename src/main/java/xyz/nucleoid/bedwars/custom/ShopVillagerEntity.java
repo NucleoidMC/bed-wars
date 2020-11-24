@@ -14,7 +14,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public final class ShopVillagerEntity extends VillagerEntity {
     private final BwActive game;

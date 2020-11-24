@@ -9,11 +9,10 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
+import xyz.nucleoid.plasmid.widget.GlobalWidgets;
 import xyz.nucleoid.plasmid.widget.SidebarWidget;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public final class BwScoreboard implements AutoCloseable {
@@ -24,14 +23,14 @@ public final class BwScoreboard implements AutoCloseable {
 
     private long ticks;
 
-    private BwScoreboard(BwActive game, SidebarWidget sidebar) {
+    BwScoreboard(BwActive game, SidebarWidget sidebar) {
         this.game = game;
         this.sidebar = sidebar;
     }
 
-    public static BwScoreboard create(BwActive game) {
+    public static BwScoreboard create(BwActive game, GlobalWidgets widgets) {
         Text title = new LiteralText("BedWars").formatted(Formatting.GOLD, Formatting.BOLD);
-        SidebarWidget sidebar = SidebarWidget.open(title, game.gameWorld.getPlayerSet());
+        SidebarWidget sidebar = widgets.addSidebar(title);
         return new BwScoreboard(game, sidebar);
     }
 
@@ -74,47 +73,45 @@ public final class BwScoreboard implements AutoCloseable {
     }
 
     private void render() {
-        List<String> lines = new ArrayList<>(10);
+        this.sidebar.set(content -> {
+            long seconds = (this.ticks / 20) % 60;
+            long minutes = this.ticks / (20 * 60);
 
-        long seconds = (this.ticks / 20) % 60;
-        long minutes = this.ticks / (20 * 60);
+            content.writeLine(String.format("%sTime: %s%02d:%02d", Formatting.RED.toString() + Formatting.BOLD, Formatting.RESET, minutes, seconds));
 
-        lines.add(String.format("%sTime: %s%02d:%02d", Formatting.RED.toString() + Formatting.BOLD, Formatting.RESET, minutes, seconds));
-
-        long playersAlive = this.game.participants()
-                .filter(BwParticipant::isAlive)
-                .count();
-        lines.add(Formatting.BLUE.toString() + playersAlive + " players alive");
-        lines.add("");
-
-        lines.add(Formatting.BOLD + "Teams:");
-        this.game.teams().forEach(teamState -> {
-            long totalPlayerCount = this.game.participantsFor(teamState.team).count();
-            long alivePlayerCount = this.game.participantsFor(teamState.team)
+            long playersAlive = this.game.participants()
                     .filter(BwParticipant::isAlive)
                     .count();
+            content.writeLine(Formatting.BLUE.toString() + playersAlive + " players alive");
+            content.writeLine("");
 
-            if (!teamState.eliminated) {
-                String state = alivePlayerCount + "/" + totalPlayerCount;
-                if (!teamState.hasBed) {
-                    state += " (no bed)";
+            content.writeLine(Formatting.BOLD + "Teams:");
+            this.game.teams().forEach(teamState -> {
+                long totalPlayerCount = this.game.participantsFor(teamState.team).count();
+                long alivePlayerCount = this.game.participantsFor(teamState.team)
+                        .filter(BwParticipant::isAlive)
+                        .count();
+
+                if (!teamState.eliminated) {
+                    String state = alivePlayerCount + "/" + totalPlayerCount;
+                    if (!teamState.hasBed) {
+                        state += " (no bed)";
+                    }
+
+                    String nameFormat = teamState.team.getFormatting().toString() + Formatting.BOLD.toString();
+                    String descriptionFormat = Formatting.RESET.toString() + Formatting.GRAY.toString();
+
+                    String name = teamState.team.getDisplay();
+                    content.writeLine("  " + nameFormat + name + ": " + descriptionFormat + state);
+                } else {
+                    String nameFormat = teamState.team.getFormatting().toString() + Formatting.BOLD.toString() + Formatting.STRIKETHROUGH.toString();
+                    String descriptionFormat = Formatting.RESET.toString() + Formatting.RED.toString();
+
+                    String name = teamState.team.getDisplay();
+                    content.writeLine("  " + nameFormat + name + descriptionFormat + ": eliminated!");
                 }
-
-                String nameFormat = teamState.team.getFormatting().toString() + Formatting.BOLD.toString();
-                String descriptionFormat = Formatting.RESET.toString() + Formatting.GRAY.toString();
-
-                String name = teamState.team.getDisplay();
-                lines.add("  " + nameFormat + name + ": " + descriptionFormat + state);
-            } else {
-                String nameFormat = teamState.team.getFormatting().toString() + Formatting.BOLD.toString() + Formatting.STRIKETHROUGH.toString();
-                String descriptionFormat = Formatting.RESET.toString() + Formatting.RED.toString();
-
-                String name = teamState.team.getDisplay();
-                lines.add("  " + nameFormat + name + descriptionFormat + ": eliminated!");
-            }
+            });
         });
-
-        this.sidebar.set(lines.toArray(new String[0]));
     }
 
     @Override

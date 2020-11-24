@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.nucleoid.bedwars.BedWars;
-import xyz.nucleoid.plasmid.game.GameWorld;
+import xyz.nucleoid.plasmid.game.ManagedGameSpace;
 import xyz.nucleoid.plasmid.game.rule.RuleResult;
 
 import java.util.Optional;
@@ -32,9 +32,9 @@ public class ExplosionBehaviorMixin {
         if (blockView instanceof ServerWorldAccess) {
             ServerWorld world = ((ServerWorldAccess) blockView).toServerWorld();
 
-            GameWorld gameWorld = GameWorld.forWorld(world);
-            if (gameWorld != null) {
-                RuleResult result = gameWorld.testRule(BedWars.BLAST_PROOF_GLASS_RULE);
+            ManagedGameSpace gameSpace = ManagedGameSpace.forWorld(world);
+            if (gameSpace != null) {
+                RuleResult result = gameSpace.testRule(BedWars.BLAST_PROOF_GLASS_RULE);
                 if (result == RuleResult.ALLOW) {
                     if (block.getBlock() instanceof AbstractGlassBlock) {
                         ci.setReturnValue(GLASS_RESISTANCE);

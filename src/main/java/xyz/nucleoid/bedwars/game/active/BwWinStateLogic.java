@@ -2,7 +2,7 @@ package xyz.nucleoid.bedwars.game.active;
 
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

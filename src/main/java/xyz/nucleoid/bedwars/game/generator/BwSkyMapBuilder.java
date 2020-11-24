@@ -1,22 +1,20 @@
 package xyz.nucleoid.bedwars.game.generator;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.biome.BuiltinBiomes;
+import net.minecraft.world.biome.BiomeKeys;
 import xyz.nucleoid.bedwars.game.BwConfig;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.generator.island.BwCenterIsland;
 import xyz.nucleoid.bedwars.game.generator.island.BwDiamondIsland;
 import xyz.nucleoid.bedwars.game.generator.island.BwTeamIsland;
 import xyz.nucleoid.bedwars.game.generator.island.NoiseIslandConfig;
-import xyz.nucleoid.plasmid.game.map.template.MapTemplate;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
+import xyz.nucleoid.plasmid.map.template.MapTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.CompletableFuture;
 
 public final class BwSkyMapBuilder {
     private final BwConfig config;
@@ -27,11 +25,7 @@ public final class BwSkyMapBuilder {
         this.skyConfig = skyConfig;
     }
 
-    public CompletableFuture<BwMap> create(MinecraftServer server) {
-        return CompletableFuture.supplyAsync(() -> this.build(server), Util.getMainWorkerExecutor());
-    }
-
-    private BwMap build(MinecraftServer server) {
+    public BwMap build(MinecraftServer server) {
         BwMap map = new BwMap();
 
         MapTemplate template = MapTemplate.createEmpty();
@@ -54,7 +48,7 @@ public final class BwSkyMapBuilder {
 
         this.addSmallIslands(template, random);
 
-        template.setBiome(BuiltinBiomes.PLAINS);
+        template.setBiome(BiomeKeys.PLAINS);
 
         BwSkyChunkGenerator generator = new BwSkyChunkGenerator(server, template);
         map.setChunkGenerator(generator);

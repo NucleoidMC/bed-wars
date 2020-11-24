@@ -9,7 +9,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public final class BwTeamLogic {
     private final BwActive game;
@@ -70,7 +70,7 @@ public final class BwTeamLogic {
         BlockBounds bed = this.game.map.getTeamRegions(team).bed;
 
         ServerWorld world = this.game.world;
-        bed.iterate().forEach(p -> {
+        bed.forEach(p -> {
             world.setBlockState(p, Blocks.AIR.getDefaultState(), 0b100010);
         });
 

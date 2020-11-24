@@ -1,5 +1,6 @@
 {
   "type": "bedwars:bed_wars",
+  "name": "BedWars: Hellish Nightmare",
   "map": "bedwars:hellish_nightmare",
   "dimension": "minecraft:the_nether",
   "players": {

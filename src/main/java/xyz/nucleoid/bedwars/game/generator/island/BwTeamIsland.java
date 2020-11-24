@@ -7,8 +7,8 @@ import net.minecraft.block.enums.BedPart;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import xyz.nucleoid.bedwars.game.BwMap;
-import xyz.nucleoid.plasmid.game.map.template.MapTemplate;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
+import xyz.nucleoid.plasmid.map.template.MapTemplate;
 import xyz.nucleoid.plasmid.util.BlockBounds;
 import xyz.nucleoid.plasmid.util.ColoredBlocks;
 
@@ -33,7 +33,7 @@ public final class BwTeamIsland {
         BlockPos origin = BwTeamIsland.this.origin;
         BlockState terracotta = ColoredBlocks.terracotta(BwTeamIsland.this.team.getDye()).getDefaultState();
 
-        for (BlockPos pos : this.bounds.iterate()) {
+        for (BlockPos pos : this.bounds) {
             int deltaX = pos.getX() - origin.getX();
             int deltaZ = pos.getZ() - origin.getZ();
             int radius = Math.max(Math.abs(deltaX), Math.abs(deltaZ));
