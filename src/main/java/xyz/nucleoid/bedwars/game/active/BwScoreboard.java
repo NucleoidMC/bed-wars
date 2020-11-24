@@ -8,6 +8,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import org.apache.commons.lang3.RandomStringUtils;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 import xyz.nucleoid.plasmid.widget.GlobalWidgets;
 import xyz.nucleoid.plasmid.widget.SidebarWidget;
@@ -60,10 +61,11 @@ public final class BwScoreboard implements AutoCloseable {
         return this.scoreboardTeams.computeIfAbsent(team, t -> {
             MinecraftServer server = this.game.world.getServer();
             ServerScoreboard scoreboard = server.getScoreboard();
-            String teamKey = t.getDisplay();
+            String teamKey = generateTeamKey();
             Team scoreboardTeam = scoreboard.getTeam(teamKey);
             if (scoreboardTeam == null) {
                 scoreboardTeam = scoreboard.addTeam(teamKey);
+                scoreboardTeam.setDisplayName(new LiteralText(t.getDisplay()));
                 scoreboardTeam.setColor(team.getFormatting());
                 scoreboardTeam.setCollisionRule(AbstractTeam.CollisionRule.NEVER);
                 scoreboardTeam.setFriendlyFireAllowed(false);
@@ -114,13 +116,15 @@ public final class BwScoreboard implements AutoCloseable {
         });
     }
 
+    private static String generateTeamKey() {
+        return RandomStringUtils.randomAlphanumeric(16);
+    }
+
     @Override
     public void close() {
         MinecraftServer server = this.game.world.getServer();
 
         ServerScoreboard scoreboard = server.getScoreboard();
         this.scoreboardTeams.values().forEach(scoreboard::removeTeam);
-
-        this.sidebar.close();
     }
 }

@@ -109,7 +109,7 @@ public final class BwActive {
         this.map = map;
         this.config = config;
 
-        this.scoreboard = BwScoreboard.create(this, widgets);
+        this.scoreboard = gameSpace.addResource(BwScoreboard.create(this, widgets));
 
         this.broadcast = new BwBroadcast(this);
         this.teamLogic = new BwTeamLogic(this);
