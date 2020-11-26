@@ -25,6 +25,8 @@ dependencies {
 
 	modImplementation 'xyz.nucleoid:plasmid:0.4.0'
 
+	modImplementation 'xyz.nucleoid:substrate:0.1.0'
+
 	implementation 'kdotjpg:open-simplex:2.0'
 	include 'kdotjpg:open-simplex:2.0'
 

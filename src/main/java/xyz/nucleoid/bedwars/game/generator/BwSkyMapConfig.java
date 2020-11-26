@@ -3,9 +3,11 @@ package xyz.nucleoid.bedwars.game.generator;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import xyz.nucleoid.bedwars.game.generator.island.NoiseIslandConfig;
+import xyz.nucleoid.bedwars.game.generator.theme.MapTheme;
 
 public final class BwSkyMapConfig {
     public static final Codec<BwSkyMapConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            MapTheme.CODEC.fieldOf("theme").forGetter(generator -> generator.theme),
             NoiseIslandConfig.CODEC.fieldOf("diamond_generator").forGetter(generator -> generator.diamondGenerator),
             NoiseIslandConfig.CODEC.fieldOf("center_generator").forGetter(generator -> generator.centerGenerator),
             NoiseIslandConfig.CODEC.fieldOf("small_island_generator").forGetter(generator -> generator.smallIslandGenerator),
@@ -17,6 +19,7 @@ public final class BwSkyMapConfig {
             Codec.INT.fieldOf("small_island_cutoff").forGetter(generator -> generator.smallIslandCutoff)
     ).apply(instance, BwSkyMapConfig::new));
 
+    public final MapTheme theme;
     public final NoiseIslandConfig diamondGenerator;
     public final NoiseIslandConfig centerGenerator;
     public final NoiseIslandConfig smallIslandGenerator;
@@ -27,7 +30,8 @@ public final class BwSkyMapConfig {
     public final int smallIslandVerticalSpread;
     public final int smallIslandCutoff;
 
-    private BwSkyMapConfig(NoiseIslandConfig diamondGenerator, NoiseIslandConfig centerGenerator, NoiseIslandConfig smallIslandGenerator, double spawnIslandDistance, double diamondIslandDistance, int smallIslandCount, int smallIslandHorizontalSpread, int smallIslandVerticalSpread, int smallIslandCutoff) {
+    private BwSkyMapConfig(MapTheme theme, NoiseIslandConfig diamondGenerator, NoiseIslandConfig centerGenerator, NoiseIslandConfig smallIslandGenerator, double spawnIslandDistance, double diamondIslandDistance, int smallIslandCount, int smallIslandHorizontalSpread, int smallIslandVerticalSpread, int smallIslandCutoff) {
+        this.theme = theme;
         this.diamondGenerator = diamondGenerator;
         this.centerGenerator = centerGenerator;
         this.smallIslandGenerator = smallIslandGenerator;

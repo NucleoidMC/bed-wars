@@ -48,9 +48,9 @@ public final class BwSkyMapBuilder {
 
         this.addSmallIslands(template, random);
 
-        template.setBiome(BiomeKeys.PLAINS);
+        template.setBiome(this.skyConfig.theme.getFakingBiome());
 
-        BwSkyChunkGenerator generator = new BwSkyChunkGenerator(server, template);
+        BwSkyChunkGenerator generator = new BwSkyChunkGenerator(this.skyConfig, server, template);
         map.setChunkGenerator(generator);
 
         return map;

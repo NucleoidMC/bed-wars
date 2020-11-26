@@ -11,6 +11,8 @@ import net.minecraft.world.biome.BuiltinBiomes;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkRandom;
 import net.minecraft.world.gen.StructureAccessor;
+
+import xyz.nucleoid.bedwars.game.generator.theme.MapTheme;
 import xyz.nucleoid.plasmid.game.gen.feature.GrassGen;
 import xyz.nucleoid.plasmid.game.gen.feature.tree.PoplarTreeGen;
 import xyz.nucleoid.plasmid.map.template.MapTemplate;
@@ -19,11 +21,11 @@ import xyz.nucleoid.plasmid.map.template.TemplateChunkGenerator;
 import java.util.Random;
 
 public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
-    private static final BlockState STONE = Blocks.STONE.getDefaultState();
-    private static final BlockState WATER = Blocks.WATER.getDefaultState();
+    private final BwSkyMapConfig config;
 
-    public BwSkyChunkGenerator(MinecraftServer server, MapTemplate template) {
+    public BwSkyChunkGenerator(BwSkyMapConfig config, MinecraftServer server, MapTemplate template) {
         super(server, template);
+        this.config = config;
     }
 
     @Override
@@ -37,15 +39,27 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
         int minWorldX = chunkPos.getStartX();
         int minWorldZ = chunkPos.getStartZ();
         BlockPos.Mutable mutablePos = new BlockPos.Mutable();
+        MapTheme theme = this.config.theme;
 
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                int worldX = minWorldX + x;
-                int worldZ = minWorldZ + z;
-                int height = chunk.sampleHeightmap(Heightmap.Type.WORLD_SURFACE_WG, x, z) + 1;
+                int height = chunk.sampleHeightmap(Heightmap.Type.WORLD_SURFACE_WG, x, z);
 
                 mutablePos.set(minWorldX + x, height, minWorldZ + z);
-                BuiltinBiomes.PLAINS.buildSurface(chunkRandom, chunk, worldX, worldZ, height, 0.0, STONE, WATER, 0, seed);
+
+                for (int y = height; y >= 0; y--) {
+                    mutablePos.setY(y);
+
+                    if (region.getBlockState(mutablePos).isOf(Blocks.STONE)) {
+                        if (y == height) {
+                            region.setBlockState(mutablePos, theme.topState(), 3);
+                        } else if (height - y <= 4) {
+                            region.setBlockState(mutablePos, theme.middleState(), 3);
+                        } else {
+                            region.setBlockState(mutablePos, theme.stoneState(), 3);
+                        }
+                    }
+                }
             }
         }
     }
@@ -54,20 +68,22 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
     public void generateFeatures(ChunkRegion region, StructureAccessor structures) {
         BlockPos.Mutable mutable = new BlockPos.Mutable();
         Random random = new Random();
-        for (int i = 0; i < 3; i++) {
+        MapTheme theme = this.config.theme;
+        
+        for (int i = 0; i < theme.treeAmt(); i++) {
             int x = (region.getCenterChunkX() * 16) + random.nextInt(16);
             int z = (region.getCenterChunkZ() * 16) + random.nextInt(16);
             int y = region.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
 
-            PoplarTreeGen.INSTANCE.generate(region, mutable.set(x, y, z).toImmutable(), random);
+            theme.tree().generate(region, mutable.set(x, y, z).toImmutable(), random);
         }
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < theme.grassAmt(); i++) {
             int x = (region.getCenterChunkX() * 16) + random.nextInt(16);
             int z = (region.getCenterChunkZ() * 16) + random.nextInt(16);
             int y = region.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
 
-            GrassGen.INSTANCE.generate(region, mutable.set(x, y, z).toImmutable(), random);
+            theme.grass().generate(region, mutable.set(x, y, z).toImmutable(), random);
         }
     }
 }

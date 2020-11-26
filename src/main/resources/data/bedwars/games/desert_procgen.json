@@ -1,10 +1,10 @@
 {
   "type": "bedwars:bed_wars",
-  "name": "BedWars: Sky Islands",
+  "name": "BedWars: Sky Islands (Desert)",
   "dimension": "minecraft:overworld",
   "map": {
     "theme": {
-      "type": "bedwars:default"
+      "type": "bedwars:desert"
     },
     "diamond_generator": {
       "radius": 10,

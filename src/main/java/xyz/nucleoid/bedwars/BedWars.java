@@ -7,6 +7,7 @@ import xyz.nucleoid.bedwars.game.BwConfig;
 import xyz.nucleoid.bedwars.game.BwWaiting;
 import xyz.nucleoid.bedwars.game.active.modifiers.BwGameModifiers;
 import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
+import xyz.nucleoid.bedwars.game.generator.theme.MapThemes;
 import xyz.nucleoid.plasmid.game.GameType;
 import xyz.nucleoid.plasmid.game.rule.GameRule;
 import net.minecraft.util.Identifier;
@@ -32,5 +33,6 @@ public final class BedWars implements ModInitializer {
 
         BwGameTriggers.register();
         BwGameModifiers.register();
+        MapThemes.register();
     }
 }
