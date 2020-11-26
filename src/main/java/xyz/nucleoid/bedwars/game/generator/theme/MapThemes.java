@@ -11,6 +11,8 @@ public final class MapThemes {
 		register("desert", DesertMapTheme.CODEC);
 		register("forest", ForestMapTheme.CODEC);
 		register("aspen_forest", AspenForestMapTheme.CODEC);
+		register("taiga", TaigaMapTheme.CODEC);
+		register("swamp", SwampMapTheme.CODEC);
 	}
 
 	private static void register(String identifier, Codec<? extends MapTheme> modifier) {
