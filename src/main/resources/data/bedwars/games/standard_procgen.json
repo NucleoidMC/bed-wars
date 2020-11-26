@@ -13,10 +13,6 @@
       "falloff_offset": -4.25,
       "horizontal_frequency": 0.125,
       "vertical_frequency": 0.0833,
-      "tree_amt": 2,
-      "tree_amt_rand": 2,
-      "tree_extra_amt_chance": 0,
-      "grass_amt": 8,
       "check_space": false
     },
     "center_generator": {
@@ -26,10 +22,6 @@
       "falloff_offset": -3.4,
       "horizontal_frequency": 0.0833,
       "vertical_frequency": 0.0625,
-      "tree_amt": 4,
-      "tree_amt_rand": 4,
-      "tree_extra_amt_chance": 0,
-      "grass_amt": 16,
       "check_space": false,
       "diamond_ore_chance": 320,
       "gold_ore_chance": 180
@@ -41,10 +33,6 @@
       "falloff_offset": -2,
       "horizontal_frequency": 0.1666,
       "vertical_frequency": 0.125,
-      "tree_amt": 0,
-      "tree_amt_rand": 0,
-      "tree_extra_amt_chance": 6,
-      "grass_amt": 4,
       "check_space": true
     },
     "spawn_island_distance": 120,

@@ -13,10 +13,6 @@ public final class NoiseIslandConfig {
             Codec.DOUBLE.fieldOf("falloff_offset").forGetter(generator -> generator.falloffOffset),
             Codec.DOUBLE.fieldOf("horizontal_frequency").forGetter(generator -> generator.noiseHorizontalFrequency),
             Codec.DOUBLE.fieldOf("vertical_frequency").forGetter(generator -> generator.noiseVerticalFrequency),
-            Codec.INT.fieldOf("tree_amt").forGetter(generator -> generator.treeAmt),
-            Codec.INT.fieldOf("tree_amt_rand").forGetter(generator -> generator.treeAmtRand),
-            Codec.INT.fieldOf("tree_extra_amt_chance").forGetter(generator -> generator.treeAmtRand),
-            Codec.INT.fieldOf("grass_amt").forGetter(generator -> generator.grassAmt),
             Codec.BOOL.fieldOf("check_space").forGetter(generator -> generator.checkSpace),
             Codec.INT.optionalFieldOf("diamond_ore_chance", -1).forGetter(generator -> generator.diamondOreChance),
             Codec.INT.optionalFieldOf("gold_ore_chance", -1).forGetter(generator -> generator.goldOreChance)
@@ -28,25 +24,17 @@ public final class NoiseIslandConfig {
     public final double falloffOffset;
     public final double noiseHorizontalFrequency;
     public final double noiseVerticalFrequency;
-    public final int treeAmt;
-    public final int treeAmtRand;
-    public final int treeExtraAmtChance;
-    public final int grassAmt;
     public final boolean checkSpace;
     public final int diamondOreChance;
     public final int goldOreChance;
 
-    public NoiseIslandConfig(int radius, double falloffMultiplier, double falloffStrength, double falloffOffset, double noiseHorizontalFrequency, double noiseVerticalFrequency, int treeAmt, int treeAmtRand, int treeExtraAmtChance, int grassAmt, boolean checkSpace, int diamondOreChance, int goldOreChance) {
+    public NoiseIslandConfig(int radius, double falloffMultiplier, double falloffStrength, double falloffOffset, double noiseHorizontalFrequency, double noiseVerticalFrequency, boolean checkSpace, int diamondOreChance, int goldOreChance) {
         this.radius = radius;
         this.falloffMultiplier = falloffMultiplier;
         this.falloffStrength = falloffStrength;
         this.falloffOffset = falloffOffset;
         this.noiseHorizontalFrequency = noiseHorizontalFrequency;
         this.noiseVerticalFrequency = noiseVerticalFrequency;
-        this.treeAmt = treeAmt;
-        this.treeAmtRand = treeAmtRand;
-        this.treeExtraAmtChance = treeExtraAmtChance;
-        this.grassAmt = grassAmt;
         this.checkSpace = checkSpace;
         this.diamondOreChance = diamondOreChance;
         this.goldOreChance = goldOreChance;
