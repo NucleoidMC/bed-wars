@@ -9,6 +9,8 @@ public final class MapThemes {
 	public static void register() {
 		register("default", DefaultMapTheme.CODEC);
 		register("desert", DesertMapTheme.CODEC);
+		register("forest", ForestMapTheme.CODEC);
+		register("aspen_forest", AspenForestMapTheme.CODEC);
 	}
 
 	private static void register(String identifier, Codec<? extends MapTheme> modifier) {
