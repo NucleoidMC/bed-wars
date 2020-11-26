@@ -43,5 +43,6 @@ public final class BwSpawnLogic {
         this.world.getChunk(chunkPos.x, chunkPos.z, ChunkStatus.FULL);
 
         player.teleport(this.world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 0.0F, 0.0F);
+        player.networkHandler.syncWithPlayerPosition();
     }
 }
