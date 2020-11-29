@@ -78,7 +78,7 @@ public final class BwWaiting {
     }
 
     private void addPlayer(ServerPlayerEntity player) {
-        this.spawnLogic.resetPlayer(player, GameMode.ADVENTURE);
+        this.spawnLogic.respawnPlayer(player, GameMode.ADVENTURE);
         this.spawnLogic.spawnAtCenter(player);
     }
 
