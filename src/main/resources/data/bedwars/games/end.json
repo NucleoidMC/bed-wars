@@ -6,7 +6,7 @@
   "players": {
     "min": 1,
     "max": 16,
-    "threshold": 4
+    "threshold": 2
   },
   "keep_inventory": true,
   "combat": {
