@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 public final class BwParticipant {
     private final ServerWorld world;
-    public final PlayerRef playerRef;
+    public final PlayerRef ref;
     public final GameTeam team;
 
     public final PlayerUpgrades upgrades;
@@ -25,7 +25,7 @@ public final class BwParticipant {
 
     BwParticipant(BwActive game, ServerPlayerEntity player, GameTeam team) {
         this.world = player.getServerWorld();
-        this.playerRef = PlayerRef.of(player);
+        this.ref = PlayerRef.of(player);
         this.team = team;
 
         this.upgrades = new PlayerUpgrades(game, this);
@@ -53,7 +53,7 @@ public final class BwParticipant {
 
     @Nullable
     public ServerPlayerEntity player() {
-        return this.playerRef.getEntity(this.world);
+        return this.ref.getEntity(this.world);
     }
 
     public boolean isAlive() {
@@ -61,6 +61,6 @@ public final class BwParticipant {
     }
 
     public boolean isOnline() {
-        return this.playerRef.isOnline(this.world);
+        return this.ref.isOnline(this.world);
     }
 }
