@@ -3,7 +3,9 @@ package xyz.nucleoid.bedwars.game.active;
 import com.google.common.collect.Multimap;
 import net.minecraft.block.AbstractChestBlock;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FireworkRocketEntity;
@@ -22,6 +24,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.Nullable;
@@ -242,7 +245,65 @@ public final class BwActive {
             return ActionResult.FAIL;
         }
 
+
+        ServerWorld world = player.getServerWorld();
+        BlockState state = world.getBlockState(pos);
+
+        // Automatic tree breaking
+        if (state.isIn(BlockTags.LOGS) && !player.isSneaking()) {
+            Set<BlockPos> logs = new HashSet<>();
+            logs.add(pos);
+
+            findLogs(world, pos, logs);
+
+            for (BlockPos log : logs) {
+                world.breakBlock(log, false);
+
+                // Drop 2-4 planks
+                int count = 2 + world.random.nextInt(3);
+                world.spawnEntity(new ItemEntity(world, log.getX(), log.getY(), log.getZ(), new ItemStack(Items.OAK_PLANKS, count)));
+            }
+
+            return ActionResult.FAIL;
+        }
+
+        // Drop ingots from gold
+        if (state.isOf(Blocks.GOLD_BLOCK)) {
+            world.breakBlock(pos, false);
+
+            // Drop 2-4 ingots
+            int count = 2 + world.random.nextInt(3);
+            world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.GOLD_INGOT, count)));
+        }
+
+        // Drop ingots from gold
+        if (state.isOf(Blocks.DIAMOND_BLOCK)) {
+            world.breakBlock(pos, false);
+
+            // Drop 1-2 diamonds
+            int count = 1 + world.random.nextInt(2);
+            world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.DIAMOND, count)));
+        }
+
         return ActionResult.PASS;
+    }
+
+    private void findLogs(ServerWorld world, BlockPos pos, Set<BlockPos> logs) {
+        for(int x = -1; x <= 1; x++) {
+            for(int z = -1; z <= 1; z++) {
+                for(int y = -1; y <= 1; y++) {
+                    BlockPos local = pos.add(x, y, z);
+                    BlockState state = world.getBlockState(local);
+
+                    if (!logs.contains(local)) {
+                        if (state.isIn(BlockTags.LOGS)) {
+                            logs.add(local);
+                            findLogs(world, local, logs);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private ActionResult onPlayerDamage(ServerPlayerEntity attackedPlayer, DamageSource source, float amount) {

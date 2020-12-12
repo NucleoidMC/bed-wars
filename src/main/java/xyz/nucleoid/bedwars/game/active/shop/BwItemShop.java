@@ -85,12 +85,6 @@ public final class BwItemShop {
 
                 addUpgrade(shop, upgrades, UpgradeType.ARMOR, new LiteralText("Upgrade Armor"));
             }
-
-            shop.addItem(
-                    ItemStackBuilder.of(new ItemStack(Items.GOLD_INGOT, 2))
-                            .addLore(new LiteralText("Trade Gold Ore for 2 gold ingots!"))
-                            .build(),
-                    Cost.ofItem(Blocks.GOLD_ORE.asItem(), 1, new LiteralText("1 Gold Ore")));
         });
     }
 
