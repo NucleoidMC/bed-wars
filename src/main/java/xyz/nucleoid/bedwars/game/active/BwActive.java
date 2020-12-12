@@ -252,7 +252,7 @@ public final class BwActive {
         }
 
         // Drop ingots from gold
-        if (state.isOf(Blocks.GOLD_BLOCK)) {
+        if (state.isOf(Blocks.GOLD_ORE)) {
             world.breakBlock(pos, false);
 
             // Drop 2-4 ingots
@@ -261,7 +261,7 @@ public final class BwActive {
         }
 
         // Drop ingots from gold
-        if (state.isOf(Blocks.DIAMOND_BLOCK)) {
+        if (state.isOf(Blocks.DIAMOND_ORE)) {
             world.breakBlock(pos, false);
 
             // Drop 1-2 diamonds
