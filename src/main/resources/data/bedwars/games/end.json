@@ -1,0 +1,19 @@
+{
+  "type": "bedwars:bed_wars",
+  "name": "BedWars: The End?",
+  "map": "bedwars:end",
+  "dimension": "minecraft:overworld",
+  "players": {
+    "min": 1,
+    "max": 16,
+    "threshold": 2
+  },
+  "keep_inventory": true,
+  "combat": {
+    "old_mechanics": false
+  },
+  "teams": [
+    {"key": "shulker", "display": "Shulker", "color": "magenta"},
+    {"key": "enderman", "display": "Enderman", "color": "black"}
+  ]
+}

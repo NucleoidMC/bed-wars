@@ -1,6 +1,9 @@
 package xyz.nucleoid.bedwars.game.active;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.block.AbstractChestBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -12,6 +15,7 @@ import net.minecraft.entity.projectile.FireworkRocketEntity;
 import net.minecraft.item.FireworkItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -38,19 +42,13 @@ import xyz.nucleoid.bedwars.game.BwSpawnLogic;
 import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameModifier;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameTrigger;
+import xyz.nucleoid.plasmid.game.GameCloseReason;
 import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.event.BreakBlockListener;
-import xyz.nucleoid.plasmid.game.event.ExplosionListener;
-import xyz.nucleoid.plasmid.game.event.GameOpenListener;
-import xyz.nucleoid.plasmid.game.event.GameTickListener;
-import xyz.nucleoid.plasmid.game.event.OfferPlayerListener;
-import xyz.nucleoid.plasmid.game.event.PlayerAddListener;
-import xyz.nucleoid.plasmid.game.event.PlayerDamageListener;
-import xyz.nucleoid.plasmid.game.event.PlayerDeathListener;
-import xyz.nucleoid.plasmid.game.event.UseBlockListener;
-import xyz.nucleoid.plasmid.game.event.UseItemListener;
+import xyz.nucleoid.plasmid.game.event.*;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 import xyz.nucleoid.plasmid.game.player.JoinResult;
+import xyz.nucleoid.plasmid.game.player.MutablePlayerSet;
+import xyz.nucleoid.plasmid.game.player.PlayerSet;
 import xyz.nucleoid.plasmid.game.rule.GameRule;
 import xyz.nucleoid.plasmid.game.rule.RuleResult;
 import xyz.nucleoid.plasmid.logic.combat.OldCombat;
@@ -60,14 +58,9 @@ import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 import xyz.nucleoid.plasmid.widget.GlobalWidgets;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class BwActive {
@@ -82,8 +75,8 @@ public final class BwActive {
     public final BwMap map;
     public final BwConfig config;
 
-    private final Map<PlayerRef, BwParticipant> participants = new HashMap<>();
-    private final Map<GameTeam, TeamState> teams = new HashMap<>();
+    private final Map<PlayerRef, BwParticipant> participants = new Object2ObjectOpenHashMap<>();
+    private final Map<GameTeam, TeamState> teams = new Reference2ObjectOpenHashMap<>();
 
     public final BwScoreboard scoreboard;
     public final BwBroadcast broadcast;
@@ -167,22 +160,15 @@ public final class BwActive {
     }
 
     private void addPlayers(Multimap<GameTeam, ServerPlayerEntity> players) {
+        MinecraftServer server = this.gameSpace.getServer();
+
         players.forEach((team, player) -> {
-            this.participants.put(PlayerRef.of(player), new BwParticipant(this, player, team));
+            BwParticipant participant = new BwParticipant(this, player, team);
+            this.participants.put(participant.ref, participant);
+
+            TeamState teamState = this.teams.computeIfAbsent(team, t -> new TeamState(server, t));
+            teamState.players.add(player);
         });
-
-        for (GameTeam team : this.config.teams) {
-            List<BwParticipant> participants = this.participantsFor(team).collect(Collectors.toList());
-
-            if (!participants.isEmpty()) {
-                TeamState teamState = new TeamState(team);
-                participants.forEach(participant -> {
-                    teamState.players.add(participant.playerRef);
-                });
-
-                this.teams.put(team, teamState);
-            }
-        }
     }
 
     private void onOpen() {
@@ -198,7 +184,7 @@ public final class BwActive {
             if (spawn != null) {
                 this.playerLogic.spawnPlayer(player, spawn);
             } else {
-                BedWars.LOGGER.warn("No spawn for player {}", participant.playerRef);
+                BedWars.LOGGER.warn("No spawn for player {}", participant.ref);
                 this.spawnLogic.spawnAtCenter(player);
             }
         });
@@ -449,12 +435,14 @@ public final class BwActive {
     private void tick() {
         if (this.winningTeam != null) {
             if (this.tickClosing()) {
-                this.gameSpace.close();
+                this.gameSpace.close(GameCloseReason.FINISHED);
             }
             return;
         }
 
         long time = this.world.getTime();
+
+        PlayerSet players = this.gameSpace.getPlayers();
 
         // TODO: this should be modular
         if (!this.destroyedBeds) {
@@ -465,8 +453,8 @@ public final class BwActive {
                     this.teamLogic.removeBed(team);
                 }
 
-                this.broadcast.broadcast(this.broadcast.everyone(), new LiteralText("Destroyed all beds!").formatted(Formatting.RED));
-                this.broadcast.broadcastSound(this.broadcast.everyone(), SoundEvents.BLOCK_END_PORTAL_SPAWN);
+                players.sendMessage(new LiteralText("Destroyed all beds!").formatted(Formatting.RED));
+                players.sendSound(SoundEvents.BLOCK_END_PORTAL_SPAWN);
             }
         }
 
@@ -474,7 +462,7 @@ public final class BwActive {
             long bedGoneTime = this.startTime + BED_GONE_TICKS;
             this.bar.update(bedGoneTime - time, BED_GONE_TICKS);
 
-            for (ServerPlayerEntity player : this.gameSpace.getPlayers()) {
+            for (ServerPlayerEntity player : players) {
                 if (!player.isSpectator() && !this.map.isLegalAt(player.getBlockPos())) {
                     player.damage(DamageSource.OUT_OF_WORLD, 10000.0F);
                 }
@@ -529,7 +517,7 @@ public final class BwActive {
         Random random = this.world.random;
 
         if (random.nextInt(18) == 0) {
-            List<ServerPlayerEntity> players = this.players().collect(Collectors.toList());
+            List<ServerPlayerEntity> players = Lists.newArrayList(this.players());
             ServerPlayerEntity player = players.get(random.nextInt(players.size()));
 
             int flight = random.nextInt(3);
@@ -606,12 +594,17 @@ public final class BwActive {
         return this.participants.values().stream().filter(participant -> participant.team == team);
     }
 
-    public Stream<BwParticipant> participants() {
-        return this.participants.values().stream();
+    public PlayerSet playersFor(GameTeam team) {
+        TeamState teamState = this.teams.get(team);
+        return teamState != null ? teamState.players : PlayerSet.EMPTY;
     }
 
-    public Stream<ServerPlayerEntity> players() {
-        return this.participants().map(BwParticipant::player).filter(Objects::nonNull);
+    public  PlayerSet players() {
+        return this.gameSpace.getPlayers();
+    }
+
+    public Stream<BwParticipant> participants() {
+        return this.participants.values().stream();
     }
 
     public Stream<TeamState> teams() {
@@ -631,7 +624,7 @@ public final class BwActive {
         public static final int MAX_SHARPNESS = 3;
         public static final int MAX_PROTECTION = 3;
 
-        final Set<PlayerRef> players = new HashSet<>();
+        final MutablePlayerSet players;
         final GameTeam team;
         boolean hasBed = true;
         boolean eliminated;
@@ -642,7 +635,8 @@ public final class BwActive {
         public int swordSharpness;
         public int armorProtection;
 
-        TeamState(GameTeam team) {
+        TeamState(MinecraftServer server, GameTeam team) {
+            this.players = new MutablePlayerSet(server);
             this.team = team;
         }
     }
