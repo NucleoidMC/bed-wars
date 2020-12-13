@@ -12,9 +12,7 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FireworkRocketEntity;
-import net.minecraft.item.FireworkItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -335,6 +333,8 @@ public final class BwActive {
             if (state.getBlock() instanceof AbstractChestBlock) {
                 return this.onUseChest(player, participant, pos);
             } else if (state.getBlock().isIn(BlockTags.BEDS)) {
+                player.getStackInHand(hand).useOnBlock(new ItemPlacementContext(player, hand, player.getStackInHand(hand), hitResult));
+
                 return ActionResult.CONSUME;
             }
         }
