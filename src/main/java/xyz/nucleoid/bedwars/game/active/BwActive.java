@@ -243,8 +243,8 @@ public final class BwActive {
             for (BlockPos log : logs) {
                 world.breakBlock(log, false);
 
-                // Drop 2-4 planks
-                int count = 2 + world.random.nextInt(3);
+                // Drop 1-2 planks
+                int count = 1 + world.random.nextInt(2);
                 world.spawnEntity(new ItemEntity(world, log.getX(), log.getY(), log.getZ(), new ItemStack(Items.OAK_PLANKS, count)));
             }
 
