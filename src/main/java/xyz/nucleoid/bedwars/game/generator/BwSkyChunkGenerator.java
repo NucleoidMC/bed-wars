@@ -50,6 +50,10 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
                 for (int y = height; y >= 0; y--) {
                     mutablePos.setY(y);
 
+                    if (region.getBlockState(mutablePos).isAir()) {
+                        height = y - 1;
+                    }
+
                     if (region.getBlockState(mutablePos).isOf(Blocks.STONE)) {
                         if (y == height) {
                             region.setBlockState(mutablePos, theme.topState(), 3);
