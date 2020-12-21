@@ -23,8 +23,8 @@
       "horizontal_frequency": 0.0833,
       "vertical_frequency": 0.0625,
       "check_space": false,
-      "diamond_ore_chance": 320,
-      "gold_ore_chance": 180
+      "diamond_ore_chance": 240,
+      "gold_ore_chance": 120
     },
     "small_island_generator": {
       "radius": 6,
@@ -33,7 +33,9 @@
       "falloff_offset": -2,
       "horizontal_frequency": 0.1666,
       "vertical_frequency": 0.125,
-      "check_space": true
+      "check_space": true,
+      "diamond_ore_chance": 120,
+      "gold_ore_chance": 80
     },
     "spawn_island_distance": 80,
     "diamond_island_distance": 44,
