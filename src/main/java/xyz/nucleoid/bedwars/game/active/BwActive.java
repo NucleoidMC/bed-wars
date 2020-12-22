@@ -40,6 +40,7 @@ import xyz.nucleoid.bedwars.game.BwSpawnLogic;
 import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameModifier;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameTrigger;
+import xyz.nucleoid.bedwars.util.WoodBlocks;
 import xyz.nucleoid.plasmid.game.GameCloseReason;
 import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.event.*;
@@ -239,11 +240,12 @@ public final class BwActive {
             findLogs(world, pos, logs);
 
             for (BlockPos log : logs) {
+                BlockState logState = world.getBlockState(log);
                 world.breakBlock(log, false);
 
                 // Drop 1-2 planks
                 int count = 1 + world.random.nextInt(2);
-                world.spawnEntity(new ItemEntity(world, log.getX(), log.getY(), log.getZ(), new ItemStack(Items.OAK_PLANKS, count)));
+                world.spawnEntity(new ItemEntity(world, log.getX(), log.getY(), log.getZ(), new ItemStack(WoodBlocks.planksOf(logState).getBlock(), count)));
             }
 
             return ActionResult.FAIL;
