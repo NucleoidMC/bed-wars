@@ -64,7 +64,7 @@ public final class BwItemShop {
                     .addEnchantment(Enchantments.LOYALTY, 1)
                     .build();
 
-            shop.addItem(trident, Cost.ofEmeralds(6));
+            shop.addItem(trident, Cost.ofEmeralds(8));
 
             shop.addItem(new ItemStack(Blocks.TNT), Cost.ofGold(8));
             shop.addItem(new ItemStack(Items.FIRE_CHARGE), Cost.ofIron(50));

@@ -23,14 +23,14 @@ public final class UpgradeType<T extends Upgrade> {
             .addLevel(new WeaponUpgrade(Items.DIAMOND_SWORD, Cost.ofEmeralds(3)));
 
     public static final UpgradeType<WeaponUpgrade> PICKAXE = new UpgradeType<WeaponUpgrade>()
-            .addLevel(new WeaponUpgrade(Items.WOODEN_PICKAXE, Cost.ofIron(10)))
-            .addLevel(new WeaponUpgrade(Items.STONE_PICKAXE, Cost.ofIron(10)))
-            .addLevel(new WeaponUpgrade(Items.IRON_PICKAXE, Cost.ofGold(6)))
-            .addLevel(new WeaponUpgrade(diamondTool(Items.DIAMOND_PICKAXE), Cost.ofGold(10)));
+            .addLevel(new WeaponUpgrade(Items.WOODEN_PICKAXE, Cost.ofIron(8)))
+            .addLevel(new WeaponUpgrade(Items.STONE_PICKAXE, Cost.ofIron(12)))
+            .addLevel(new WeaponUpgrade(Items.IRON_PICKAXE, Cost.ofGold(4)))
+            .addLevel(new WeaponUpgrade(diamondTool(Items.DIAMOND_PICKAXE), Cost.ofGold(12)));
 
     public static final UpgradeType<WeaponUpgrade> AXE = new UpgradeType<WeaponUpgrade>()
             .addLevel(new WeaponUpgrade(Items.WOODEN_AXE, Cost.ofIron(8)))
-            .addLevel(new WeaponUpgrade(Items.STONE_AXE, Cost.ofIron(8)))
+            .addLevel(new WeaponUpgrade(Items.STONE_AXE, Cost.ofIron(12)))
             .addLevel(new WeaponUpgrade(Items.IRON_AXE, Cost.ofGold(4)))
             .addLevel(new WeaponUpgrade(diamondTool(Items.DIAMOND_AXE), Cost.ofGold(8)));
 
