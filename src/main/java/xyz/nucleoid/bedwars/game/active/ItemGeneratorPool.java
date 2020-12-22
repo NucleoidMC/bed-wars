@@ -8,13 +8,13 @@ import java.util.Random;
 
 public final class ItemGeneratorPool {
     public static final ItemGeneratorPool TEAM_LVL_1 = new ItemGeneratorPool()
-            .add(new ItemStack(Items.IRON_INGOT, 1), 12)
+            .add(new ItemStack(Items.IRON_INGOT, 1), 10)
             .add(new ItemStack(Items.GOLD_INGOT, 1), 2)
-            .spawnInterval(36);
+            .spawnInterval(34);
 
     public static final ItemGeneratorPool TEAM_LVL_2 = new ItemGeneratorPool()
             .add(new ItemStack(Items.IRON_INGOT, 1), 10)
-            .add(new ItemStack(Items.IRON_INGOT, 2), 4)
+            .add(new ItemStack(Items.IRON_INGOT, 2), 3)
             .add(new ItemStack(Items.GOLD_INGOT, 1), 3)
             .spawnInterval(30);
 
