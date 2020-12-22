@@ -37,10 +37,10 @@
       "diamond_ore_chance": 120,
       "gold_ore_chance": 80
     },
-    "spawn_island_distance": 80,
-    "diamond_island_distance": 44,
+    "spawn_island_distance": 72,
+    "diamond_island_distance": 40,
     "small_island_count": 24,
-    "small_island_horizontal_spread": 120,
+    "small_island_horizontal_spread": 100,
     "small_island_vertical_spread": 10,
     "small_island_cutoff": 25
   },
