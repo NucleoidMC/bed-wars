@@ -38,7 +38,7 @@ public final class DesertMapTheme implements MapTheme {
 		}
 
 		if (random.nextBoolean()) {
-			return Blocks.SAND.getDefaultState();
+			return Blocks.COARSE_DIRT.getDefaultState();
 		}
 
 		return terracotta;

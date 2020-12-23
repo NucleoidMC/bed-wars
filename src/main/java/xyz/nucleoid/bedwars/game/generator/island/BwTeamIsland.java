@@ -46,12 +46,19 @@ public final class BwTeamIsland {
         for (BlockPos pos : this.bounds) {
             int deltaX = pos.getX() - origin.getX();
             int deltaZ = pos.getZ() - origin.getZ();
+
+            BlockState state = config.theme.teamIslandState(random, terracotta);
+
+            if (Math.abs(deltaX) == RADIUS || Math.abs(deltaZ) == RADIUS) {
+                state = terracotta;
+            }
+
             int radius = Math.max(Math.abs(deltaX), Math.abs(deltaZ));
 
             if (radius <= 1) {
                 template.setBlockState(pos, Blocks.IRON_BLOCK.getDefaultState());
             } else {
-                template.setBlockState(pos, config.theme.teamIslandState(random, terracotta));
+                template.setBlockState(pos, state);
             }
         }
 
