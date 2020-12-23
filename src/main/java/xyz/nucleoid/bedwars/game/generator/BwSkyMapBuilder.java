@@ -87,7 +87,7 @@ public final class BwSkyMapBuilder {
             double z = Math.sin(theta) * this.skyConfig.spawnIslandDistance;
 
             BlockPos pos = new BlockPos(x, 72, z);
-            teamIslands.add(new BwTeamIsland(pos, team));
+            teamIslands.add(new BwTeamIsland(pos, team, theta));
         }
 
         return teamIslands;

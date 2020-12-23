@@ -16,13 +16,15 @@ import xyz.nucleoid.plasmid.util.BlockBounds;
 import xyz.nucleoid.plasmid.util.ColoredBlocks;
 
 public final class BwTeamIsland {
+    private static final double PI2 = Math.PI / 2.0;
     private static final int RADIUS = 10;
 
     final BlockPos origin;
     final BlockBounds bounds;
     final GameTeam team;
+    private final double angle;
 
-    public BwTeamIsland(BlockPos origin, GameTeam team) {
+    public BwTeamIsland(BlockPos origin, GameTeam team, double angle) {
         this.bounds = new BlockBounds(
                 origin.add(-RADIUS, 0, -RADIUS),
                 origin.add(RADIUS, 0, RADIUS)
@@ -30,6 +32,8 @@ public final class BwTeamIsland {
 
         this.origin = origin;
         this.team = team;
+        this.angle = angle;
+        System.out.println(team.getDye().getName() + " -> " + angle);
     }
 
     public void addTo(BwSkyMapConfig config, BwMap map, MapTemplate template) {
@@ -57,12 +61,30 @@ public final class BwTeamIsland {
         mutablePos.set(origin.getX(), origin.getY() + 1, origin.getZ() + 2);
         template.setBlockState(mutablePos, Blocks.ENDER_CHEST.getDefaultState());
 
-        BlockState bed = ColoredBlocks.bed(this.team.getDye()).getDefaultState()
-                .with(BedBlock.FACING, Direction.EAST);
+        Direction direction;
+        int ax = 0;
+        int az = 0;
 
-        mutablePos.set(origin.getX() + 5, origin.getY() + 1, origin.getZ());
+        if (this.angle >= PI2 * 3) {
+            az = 5;
+            direction = Direction.SOUTH;
+        } else if (this.angle >= PI2 * 2) {
+            ax = 5;
+            direction = Direction.EAST;
+        } else if (this.angle >= PI2 * 1) {
+            az = -5;
+            direction = Direction.NORTH;
+        } else {
+            ax = -5;
+            direction = Direction.WEST;
+        }
+
+        BlockState bed = ColoredBlocks.bed(this.team.getDye()).getDefaultState()
+                .with(BedBlock.FACING, direction);
+
+        mutablePos.set(origin.getX() + ax, origin.getY() + 1, origin.getZ() + az);
         template.setBlockState(mutablePos, bed.with(BedBlock.PART, BedPart.FOOT));
-        mutablePos.move(Direction.EAST, 1);
+        mutablePos.move(direction, 1);
         template.setBlockState(mutablePos, bed.with(BedBlock.PART, BedPart.HEAD));
 
         this.addRegionsTo(map);
@@ -83,9 +105,28 @@ public final class BwTeamIsland {
         BlockBounds enderChest = BlockBounds.of(this.origin.add(0, 1, 2));
         BlockBounds teamShop = BlockBounds.of(this.origin.add(-2, 1, -1));
         BlockBounds itemShop = BlockBounds.of(this.origin.add(-2, 1, 1));
+
+        Direction direction;
+        int ax = 0;
+        int az = 0;
+
+        if (this.angle >= PI2 * 3) {
+            az = 5;
+            direction = Direction.SOUTH;
+        } else if (this.angle >= PI2 * 2) {
+            ax = 5;
+            direction = Direction.EAST;
+        } else if (this.angle >= PI2 * 1) {
+            az = -5;
+            direction = Direction.NORTH;
+        } else {
+            ax = -5;
+            direction = Direction.WEST;
+        }
+
         BlockBounds bed = new BlockBounds(
-                this.origin.add(5, 1, 0),
-                this.origin.add(6, 1, 0)
+                this.origin.add(ax, 1, ax),
+                this.origin.add(ax + direction.getOffsetX(), 1, az + direction.getOffsetZ())
         );
 
         map.addProtectedBlocks(this.bounds);
