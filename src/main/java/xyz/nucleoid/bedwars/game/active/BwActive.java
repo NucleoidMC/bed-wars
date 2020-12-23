@@ -251,6 +251,20 @@ public final class BwActive {
             return ActionResult.FAIL;
         }
 
+        if (state.isIn(BlockTags.LEAVES)) {
+            if (world.random.nextDouble() < 0.025) {
+                world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(WoodBlocks.saplingOf(state).getBlock())));
+            }
+
+            if (world.random.nextDouble() < 0.005) {
+                world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.GOLDEN_APPLE)));
+            }
+
+            world.removeBlock(pos, false);
+
+            return ActionResult.FAIL;
+        }
+
         // Drop ingots from gold
         if (state.isOf(Blocks.GOLD_ORE)) {
             world.breakBlock(pos, false);
