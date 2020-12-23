@@ -33,7 +33,7 @@ public final class NoiseIslandGenerator {
         double noiseVerticalFrequency = this.config.noiseVerticalFrequency;
 
         int radius = this.config.radius;
-        int radius2 = radius * radius;
+        double freq = 1.0 / (radius / 2.0);
 
         BlockState state;
         Random random = new Random();
@@ -51,19 +51,21 @@ public final class NoiseIslandGenerator {
         for (BlockPos pos : this.bounds) {
             state = Blocks.STONE.getDefaultState();
 
-            int localX = pos.getX() - origin.getX();
-            int localY = pos.getY() - origin.getY();
-            int localZ = pos.getZ() - origin.getZ();
-            int distance2 = localX * localX + localY * localY + localZ * localZ;
+            double localX = ((double)(pos.getX() - origin.getX())) / radius;
+            double localY = ((double)(pos.getY() - origin.getY())) / radius;
+            double localZ = ((double)(pos.getZ() - origin.getZ())) / radius;
+            double distance2 = localX * localX + localY * localY + localZ * localZ;
+
+            double shapeNoise = noiseSampler.eval(pos.getX() * freq, pos.getY() * freq, pos.getZ() * freq) * 0.5;
 
             // Place stone based on noise
-            if (distance2 <= radius2) {
-                double noiseX = localX * noiseHorizontalFrequency;
-                double noiseY = localY * noiseVerticalFrequency;
-                double noiseZ = localZ * noiseHorizontalFrequency;
+            if (distance2 <= 1 + shapeNoise) {
+                double noiseX = pos.getX() * noiseHorizontalFrequency;
+                double noiseY = pos.getY() * noiseVerticalFrequency;
+                double noiseZ = pos.getZ() * noiseHorizontalFrequency;
 
                 double noise = noiseSampler.eval(noiseX, noiseY, noiseZ);
-                noise += this.computeNoiseFalloff(localY);
+                noise += this.computeNoiseFalloff(pos.getY() - origin.getY());
 
                 if (config.goldOreChance > 1 && random.nextInt(config.goldOreChance) == 0) {
                     state = Blocks.GOLD_ORE.getDefaultState();

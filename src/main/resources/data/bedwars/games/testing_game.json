@@ -1,6 +1,6 @@
 {
   "type": "bedwars:bed_wars",
-  "name": "BedWars: Sky Islands",
+  "name": "BedWars: Test game",
   "dimension": "minecraft:overworld",
   "map": {
     "theme": {
@@ -29,7 +29,7 @@
     "small_island_generator": {
       "radius": 6,
       "falloff_multiplier": 0.5,
-      "falloff_strength": 10.0,
+      "falloff_strength": 15.0,
       "falloff_offset": -2,
       "horizontal_frequency": 0.1666,
       "vertical_frequency": 0.125,
