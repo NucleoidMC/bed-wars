@@ -12,6 +12,7 @@ public final class BwItems {
     public static final Item CHORUS_FRUIT = register("chorus_fruit", new BwChorusFruitItem(
             new Item.Settings().food(FoodComponents.CHORUS_FRUIT)
     ));
+    public static final Item MOVING_CLOUD = register("moving_cloud", new SimpleFakeItem(Items.COBWEB));
 
     private static <T extends Item> T register(String identifier, T item) {
         return Registry.register(Registry.ITEM, new Identifier(BedWars.ID, identifier), item);
