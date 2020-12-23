@@ -12,7 +12,10 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FireworkRocketEntity;
-import net.minecraft.item.*;
+import net.minecraft.item.FireworkItem;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -34,6 +37,7 @@ import xyz.nucleoid.bedwars.BedWars;
 import xyz.nucleoid.bedwars.custom.BridgeEggEntity;
 import xyz.nucleoid.bedwars.custom.BwFireballEntity;
 import xyz.nucleoid.bedwars.custom.BwItems;
+import xyz.nucleoid.bedwars.custom.MovingCloud;
 import xyz.nucleoid.bedwars.game.BwConfig;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.BwSpawnLogic;
@@ -94,6 +98,8 @@ public final class BwActive {
 
     private GameTeam winningTeam;
     private long closeTime;
+
+    private final List<MovingCloud> movingClouds = new ArrayList<>();
 
     private BwActive(GameSpace gameSpace, BwMap map, BwConfig config, GlobalWidgets widgets) {
         this.world = gameSpace.getWorld();
@@ -397,6 +403,8 @@ public final class BwActive {
             return this.onUseFireball(player, stack);
         } else if (stack.getItem() == BwItems.BRIDGE_EGG) {
             return this.onUseBridgeEgg(player, stack);
+        } else if (stack.getItem() == BwItems.MOVING_CLOUD) {
+            return this.onUseMovingCloud(player, stack);
         }
 
         return TypedActionResult.pass(ItemStack.EMPTY);
@@ -446,6 +454,29 @@ public final class BwActive {
         return TypedActionResult.consume(stack);
     }
 
+    private TypedActionResult<ItemStack> onUseMovingCloud(ServerPlayerEntity player, ItemStack stack) {
+        this.world.playSound(
+                null, player.getX(), player.getY(), player.getZ(),
+                SoundEvents.ENTITY_EGG_THROW, SoundCategory.PLAYERS,
+                0.5F, 0.4F / (this.world.random.nextFloat() * 0.4F + 0.8F)
+        );
+
+        Direction direction = player.getHorizontalFacing();
+        BlockPos blockPos = player.getBlockPos().down().offset(direction);
+        if (!this.world.isAir(blockPos)) {
+            return TypedActionResult.fail(stack);
+        }
+
+        MovingCloud cloud = new MovingCloud(this.world, blockPos, direction);
+        this.movingClouds.add(cloud);
+
+        if (!player.abilities.creativeMode) {
+            stack.decrement(1);
+        }
+
+        return TypedActionResult.consume(stack);
+    }
+
     private void tick() {
         if (this.winningTeam != null) {
             if (this.tickClosing()) {
@@ -482,6 +513,8 @@ public final class BwActive {
                 }
             }
         }
+
+        this.movingClouds.removeIf(MovingCloud::tick);
 
         BwWinStateLogic.WinResult winResult = this.tickActive();
         if (winResult != null) {

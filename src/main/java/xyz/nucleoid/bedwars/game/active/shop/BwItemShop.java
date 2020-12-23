@@ -74,6 +74,7 @@ public final class BwItemShop {
             shop.addItem(new ItemStack(Items.GOLDEN_APPLE), Cost.ofGold(3));
             shop.addItem(new ItemStack(BwItems.CHORUS_FRUIT, 4), Cost.ofGold(8));
             shop.addItem(new ItemStack(BwItems.BRIDGE_EGG), Cost.ofEmeralds(2));
+            shop.addItem(new ItemStack(BwItems.MOVING_CLOUD), Cost.ofEmeralds(2));
 
             if (participant != null) {
                 PlayerUpgrades upgrades = participant.upgrades;
