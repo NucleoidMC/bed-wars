@@ -3,6 +3,7 @@ package xyz.nucleoid.bedwars.game.generator.island;
 import net.minecraft.block.BedBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.ChestBlock;
 import net.minecraft.block.enums.BedPart;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -54,23 +55,14 @@ public final class BwTeamIsland {
             }
         }
 
-        BlockPos.Mutable mutablePos = new BlockPos.Mutable();
-
-        mutablePos.set(origin.getX(), origin.getY() + 1, origin.getZ() - 2);
-        template.setBlockState(mutablePos, Blocks.CHEST.getDefaultState());
-
-        mutablePos.set(origin.getX(), origin.getY() + 1, origin.getZ() + 2);
-        template.setBlockState(mutablePos, Blocks.ENDER_CHEST.getDefaultState());
+        template.setBlockState(this.transformPosition(-1, 1, -2), Blocks.CHEST.getDefaultState().with(ChestBlock.FACING, this.direction));
+        template.setBlockState(this.transformPosition(1, 1, -2), Blocks.ENDER_CHEST.getDefaultState().with(ChestBlock.FACING, this.direction));
 
         BlockState bed = ColoredBlocks.bed(this.team.getDye()).getDefaultState()
                 .with(BedBlock.FACING, this.direction);
 
-        mutablePos.set(origin.getX(), origin.getY() + 1, origin.getZ());
-        mutablePos.move(this.direction, 5);
-
-        template.setBlockState(mutablePos, bed.with(BedBlock.PART, BedPart.FOOT));
-        mutablePos.move(this.direction, 1);
-        template.setBlockState(mutablePos, bed.with(BedBlock.PART, BedPart.HEAD));
+        template.setBlockState(this.transformPosition(0, 1, 5), bed.with(BedBlock.PART, BedPart.FOOT));
+        template.setBlockState(this.transformPosition(0, 1, 6), bed.with(BedBlock.PART, BedPart.HEAD));
 
         this.addRegionsTo(map);
     }
@@ -86,19 +78,33 @@ public final class BwTeamIsland {
                 this.bounds.getMax().up(4)
         );
 
-        BlockBounds chest = BlockBounds.of(this.origin.add(0, 1, -2));
-        BlockBounds enderChest = BlockBounds.of(this.origin.add(0, 1, 2));
-        BlockBounds teamShop = BlockBounds.of(this.origin.add(-2, 1, -1));
-        BlockBounds itemShop = BlockBounds.of(this.origin.add(-2, 1, 1));
+        BlockBounds chest = BlockBounds.of(this.transformPosition(-1, 1, -2));
+        BlockBounds enderChest = BlockBounds.of(this.transformPosition(1, 1, -2));
+        BlockBounds teamShop = BlockBounds.of(this.transformPosition(-2, 1, -1));
+        BlockBounds itemShop = BlockBounds.of(this.transformPosition(-2, 1, 1));
 
-        BlockPos bedOrigin = this.origin.offset(this.direction, 5).add(0, 1, 0);
-        BlockBounds bed = new BlockBounds(bedOrigin, bedOrigin.offset(this.direction));
+        BlockBounds bed = new BlockBounds(
+                this.transformPosition(0, 1, 5),
+                this.transformPosition(0, 1, 6)
+        );
 
         map.addProtectedBlocks(this.bounds);
         map.addProtectedBlocks(chest);
         map.addProtectedBlocks(enderChest);
         map.addProtectedBlocks(bed);
 
-        map.addTeamRegions(this.team, new BwMap.TeamRegions(spawn, bed, base, itemShop, teamShop, chest));
+        Direction shopDirection = this.direction.rotateYClockwise();
+        map.addTeamRegions(this.team, new BwMap.TeamRegions(spawn, bed, base, chest, itemShop, teamShop, shopDirection, shopDirection));
+    }
+
+    private BlockPos transformPosition(int x, int y, int z) {
+        Direction forward = this.direction;
+        Direction side = this.direction.rotateYClockwise();
+
+        return this.origin.add(
+                side.getOffsetX() * x + side.getOffsetZ() * z,
+                y,
+                forward.getOffsetX() * x + forward.getOffsetZ() * z
+        );
     }
 }

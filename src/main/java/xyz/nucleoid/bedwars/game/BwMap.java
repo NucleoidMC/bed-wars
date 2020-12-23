@@ -8,6 +8,8 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -20,6 +22,7 @@ import xyz.nucleoid.bedwars.game.active.BwItemGenerator;
 import xyz.nucleoid.bedwars.game.active.ItemGeneratorPool;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 import xyz.nucleoid.plasmid.map.template.MapTemplateMetadata;
+import xyz.nucleoid.plasmid.map.template.TemplateRegion;
 import xyz.nucleoid.plasmid.util.BlockBounds;
 
 import java.util.ArrayList;
@@ -101,34 +104,38 @@ public final class BwMap {
             TeamRegions regions = this.getTeamRegions(team);
 
             if (regions.teamShop != null) {
-                this.trySpawnEntity(ShopVillagerEntity.team(world, game), regions.teamShop);
+                this.trySpawnEntity(ShopVillagerEntity.team(world, game), regions.teamShop, regions.teamShopDirection);
             } else {
                 BedWars.LOGGER.warn("Missing team shop for {}", team.getDisplay());
             }
 
             if (regions.itemShop != null) {
-                this.trySpawnEntity(ShopVillagerEntity.item(world, game), regions.itemShop);
+                this.trySpawnEntity(ShopVillagerEntity.item(world, game), regions.itemShop, regions.itemShopDirection);
             } else {
                 BedWars.LOGGER.warn("Missing item shop for {}", team.getDisplay());
             }
         }
     }
 
-    private void trySpawnEntity(Entity entity, BlockBounds bounds) {
+    private void trySpawnEntity(Entity entity, BlockBounds bounds, Direction direction) {
         Vec3d center = bounds.getCenter();
 
-        entity.refreshPositionAndAngles(center.x, bounds.getMin().getY(), center.z, 0.0F, 0.0F);
+        float yaw = direction.asRotation();
+        entity.refreshPositionAndAngles(center.x, bounds.getMin().getY(), center.z, yaw, 0.0F);
 
         if (entity instanceof MobEntity) {
             MobEntity mob = (MobEntity) entity;
 
             LocalDifficulty difficulty = entity.world.getLocalDifficulty(mob.getBlockPos());
             mob.initialize((ServerWorld) entity.world, difficulty, SpawnReason.COMMAND, null, null);
+
+            mob.headYaw = yaw;
+            mob.bodyYaw = yaw;
         }
 
-        if (!entity.world.spawnEntity(entity)) {
-            BedWars.LOGGER.warn("Tried to spawn entity ({}) but the chunk was not loaded", entity);
-        }
+        // force-load the chunk before trying to spawn
+        entity.world.getChunk(MathHelper.floor(center.x) >> 4, MathHelper.floor(center.z) >> 4);
+        entity.world.spawnEntity(entity);
     }
 
     @Nullable
@@ -215,7 +222,7 @@ public final class BwMap {
     }
 
     public static class TeamRegions {
-        public static final TeamRegions EMPTY = new TeamRegions(null, null, null, null, null, null);
+        public static final TeamRegions EMPTY = new TeamRegions(null, null, null, null, null, null, Direction.NORTH, Direction.NORTH);
 
         public final BlockBounds base;
         public final BlockBounds spawn;
@@ -223,14 +230,18 @@ public final class BwMap {
         public final BlockBounds itemShop;
         public final BlockBounds teamShop;
         public final BlockBounds teamChest;
+        public final Direction itemShopDirection;
+        public final Direction teamShopDirection;
 
-        public TeamRegions(BlockBounds spawn, BlockBounds bed, BlockBounds base, BlockBounds itemShop, BlockBounds teamShop, BlockBounds teamChest) {
+        public TeamRegions(BlockBounds spawn, BlockBounds bed, BlockBounds base, BlockBounds teamChest, BlockBounds itemShop, BlockBounds teamShop, Direction itemShopDirection, Direction teamShopDirection) {
             this.spawn = spawn;
             this.bed = bed;
             this.base = base;
+            this.teamChest = teamChest;
             this.itemShop = itemShop;
             this.teamShop = teamShop;
-            this.teamChest = teamChest;
+            this.itemShopDirection = itemShopDirection;
+            this.teamShopDirection = teamShopDirection;
         }
 
         public static TeamRegions fromTemplate(GameTeam team, MapTemplateMetadata metadata) {
@@ -239,11 +250,35 @@ public final class BwMap {
             BlockBounds base = metadata.getFirstRegionBounds(teamKey + "_base");
             BlockBounds spawn = metadata.getFirstRegionBounds(teamKey + "_spawn");
             BlockBounds bed = metadata.getFirstRegionBounds(teamKey + "_bed");
-            BlockBounds itemShop = metadata.getFirstRegionBounds(teamKey + "_item_shop");
-            BlockBounds teamShop = metadata.getFirstRegionBounds(teamKey + "_team_shop");
             BlockBounds teamChest = metadata.getFirstRegionBounds(teamKey + "_chest");
 
-            return new TeamRegions(spawn, bed, base, itemShop, teamShop, teamChest);
+            BlockBounds itemShop = null;
+            Direction itemShopDirection = Direction.NORTH;
+            TemplateRegion itemShopRegion = metadata.getFirstRegion(teamKey + "_item_shop");
+            if (itemShopRegion != null) {
+                itemShop = itemShopRegion.getBounds();
+                itemShopDirection = getDirectionForRegion(itemShopRegion);
+            }
+
+            BlockBounds teamShop = null;
+            Direction teamShopDirection = Direction.NORTH;
+            TemplateRegion teamShopRegion = metadata.getFirstRegion(teamKey + "_team_shop");
+            if (teamShopRegion != null) {
+                teamShop = teamShopRegion.getBounds();
+                teamShopDirection = getDirectionForRegion(teamShopRegion);
+            }
+
+            return new TeamRegions(spawn, bed, base,  teamChest, itemShop, teamShop,itemShopDirection, teamShopDirection);
+        }
+
+        private static Direction getDirectionForRegion(TemplateRegion region) {
+            String key = region.getData().getString("direction");
+            for (Direction direction : Direction.values()) {
+                if (direction.getName().equalsIgnoreCase(key)) {
+                    return direction;
+                }
+            }
+            return Direction.NORTH;
         }
     }
 }
