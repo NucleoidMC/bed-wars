@@ -1,5 +1,7 @@
 package xyz.nucleoid.bedwars.game.generator.island;
 
+import java.util.Random;
+
 import net.minecraft.block.BedBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -7,6 +9,7 @@ import net.minecraft.block.enums.BedPart;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import xyz.nucleoid.bedwars.game.BwMap;
+import xyz.nucleoid.bedwars.game.generator.BwSkyMapConfig;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 import xyz.nucleoid.plasmid.map.template.MapTemplate;
 import xyz.nucleoid.plasmid.util.BlockBounds;
@@ -29,9 +32,10 @@ public final class BwTeamIsland {
         this.team = team;
     }
 
-    public void addTo(BwMap map, MapTemplate template) {
+    public void addTo(BwSkyMapConfig config, BwMap map, MapTemplate template) {
         BlockPos origin = BwTeamIsland.this.origin;
         BlockState terracotta = ColoredBlocks.terracotta(BwTeamIsland.this.team.getDye()).getDefaultState();
+        Random random = new Random();
 
         for (BlockPos pos : this.bounds) {
             int deltaX = pos.getX() - origin.getX();
@@ -41,7 +45,7 @@ public final class BwTeamIsland {
             if (radius <= 1) {
                 template.setBlockState(pos, Blocks.IRON_BLOCK.getDefaultState());
             } else {
-                template.setBlockState(pos, terracotta);
+                template.setBlockState(pos, config.theme.teamIslandState(random, terracotta));
             }
         }
 
@@ -69,6 +73,7 @@ public final class BwTeamIsland {
                 this.origin.add(-1, 1, -1),
                 this.origin.add(1, 1, 1)
         );
+
         BlockBounds base = new BlockBounds(
                 this.bounds.getMin().down(1),
                 this.bounds.getMax().up(4)

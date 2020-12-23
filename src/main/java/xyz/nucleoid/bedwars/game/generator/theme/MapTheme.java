@@ -1,5 +1,6 @@
 package xyz.nucleoid.bedwars.game.generator.theme;
 
+import java.util.Random;
 import java.util.function.Function;
 
 import com.mojang.serialization.Codec;
@@ -19,6 +20,8 @@ public interface MapTheme extends BaseBiomeGen {
 	BlockState middleState();
 
 	BlockState stoneState();
+
+	BlockState teamIslandState(Random random, BlockState terracotta);
 
 	int treeAmt();
 

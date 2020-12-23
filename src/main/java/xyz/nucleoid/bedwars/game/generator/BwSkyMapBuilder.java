@@ -43,14 +43,14 @@ public final class BwSkyMapBuilder {
         }
 
         for (BwTeamIsland teamIsland : teamIslands) {
-            teamIsland.addTo(map, template);
+            teamIsland.addTo(this.skyConfig, map, template);
         }
 
         this.addSmallIslands(template, random);
 
         template.setBiome(this.skyConfig.theme.getFakingBiome());
 
-        BwSkyChunkGenerator generator = new BwSkyChunkGenerator(this.skyConfig, server, template);
+        BwSkyChunkGenerator generator = new BwSkyChunkGenerator(map, this.skyConfig, server, template);
         map.setChunkGenerator(generator);
 
         return map;

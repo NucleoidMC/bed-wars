@@ -12,6 +12,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkRandom;
 import net.minecraft.world.gen.StructureAccessor;
 
+import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.generator.theme.MapTheme;
 import xyz.nucleoid.plasmid.game.gen.feature.GrassGen;
 import xyz.nucleoid.plasmid.game.gen.feature.tree.PoplarTreeGen;
@@ -21,10 +22,12 @@ import xyz.nucleoid.plasmid.map.template.TemplateChunkGenerator;
 import java.util.Random;
 
 public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
+    private final BwMap map;
     private final BwSkyMapConfig config;
 
-    public BwSkyChunkGenerator(BwSkyMapConfig config, MinecraftServer server, MapTemplate template) {
+    public BwSkyChunkGenerator(BwMap map, BwSkyMapConfig config, MinecraftServer server, MapTemplate template) {
         super(server, template);
+        this.map = map;
         this.config = config;
     }
 
@@ -73,13 +76,23 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
         BlockPos.Mutable mutable = new BlockPos.Mutable();
         Random random = new Random();
         MapTheme theme = this.config.theme;
-        
+
         for (int i = 0; i < theme.treeAmt(); i++) {
             int x = (region.getCenterChunkX() * 16) + random.nextInt(16);
             int z = (region.getCenterChunkZ() * 16) + random.nextInt(16);
             int y = region.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
 
-            theme.tree().generate(region, mutable.set(x, y, z).toImmutable(), random);
+            boolean generate = true;
+            for (BwMap.TeamRegions regions : this.map.getAllTeamRegions().values()) {
+                if (regions.base.contains(x, z)) {
+                    generate = false;
+                    break;
+                }
+            }
+
+            if (generate) {
+                theme.tree().generate(region, mutable.set(x, y, z).toImmutable(), random);
+            }
         }
 
         for (int i = 0; i < theme.grassAmt(); i++) {

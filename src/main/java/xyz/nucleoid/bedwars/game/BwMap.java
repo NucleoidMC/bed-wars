@@ -141,6 +141,10 @@ public final class BwMap {
         return this.teamRegions.getOrDefault(team, TeamRegions.EMPTY);
     }
 
+    public Map<GameTeam, TeamRegions> getAllTeamRegions() {
+        return this.teamRegions;
+    }
+
     public Collection<BwItemGenerator> getItemGenerators() {
         return this.itemGenerators;
     }

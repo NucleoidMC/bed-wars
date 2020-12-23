@@ -1,5 +1,7 @@
 package xyz.nucleoid.bedwars.game.generator.theme;
 
+import java.util.Random;
+
 import com.mojang.serialization.Codec;
 import xyz.nucleoid.substrate.gen.GrassGen;
 import xyz.nucleoid.substrate.gen.MapGen;
@@ -28,6 +30,19 @@ public final class SwampMapTheme implements MapTheme {
 	@Override
 	public BlockState stoneState() {
 		return Blocks.STONE.getDefaultState();
+	}
+
+	@Override
+	public BlockState teamIslandState(Random random, BlockState terracotta) {
+		if (random.nextInt(4) < 3) {
+			return Blocks.GRASS_BLOCK.getDefaultState();
+		}
+
+		if (random.nextBoolean()) {
+			return Blocks.COARSE_DIRT.getDefaultState();
+		}
+
+		return terracotta;
 	}
 
 	@Override
