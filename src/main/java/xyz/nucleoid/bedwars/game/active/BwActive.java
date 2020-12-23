@@ -262,7 +262,7 @@ public final class BwActive {
                 world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(WoodBlocks.saplingOf(state).getBlock())));
             }
 
-            if (world.random.nextDouble() < 0.005) {
+            if (world.random.nextDouble() < 0.01) {
                 world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.GOLDEN_APPLE)));
             }
 
