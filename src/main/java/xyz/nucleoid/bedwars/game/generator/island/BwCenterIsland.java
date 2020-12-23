@@ -35,7 +35,8 @@ public final class BwCenterIsland {
         BlockPos surfacePos = template.getTopPos(pos.getX(), pos.getZ(), Heightmap.Type.WORLD_SURFACE_WG);
 
         template.setBlockState(surfacePos, Blocks.EMERALD_BLOCK.getDefaultState());
-        map.addEmeraldGenerator(BlockBounds.of(surfacePos));
+        map.addEmeraldGenerator(BlockBounds.of(surfacePos.up()));
+        map.addProtectedBlock(surfacePos.asLong());
     }
 
     private void addCenterSpawn(BwMap map, MapTemplate template) {
