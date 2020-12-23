@@ -3,6 +3,7 @@ package xyz.nucleoid.bedwars.game.generator.theme;
 import java.util.Random;
 
 import com.mojang.serialization.Codec;
+import xyz.nucleoid.bedwars.game.generator.gen.TaigaTreeGen;
 import xyz.nucleoid.substrate.gen.GrassGen;
 import xyz.nucleoid.substrate.gen.MapGen;
 import xyz.nucleoid.substrate.gen.tree.PoplarTreeGen;
@@ -17,7 +18,6 @@ import net.minecraft.world.biome.BiomeKeys;
 
 public final class TaigaMapTheme implements MapTheme {
 	public static final Codec<TaigaMapTheme> CODEC = Codec.unit(new TaigaMapTheme());
-	private static final MapGen TAIGA_TREE = new PoplarTreeGen(Blocks.SPRUCE_LOG.getDefaultState(), Blocks.SPRUCE_LEAVES.getDefaultState().with(Properties.DISTANCE_1_7, 1));
 	private static final MapGen TAIGA_GRASS = new GrassGen(
 			new WeightedList<BlockState>()
 					.add(Blocks.GRASS.getDefaultState(), 32)
@@ -61,7 +61,7 @@ public final class TaigaMapTheme implements MapTheme {
 
 	@Override
 	public MapGen tree() {
-		return TAIGA_TREE;
+		return TaigaTreeGen.INSTANCE;
 	}
 
 	@Override

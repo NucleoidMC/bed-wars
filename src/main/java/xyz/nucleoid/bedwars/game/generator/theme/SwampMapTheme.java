@@ -10,11 +10,16 @@ import xyz.nucleoid.substrate.gen.tree.SwampTreeGen;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.util.collection.WeightedList;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
 
 public final class SwampMapTheme implements MapTheme {
+	public static final GrassGen SWAMP_GRASS = new GrassGen(new WeightedList<BlockState>()
+			.add(Blocks.GRASS.getDefaultState(), 12)
+			.add(Blocks.BLUE_ORCHID.getDefaultState(), 1), 24, 8, 4);
+
 	public static final Codec<SwampMapTheme> CODEC = Codec.unit(new SwampMapTheme());
 
 	@Override
@@ -57,12 +62,12 @@ public final class SwampMapTheme implements MapTheme {
 
 	@Override
 	public int grassAmt() {
-		return 2;
+		return 3;
 	}
 
 	@Override
 	public MapGen grass() {
-		return GrassGen.INSTANCE;
+		return SWAMP_GRASS;
 	}
 
 	@Override
