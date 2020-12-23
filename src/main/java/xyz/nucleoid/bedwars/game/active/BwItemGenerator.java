@@ -1,5 +1,6 @@
 package xyz.nucleoid.bedwars.game.active;
 
+import net.minecraft.util.math.MathHelper;
 import xyz.nucleoid.plasmid.entity.FloatingText;
 import xyz.nucleoid.plasmid.util.BlockBounds;
 import net.minecraft.entity.EntityType;
@@ -76,7 +77,9 @@ public final class BwItemGenerator {
             Vec3d textPos = this.bounds.getCenter();
             textPos = textPos.add(0.0, 2.0, 0.0);
 
-            this.timerText = FloatingText.spawn(world, textPos, this.getTimerText(time));
+            if (world.isChunkLoaded(MathHelper.floor(textPos.x) >> 4, MathHelper.floor(textPos.z) >> 4)) {
+                this.timerText = FloatingText.spawn(world, textPos, this.getTimerText(time));
+            }
         }
 
         if (this.timerText != null && time % 20 == 0) {
