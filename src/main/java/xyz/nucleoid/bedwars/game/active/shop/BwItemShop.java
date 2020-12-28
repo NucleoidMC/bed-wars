@@ -50,13 +50,13 @@ public final class BwItemShop {
 
             shop.addItem(ItemStackBuilder.of(Items.SHIELD).setUnbreakable().build(), Cost.ofGold(10));
             shop.addItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().build(), Cost.ofGold(20));
-            shop.addItem(new ItemStack(Items.ARROW, 4), Cost.ofGold(2));
+            shop.addItem(new ItemStack(Items.ARROW, 8), Cost.ofGold(2));
             shop.addItem(
                     ItemStackBuilder.of(Items.STICK)
                             .addEnchantment(Enchantments.KNOCKBACK, 1)
                             .addLore(new LiteralText("Haha, target go zoom"))
                             .build(),
-                    Cost.ofGold(10)
+                    Cost.ofGold(7)
             );
 
             ItemStack trident = ItemStackBuilder.of(Items.TRIDENT)
@@ -67,7 +67,7 @@ public final class BwItemShop {
             shop.addItem(trident, Cost.ofEmeralds(6));
 
             shop.addItem(new ItemStack(Blocks.TNT), Cost.ofGold(8));
-            shop.addItem(new ItemStack(Items.FIRE_CHARGE), Cost.ofIron(50));
+            shop.addItem(new ItemStack(Items.FIRE_CHARGE).setCustomName(new LiteralText("Fireball")), Cost.ofIron(40));
             shop.addItem(new ItemStack(Items.ENDER_PEARL), Cost.ofEmeralds(4));
             shop.addItem(new ItemStack(Items.WATER_BUCKET), Cost.ofGold(10));
             shop.addItem(new ItemStack(Items.LAVA_BUCKET), Cost.ofGold(24));
