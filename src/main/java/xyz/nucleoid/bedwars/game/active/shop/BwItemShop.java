@@ -133,7 +133,7 @@ public final class BwItemShop {
             });
         }
         else if(pageIndex == 6){
-            return ShopUi.create(new LiteralText("Utilitiesand Potions"), shop -> {
+            return ShopUi.create(new LiteralText("Utilities and Potions"), shop -> {
                 BwParticipant participant = game.getParticipant(player);
                 if(participant != null){
                     // Navigation
@@ -242,7 +242,6 @@ public final class BwItemShop {
                             .build(),
                     Cost.ofGold(7)
             );
-
             ItemStack trident = ItemStackBuilder.of(Items.TRIDENT)
                     .setUnbreakable()
                     .addEnchantment(Enchantments.LOYALTY, 1)
