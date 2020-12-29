@@ -214,7 +214,7 @@ public final class BwItemShop {
             if (participant != null) {
                 DyeColor color = participant.team.getDye();
                 shop.addItem(new ItemStack(ColoredBlocks.wool(color), 16), Cost.ofIron(4));
-                shop.addItem(new ItemStack(ColoredBlocks.terracotta(color), 16), Cost.ofIron(16));
+                shop.addItem(new ItemStack(ColoredBlocks.terracotta(color), 16), Cost.ofIron(8));
 
                 ItemStack glass = ItemStackBuilder.of(ColoredBlocks.glass(color))
                         .setName(new LiteralText("Shatterproof Glass"))
