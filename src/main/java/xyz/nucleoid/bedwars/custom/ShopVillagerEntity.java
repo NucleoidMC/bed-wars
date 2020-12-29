@@ -43,7 +43,7 @@ public final class ShopVillagerEntity extends VillagerEntity {
     @Override
     public ActionResult interactMob(PlayerEntity player, Hand hand) {
         if (this.type == Type.ITEM) {
-            player.openHandledScreen(BwItemShop.create((ServerPlayerEntity) player, this.game));
+            player.openHandledScreen(BwItemShop.create((ServerPlayerEntity) player, this.game, 1));
         } else if (this.type == Type.TEAM) {
             player.openHandledScreen(BwTeamShop.create((ServerPlayerEntity) player, this.game));
         }
