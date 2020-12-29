@@ -52,7 +52,7 @@ public final class BwItemShop {
                     shop.addItem(new ItemStack(Items.IRON_SWORD, 0), Cost.free());
                     DyeColor color = participant.team.getDye();
                     shop.addItem(new ItemStack(ColoredBlocks.wool(color), 16), Cost.ofIron(4));
-                    shop.addItem(new ItemStack(ColoredBlocks.terracotta(color), 16), Cost.ofIron(16));
+                    shop.addItem(new ItemStack(ColoredBlocks.terracotta(color), 16), Cost.ofIron(4));
     
                     ItemStack glass = ItemStackBuilder.of(ColoredBlocks.glass(color))
                             .setName(new LiteralText("Shatterproof Glass"))
