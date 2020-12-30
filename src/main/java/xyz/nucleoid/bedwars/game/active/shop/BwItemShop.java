@@ -13,22 +13,12 @@ import xyz.nucleoid.plasmid.shop.ShopUi;
 import xyz.nucleoid.plasmid.util.ColoredBlocks;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
-import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
-import org.apache.commons.compress.archivers.dump.DumpArchiveConstants.COMPRESSION_TYPE;
-
-import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.datafixer.fix.ItemSpawnEggFix;
 import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionUtil;
 import net.minecraft.potion.Potions;
-import net.minecraft.resource.ResourceManager.Empty;
-import net.minecraft.server.command.EffectCommand;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
