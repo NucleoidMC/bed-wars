@@ -134,7 +134,7 @@ public final class BwItemShop {
                 PlayerUpgrades upgrades = participant.upgrades;
                 addUpgrade(shop, upgrades, UpgradeType.SWORD, new LiteralText("Upgrade Sword"));
                 shop.addItem(ItemStackBuilder.of(Items.STICK).addEnchantment(Enchantments.KNOCKBACK, 1)
-                        .addLore(new LiteralText("Haha, target go zoom")).build(), Cost.ofGold(5));
+                        .addLore(new LiteralText("Haha, target go zoom")).build(), Cost.ofGold(10));
                 ItemStack trident = ItemStackBuilder.of(Items.TRIDENT).setUnbreakable()
                         .addEnchantment(Enchantments.LOYALTY, 1).build();
 
