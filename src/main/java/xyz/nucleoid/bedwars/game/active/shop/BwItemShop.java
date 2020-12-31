@@ -14,9 +14,11 @@ import xyz.nucleoid.plasmid.util.ColoredBlocks;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
 import net.minecraft.block.Blocks;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.potion.PotionUtil;
 import net.minecraft.potion.Potions;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -33,36 +35,88 @@ public final class BwItemShop {
 
     private static void addNavbar(ShopBuilder shop, ServerPlayerEntity player, BwActive game, int pageIndex) {
         // Creates a page navigation bar at the top of the shop
-        shop.add(ShopEntry.ofIcon(Blocks.END_STONE).withName(new LiteralText("Blocks")).withCost(Cost.free())
-        .onBuy(page -> {
-            player.closeHandledScreen();
-            player.openHandledScreen(BwItemShop.createBlocks(player, game));
-        }));
-
-        shop.add(ShopEntry.ofIcon(Items.GOLDEN_SWORD).withName(new LiteralText("Melee Weapons")).withCost(Cost.free())
+        if(pageIndex==1){
+            shop.add(ShopEntry.ofIcon(getEnchantGlint(new ItemStack(Blocks.END_STONE))).withName(new LiteralText("Blocks")).withCost(Cost.free())
+            .onBuy(page -> {
+                player.closeHandledScreen();
+                player.openHandledScreen(BwItemShop.createBlocks(player, game));
+            }));
+        }
+        else{
+            shop.add(ShopEntry.ofIcon(new ItemStack(Blocks.END_STONE)).withName(new LiteralText("Blocks")).withCost(Cost.free())
+            .onBuy(page -> {
+                player.closeHandledScreen();
+                player.openHandledScreen(BwItemShop.createBlocks(player, game));
+            }));
+        }
+        if(pageIndex==2){
+            shop.add(ShopEntry.ofIcon(getEnchantGlint(new ItemStack(Items.IRON_SWORD))).withName(new LiteralText("Melee Weapons")).withCost(Cost.free())
+            .onBuy(page -> {
+                player.closeHandledScreen();
+                player.openHandledScreen(BwItemShop.createMelee(player, game));
+            }));
+        }
+        else{
+            shop.add(ShopEntry.ofIcon(Items.IRON_SWORD).withName(new LiteralText("Melee Weapons")).withCost(Cost.free())
                 .onBuy(page -> {
                     player.closeHandledScreen();
                     player.openHandledScreen(BwItemShop.createMelee(player, game));
-                }));
-        shop.add(ShopEntry.ofIcon(Items.IRON_CHESTPLATE).withName(new LiteralText("Armor")).withCost(Cost.free())
-                .onBuy(page -> {
-                    player.closeHandledScreen();
-                    player.openHandledScreen(BwItemShop.createArmor(player, game));
-                }));
-        shop.add(ShopEntry.ofIcon(Items.IRON_PICKAXE).withName(new LiteralText("Tools")).withCost(Cost.free())
+            }));
+        }
+        if(pageIndex==3){
+            shop.add(ShopEntry.ofIcon(getEnchantGlint(new ItemStack(Items.IRON_CHESTPLATE))).withName(new LiteralText("Armor")).withCost(Cost.free())
+            .onBuy(page -> {
+                player.closeHandledScreen();
+                player.openHandledScreen(BwItemShop.createArmor(player, game));
+            }));
+        }
+        else{
+            shop.add(ShopEntry.ofIcon(Items.IRON_CHESTPLATE).withName(new LiteralText("Armor")).withCost(Cost.free())
+            .onBuy(page -> {
+                player.closeHandledScreen();
+                player.openHandledScreen(BwItemShop.createArmor(player, game));
+            }));
+        }
+        if(pageIndex==4){
+            shop.add(ShopEntry.ofIcon(getEnchantGlint(new ItemStack(Items.IRON_PICKAXE))).withName(new LiteralText("Tools")).withCost(Cost.free())
+            .onBuy(page -> {
+                player.closeHandledScreen();
+                player.openHandledScreen(BwItemShop.createTools(player, game));
+            }));
+        }
+        else{
+            shop.add(ShopEntry.ofIcon(Items.IRON_PICKAXE).withName(new LiteralText("Tools")).withCost(Cost.free())
                 .onBuy(page -> {
                     player.closeHandledScreen();
                     player.openHandledScreen(BwItemShop.createTools(player, game));
-                }));
-        shop.add(ShopEntry.ofIcon(Items.BOW).withName(new LiteralText("Archery")).withCost(Cost.free()).onBuy(page -> {
-            player.closeHandledScreen();
-            player.openHandledScreen(BwItemShop.createArchery(player, game));
-        }));
-        shop.add(ShopEntry.ofIcon(Items.TNT).withName(new LiteralText("Utilities and Potions")).withCost(Cost.free())
-                .onBuy(page -> {
-                    player.closeHandledScreen();
-                    player.openHandledScreen(BwItemShop.createUtils(player, game));
-                }));
+            }));
+        }
+        if(pageIndex==5){
+            shop.add(ShopEntry.ofIcon(getEnchantGlint(new ItemStack(Items.BOW))).withName(new LiteralText("Archery")).withCost(Cost.free()).onBuy(page -> {
+                player.closeHandledScreen();
+                player.openHandledScreen(BwItemShop.createArchery(player, game));
+            }));
+        }
+        else{
+            shop.add(ShopEntry.ofIcon(Items.BOW).withName(new LiteralText("Archery")).withCost(Cost.free()).onBuy(page -> {
+                player.closeHandledScreen();
+                player.openHandledScreen(BwItemShop.createArchery(player, game));
+            }));
+        }
+        if(pageIndex==6){
+            shop.add(ShopEntry.ofIcon(getEnchantGlint(new ItemStack(Items.TNT))).withName(new LiteralText("Utilities and Potions")).withCost(Cost.free())
+            .onBuy(page -> {
+                player.closeHandledScreen();
+                player.openHandledScreen(BwItemShop.createUtils(player, game));
+            }));
+        }
+        else{
+            shop.add(ShopEntry.ofIcon(Items.TNT).withName(new LiteralText("Utilities and Potions")).withCost(Cost.free())
+            .onBuy(page -> {
+                player.closeHandledScreen();
+                player.openHandledScreen(BwItemShop.createUtils(player, game));
+            }));
+        }
     }
 
     private static <T extends Upgrade> void addUpgrade(ShopBuilder shop, PlayerUpgrades upgrades, UpgradeType<T> type,
@@ -81,6 +135,13 @@ public final class BwItemShop {
                 shop.add(ShopEntry.ofIcon(currentUpgrade.getIcon()).withName(name));
             }
         }
+    }
+    // Method for returning an ItemStack with NBT for an enchant glint
+    private static ItemStack getEnchantGlint(ItemStack base){
+        base.addEnchantment(Enchantments.LURE, 1);
+        CompoundTag tag = base.getOrCreateTag();
+        tag.putInt("HideFlags", 1);
+        return base;
     }
 
     private static ShopUi createBlocks(ServerPlayerEntity player, BwActive game) {
