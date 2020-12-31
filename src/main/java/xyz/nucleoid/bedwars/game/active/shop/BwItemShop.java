@@ -225,10 +225,10 @@ public final class BwItemShop {
                 // Navigation
                 addNavbar(shop, player, game, 5);
                 // Bows and arrows
-                shop.addItem(new ItemStack(Items.BOW), Cost.ofGold(12));
-                shop.addItem(ItemStackBuilder.of(Items.BOW).addEnchantment(Enchantments.POWER, 2).build(),
+                shop.addItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().build(), Cost.ofGold(12));
+                shop.addItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().addEnchantment(Enchantments.POWER, 2).build(),
                         Cost.ofGold(24));
-                shop.addItem(ItemStackBuilder.of(Items.BOW).addEnchantment(Enchantments.PUNCH, 1).build(),
+                shop.addItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().addEnchantment(Enchantments.PUNCH, 1).build(),
                         Cost.ofEmeralds(6));
                 shop.addItem(new ItemStack(Items.ARROW, 8), Cost.ofGold(2));
             }
