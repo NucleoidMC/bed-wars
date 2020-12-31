@@ -25,58 +25,43 @@ import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 
 public final class BwItemShop {
-    public static ShopUi create(ServerPlayerEntity player, BwActive game, int pageIndex) {
-        if(pageIndex == 0){
-            //TODO User preferred items page
-            return createBlocks(player, game);
-        }
-        //FIXME Item sorting, through Plasmid Shop
-        else if(pageIndex == 1){
-            return createBlocks(player, game);
-        } else if (pageIndex == 2) {
-            return createMelee(player, game);
-        } else if (pageIndex == 3) {
-            return createArmor(player, game);
-        } else if (pageIndex == 4) {
-            return createTools(player, game);
-        } else if (pageIndex == 5) {
-            return createArchery(player, game);
-        } else if (pageIndex == 6) {
-            return createUtils(player, game);
-        }
+    public static ShopUi create(ServerPlayerEntity player, BwActive game) {
+        //TODO User preferred items page
         return createBlocks(player, game);
+        //FIXME Item sorting, through Plasmid Shop
     }
 
-    private static void addNavbar(ShopBuilder shop, ServerPlayerEntity player, BwActive game) {
+    private static void addNavbar(ShopBuilder shop, ServerPlayerEntity player, BwActive game, int pageIndex) {
         // Creates a page navigation bar at the top of the shop
         shop.add(ShopEntry.ofIcon(Blocks.END_STONE).withName(new LiteralText("Blocks")).withCost(Cost.free())
-                .onBuy(page -> {
-                    player.closeHandledScreen();
-                    player.openHandledScreen(BwItemShop.create(player, game, 1));
-                }));
+        .onBuy(page -> {
+            player.closeHandledScreen();
+            player.openHandledScreen(BwItemShop.createBlocks(player, game));
+        }));
+
         shop.add(ShopEntry.ofIcon(Items.GOLDEN_SWORD).withName(new LiteralText("Melee Weapons")).withCost(Cost.free())
                 .onBuy(page -> {
                     player.closeHandledScreen();
-                    player.openHandledScreen(BwItemShop.create(player, game, 2));
+                    player.openHandledScreen(BwItemShop.createMelee(player, game));
                 }));
         shop.add(ShopEntry.ofIcon(Items.IRON_CHESTPLATE).withName(new LiteralText("Armor")).withCost(Cost.free())
                 .onBuy(page -> {
                     player.closeHandledScreen();
-                    player.openHandledScreen(BwItemShop.create(player, game, 3));
+                    player.openHandledScreen(BwItemShop.createArmor(player, game));
                 }));
         shop.add(ShopEntry.ofIcon(Items.IRON_PICKAXE).withName(new LiteralText("Tools")).withCost(Cost.free())
                 .onBuy(page -> {
                     player.closeHandledScreen();
-                    player.openHandledScreen(BwItemShop.create(player, game, 4));
+                    player.openHandledScreen(BwItemShop.createTools(player, game));
                 }));
         shop.add(ShopEntry.ofIcon(Items.BOW).withName(new LiteralText("Archery")).withCost(Cost.free()).onBuy(page -> {
             player.closeHandledScreen();
-            player.openHandledScreen(BwItemShop.create(player, game, 5));
+            player.openHandledScreen(BwItemShop.createArchery(player, game));
         }));
         shop.add(ShopEntry.ofIcon(Items.TNT).withName(new LiteralText("Utilities and Potions")).withCost(Cost.free())
                 .onBuy(page -> {
                     player.closeHandledScreen();
-                    player.openHandledScreen(BwItemShop.create(player, game, 6));
+                    player.openHandledScreen(BwItemShop.createUtils(player, game));
                 }));
     }
 
@@ -103,7 +88,7 @@ public final class BwItemShop {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
                 // Navigation
-                addNavbar(shop, player, game);
+                addNavbar(shop, player, game, 1);
                 // Blocks
                 shop.addItem(new ItemStack(Items.IRON_SWORD, 0), Cost.free());
                 DyeColor color = participant.team.getDye();
@@ -129,7 +114,7 @@ public final class BwItemShop {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
                 // Navigation
-                addNavbar(shop, player, game);
+                addNavbar(shop, player, game, 2);
                 // Weapons
                 PlayerUpgrades upgrades = participant.upgrades;
                 addUpgrade(shop, upgrades, UpgradeType.SWORD, new LiteralText("Upgrade Sword"));
@@ -148,7 +133,7 @@ public final class BwItemShop {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
                 // Navigation
-                addNavbar(shop, player, game);
+                addNavbar(shop, player, game, 3);
                 // Armor
                 PlayerUpgrades upgrades = participant.upgrades;
                 addUpgrade(shop, upgrades, UpgradeType.ARMOR, new LiteralText("Upgrade Armor"));
@@ -162,7 +147,7 @@ public final class BwItemShop {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
                 // Navigation
-                addNavbar(shop, player, game);
+                addNavbar(shop, player, game, 4);
                 // Tool upgrades
                 PlayerUpgrades upgrades = participant.upgrades;
                 addUpgrade(shop, upgrades, UpgradeType.PICKAXE, new LiteralText("Upgrade Pickaxe"));
@@ -177,7 +162,7 @@ public final class BwItemShop {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
                 // Navigation
-                addNavbar(shop, player, game);
+                addNavbar(shop, player, game, 5);
                 // Bows and arrows
                 shop.addItem(new ItemStack(Items.BOW), Cost.ofGold(12));
                 shop.addItem(ItemStackBuilder.of(Items.BOW).addEnchantment(Enchantments.POWER, 2).build(),
@@ -194,7 +179,7 @@ public final class BwItemShop {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
                 // Navigation
-                addNavbar(shop, player, game);
+                addNavbar(shop, player, game, 6);
                 // Potions
                 shop.addItem(PotionUtil.setPotion(new ItemStack(Items.POTION), Potions.STRONG_LEAPING),
                         Cost.ofEmeralds(1));
