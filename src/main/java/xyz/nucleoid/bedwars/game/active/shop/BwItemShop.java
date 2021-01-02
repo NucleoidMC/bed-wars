@@ -40,42 +40,12 @@ public final class BwItemShop {
 
     private static void addNavbar(ShopBuilder shop, ServerPlayerEntity player, BwActive game, int pageIndex) {
         // Creates a page navigation bar at the top of the shop
-        if(pageIndex==1) {
-            addNavigationEntry(shop, Items.END_STONE, new LiteralText("Blocks"), true, BwItemShop::createBlocks, player, game);
-        }
-        else{
-            addNavigationEntry(shop, Items.END_STONE, new LiteralText("Blocks"), false, BwItemShop::createBlocks, player, game);
-        }
-        if(pageIndex==2) {
-            addNavigationEntry(shop, Items.IRON_SWORD, new LiteralText("Melee Weapons"), true, BwItemShop::createMelee, player, game);
-        }
-        else{
-            addNavigationEntry(shop, Items.IRON_SWORD, new LiteralText("Melee Weapons"), false, BwItemShop::createMelee, player, game);
-        }
-        if(pageIndex==3) {
-            addNavigationEntry(shop, Items.IRON_CHESTPLATE, new LiteralText("Armor"), true, BwItemShop::createArmor, player, game);
-        }
-        else{
-            addNavigationEntry(shop, Items.IRON_CHESTPLATE, new LiteralText("Armor"), false, BwItemShop::createArmor, player, game);
-        }
-        if(pageIndex==4) {
-            addNavigationEntry(shop, Items.IRON_PICKAXE, new LiteralText("Tools"), true, BwItemShop::createTools, player, game);
-        }
-        else{
-            addNavigationEntry(shop, Items.IRON_PICKAXE, new LiteralText("Tools"), false, BwItemShop::createTools, player, game);
-        }
-        if(pageIndex==5) {
-            addNavigationEntry(shop, Items.BOW, new LiteralText("Archery"), true, BwItemShop::createArchery, player, game);
-        }
-        else{
-            addNavigationEntry(shop, Items.BOW, new LiteralText("Archery"), false, BwItemShop::createArchery, player, game);
-        }
-        if(pageIndex==6) {
-            addNavigationEntry(shop, Items.POTION, new LiteralText("Utilities and Potions"), true, BwItemShop::createUtils, player, game);
-        }
-        else{
-            addNavigationEntry(shop, Items.POTION, new LiteralText("Utilities and Potions"), false, BwItemShop::createUtils, player, game);
-        }
+        addNavigationEntry(shop, Items.END_STONE, new LiteralText("Blocks"), pageIndex==1, BwItemShop::createBlocks, player, game);
+        addNavigationEntry(shop, Items.IRON_SWORD, new LiteralText("Melee Weapons"), pageIndex==2, BwItemShop::createMelee, player, game);
+        addNavigationEntry(shop, Items.IRON_CHESTPLATE, new LiteralText("Armor"), pageIndex==3, BwItemShop::createArmor, player, game);
+        addNavigationEntry(shop, Items.IRON_PICKAXE, new LiteralText("Tools"), pageIndex==4, BwItemShop::createTools, player, game);
+        addNavigationEntry(shop, Items.BOW, new LiteralText("Archery"), pageIndex==5, BwItemShop::createArchery, player, game);
+        addNavigationEntry(shop, Items.POTION, new LiteralText("Utilities and Potions"), pageIndex==6, BwItemShop::createUtils, player, game);
     }
     private static void addNavigationEntry(ShopBuilder shop, ItemConvertible icon, Text name, boolean selected, BiFunction<ServerPlayerEntity, BwActive, ShopUi> open, ServerPlayerEntity player, BwActive game)  {
         ItemStack iconStack = new ItemStack(icon);
