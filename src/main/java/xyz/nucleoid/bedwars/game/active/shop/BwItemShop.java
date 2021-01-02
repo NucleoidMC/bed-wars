@@ -6,6 +6,7 @@ import xyz.nucleoid.bedwars.game.active.BwParticipant;
 import xyz.nucleoid.bedwars.game.active.upgrade.PlayerUpgrades;
 import xyz.nucleoid.bedwars.game.active.upgrade.Upgrade;
 import xyz.nucleoid.bedwars.game.active.upgrade.UpgradeType;
+import xyz.nucleoid.bedwars.util.BwPotions;
 import xyz.nucleoid.plasmid.shop.Cost;
 import xyz.nucleoid.plasmid.shop.ShopBuilder;
 import xyz.nucleoid.plasmid.shop.ShopEntry;
@@ -13,9 +14,13 @@ import xyz.nucleoid.plasmid.shop.ShopUi;
 import xyz.nucleoid.plasmid.util.ColoredBlocks;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
+import java.util.function.BiFunction;
+
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
@@ -36,89 +41,54 @@ public final class BwItemShop {
     private static void addNavbar(ShopBuilder shop, ServerPlayerEntity player, BwActive game, int pageIndex) {
         // Creates a page navigation bar at the top of the shop
         if(pageIndex==1) {
-            shop.add(ShopEntry.ofIcon(getEnchantGlint(new ItemStack(Blocks.END_STONE))).withName(new LiteralText("Blocks")).withCost(Cost.free())
-            .onBuy(page -> {
-                player.closeHandledScreen();
-                player.openHandledScreen(BwItemShop.createBlocks(player, game));
-            }));
+            addNavigationEntry(shop, Items.END_STONE, new LiteralText("Blocks"), true, BwItemShop::createBlocks, player, game);
         }
         else{
-            shop.add(ShopEntry.ofIcon(new ItemStack(Blocks.END_STONE)).withName(new LiteralText("Blocks")).withCost(Cost.free())
-            .onBuy(page -> {
-                player.closeHandledScreen();
-                player.openHandledScreen(BwItemShop.createBlocks(player, game));
-            }));
+            addNavigationEntry(shop, Items.END_STONE, new LiteralText("Blocks"), false, BwItemShop::createBlocks, player, game);
         }
         if(pageIndex==2) {
-            shop.add(ShopEntry.ofIcon(getEnchantGlint(new ItemStack(Items.IRON_SWORD))).withName(new LiteralText("Melee Weapons")).withCost(Cost.free())
-            .onBuy(page -> {
-                player.closeHandledScreen();
-                player.openHandledScreen(BwItemShop.createMelee(player, game));
-            }));
+            addNavigationEntry(shop, Items.IRON_SWORD, new LiteralText("Melee Weapons"), true, BwItemShop::createMelee, player, game);
         }
         else{
-            shop.add(ShopEntry.ofIcon(Items.IRON_SWORD).withName(new LiteralText("Melee Weapons")).withCost(Cost.free())
-                .onBuy(page -> {
-                    player.closeHandledScreen();
-                    player.openHandledScreen(BwItemShop.createMelee(player, game));
-            }));
+            addNavigationEntry(shop, Items.IRON_SWORD, new LiteralText("Melee Weapons"), false, BwItemShop::createMelee, player, game);
         }
         if(pageIndex==3) {
-            shop.add(ShopEntry.ofIcon(getEnchantGlint(new ItemStack(Items.IRON_CHESTPLATE))).withName(new LiteralText("Armor")).withCost(Cost.free())
-            .onBuy(page -> {
-                player.closeHandledScreen();
-                player.openHandledScreen(BwItemShop.createArmor(player, game));
-            }));
+            addNavigationEntry(shop, Items.IRON_CHESTPLATE, new LiteralText("Armor"), true, BwItemShop::createArmor, player, game);
         }
         else{
-            shop.add(ShopEntry.ofIcon(Items.IRON_CHESTPLATE).withName(new LiteralText("Armor")).withCost(Cost.free())
-            .onBuy(page -> {
-                player.closeHandledScreen();
-                player.openHandledScreen(BwItemShop.createArmor(player, game));
-            }));
+            addNavigationEntry(shop, Items.IRON_CHESTPLATE, new LiteralText("Armor"), false, BwItemShop::createArmor, player, game);
         }
         if(pageIndex==4) {
-            shop.add(ShopEntry.ofIcon(getEnchantGlint(new ItemStack(Items.IRON_PICKAXE))).withName(new LiteralText("Tools")).withCost(Cost.free())
-            .onBuy(page -> {
-                player.closeHandledScreen();
-                player.openHandledScreen(BwItemShop.createTools(player, game));
-            }));
+            addNavigationEntry(shop, Items.IRON_PICKAXE, new LiteralText("Tools"), true, BwItemShop::createTools, player, game);
         }
         else{
-            shop.add(ShopEntry.ofIcon(Items.IRON_PICKAXE).withName(new LiteralText("Tools")).withCost(Cost.free())
-                .onBuy(page -> {
-                    player.closeHandledScreen();
-                    player.openHandledScreen(BwItemShop.createTools(player, game));
-            }));
+            addNavigationEntry(shop, Items.IRON_PICKAXE, new LiteralText("Tools"), false, BwItemShop::createTools, player, game);
         }
         if(pageIndex==5) {
-            shop.add(ShopEntry.ofIcon(getEnchantGlint(new ItemStack(Items.BOW))).withName(new LiteralText("Archery")).withCost(Cost.free()).onBuy(page -> {
-                player.closeHandledScreen();
-                player.openHandledScreen(BwItemShop.createArchery(player, game));
-            }));
+            addNavigationEntry(shop, Items.BOW, new LiteralText("Archery"), true, BwItemShop::createArchery, player, game);
         }
         else{
-            shop.add(ShopEntry.ofIcon(Items.BOW).withName(new LiteralText("Archery")).withCost(Cost.free()).onBuy(page -> {
-                player.closeHandledScreen();
-                player.openHandledScreen(BwItemShop.createArchery(player, game));
-            }));
+            addNavigationEntry(shop, Items.BOW, new LiteralText("Archery"), false, BwItemShop::createArchery, player, game);
         }
         if(pageIndex==6) {
-            shop.add(ShopEntry.ofIcon(getEnchantGlint(new ItemStack(Items.TNT))).withName(new LiteralText("Utilities and Potions")).withCost(Cost.free())
-            .onBuy(page -> {
-                player.closeHandledScreen();
-                player.openHandledScreen(BwItemShop.createUtils(player, game));
-            }));
+            addNavigationEntry(shop, Items.POTION, new LiteralText("Utilities and Potions"), true, BwItemShop::createUtils, player, game);
         }
         else{
-            shop.add(ShopEntry.ofIcon(Items.TNT).withName(new LiteralText("Utilities and Potions")).withCost(Cost.free())
-            .onBuy(page -> {
-                player.closeHandledScreen();
-                player.openHandledScreen(BwItemShop.createUtils(player, game));
-            }));
+            addNavigationEntry(shop, Items.POTION, new LiteralText("Utilities and Potions"), false, BwItemShop::createUtils, player, game);
         }
     }
-
+    private static void addNavigationEntry(ShopBuilder shop, ItemConvertible icon, Text name, boolean selected, BiFunction<ServerPlayerEntity, BwActive, ShopUi> open, ServerPlayerEntity player, BwActive game)  {
+        ItemStack iconStack = new ItemStack(icon);
+        if (selected) {
+            iconStack = getEnchantGlint(iconStack);
+        }
+    
+        shop.add(ShopEntry.ofIcon(iconStack).withName(name).withCost(Cost.free())
+            .onBuy(page -> {
+                player.closeHandledScreen();
+                player.openHandledScreen(open.apply(player, game));
+        }));
+    } 
     private static <T extends Upgrade> void addUpgrade(ShopBuilder shop, PlayerUpgrades upgrades, UpgradeType<T> type,
             Text name) {
         int currentLevel = upgrades.getLevel(type);
@@ -242,11 +212,11 @@ public final class BwItemShop {
                 // Navigation
                 addNavbar(shop, player, game, 6);
                 // Potions
-                shop.addItem(PotionUtil.setPotion(new ItemStack(Items.POTION), Potions.STRONG_LEAPING),
+                shop.addItem(PotionUtil.setPotion(new ItemStack(Items.POTION).setCustomName(new LiteralText("Potion of Leaping")), BwPotions.JUMP_BOOST_V),
                         Cost.ofEmeralds(1));
-                shop.addItem(PotionUtil.setPotion(new ItemStack(Items.POTION), Potions.STRONG_SWIFTNESS),
+                shop.addItem(PotionUtil.setPotion(new ItemStack(Items.POTION).setCustomName(new LiteralText("Potion of Swiftness")), BwPotions.SPEED),
                         Cost.ofEmeralds(1));
-                shop.addItem(PotionUtil.setPotion(new ItemStack(Items.POTION), Potions.INVISIBILITY),
+                shop.addItem(PotionUtil.setPotion(new ItemStack(Items.POTION).setCustomName(new LiteralText("Potion of Invisibility")), BwPotions.INVISIBILITY),
                         Cost.ofEmeralds(2));
                 shop.addItem(new ItemStack(Blocks.TNT), Cost.ofGold(8));
                 shop.addItem(new ItemStack(Items.FIRE_CHARGE).setCustomName(new LiteralText("Fireball")),
