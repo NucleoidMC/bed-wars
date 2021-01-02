@@ -33,9 +33,8 @@ import net.minecraft.util.DyeColor;
 
 public final class BwItemShop {
     public static ShopUi create (ServerPlayerEntity player, BwActive game) {
-        //TODO User preferred items page
         return createBlocks(player, game);
-        //FIXME Item sorting, through Plasmid Shop
+        // At some point add a user customised menu
     }
 
     private static void addNavbar (ShopBuilder shop, ServerPlayerEntity player, BwActive game, int pageIndex) {
