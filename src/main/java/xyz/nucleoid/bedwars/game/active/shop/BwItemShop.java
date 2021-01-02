@@ -32,13 +32,13 @@ import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 
 public final class BwItemShop {
-    public static ShopUi create(ServerPlayerEntity player, BwActive game) {
+    public static ShopUi create (ServerPlayerEntity player, BwActive game) {
         //TODO User preferred items page
         return createBlocks(player, game);
         //FIXME Item sorting, through Plasmid Shop
     }
 
-    private static void addNavbar(ShopBuilder shop, ServerPlayerEntity player, BwActive game, int pageIndex) {
+    private static void addNavbar (ShopBuilder shop, ServerPlayerEntity player, BwActive game, int pageIndex) {
         // Creates a page navigation bar at the top of the shop
         addNavigationEntry(shop, Items.END_STONE, new LiteralText("Blocks"), pageIndex==1, BwItemShop::createBlocks, player, game);
         addNavigationEntry(shop, Items.IRON_SWORD, new LiteralText("Melee Weapons"), pageIndex==2, BwItemShop::createMelee, player, game);
@@ -47,7 +47,7 @@ public final class BwItemShop {
         addNavigationEntry(shop, Items.BOW, new LiteralText("Archery"), pageIndex==5, BwItemShop::createArchery, player, game);
         addNavigationEntry(shop, Items.POTION, new LiteralText("Utilities and Potions"), pageIndex==6, BwItemShop::createUtils, player, game);
     }
-    private static void addNavigationEntry(ShopBuilder shop, ItemConvertible icon, Text name, boolean selected, BiFunction<ServerPlayerEntity, BwActive, ShopUi> open, ServerPlayerEntity player, BwActive game)  {
+    private static void addNavigationEntry (ShopBuilder shop, ItemConvertible icon, Text name, boolean selected, BiFunction<ServerPlayerEntity, BwActive, ShopUi> open, ServerPlayerEntity player, BwActive game)  {
         ItemStack iconStack = new ItemStack(icon);
         if (selected) {
             iconStack = getEnchantGlint(iconStack);
@@ -59,7 +59,7 @@ public final class BwItemShop {
                 player.openHandledScreen(open.apply(player, game));
         }));
     } 
-    private static <T extends Upgrade> void addUpgrade(ShopBuilder shop, PlayerUpgrades upgrades, UpgradeType<T> type,
+    private static <T extends Upgrade> void addUpgrade (ShopBuilder shop, PlayerUpgrades upgrades, UpgradeType<T> type,
             Text name) {
         int currentLevel = upgrades.getLevel(type);
         int nextLevel = currentLevel + 1;
@@ -77,14 +77,14 @@ public final class BwItemShop {
         }
     }
     // Method for returning an ItemStack with NBT for an enchant glint
-    private static ItemStack getEnchantGlint(ItemStack base) {
+    private static ItemStack getEnchantGlint (ItemStack base) {
         base.addEnchantment(Enchantments.LURE, 1);
         CompoundTag tag = base.getOrCreateTag();
         tag.putInt("HideFlags", 1);
         return base;
     }
 
-    private static ShopUi createBlocks(ServerPlayerEntity player, BwActive game) {
+    private static ShopUi createBlocks (ServerPlayerEntity player, BwActive game) {
         return ShopUi.create(new LiteralText("Blocks"), shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
@@ -110,7 +110,7 @@ public final class BwItemShop {
         });
     }
 
-    private static ShopUi createMelee(ServerPlayerEntity player, BwActive game) {
+    private static ShopUi createMelee (ServerPlayerEntity player, BwActive game) {
         return ShopUi.create(new LiteralText("Melee Weapons"), shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
@@ -129,7 +129,7 @@ public final class BwItemShop {
         });
     }
 
-    private static ShopUi createArmor(ServerPlayerEntity player, BwActive game) {
+    private static ShopUi createArmor (ServerPlayerEntity player, BwActive game) {
         return ShopUi.create(new LiteralText("Armor"), shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
@@ -143,7 +143,7 @@ public final class BwItemShop {
         });
     }
 
-    private static ShopUi createTools(ServerPlayerEntity player, BwActive game) {
+    private static ShopUi createTools (ServerPlayerEntity player, BwActive game) {
         return ShopUi.create(new LiteralText("Tools"), shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
@@ -158,7 +158,7 @@ public final class BwItemShop {
         });
     }
 
-    private static ShopUi createArchery(ServerPlayerEntity player, BwActive game) {
+    private static ShopUi createArchery (ServerPlayerEntity player, BwActive game) {
         return ShopUi.create(new LiteralText("Archery"), shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
@@ -175,7 +175,7 @@ public final class BwItemShop {
         });
     }
 
-    private static ShopUi createUtils(ServerPlayerEntity player, BwActive game) {
+    private static ShopUi createUtils (ServerPlayerEntity player, BwActive game) {
         return ShopUi.create(new LiteralText("Utilities and Potions"), shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
