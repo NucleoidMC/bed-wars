@@ -35,7 +35,7 @@ public final class BwItemShop {
 
     private static void addNavbar(ShopBuilder shop, ServerPlayerEntity player, BwActive game, int pageIndex) {
         // Creates a page navigation bar at the top of the shop
-        if(pageIndex==1){
+        if(pageIndex==1) {
             shop.add(ShopEntry.ofIcon(getEnchantGlint(new ItemStack(Blocks.END_STONE))).withName(new LiteralText("Blocks")).withCost(Cost.free())
             .onBuy(page -> {
                 player.closeHandledScreen();
@@ -49,7 +49,7 @@ public final class BwItemShop {
                 player.openHandledScreen(BwItemShop.createBlocks(player, game));
             }));
         }
-        if(pageIndex==2){
+        if(pageIndex==2) {
             shop.add(ShopEntry.ofIcon(getEnchantGlint(new ItemStack(Items.IRON_SWORD))).withName(new LiteralText("Melee Weapons")).withCost(Cost.free())
             .onBuy(page -> {
                 player.closeHandledScreen();
@@ -63,7 +63,7 @@ public final class BwItemShop {
                     player.openHandledScreen(BwItemShop.createMelee(player, game));
             }));
         }
-        if(pageIndex==3){
+        if(pageIndex==3) {
             shop.add(ShopEntry.ofIcon(getEnchantGlint(new ItemStack(Items.IRON_CHESTPLATE))).withName(new LiteralText("Armor")).withCost(Cost.free())
             .onBuy(page -> {
                 player.closeHandledScreen();
@@ -77,7 +77,7 @@ public final class BwItemShop {
                 player.openHandledScreen(BwItemShop.createArmor(player, game));
             }));
         }
-        if(pageIndex==4){
+        if(pageIndex==4) {
             shop.add(ShopEntry.ofIcon(getEnchantGlint(new ItemStack(Items.IRON_PICKAXE))).withName(new LiteralText("Tools")).withCost(Cost.free())
             .onBuy(page -> {
                 player.closeHandledScreen();
@@ -91,7 +91,7 @@ public final class BwItemShop {
                     player.openHandledScreen(BwItemShop.createTools(player, game));
             }));
         }
-        if(pageIndex==5){
+        if(pageIndex==5) {
             shop.add(ShopEntry.ofIcon(getEnchantGlint(new ItemStack(Items.BOW))).withName(new LiteralText("Archery")).withCost(Cost.free()).onBuy(page -> {
                 player.closeHandledScreen();
                 player.openHandledScreen(BwItemShop.createArchery(player, game));
@@ -103,7 +103,7 @@ public final class BwItemShop {
                 player.openHandledScreen(BwItemShop.createArchery(player, game));
             }));
         }
-        if(pageIndex==6){
+        if(pageIndex==6) {
             shop.add(ShopEntry.ofIcon(getEnchantGlint(new ItemStack(Items.TNT))).withName(new LiteralText("Utilities and Potions")).withCost(Cost.free())
             .onBuy(page -> {
                 player.closeHandledScreen();
@@ -137,7 +137,7 @@ public final class BwItemShop {
         }
     }
     // Method for returning an ItemStack with NBT for an enchant glint
-    private static ItemStack getEnchantGlint(ItemStack base){
+    private static ItemStack getEnchantGlint(ItemStack base) {
         base.addEnchantment(Enchantments.LURE, 1);
         CompoundTag tag = base.getOrCreateTag();
         tag.putInt("HideFlags", 1);
