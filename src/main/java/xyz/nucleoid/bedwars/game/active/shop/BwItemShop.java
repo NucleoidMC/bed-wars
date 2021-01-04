@@ -185,8 +185,8 @@ public final class BwItemShop {
                         Cost.ofEmeralds(1));
                 shop.addItem(PotionUtil.setPotion(new ItemStack(Items.POTION).setCustomName(new LiteralText("Potion of Swiftness")), BwPotions.SPEED),
                         Cost.ofEmeralds(1));
-                shop.addItem(PotionUtil.setPotion(new ItemStack(Items.POTION).setCustomName(new LiteralText("Potion of Invisibility")), BwPotions.INVISIBILITY),
-                        Cost.ofEmeralds(2));
+                //shop.addItem(PotionUtil.setPotion(new ItemStack(Items.POTION).setCustomName(new LiteralText("Potion of Invisibility")), BwPotions.INVISIBILITY),
+                //        Cost.ofEmeralds(2));
                 shop.addItem(new ItemStack(Blocks.TNT), Cost.ofGold(8));
                 shop.addItem(new ItemStack(Items.FIRE_CHARGE).setCustomName(new LiteralText("Fireball")),
                         Cost.ofIron(40));
