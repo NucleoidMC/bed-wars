@@ -249,8 +249,8 @@ public final class BwActive {
                 BlockState logState = world.getBlockState(log);
                 world.breakBlock(log, false);
 
-                // Drop 1-2 planks
-                int count = 1 + world.random.nextInt(2);
+                // Drop 1-3 planks
+                int count = 1 + world.random.nextInt(3);
                 world.spawnEntity(new ItemEntity(world, log.getX(), log.getY(), log.getZ(), new ItemStack(WoodBlocks.planksOf(logState).getBlock(), count)));
             }
 
@@ -291,7 +291,7 @@ public final class BwActive {
             // Drop 1-2 diamonds
             int count = 1 + world.random.nextInt(2);
             ItemStack stack = new ItemStack(Items.DIAMOND, count);
-            
+
             if (!player.inventory.insertStack(stack.copy())) {
                 world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), stack));
             }
