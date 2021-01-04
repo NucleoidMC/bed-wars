@@ -32,33 +32,41 @@ import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 
 public final class BwItemShop {
-    public static ShopUi create (ServerPlayerEntity player, BwActive game) {
+    public static ShopUi create(ServerPlayerEntity player, BwActive game) {
         return createBlocks(player, game);
         // At some point add a user customised menu
     }
 
-    private static void addNavbar (ShopBuilder shop, ServerPlayerEntity player, BwActive game, int pageIndex) {
+    private static void addNavbar(ShopBuilder shop, ServerPlayerEntity player, BwActive game, int pageIndex) {
         // Creates a page navigation bar at the top of the shop
-        addNavigationEntry(shop, Items.END_STONE, new LiteralText("Blocks"), pageIndex==1, BwItemShop::createBlocks, player, game);
-        addNavigationEntry(shop, Items.IRON_SWORD, new LiteralText("Melee Weapons"), pageIndex==2, BwItemShop::createMelee, player, game);
-        addNavigationEntry(shop, Items.IRON_CHESTPLATE, new LiteralText("Armor"), pageIndex==3, BwItemShop::createArmor, player, game);
-        addNavigationEntry(shop, Items.IRON_PICKAXE, new LiteralText("Tools"), pageIndex==4, BwItemShop::createTools, player, game);
-        addNavigationEntry(shop, Items.BOW, new LiteralText("Archery"), pageIndex==5, BwItemShop::createArchery, player, game);
-        addNavigationEntry(shop, Items.POTION, new LiteralText("Utilities and Potions"), pageIndex==6, BwItemShop::createUtils, player, game);
+        addNavigationEntry(shop, Items.END_STONE, new LiteralText("Blocks"), pageIndex == 1, BwItemShop::createBlocks,
+                player, game);
+        addNavigationEntry(shop, Items.IRON_SWORD, new LiteralText("Melee Weapons"), pageIndex == 2,
+                BwItemShop::createMelee, player, game);
+        addNavigationEntry(shop, Items.IRON_CHESTPLATE, new LiteralText("Armor"), pageIndex == 3,
+                BwItemShop::createArmor, player, game);
+        addNavigationEntry(shop, Items.IRON_PICKAXE, new LiteralText("Tools"), pageIndex == 4, BwItemShop::createTools,
+                player, game);
+        addNavigationEntry(shop, Items.BOW, new LiteralText("Archery"), pageIndex == 5, BwItemShop::createArchery,
+                player, game);
+        addNavigationEntry(shop, Items.POTION, new LiteralText("Utilities and Potions"), pageIndex == 6,
+                BwItemShop::createUtils, player, game);
     }
-    private static void addNavigationEntry (ShopBuilder shop, ItemConvertible icon, Text name, boolean selected, BiFunction<ServerPlayerEntity, BwActive, ShopUi> open, ServerPlayerEntity player, BwActive game)  {
+
+    private static void addNavigationEntry(ShopBuilder shop, ItemConvertible icon, Text name, boolean selected,
+            BiFunction<ServerPlayerEntity, BwActive, ShopUi> open, ServerPlayerEntity player, BwActive game) {
         ItemStack iconStack = new ItemStack(icon);
         if (selected) {
             iconStack = getEnchantGlint(iconStack);
         }
-    
-        shop.add(ShopEntry.ofIcon(iconStack).withName(name).withCost(Cost.free())
-            .onBuy(page -> {
-                player.closeHandledScreen();
-                player.openHandledScreen(open.apply(player, game));
+
+        shop.add(ShopEntry.ofIcon(iconStack).withName(name).withCost(Cost.free()).onBuy(page -> {
+            player.closeHandledScreen();
+            player.openHandledScreen(open.apply(player, game));
         }));
-    } 
-    private static <T extends Upgrade> void addUpgrade (ShopBuilder shop, PlayerUpgrades upgrades, UpgradeType<T> type,
+    }
+
+    private static <T extends Upgrade> void addUpgrade(ShopBuilder shop, PlayerUpgrades upgrades, UpgradeType<T> type,
             Text name) {
         int currentLevel = upgrades.getLevel(type);
         int nextLevel = currentLevel + 1;
@@ -75,15 +83,16 @@ public final class BwItemShop {
             }
         }
     }
+
     // Method for returning an ItemStack with NBT for an enchant glint
-    private static ItemStack getEnchantGlint (ItemStack base) {
+    private static ItemStack getEnchantGlint(ItemStack base) {
         base.addEnchantment(Enchantments.LURE, 1);
         CompoundTag tag = base.getOrCreateTag();
         tag.putInt("HideFlags", 1);
         return base;
     }
 
-    private static ShopUi createBlocks (ServerPlayerEntity player, BwActive game) {
+    private static ShopUi createBlocks(ServerPlayerEntity player, BwActive game) {
         return ShopUi.create(new LiteralText("Blocks"), shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
@@ -109,7 +118,7 @@ public final class BwItemShop {
         });
     }
 
-    private static ShopUi createMelee (ServerPlayerEntity player, BwActive game) {
+    private static ShopUi createMelee(ServerPlayerEntity player, BwActive game) {
         return ShopUi.create(new LiteralText("Melee Weapons"), shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
@@ -128,7 +137,7 @@ public final class BwItemShop {
         });
     }
 
-    private static ShopUi createArmor (ServerPlayerEntity player, BwActive game) {
+    private static ShopUi createArmor(ServerPlayerEntity player, BwActive game) {
         return ShopUi.create(new LiteralText("Armor"), shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
@@ -142,7 +151,7 @@ public final class BwItemShop {
         });
     }
 
-    private static ShopUi createTools (ServerPlayerEntity player, BwActive game) {
+    private static ShopUi createTools(ServerPlayerEntity player, BwActive game) {
         return ShopUi.create(new LiteralText("Tools"), shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
@@ -157,7 +166,7 @@ public final class BwItemShop {
         });
     }
 
-    private static ShopUi createArchery (ServerPlayerEntity player, BwActive game) {
+    private static ShopUi createArchery(ServerPlayerEntity player, BwActive game) {
         return ShopUi.create(new LiteralText("Archery"), shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
@@ -165,28 +174,34 @@ public final class BwItemShop {
                 addNavbar(shop, player, game, 5);
                 // Bows and arrows
                 shop.addItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().build(), Cost.ofGold(12));
-                shop.addItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().addEnchantment(Enchantments.POWER, 2).build(),
+                shop.addItem(
+                        ItemStackBuilder.of(Items.BOW).setUnbreakable().addEnchantment(Enchantments.POWER, 2).build(),
                         Cost.ofGold(24));
-                shop.addItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().addEnchantment(Enchantments.PUNCH, 1).build(),
+                shop.addItem(
+                        ItemStackBuilder.of(Items.BOW).setUnbreakable().addEnchantment(Enchantments.PUNCH, 1).build(),
                         Cost.ofEmeralds(6));
                 shop.addItem(new ItemStack(Items.ARROW, 8), Cost.ofGold(2));
             }
         });
     }
 
-    private static ShopUi createUtils (ServerPlayerEntity player, BwActive game) {
+    private static ShopUi createUtils(ServerPlayerEntity player, BwActive game) {
         return ShopUi.create(new LiteralText("Utilities and Potions"), shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
                 // Navigation
                 addNavbar(shop, player, game, 6);
                 // Potions
-                shop.addItem(PotionUtil.setPotion(new ItemStack(Items.POTION).setCustomName(new LiteralText("Potion of Leaping")), BwPotions.JUMP_BOOST_V),
-                        Cost.ofEmeralds(1));
-                shop.addItem(PotionUtil.setPotion(new ItemStack(Items.POTION).setCustomName(new LiteralText("Potion of Swiftness")), BwPotions.SPEED),
-                        Cost.ofEmeralds(1));
-                //shop.addItem(PotionUtil.setPotion(new ItemStack(Items.POTION).setCustomName(new LiteralText("Potion of Invisibility")), BwPotions.INVISIBILITY),
-                //        Cost.ofEmeralds(2));
+                shop.addItem(PotionUtil.setPotion(
+                        new ItemStack(Items.POTION).setCustomName(new LiteralText("Potion of Leaping")),
+                        BwPotions.JUMP_BOOST_V), Cost.ofEmeralds(1));
+                shop.addItem(PotionUtil.setPotion(
+                        new ItemStack(Items.POTION).setCustomName(new LiteralText("Potion of Swiftness")),
+                        BwPotions.SPEED), Cost.ofEmeralds(1));
+                // shop.addItem(PotionUtil.setPotion(new
+                // ItemStack(Items.POTION).setCustomName(new LiteralText("Potion of
+                // Invisibility")), BwPotions.INVISIBILITY),
+                // Cost.ofEmeralds(2));
                 shop.addItem(new ItemStack(Blocks.TNT), Cost.ofGold(8));
                 shop.addItem(new ItemStack(Items.FIRE_CHARGE).setCustomName(new LiteralText("Fireball")),
                         Cost.ofIron(40));
