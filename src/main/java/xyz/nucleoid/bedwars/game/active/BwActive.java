@@ -277,7 +277,11 @@ public final class BwActive {
 
             // Drop 2-4 ingots
             int count = 2 + world.random.nextInt(3);
-            world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.GOLD_INGOT, count)));
+            ItemStack stack = new ItemStack(Items.GOLD_INGOT, count);
+
+            if (!player.inventory.insertStack(stack.copy())) {
+                world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), stack));
+            }
         }
 
         // Drop ingots from gold
@@ -286,7 +290,11 @@ public final class BwActive {
 
             // Drop 1-2 diamonds
             int count = 1 + world.random.nextInt(2);
-            world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.DIAMOND, count)));
+            ItemStack stack = new ItemStack(Items.DIAMOND, count);
+            
+            if (!player.inventory.insertStack(stack.copy())) {
+                world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), stack));
+            }
         }
 
         return ActionResult.PASS;
