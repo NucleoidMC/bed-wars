@@ -6,8 +6,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import xyz.nucleoid.bedwars.BedWars;
 import xyz.nucleoid.bedwars.util.WoodBlocks;
 import xyz.nucleoid.plasmid.game.ManagedGameSpace;
+import xyz.nucleoid.plasmid.game.rule.RuleResult;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.LeavesBlock;
@@ -28,7 +30,7 @@ public class LeavesBlockMixin {
 	@Inject(method = "randomTick", at = @At("HEAD"), cancellable = true)
 	public void handleRandomTick(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo ci) {
 		ManagedGameSpace gameSpace = ManagedGameSpace.forWorld(world);
-		if (gameSpace != null) {
+		if (gameSpace != null && gameSpace.testRule(BedWars.LEAVES_DROP_GOLDEN_APPLES) == RuleResult.ALLOW) {
 			if (!state.get(LeavesBlock.PERSISTENT) && state.get(LeavesBlock.DISTANCE) == 7) {
 				if (world.random.nextDouble() < 0.025) {
 					world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(WoodBlocks.saplingOf(state).getBlock())));

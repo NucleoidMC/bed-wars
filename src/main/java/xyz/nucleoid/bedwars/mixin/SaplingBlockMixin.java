@@ -7,7 +7,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import xyz.nucleoid.bedwars.BedWars;
 import xyz.nucleoid.plasmid.game.ManagedGameSpace;
+import xyz.nucleoid.plasmid.game.rule.RuleResult;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SaplingBlock;
@@ -26,7 +28,7 @@ public abstract class SaplingBlockMixin {
 	@Inject(method = "randomTick", at = @At("HEAD"), cancellable = true)
 	public void handleRandomTick(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo ci) {
 		ManagedGameSpace gameSpace = ManagedGameSpace.forWorld(world);
-		if (gameSpace != null) {
+		if (gameSpace != null && gameSpace.testRule(BedWars.FAST_TREE_GROWTH) == RuleResult.ALLOW) {
 			if (world.getLightLevel(pos.up()) >= 9) {
 				this.generate(world, pos, state, random);
 			}

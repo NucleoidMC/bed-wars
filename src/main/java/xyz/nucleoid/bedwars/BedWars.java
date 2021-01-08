@@ -26,6 +26,8 @@ public final class BedWars implements ModInitializer {
 
     public static final GameRule BLAST_PROOF_GLASS_RULE = new GameRule();
     public static final GameRule TRIDENTS_LOYAL_IN_VOID = new GameRule();
+    public static final GameRule LEAVES_DROP_GOLDEN_APPLES = new GameRule();
+    public static final GameRule FAST_TREE_GROWTH = new GameRule();
 
     @Override
     public void onInitialize() {
