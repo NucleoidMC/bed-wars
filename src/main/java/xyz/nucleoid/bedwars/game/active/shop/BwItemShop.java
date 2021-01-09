@@ -90,7 +90,6 @@ public final class BwItemShop {
                 // Navigation
                 addNavbar(shop, player, game, 1);
                 // Blocks
-                shop.addItem(new ItemStack(Items.IRON_SWORD, 0), Cost.free());
 
                 DyeColor color = participant.team.getDye();
                 shop.addItem(new ItemStack(ColoredBlocks.wool(color), 16), Cost.ofIron(4));
