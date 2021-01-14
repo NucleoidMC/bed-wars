@@ -139,8 +139,8 @@ public final class BwActive {
             game.setRule(GameRule.FALL_DAMAGE, RuleResult.ALLOW);
             game.setRule(GameRule.HUNGER, RuleResult.DENY);
             game.setRule(GameRule.TEAM_CHAT, RuleResult.ALLOW);
+            game.setRule(GameRule.TRIDENTS_LOYAL_IN_VOID, RuleResult.ALLOW);
             game.setRule(BedWars.BLAST_PROOF_GLASS_RULE, RuleResult.ALLOW);
-            game.setRule(BedWars.TRIDENTS_LOYAL_IN_VOID, RuleResult.ALLOW);
             game.setRule(BedWars.LEAVES_DROP_GOLDEN_APPLES, RuleResult.ALLOW);
             game.setRule(BedWars.FAST_TREE_GROWTH, RuleResult.ALLOW);
 
