@@ -30,8 +30,6 @@ import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 import java.util.function.BiFunction;
 
 public final class BwItemShop {
-    private static final Cost NAVIGATION_BAR_COST = Cost.free().display(new LiteralText("select"));
-
     public static ShopUi create(ServerPlayerEntity player, BwActive game) {
         // At some point add a user customised menu
         return createBlocks(player, game);
@@ -53,7 +51,7 @@ public final class BwItemShop {
             iconStack = addEnchantGlint(iconStack);
         }
 
-        shop.add(ShopEntry.ofIcon(iconStack).withName(name).withCost(NAVIGATION_BAR_COST).onBuy(page -> {
+        shop.add(ShopEntry.ofIcon(iconStack).withName(name).noCost().onBuy(page -> {
             player.closeHandledScreen();
             player.openHandledScreen(open.apply(player, game));
         }));
