@@ -12,7 +12,7 @@ group = project.maven_group
 
 repositories {
 	maven { url = "https://jitpack.io/" }
-	maven { url = "https://maven.gegy.dev/" }
+	maven { url = "https://maven.nucleoid.xyz/" }
 	mavenLocal()
 }
 
@@ -23,9 +23,9 @@ dependencies {
 
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	modImplementation 'xyz.nucleoid:plasmid:0.4.89'
+	modImplementation 'xyz.nucleoid:plasmid:0.4.112'
 
-	modImplementation 'xyz.nucleoid:substrate:0.1.1'
+	modImplementation 'xyz.nucleoid:substrate:0.1.2'
 
 	implementation 'kdotjpg:open-simplex:2.0'
 	include 'kdotjpg:open-simplex:2.0'

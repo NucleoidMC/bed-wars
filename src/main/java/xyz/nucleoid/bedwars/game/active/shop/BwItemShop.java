@@ -44,6 +44,7 @@ public final class BwItemShop {
         addNavigationEntry(shop, player, game, Items.IRON_PICKAXE, new LiteralText("Tools"), pageIndex == 4, BwItemShop::createTools);
         addNavigationEntry(shop, player, game, Items.BOW, new LiteralText("Archery"), pageIndex == 5, BwItemShop::createArchery);
         addNavigationEntry(shop, player, game, Items.POTION, new LiteralText("Utilities and Potions"), pageIndex == 6, BwItemShop::createUtils);
+        shop.nextRow();
     }
 
     private static void addNavigationEntry(ShopBuilder shop, ServerPlayerEntity player, BwActive game, ItemConvertible icon, Text name, boolean selected, BiFunction<ServerPlayerEntity, BwActive, ShopUi> open) {
