@@ -23,9 +23,9 @@ dependencies {
 
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	modImplementation 'xyz.nucleoid:plasmid:0.4.112'
+	modImplementation "xyz.nucleoid:plasmid:${project.plasmid_version}"
 
-	modImplementation 'xyz.nucleoid:substrate:0.1.2'
+	modImplementation "xyz.nucleoid:substrate:${project.substrate_version}"
 
 	implementation 'kdotjpg:open-simplex:2.0'
 	include 'kdotjpg:open-simplex:2.0'
