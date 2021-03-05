@@ -76,7 +76,7 @@ public final class BwItemGenerator {
 
         if (this.timerText == null) {
             Vec3d textPos = this.bounds.getCenter();
-            textPos = textPos.add(0.0, 2.0, 0.0);
+            textPos = textPos.add(0.0, 1.0, 0.0);
 
             if (world.isChunkLoaded(MathHelper.floor(textPos.x) >> 4, MathHelper.floor(textPos.z) >> 4)) {
                 this.timerText = FloatingText.spawn(world, textPos, this.getTimerText(time));
