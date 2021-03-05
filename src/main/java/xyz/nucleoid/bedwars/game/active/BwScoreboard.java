@@ -7,6 +7,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import org.apache.commons.lang3.RandomStringUtils;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
@@ -30,8 +31,7 @@ public final class BwScoreboard implements AutoCloseable {
     }
 
     public static BwScoreboard create(BwActive game, GlobalWidgets widgets) {
-        Text title = new LiteralText("BedWars").formatted(Formatting.GOLD, Formatting.BOLD);
-        SidebarWidget sidebar = widgets.addSidebar(title);
+        SidebarWidget sidebar = widgets.addSidebar(new TranslatableText("game.bedwars.bed_wars").formatted(Formatting.GOLD, Formatting.BOLD));
         return new BwScoreboard(game, sidebar);
     }
 

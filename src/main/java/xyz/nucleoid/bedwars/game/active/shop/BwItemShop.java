@@ -3,6 +3,8 @@ package xyz.nucleoid.bedwars.game.active.shop;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.Enchantments;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.ItemConvertible;
@@ -13,7 +15,9 @@ import net.minecraft.potion.PotionUtil;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.Formatting;
 import xyz.nucleoid.bedwars.custom.BwItems;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.active.BwParticipant;
@@ -36,40 +40,41 @@ public final class BwItemShop {
     }
 
     private static void addNavbar(ShopBuilder shop, ServerPlayerEntity player, BwActive game, int pageIndex) {
-        addNavigationEntry(shop, player, game, Items.END_STONE, new LiteralText("Blocks"), pageIndex == 1, BwItemShop::createBlocks);
-        addNavigationEntry(shop, player, game, Items.IRON_SWORD, new LiteralText("Melee Weapons"), pageIndex == 2, BwItemShop::createMelee);
-        addNavigationEntry(shop, player, game, Items.IRON_CHESTPLATE, new LiteralText("Armor"), pageIndex == 3, BwItemShop::createArmor);
-        addNavigationEntry(shop, player, game, Items.IRON_PICKAXE, new LiteralText("Tools"), pageIndex == 4, BwItemShop::createTools);
-        addNavigationEntry(shop, player, game, Items.BOW, new LiteralText("Archery"), pageIndex == 5, BwItemShop::createArchery);
-        addNavigationEntry(shop, player, game, Items.POTION, new LiteralText("Utilities and Potions"), pageIndex == 6, BwItemShop::createUtils);
+        addNavigationEntry(shop, player, game, Items.END_STONE, "blocks", pageIndex == 1, BwItemShop::createBlocks);
+        addNavigationEntry(shop, player, game, Items.IRON_SWORD, "melee", pageIndex == 2, BwItemShop::createMelee);
+        addNavigationEntry(shop, player, game, Items.BOW, "archery", pageIndex == 3, BwItemShop::createArchery);
+        addNavigationEntry(shop, player, game, Items.IRON_PICKAXE, "tools", pageIndex == 4, BwItemShop::createTools);
+        addNavigationEntry(shop, player, game, Items.IRON_CHESTPLATE, "armor", pageIndex == 5, BwItemShop::createArmor);
+        addNavigationEntry(shop, player, game, Items.POTION, "utils", pageIndex == 6, BwItemShop::createUtils);
         shop.nextRow();
     }
 
-    private static void addNavigationEntry(ShopBuilder shop, ServerPlayerEntity player, BwActive game, ItemConvertible icon, Text name, boolean selected, BiFunction<ServerPlayerEntity, BwActive, ShopUi> open) {
+    private static void addNavigationEntry(ShopBuilder shop, ServerPlayerEntity player, BwActive game, ItemConvertible icon, String name, boolean selected, BiFunction<ServerPlayerEntity, BwActive, ShopUi> open) {
         ItemStack iconStack = new ItemStack(icon);
         if (selected) {
             iconStack = addEnchantGlint(iconStack);
         }
 
-        shop.add(ShopEntry.ofIcon(iconStack).withName(name).noCost().onBuy(page -> {
+        shop.add(ShopEntry.ofIcon(iconStack).withName(new TranslatableText("menu.bedwars.item_shop." + name)).noCost().onBuy(page -> {
             player.closeHandledScreen();
             player.openHandledScreen(open.apply(player, game));
         }));
     }
 
-    private static <T extends Upgrade> void addUpgrade(ShopBuilder shop, PlayerUpgrades upgrades, UpgradeType<T> type, Text name) {
+    private static <T extends Upgrade> void addUpgrade(ShopBuilder shop, PlayerUpgrades upgrades, UpgradeType<T> type, String name) {
         int currentLevel = upgrades.getLevel(type);
         int nextLevel = currentLevel + 1;
+        Text nameText = new TranslatableText("upgrade.bedwars." + name);
 
         T nextUpgrade = type.forLevel(nextLevel);
         if (nextUpgrade != null) {
-            shop.add(ShopEntry.ofIcon(nextUpgrade.getIcon()).withName(name).withCost(nextUpgrade.getCost()).onBuy(p -> {
+            shop.add(ShopEntry.ofIcon(nextUpgrade.getIcon()).withName(nameText).withCost(nextUpgrade.getCost()).onBuy(p -> {
                 upgrades.applyLevel(type, nextLevel);
             }));
         } else {
             T currentUpgrade = type.forLevel(currentLevel);
             if (currentUpgrade != null) {
-                shop.add(ShopEntry.ofIcon(currentUpgrade.getIcon()).withName(name));
+                shop.add(ShopEntry.ofIcon(currentUpgrade.getIcon()).withName(nameText));
             }
         }
     }
@@ -83,7 +88,7 @@ public final class BwItemShop {
     }
 
     private static ShopUi createBlocks(ServerPlayerEntity player, BwActive game) {
-        return ShopUi.create(new LiteralText("Blocks"), shop -> {
+        return ShopUi.create(new TranslatableText("menu.bedwars.item_shop.blocks"), shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
                 // Navigation
@@ -95,7 +100,7 @@ public final class BwItemShop {
                 shop.addItem(new ItemStack(ColoredBlocks.terracotta(color), 16), Cost.ofIron(16));
 
                 ItemStack glass = ItemStackBuilder.of(ColoredBlocks.glass(color))
-                        .setName(new LiteralText("Shatterproof Glass")).setCount(4).build();
+                        .setName(new TranslatableText("item.bedwars.shatterproof_glass")).setCount(4).build();
 
                 shop.addItem(glass, Cost.ofIron(12));
                 shop.addItem(new ItemStack(Blocks.OAK_PLANKS, 16), Cost.ofGold(4));
@@ -109,17 +114,17 @@ public final class BwItemShop {
     }
 
     private static ShopUi createMelee(ServerPlayerEntity player, BwActive game) {
-        return ShopUi.create(new LiteralText("Melee Weapons"), shop -> {
+        return ShopUi.create(new TranslatableText("menu.bedwars.item_shop.melee"), shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
                 addNavbar(shop, player, game, 2);
 
                 PlayerUpgrades upgrades = participant.upgrades;
-                addUpgrade(shop, upgrades, UpgradeType.SWORD, new LiteralText("Upgrade Sword"));
+                addUpgrade(shop, upgrades, UpgradeType.SWORD, "sword");
 
                 ItemStack knockbackStick = ItemStackBuilder.of(Items.STICK)
                         .addEnchantment(Enchantments.KNOCKBACK, 1)
-                        .addLore(new LiteralText("Haha, target go zoom"))
+                        .addLore(new TranslatableText("item.bedwars.knockback_stick.description"))
                         .build();
                 shop.addItem(knockbackStick, Cost.ofGold(10));
 
@@ -132,36 +137,9 @@ public final class BwItemShop {
         });
     }
 
-    private static ShopUi createArmor(ServerPlayerEntity player, BwActive game) {
-        return ShopUi.create(new LiteralText("Armor"), shop -> {
-            BwParticipant participant = game.getParticipant(player);
-            if (participant != null) {
-                addNavbar(shop, player, game, 3);
-
-                PlayerUpgrades upgrades = participant.upgrades;
-                addUpgrade(shop, upgrades, UpgradeType.ARMOR, new LiteralText("Upgrade Armor"));
-                shop.addItem(ItemStackBuilder.of(Items.SHIELD).setUnbreakable().build(), Cost.ofGold(10));
-            }
-        });
-    }
-
-    private static ShopUi createTools(ServerPlayerEntity player, BwActive game) {
-        return ShopUi.create(new LiteralText("Tools"), shop -> {
-            BwParticipant participant = game.getParticipant(player);
-            if (participant != null) {
-                addNavbar(shop, player, game, 4);
-
-                PlayerUpgrades upgrades = participant.upgrades;
-                addUpgrade(shop, upgrades, UpgradeType.PICKAXE, new LiteralText("Upgrade Pickaxe"));
-                addUpgrade(shop, upgrades, UpgradeType.AXE, new LiteralText("Upgrade Axe"));
-                addUpgrade(shop, upgrades, UpgradeType.SHEARS, new LiteralText("Add Shears"));
-            }
-        });
-    }
-
     private static ShopUi createArchery(ServerPlayerEntity player, BwActive game) {
-        return ShopUi.create(new LiteralText("Archery"), shop -> {
-            addNavbar(shop, player, game, 5);
+        return ShopUi.create(new TranslatableText("menu.bedwars.item_shop.archery"), shop -> {
+            addNavbar(shop, player, game, 3);
 
             shop.addItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().build(), Cost.ofGold(12));
             shop.addItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().addEnchantment(Enchantments.POWER, 2).build(), Cost.ofGold(24));
@@ -170,23 +148,50 @@ public final class BwItemShop {
         });
     }
 
+    private static ShopUi createTools(ServerPlayerEntity player, BwActive game) {
+        return ShopUi.create(new TranslatableText("menu.bedwars.item_shop.tools"), shop -> {
+            BwParticipant participant = game.getParticipant(player);
+            if (participant != null) {
+                addNavbar(shop, player, game, 4);
+
+                PlayerUpgrades upgrades = participant.upgrades;
+                addUpgrade(shop, upgrades, UpgradeType.PICKAXE, "pickaxe");
+                addUpgrade(shop, upgrades, UpgradeType.AXE, "axe");
+                addUpgrade(shop, upgrades, UpgradeType.SHEARS, "shears");
+            }
+        });
+    }
+
+    private static ShopUi createArmor(ServerPlayerEntity player, BwActive game) {
+        return ShopUi.create(new TranslatableText("menu.bedwars.item_shop.armor"), shop -> {
+            BwParticipant participant = game.getParticipant(player);
+            if (participant != null) {
+                addNavbar(shop, player, game, 5);
+
+                PlayerUpgrades upgrades = participant.upgrades;
+                addUpgrade(shop, upgrades, UpgradeType.ARMOR, "armor");
+                shop.addItem(ItemStackBuilder.of(Items.SHIELD).setUnbreakable().build(), Cost.ofGold(10));
+            }
+        });
+    }
+
     private static ShopUi createUtils(ServerPlayerEntity player, BwActive game) {
-        return ShopUi.create(new LiteralText("Utilities and Potions"), shop -> {
+        return ShopUi.create(new TranslatableText("menu.bedwars.item_shop.utils"), shop -> {
             addNavbar(shop, player, game, 6);
 
             StatusEffectInstance jumpBoostEffect = new StatusEffectInstance(StatusEffects.JUMP_BOOST, 600, 5);
-            shop.addItem(createPotion(jumpBoostEffect).setCustomName(new LiteralText("Potion of Leaping")), Cost.ofEmeralds(1));
+            shop.addItem(createPotion(jumpBoostEffect).setCustomName(new TranslatableText("item.minecraft.potion.effect.leaping")), Cost.ofEmeralds(1));
 
             StatusEffectInstance swiftnessEffect = new StatusEffectInstance(StatusEffects.SPEED, 600, 2);
-            shop.addItem(createPotion(swiftnessEffect).setCustomName(new LiteralText("Potion of Swiftness")), Cost.ofEmeralds(1));
+            shop.addItem(createPotion(swiftnessEffect).setCustomName(new TranslatableText("item.minecraft.potion.effect.swiftness")), Cost.ofEmeralds(1));
 
             shop.addItem(new ItemStack(Blocks.TNT), Cost.ofGold(8));
-            shop.addItem(new ItemStack(Items.FIRE_CHARGE).setCustomName(new LiteralText("Fireball")), Cost.ofIron(40));
+            shop.addItem(new ItemStack(Items.FIRE_CHARGE).setCustomName(new TranslatableText(EntityType.FIREBALL.getTranslationKey())), Cost.ofIron(40));
             shop.addItem(new ItemStack(Items.ENDER_PEARL), Cost.ofEmeralds(4));
             shop.addItem(new ItemStack(Items.WATER_BUCKET), Cost.ofGold(10));
             shop.addItem(new ItemStack(Items.LAVA_BUCKET), Cost.ofGold(24));
             shop.addItem(new ItemStack(Items.GOLDEN_APPLE), Cost.ofGold(3));
-            shop.addItem(new ItemStack(BwItems.CHORUS_FRUIT).setCustomName(new LiteralText("Chorus Fruit")), Cost.ofGold(8));
+            shop.addItem(new ItemStack(BwItems.CHORUS_FRUIT).setCustomName(new TranslatableText(Items.CHORUS_FRUIT.getTranslationKey())), Cost.ofGold(8));
             shop.addItem(new ItemStack(BwItems.BRIDGE_EGG), Cost.ofEmeralds(2));
             shop.addItem(new ItemStack(BwItems.MOVING_CLOUD), Cost.ofEmeralds(1));
         });
