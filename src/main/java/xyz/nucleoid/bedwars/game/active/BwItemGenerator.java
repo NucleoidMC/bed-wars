@@ -1,5 +1,6 @@
 package xyz.nucleoid.bedwars.game.active;
 
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
 import xyz.nucleoid.plasmid.entity.FloatingText;
 import xyz.nucleoid.plasmid.util.BlockBounds;
@@ -75,7 +76,7 @@ public final class BwItemGenerator {
 
         if (this.timerText == null) {
             Vec3d textPos = this.bounds.getCenter();
-            textPos = textPos.add(0.0, 2.0, 0.0);
+            textPos = textPos.add(0.0, 1.0, 0.0);
 
             if (world.isChunkLoaded(MathHelper.floor(textPos.x) >> 4, MathHelper.floor(textPos.z) >> 4)) {
                 this.timerText = FloatingText.spawn(world, textPos, this.getTimerText(time));
@@ -97,8 +98,6 @@ public final class BwItemGenerator {
         long seconds = (timeUntilSpawn / 20) % 60;
         long minutes = timeUntilSpawn / (20 * 60);
 
-        Formatting titleFormatting = Formatting.GOLD;
-
         Formatting numberFormatting = Formatting.WHITE;
 
         long secondsUntilSpawn = timeUntilSpawn / 20;
@@ -107,11 +106,7 @@ public final class BwItemGenerator {
                 numberFormatting = Formatting.AQUA;
             }
         }
-
-        MutableText titleText = new LiteralText("Next spawn in: ");
-        MutableText numberText = new LiteralText(String.format("%02d:%02d", minutes, seconds));
-
-        return titleText.formatted(titleFormatting).append(numberText.formatted(numberFormatting));
+        return new TranslatableText("text.bedwars.floating.spawn_cooldown", new LiteralText(String.format("%02d:%02d", minutes, seconds)).formatted(numberFormatting)).formatted(Formatting.GOLD);
     }
 
     private void spawnItems(ServerWorld world, BwActive game) {
