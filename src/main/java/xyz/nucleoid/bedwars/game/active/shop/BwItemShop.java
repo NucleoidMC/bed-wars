@@ -55,7 +55,7 @@ public final class BwItemShop {
             iconStack = addEnchantGlint(iconStack);
         }
 
-        shop.add(ShopEntry.ofIcon(iconStack).withName(new TranslatableText("menu.bedwars.item_shop." + name)).noCost().onBuy(page -> {
+        shop.add(ShopEntry.ofIcon(iconStack).withName(new TranslatableText("text.bedwars.shop.category." + name)).noCost().onBuy(page -> {
             player.closeHandledScreen();
             player.openHandledScreen(open.apply(player, game));
         }));
@@ -64,7 +64,7 @@ public final class BwItemShop {
     private static <T extends Upgrade> void addUpgrade(ShopBuilder shop, PlayerUpgrades upgrades, UpgradeType<T> type, String name) {
         int currentLevel = upgrades.getLevel(type);
         int nextLevel = currentLevel + 1;
-        Text nameText = new TranslatableText("upgrade.bedwars." + name);
+        Text nameText = new TranslatableText("text.bedwars.shop.upgrade." + name);
 
         T nextUpgrade = type.forLevel(nextLevel);
         if (nextUpgrade != null) {
@@ -88,7 +88,7 @@ public final class BwItemShop {
     }
 
     private static ShopUi createBlocks(ServerPlayerEntity player, BwActive game) {
-        return ShopUi.create(new TranslatableText("menu.bedwars.item_shop.blocks"), shop -> {
+        return ShopUi.create(new TranslatableText("text.bedwars.shop.category.blocks"), shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
                 // Navigation
@@ -114,7 +114,7 @@ public final class BwItemShop {
     }
 
     private static ShopUi createMelee(ServerPlayerEntity player, BwActive game) {
-        return ShopUi.create(new TranslatableText("menu.bedwars.item_shop.melee"), shop -> {
+        return ShopUi.create(new TranslatableText("text.bedwars.shop.category.melee"), shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
                 addNavbar(shop, player, game, 2);
@@ -138,7 +138,7 @@ public final class BwItemShop {
     }
 
     private static ShopUi createArchery(ServerPlayerEntity player, BwActive game) {
-        return ShopUi.create(new TranslatableText("menu.bedwars.item_shop.archery"), shop -> {
+        return ShopUi.create(new TranslatableText("text.bedwars.shop.category.archery"), shop -> {
             addNavbar(shop, player, game, 3);
 
             shop.addItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().build(), Cost.ofGold(12));
@@ -149,7 +149,7 @@ public final class BwItemShop {
     }
 
     private static ShopUi createTools(ServerPlayerEntity player, BwActive game) {
-        return ShopUi.create(new TranslatableText("menu.bedwars.item_shop.tools"), shop -> {
+        return ShopUi.create(new TranslatableText("text.bedwars.shop.category.tools"), shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
                 addNavbar(shop, player, game, 4);
@@ -163,7 +163,7 @@ public final class BwItemShop {
     }
 
     private static ShopUi createArmor(ServerPlayerEntity player, BwActive game) {
-        return ShopUi.create(new TranslatableText("menu.bedwars.item_shop.armor"), shop -> {
+        return ShopUi.create(new TranslatableText("text.bedwars.shop.category.armor"), shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant != null) {
                 addNavbar(shop, player, game, 5);
@@ -176,7 +176,7 @@ public final class BwItemShop {
     }
 
     private static ShopUi createUtils(ServerPlayerEntity player, BwActive game) {
-        return ShopUi.create(new TranslatableText("menu.bedwars.item_shop.utils"), shop -> {
+        return ShopUi.create(new TranslatableText("text.bedwars.shop.category.utils"), shop -> {
             addNavbar(shop, player, game, 6);
 
             StatusEffectInstance jumpBoostEffect = new StatusEffectInstance(StatusEffects.JUMP_BOOST, 600, 5);

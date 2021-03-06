@@ -119,7 +119,7 @@ public final class BwPlayerLogic {
         BwParticipant participant = this.game.getParticipant(player);
         if (participant != null) {
             participant.startRespawning(spawn);
-            player.sendMessage(new TranslatableText("message.bedwars.respawn_cooldown", BwActive.RESPAWN_TIME_SECONDS).formatted(Formatting.BOLD), false);
+            player.sendMessage(new TranslatableText("text.bedwars.respawn_cooldown", BwActive.RESPAWN_TIME_SECONDS).formatted(Formatting.BOLD), false);
         }
     }
 }

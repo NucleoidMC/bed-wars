@@ -106,7 +106,7 @@ public final class BwItemGenerator {
                 numberFormatting = Formatting.AQUA;
             }
         }
-        return new TranslatableText("floating_text.bedwars.spawn_cooldown", new LiteralText(String.format("%02d:%02d", minutes, seconds)).formatted(numberFormatting)).formatted(Formatting.GOLD);
+        return new TranslatableText("text.bedwars.floating.spawn_cooldown", new LiteralText(String.format("%02d:%02d", minutes, seconds)).formatted(numberFormatting)).formatted(Formatting.GOLD);
     }
 
     private void spawnItems(ServerWorld world, BwActive game) {

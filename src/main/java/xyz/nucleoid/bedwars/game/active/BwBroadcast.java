@@ -25,7 +25,7 @@ public final class BwBroadcast {
         MutablePlayerSet players = team.players;
 
         players.sendMessage(new TranslatableText("text.bedwars.trap_set_off").formatted(Formatting.BOLD, Formatting.RED));
-        this.sendTitle(players, new TranslatableText("title.bedwars.trap_set_off").formatted(Formatting.RED), null);
+        this.sendTitle(players, new TranslatableText("text.bedwars.title.trap_set_off").formatted(Formatting.RED), null);
         players.sendSound(SoundEvents.BLOCK_BELL_USE);
     }
 
@@ -75,8 +75,8 @@ public final class BwBroadcast {
 
         this.sendTitle(
                 teamPlayers,
-                new TranslatableText("title.bedwars.bed_destroyed").formatted(Formatting.RED),
-                new LiteralText("title.bedwars.cannot_respawn").formatted(Formatting.GOLD)
+                new TranslatableText("text.bedwars.title.bed_destroyed").formatted(Formatting.RED),
+                new TranslatableText("text.bedwars.title.cannot_respawn").formatted(Formatting.GOLD)
         );
     }
 

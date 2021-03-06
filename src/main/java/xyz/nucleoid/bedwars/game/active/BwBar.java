@@ -21,10 +21,10 @@ public final class BwBar {
         if (ticksUntilBedGone > 0) {
             String time = this.formatTime(ticksUntilBedGone);
 
-            this.widget.setTitle(new TranslatableText("bar.bedwars.beds_cooldown", time));
+            this.widget.setTitle(new TranslatableText("text.bedwars.bar.beds_cooldown", time));
             this.widget.setProgress((float) ticksUntilBedGone / totalTicksUntilBedGone);
         } else {
-            this.widget.setTitle(new TranslatableText("bar.bedwars.beds_destroyed"));
+            this.widget.setTitle(new TranslatableText("text.bedwars.bar.beds_destroyed"));
             this.widget.setProgress(0.0F);
         }
     }
