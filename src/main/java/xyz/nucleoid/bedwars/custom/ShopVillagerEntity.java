@@ -59,8 +59,8 @@ public final class ShopVillagerEntity extends VillagerEntity {
     }
 
     private enum Type {
-        ITEM(new TranslatableText("menu.bedwars.item_shop").formatted(Formatting.BOLD)),
-        TEAM(new TranslatableText("menu.bedwars.team_shop").formatted(Formatting.BOLD));
+        ITEM(new TranslatableText("menu.bedwars.item_shop")),
+        TEAM(new TranslatableText("menu.bedwars.team_shop"));
 
         private final Text name;
 
