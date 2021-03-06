@@ -23,7 +23,7 @@ public final class BwTeamShop {
             BwActive.TeamState teamState = game.getTeam(participant.team);
             if (teamState != null) {
                 String baseTrapName = "base_trap";
-                Cost baseTrapCost = !teamState.trapSet ? Cost.ofDiamonds(1) : Cost.no();
+                Cost baseTrapCost = !teamState.trapSet ? Cost.ofDiamonds(totalCost(participant, game, 1F)) : Cost.no();
                 shop.add(ShopEntry.ofIcon(Items.REDSTONE_TORCH)
                         .withName(new TranslatableText("text.bedwars.shop.upgrade." + baseTrapName))
                         .addLore(new TranslatableText("text.bedwars.shop.upgrade." + baseTrapName + ".description"))
@@ -35,7 +35,7 @@ public final class BwTeamShop {
                 );
 
                 String healPoolName = "heal_pool";
-                Cost healPoolCost = !teamState.healPool ? Cost.ofDiamonds(3) : Cost.no();
+                Cost healPoolCost = !teamState.healPool ? Cost.ofDiamonds(totalCost(participant, game, 1.5F)) : Cost.no();
                 shop.add(ShopEntry.ofIcon(Blocks.BEACON)
                         .withName(new TranslatableText("text.bedwars.shop.upgrade." + healPoolName))
                         .addLore(new TranslatableText("text.bedwars.shop.upgrade." + healPoolName + ".description"))
@@ -47,7 +47,7 @@ public final class BwTeamShop {
                 );
 
                 String hasteName = "haste";
-                Cost hasteCost = !teamState.hasteEnabled ? Cost.ofDiamonds(3) : Cost.no();
+                Cost hasteCost = !teamState.hasteEnabled ? Cost.ofDiamonds(totalCost(participant, game, 1F)) : Cost.no();
                 shop.add(ShopEntry.ofIcon(Items.GOLDEN_PICKAXE)
                         .withName(new TranslatableText("text.bedwars.shop.upgrade." + hasteName))
                         .addLore(new TranslatableText("text.bedwars.shop.upgrade." + hasteName + ".description"))
@@ -62,7 +62,7 @@ public final class BwTeamShop {
                 int nextSharpness = Math.min(sharpness + 1, BwActive.TeamState.MAX_SHARPNESS);
 
                 String sharpnessName = "sharpness";
-                Cost sharpnessCost = sharpness != nextSharpness ? Cost.ofDiamonds(stagedUpgrade(4, sharpness)) : Cost.no();
+                Cost sharpnessCost = sharpness != nextSharpness ? Cost.ofDiamonds(totalCost(participant, game, stagedUpgrade(4, sharpness))) : Cost.no();
                 shop.add(ShopEntry.ofIcon(Items.DIAMOND_SWORD)
                         .withName(new TranslatableText("text.bedwars.shop.upgrade." + sharpnessName, new TranslatableText("enchantment.level." + nextSharpness)))
                         .addLore(new TranslatableText("text.bedwars.shop.upgrade." + sharpnessName + ".description", new TranslatableText("enchantment.level." + nextSharpness)))
@@ -78,7 +78,7 @@ public final class BwTeamShop {
                 int nextProtection = Math.min(protection + 1, BwActive.TeamState.MAX_PROTECTION);
 
                 String protectionName = "protection";
-                Cost protectionCost = protection != nextProtection ? Cost.ofDiamonds(stagedUpgrade(4, protection)) : Cost.no();
+                Cost protectionCost = protection != nextProtection ? Cost.ofDiamonds(totalCost(participant, game, stagedUpgrade(2, protection))) : Cost.no();
                 shop.add(ShopEntry.ofIcon(Items.DIAMOND_CHESTPLATE)
                         .withName(new TranslatableText("text.bedwars.shop.upgrade." + protectionName, new TranslatableText("enchantment.level." + nextProtection)))
                         .addLore(new TranslatableText("text.bedwars.shop.upgrade." + protectionName + ".description", new TranslatableText("enchantment.level." + nextProtection)))
@@ -97,7 +97,7 @@ public final class BwTeamShop {
                 int nextLevel = Math.min(level + 1, BwMap.TeamSpawn.MAX_LEVEL);
 
                 Text generatorName = new TranslatableText("text.bedwars.shop.upgrade.generator", new TranslatableText("enchantment.level." + teamSpawn.getLevel()));
-                Cost generatorCost = level != nextLevel ? Cost.ofDiamonds(stagedUpgrade(2, level)) : Cost.no();
+                Cost generatorCost = level != nextLevel ? Cost.ofDiamonds(totalCost(participant, game, stagedUpgrade(1, level))) : Cost.no();
                 shop.add(ShopEntry.ofIcon(Blocks.FURNACE)
                         .withName(generatorName)
                         .addLore(new TranslatableText("text.bedwars.shop.upgrade.generator.description"))
@@ -113,5 +113,8 @@ public final class BwTeamShop {
 
     private static int stagedUpgrade(int first, int level) {
         return MathHelper.floor(Math.pow(2, level) * first);
+    }
+    private static int totalCost(BwParticipant participant, BwActive game, float original) {
+        return (int) game.participantsFor(participant.team).count() <= 2 ? (int) original : (int) (original * 2);
     }
 }
