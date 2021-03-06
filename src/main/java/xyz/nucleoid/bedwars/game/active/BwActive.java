@@ -388,7 +388,7 @@ public final class BwActive {
             return ActionResult.PASS;
         }
 
-        player.sendMessage(new TranslatableText("message.bedwars.cannot_open_chest").formatted(Formatting.RED), true);
+        player.sendMessage(new TranslatableText("text.bedwars.cannot_open_chest").formatted(Formatting.RED), true);
 
         return ActionResult.FAIL;
     }
@@ -509,7 +509,7 @@ public final class BwActive {
                     this.teamLogic.removeBed(team);
                 }
 
-                players.sendMessage(new TranslatableText("message.bedwars.all_beds_destroyed").formatted(Formatting.RED));
+                players.sendMessage(new TranslatableText("text.bedwars.all_beds_destroyed").formatted(Formatting.RED));
                 players.sendSound(SoundEvents.BLOCK_END_PORTAL_SPAWN);
             }
         }

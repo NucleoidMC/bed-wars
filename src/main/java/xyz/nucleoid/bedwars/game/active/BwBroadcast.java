@@ -24,7 +24,7 @@ public final class BwBroadcast {
     public void broadcastTrapSetOff(BwActive.TeamState team) {
         MutablePlayerSet players = team.players;
 
-        players.sendMessage(new TranslatableText("message.bedwars.trap_set_off").formatted(Formatting.BOLD, Formatting.RED));
+        players.sendMessage(new TranslatableText("text.bedwars.trap_set_off").formatted(Formatting.BOLD, Formatting.RED));
         this.sendTitle(players, new TranslatableText("title.bedwars.trap_set_off").formatted(Formatting.RED), null);
         players.sendSound(SoundEvents.BLOCK_BELL_USE);
     }
@@ -37,10 +37,10 @@ public final class BwBroadcast {
         GameTeam winningTeam = winResult.getTeam();
         if (winningTeam != null) {
             this.game.players().sendMessage(
-                    new TranslatableText("message.bedwars.team_win", winningTeam.getDisplay()).formatted(winningTeam.getFormatting(), Formatting.BOLD)
+                    new TranslatableText("text.bedwars.team_win", winningTeam.getDisplay()).formatted(winningTeam.getFormatting(), Formatting.BOLD)
             );
         } else {
-            this.game.players().sendMessage(new TranslatableText("message.bedwars.draw").formatted(Formatting.BOLD));
+            this.game.players().sendMessage(new TranslatableText("text.bedwars.draw").formatted(Formatting.BOLD));
         }
     }
 
@@ -49,21 +49,21 @@ public final class BwBroadcast {
         MutableText announcement;
 
         if (killer == null) {
-            announcement = new TranslatableText("message.bedwars.player_death", player.getDisplayName().shallowCopy()).formatted(Formatting.GRAY);
+            announcement = new TranslatableText("text.bedwars.player_death", player.getDisplayName().shallowCopy()).formatted(Formatting.GRAY);
         }
         else {
-            announcement = new TranslatableText("message.bedwars.player_kill", player.getDisplayName().shallowCopy(), killer.getDisplayName()).formatted(Formatting.GRAY);
+            announcement = new TranslatableText("text.bedwars.player_kill", player.getDisplayName().shallowCopy(), killer.getDisplayName()).formatted(Formatting.GRAY);
         }
 
         if (eliminated) {
-            announcement = announcement.append(new TranslatableText("message.bedwars.player_eliminated").formatted(Formatting.GRAY));
+            announcement = announcement.append(new TranslatableText("text.bedwars.player_eliminated").formatted(Formatting.GRAY));
         }
 
         this.game.players().sendMessage(announcement);
     }
 
     public void broadcastBedBroken(ServerPlayerEntity player, GameTeam bedTeam, @Nullable GameTeam destroyerTeam) {
-        Text announcement = new TranslatableText("message.bedwars.bed_destroyed", new LiteralText(bedTeam.getDisplay()).formatted(bedTeam.getFormatting()), player.getDisplayName().shallowCopy().formatted(destroyerTeam != null ? destroyerTeam.getFormatting() : Formatting.OBFUSCATED)).formatted(Formatting.GRAY);
+        Text announcement = new TranslatableText("text.bedwars.bed_destroyed", new LiteralText(bedTeam.getDisplay()).formatted(bedTeam.getFormatting()), player.getDisplayName().shallowCopy().formatted(destroyerTeam != null ? destroyerTeam.getFormatting() : Formatting.OBFUSCATED)).formatted(Formatting.GRAY);
 
         PlayerSet players = this.game.players();
         players.sendMessage(announcement);
@@ -71,7 +71,7 @@ public final class BwBroadcast {
 
         PlayerSet teamPlayers = this.game.playersFor(bedTeam);
 
-        teamPlayers.sendMessage(new TranslatableText("message.bedwars.cannot_respawn").formatted(Formatting.RED));
+        teamPlayers.sendMessage(new TranslatableText("text.bedwars.cannot_respawn").formatted(Formatting.RED));
 
         this.sendTitle(
                 teamPlayers,
@@ -82,7 +82,7 @@ public final class BwBroadcast {
 
     public void broadcastTeamEliminated(GameTeam team) {
         this.game.playersFor(team).sendMessage(
-                new TranslatableText("message.bedwars.team_eliminated", new LiteralText(team.getDisplay()).formatted(team.getFormatting())).formatted(Formatting.BOLD)
+                new TranslatableText("text.bedwars.team_eliminated", new LiteralText(team.getDisplay()).formatted(team.getFormatting())).formatted(Formatting.BOLD)
         );
     }
 
