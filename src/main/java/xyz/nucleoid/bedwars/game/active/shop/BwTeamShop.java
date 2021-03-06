@@ -25,7 +25,7 @@ public final class BwTeamShop {
 			GameTeam team = participant.team;
 			if (teamState != null) {
 				String baseTrapName = "base_trap";
-				Cost baseTrapCost = !teamState.trapSet ? Cost.ofDiamonds(teamScaledCost(game, team, 1F)) : Cost.no();
+				Cost baseTrapCost = !teamState.trapSet ? Cost.ofDiamonds(teamScaledCost(game, team, 1D)) : Cost.no();
 				shop.add(ShopEntry.ofIcon(Items.REDSTONE_TORCH)
 						.withName(new TranslatableText("text.bedwars.shop.upgrade." + baseTrapName))
 						.addLore(new TranslatableText("text.bedwars.shop.upgrade." + baseTrapName + ".description"))
@@ -37,7 +37,7 @@ public final class BwTeamShop {
 				);
 
 				String healPoolName = "heal_pool";
-				Cost healPoolCost = !teamState.healPool ? Cost.ofDiamonds(teamScaledCost(game, team, 1.5F)) : Cost.no();
+				Cost healPoolCost = !teamState.healPool ? Cost.ofDiamonds(teamScaledCost(game, team, 1.5D)) : Cost.no();
 				shop.add(ShopEntry.ofIcon(Blocks.BEACON)
 						.withName(new TranslatableText("text.bedwars.shop.upgrade." + healPoolName))
 						.addLore(new TranslatableText("text.bedwars.shop.upgrade." + healPoolName + ".description"))
@@ -49,7 +49,7 @@ public final class BwTeamShop {
 				);
 
 				String hasteName = "haste";
-				Cost hasteCost = !teamState.hasteEnabled ? Cost.ofDiamonds(teamScaledCost(game, team, 1F)) : Cost.no();
+				Cost hasteCost = !teamState.hasteEnabled ? Cost.ofDiamonds(teamScaledCost(game, team, 1D)) : Cost.no();
 				shop.add(ShopEntry.ofIcon(Items.GOLDEN_PICKAXE)
 						.withName(new TranslatableText("text.bedwars.shop.upgrade." + hasteName))
 						.addLore(new TranslatableText("text.bedwars.shop.upgrade." + hasteName + ".description"))
@@ -117,8 +117,7 @@ public final class BwTeamShop {
 		return MathHelper.floor(Math.pow(2, level) * first);
 	}
 
-	private static int teamScaledCost(BwActive game, GameTeam team, float original) {
-		//return (int) game.participantsFor(participant.team).count() <= 2 ? (int) original : (int) (original * 2);
+	private static int teamScaledCost(BwActive game, GameTeam team, double original) {
         return game.playersFor(team).size() <= 2 ? (int) original : (int) (original * 2);
 	}
 }
