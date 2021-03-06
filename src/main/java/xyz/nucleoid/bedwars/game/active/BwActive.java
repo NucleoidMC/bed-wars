@@ -23,6 +23,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -139,8 +140,10 @@ public final class BwActive {
             game.setRule(GameRule.FALL_DAMAGE, RuleResult.ALLOW);
             game.setRule(GameRule.HUNGER, RuleResult.DENY);
             game.setRule(GameRule.TEAM_CHAT, RuleResult.ALLOW);
+            game.setRule(GameRule.TRIDENTS_LOYAL_IN_VOID, RuleResult.ALLOW);
             game.setRule(BedWars.BLAST_PROOF_GLASS_RULE, RuleResult.ALLOW);
-            game.setRule(BedWars.TRIDENTS_LOYAL_IN_VOID, RuleResult.ALLOW);
+            game.setRule(BedWars.LEAVES_DROP_GOLDEN_APPLES, RuleResult.ALLOW);
+            game.setRule(BedWars.FAST_TREE_GROWTH, RuleResult.ALLOW);
 
             game.on(GameOpenListener.EVENT, active::onOpen);
 
@@ -385,7 +388,7 @@ public final class BwActive {
             return ActionResult.PASS;
         }
 
-        player.sendMessage(new LiteralText("You cannot access this team's chest!").formatted(Formatting.RED), true);
+        player.sendMessage(new TranslatableText("text.bedwars.cannot_open_chest").formatted(Formatting.RED), true);
 
         return ActionResult.FAIL;
     }
@@ -506,7 +509,7 @@ public final class BwActive {
                     this.teamLogic.removeBed(team);
                 }
 
-                players.sendMessage(new LiteralText("Destroyed all beds!").formatted(Formatting.RED));
+                players.sendMessage(new TranslatableText("text.bedwars.all_beds_destroyed").formatted(Formatting.RED));
                 players.sendSound(SoundEvents.BLOCK_END_PORTAL_SPAWN);
             }
         }

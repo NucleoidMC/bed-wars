@@ -1,5 +1,7 @@
 package xyz.nucleoid.bedwars.custom;
 
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Formatting;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.active.shop.BwItemShop;
 import xyz.nucleoid.bedwars.game.active.shop.BwTeamShop;
@@ -57,8 +59,8 @@ public final class ShopVillagerEntity extends VillagerEntity {
     }
 
     private enum Type {
-        ITEM(new LiteralText("Item Shop")),
-        TEAM(new LiteralText("Team Shop"));
+        ITEM(new TranslatableText("text.bedwars.shop.type.item")),
+        TEAM(new TranslatableText("text.bedwars.shop.type.team"));
 
         private final Text name;
 

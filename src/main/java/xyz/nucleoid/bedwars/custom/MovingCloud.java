@@ -15,6 +15,8 @@ public final class MovingCloud {
     private static final int PAUSE_TICKS = 2 * 20;
     private static final int STOP_TICKS = 5 * 20;
 
+    private static final int MAX_AGE = 20 * 60;
+
     private final ServerWorld world;
     private Vec3d pos;
     private final Vec3d movePerTick;
@@ -40,7 +42,14 @@ public final class MovingCloud {
             this.updatePlatform(new BlockPos(this.pos));
         }
 
-        if (this.ticks++ % 2 == 0) {
+        if (this.ticks++ >= MAX_AGE) {
+            if (this.lastBlockPos != null) {
+                this.removePlatform(this.lastBlockPos);
+            }
+            return true;
+        }
+
+        if (this.ticks % 2 == 0) {
             this.spawnParticles();
         }
 

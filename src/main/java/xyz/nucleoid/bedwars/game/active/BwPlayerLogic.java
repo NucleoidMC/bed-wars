@@ -1,6 +1,7 @@
 package xyz.nucleoid.bedwars.game.active;
 
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
+import net.minecraft.text.TranslatableText;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.plasmid.util.ItemUtil;
 import net.minecraft.enchantment.Enchantment;
@@ -118,7 +119,7 @@ public final class BwPlayerLogic {
         BwParticipant participant = this.game.getParticipant(player);
         if (participant != null) {
             participant.startRespawning(spawn);
-            player.sendMessage(new LiteralText("You will respawn in " + BwActive.RESPAWN_TIME_SECONDS + " seconds..").formatted(Formatting.BOLD), false);
+            player.sendMessage(new TranslatableText("text.bedwars.respawn_cooldown", BwActive.RESPAWN_TIME_SECONDS).formatted(Formatting.BOLD), false);
         }
     }
 }
