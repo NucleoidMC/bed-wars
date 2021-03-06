@@ -42,9 +42,9 @@ public final class BwItemShop {
     private static void addNavbar(ShopBuilder shop, ServerPlayerEntity player, BwActive game, int pageIndex) {
         addNavigationEntry(shop, player, game, Items.END_STONE, "blocks", pageIndex == 1, BwItemShop::createBlocks);
         addNavigationEntry(shop, player, game, Items.IRON_SWORD, "melee", pageIndex == 2, BwItemShop::createMelee);
-        addNavigationEntry(shop, player, game, Items.BOW, "archery", pageIndex == 3, BwItemShop::createArchery);
+        addNavigationEntry(shop, player, game, Items.IRON_CHESTPLATE, "armor", pageIndex == 3, BwItemShop::createArmor);
         addNavigationEntry(shop, player, game, Items.IRON_PICKAXE, "tools", pageIndex == 4, BwItemShop::createTools);
-        addNavigationEntry(shop, player, game, Items.IRON_CHESTPLATE, "armor", pageIndex == 5, BwItemShop::createArmor);
+        addNavigationEntry(shop, player, game, Items.BOW, "archery", pageIndex == 5, BwItemShop::createArchery);
         addNavigationEntry(shop, player, game, Items.POTION, "utils", pageIndex == 6, BwItemShop::createUtils);
         shop.nextRow();
     }
@@ -137,14 +137,16 @@ public final class BwItemShop {
         });
     }
 
-    private static ShopUi createArchery(ServerPlayerEntity player, BwActive game) {
-        return ShopUi.create(new TranslatableText("text.bedwars.shop.category.archery"), shop -> {
-            addNavbar(shop, player, game, 3);
+    private static ShopUi createArmor(ServerPlayerEntity player, BwActive game) {
+        return ShopUi.create(new TranslatableText("text.bedwars.shop.category.armor"), shop -> {
+            BwParticipant participant = game.getParticipant(player);
+            if (participant != null) {
+                addNavbar(shop, player, game, 3);
 
-            shop.addItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().build(), Cost.ofGold(12));
-            shop.addItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().addEnchantment(Enchantments.POWER, 2).build(), Cost.ofGold(24));
-            shop.addItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().addEnchantment(Enchantments.PUNCH, 1).build(), Cost.ofEmeralds(6));
-            shop.addItem(new ItemStack(Items.ARROW, 8), Cost.ofGold(2));
+                PlayerUpgrades upgrades = participant.upgrades;
+                addUpgrade(shop, upgrades, UpgradeType.ARMOR, "armor");
+                shop.addItem(ItemStackBuilder.of(Items.SHIELD).setUnbreakable().build(), Cost.ofGold(10));
+            }
         });
     }
 
@@ -162,16 +164,14 @@ public final class BwItemShop {
         });
     }
 
-    private static ShopUi createArmor(ServerPlayerEntity player, BwActive game) {
-        return ShopUi.create(new TranslatableText("text.bedwars.shop.category.armor"), shop -> {
-            BwParticipant participant = game.getParticipant(player);
-            if (participant != null) {
-                addNavbar(shop, player, game, 5);
+    private static ShopUi createArchery(ServerPlayerEntity player, BwActive game) {
+        return ShopUi.create(new TranslatableText("text.bedwars.shop.category.archery"), shop -> {
+            addNavbar(shop, player, game, 5);
 
-                PlayerUpgrades upgrades = participant.upgrades;
-                addUpgrade(shop, upgrades, UpgradeType.ARMOR, "armor");
-                shop.addItem(ItemStackBuilder.of(Items.SHIELD).setUnbreakable().build(), Cost.ofGold(10));
-            }
+            shop.addItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().build(), Cost.ofGold(12));
+            shop.addItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().addEnchantment(Enchantments.POWER, 2).build(), Cost.ofGold(24));
+            shop.addItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().addEnchantment(Enchantments.PUNCH, 1).build(), Cost.ofEmeralds(6));
+            shop.addItem(new ItemStack(Items.ARROW, 8), Cost.ofGold(2));
         });
     }
 

@@ -46,12 +46,9 @@ public final class BwBroadcast {
 
     public void broadcastDeath(ServerPlayerEntity player, ServerPlayerEntity killer, DamageSource source, boolean eliminated) {
         // TODO: we can do more specific messages in the future
-        MutableText announcement;
+        MutableText announcement = new TranslatableText("text.bedwars.player_death", player.getDisplayName().shallowCopy()).formatted(Formatting.GRAY);
 
-        if (killer == null) {
-            announcement = new TranslatableText("text.bedwars.player_death", player.getDisplayName().shallowCopy()).formatted(Formatting.GRAY);
-        }
-        else {
+        if (killer != null) {
             announcement = new TranslatableText("text.bedwars.player_kill", player.getDisplayName().shallowCopy(), killer.getDisplayName()).formatted(Formatting.GRAY);
         }
 
