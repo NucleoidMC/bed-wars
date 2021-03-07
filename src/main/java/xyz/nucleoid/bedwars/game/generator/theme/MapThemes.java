@@ -1,13 +1,12 @@
 package xyz.nucleoid.bedwars.game.generator.theme;
 
 import com.mojang.serialization.Codec;
-import xyz.nucleoid.bedwars.BedWars;
-
 import net.minecraft.util.Identifier;
+import xyz.nucleoid.bedwars.BedWars;
 
 public final class MapThemes {
 	public static void register() {
-		register("default", DefaultMapTheme.CODEC);
+		register("plains", PlainsMapTheme.CODEC);
 		register("desert", DesertMapTheme.CODEC);
 		register("forest", ForestMapTheme.CODEC);
 		register("aspen_forest", AspenForestMapTheme.CODEC);

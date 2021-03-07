@@ -2,7 +2,6 @@ package xyz.nucleoid.bedwars.game.generator;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.biome.BiomeKeys;
 import xyz.nucleoid.bedwars.game.BwConfig;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.generator.island.BwCenterIsland;
@@ -35,18 +34,19 @@ public final class BwSkyMapBuilder {
         List<BwTeamIsland> teamIslands = this.buildTeamIslands();
 
         Random random = new Random();
+        long seed = random.nextLong();
 
-        centerIsland.addTo(map, template, random.nextLong());
+        centerIsland.addTo(map, template, seed, this.config.teams.size(), this.skyConfig.emeraldSpawnerDistance);
 
         for (BwDiamondIsland diamondIsland : diamondIslands) {
-            diamondIsland.addTo(map, template, random.nextLong());
+            diamondIsland.addTo(map, template, seed);
         }
 
         for (BwTeamIsland teamIsland : teamIslands) {
             teamIsland.addTo(this.skyConfig, map, template);
         }
 
-        this.addSmallIslands(template, random);
+        this.addSmallIslands(template, random, seed);
 
         template.setBiome(this.skyConfig.theme.getFakingBiome());
 
@@ -93,7 +93,7 @@ public final class BwSkyMapBuilder {
         return teamIslands;
     }
 
-    private void addSmallIslands(MapTemplate template, Random random) {
+    private void addSmallIslands(MapTemplate template, Random random, long seed) {
         for (int i = 0; i < this.skyConfig.smallIslandCount; i++) {
             int x = random.nextInt(this.skyConfig.smallIslandHorizontalSpread) - random.nextInt(this.skyConfig.smallIslandHorizontalSpread);
             int y = random.nextInt(this.skyConfig.smallIslandVerticalSpread) - random.nextInt(this.skyConfig.smallIslandVerticalSpread);
@@ -103,8 +103,6 @@ public final class BwSkyMapBuilder {
             if (Math.abs(x) < this.skyConfig.smallIslandCutoff && Math.abs(z) < this.skyConfig.smallIslandCutoff) {
                 continue;
             }
-
-            long seed = random.nextLong();
 
             // Add symmetrical islands
             NoiseIslandConfig smallIsland = this.skyConfig.smallIslandGenerator;

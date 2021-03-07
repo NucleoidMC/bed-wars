@@ -2,7 +2,6 @@ package xyz.nucleoid.bedwars.game.generator.island;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.world.Heightmap;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.plasmid.map.template.MapTemplate;
@@ -17,21 +16,22 @@ public final class BwCenterIsland {
         this.origin = origin;
     }
 
-    public void addTo(BwMap map, MapTemplate template, long seed) {
+    public void addTo(BwMap map, MapTemplate template, long seed, int teamAmount, double emeraldDistance) {
         NoiseIslandGenerator generator = this.config.createGenerator(this.origin, seed);
         generator.addTo(template);
 
-        // TODO: scale with team count
-        Direction[] horizontals = new Direction[] { Direction.NORTH, Direction.WEST, Direction.SOUTH, Direction.EAST };
+        for (int i = 0; i < teamAmount; i++) {
+            double theta = ((double) i / teamAmount) * (2 * Math.PI);
+            double x = Math.cos(theta) * emeraldDistance;
+            double z = Math.sin(theta) * emeraldDistance;
 
-        for (Direction horizontal : horizontals) {
-            this.addEmeraldSpawn(map, template, this.origin.offset(horizontal, 8));
+            this.addEmeraldSpawner(map, template, this.origin.add(x, 0, z));
         }
 
         this.addCenterSpawn(map, template);
     }
 
-    private void addEmeraldSpawn(BwMap map, MapTemplate template, BlockPos pos) {
+    private void addEmeraldSpawner(BwMap map, MapTemplate template, BlockPos pos) {
         BlockPos surfacePos = template.getTopPos(pos.getX(), pos.getZ(), Heightmap.Type.WORLD_SURFACE_WG);
 
         template.setBlockState(surfacePos, Blocks.EMERALD_BLOCK.getDefaultState());
