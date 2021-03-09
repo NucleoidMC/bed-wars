@@ -13,6 +13,7 @@ public final class BwSkyMapConfig {
             NoiseIslandConfig.CODEC.fieldOf("small_island_generator").forGetter(generator -> generator.smallIslandGenerator),
             Codec.DOUBLE.fieldOf("spawn_island_distance").forGetter(generator -> generator.spawnIslandDistance),
             Codec.DOUBLE.fieldOf("diamond_island_distance").forGetter(generator -> generator.diamondIslandDistance),
+            Codec.DOUBLE.fieldOf("emerald_spawner_distance").forGetter(generator -> generator.diamondIslandDistance),
             Codec.INT.fieldOf("small_island_count").forGetter(generator -> generator.smallIslandCount),
             Codec.INT.fieldOf("small_island_horizontal_spread").forGetter(generator -> generator.smallIslandHorizontalSpread),
             Codec.INT.fieldOf("small_island_vertical_spread").forGetter(generator -> generator.smallIslandVerticalSpread),
@@ -25,18 +26,20 @@ public final class BwSkyMapConfig {
     public final NoiseIslandConfig smallIslandGenerator;
     public final double spawnIslandDistance;
     public final double diamondIslandDistance;
+    public final double emeraldSpawnerDistance;
     public final int smallIslandCount;
     public final int smallIslandHorizontalSpread;
     public final int smallIslandVerticalSpread;
     public final int smallIslandCutoff;
 
-    private BwSkyMapConfig(MapTheme theme, NoiseIslandConfig diamondGenerator, NoiseIslandConfig centerGenerator, NoiseIslandConfig smallIslandGenerator, double spawnIslandDistance, double diamondIslandDistance, int smallIslandCount, int smallIslandHorizontalSpread, int smallIslandVerticalSpread, int smallIslandCutoff) {
+    private BwSkyMapConfig(MapTheme theme, NoiseIslandConfig diamondGenerator, NoiseIslandConfig centerGenerator, NoiseIslandConfig smallIslandGenerator, double spawnIslandDistance, double diamondIslandDistance, double emeraldSpawnerDistance, int smallIslandCount, int smallIslandHorizontalSpread, int smallIslandVerticalSpread, int smallIslandCutoff) {
         this.theme = theme;
         this.diamondGenerator = diamondGenerator;
         this.centerGenerator = centerGenerator;
         this.smallIslandGenerator = smallIslandGenerator;
         this.spawnIslandDistance = spawnIslandDistance;
         this.diamondIslandDistance = diamondIslandDistance;
+        this.emeraldSpawnerDistance = emeraldSpawnerDistance;
         this.smallIslandCount = smallIslandCount;
         this.smallIslandHorizontalSpread = smallIslandHorizontalSpread;
         this.smallIslandVerticalSpread = smallIslandVerticalSpread;
