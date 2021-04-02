@@ -3,7 +3,7 @@
   "translation": "game.bedwars.eight_teams.beach",
   "map": "bedwars:beach",
   "players": {
-    "min": 4,
+    "min": 2,
     "max": 16,
     "threshold": 4
   },
