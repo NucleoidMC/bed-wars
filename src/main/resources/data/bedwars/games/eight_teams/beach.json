@@ -1,0 +1,24 @@
+{
+  "type": "bedwars:bed_wars",
+  "translation": "game.bedwars.eight_teams.beach",
+  "map": "bedwars:beach",
+  "players": {
+    "min": 4,
+    "max": 16,
+    "threshold": 4
+  },
+  "keep_inventory": false,
+  "combat": {
+    "old_mechanics": false
+  },
+  "teams": [
+    {"key": "dark_blue", "display": "Blue", "color": "blue"},
+    {"key": "light_blue", "display": "Light Blue", "color": "cyan"},
+    {"key": "green", "display": "Green", "color": "green"},
+    {"key": "lime", "display": "Lime", "color": "lime"},
+    {"key": "yellow", "display": "Yellow", "color": "yellow"},
+    {"key": "orange", "display": "Orange", "color": "orange"},
+    {"key": "red", "display": "Red", "color": "red"},
+    {"key": "purple", "display": "Purple", "color": "purple"}
+  ]
+}
