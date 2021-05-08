@@ -19,8 +19,8 @@ public final class ItemGeneratorPool {
             .spawnInterval(24);
 
     public static final ItemGeneratorPool TEAM_LVL_3 = new ItemGeneratorPool()
-            .add(new ItemStack(Items.IRON_INGOT, 2), 36)
-            .add(new ItemStack(Items.IRON_INGOT, 4), 18)
+            .add(new ItemStack(Items.IRON_INGOT, 1), 36)
+            .add(new ItemStack(Items.IRON_INGOT, 2), 18)
             .add(new ItemStack(Items.GOLD_INGOT, 1), 9)
             .add(new ItemStack(Items.GOLD_INGOT, 2), 3)
             .add(new ItemStack(Items.EMERALD, 1), 1)
