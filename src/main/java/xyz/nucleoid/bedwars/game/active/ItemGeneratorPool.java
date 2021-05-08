@@ -8,19 +8,19 @@ import java.util.Random;
 
 public final class ItemGeneratorPool {
     public static final ItemGeneratorPool TEAM_LVL_1 = new ItemGeneratorPool()
-            .add(new ItemStack(Items.IRON_INGOT, 1), 10)
+            .add(new ItemStack(Items.IRON_INGOT, 2), 10)
             .add(new ItemStack(Items.GOLD_INGOT, 1), 2)
             .spawnInterval(34);
 
     public static final ItemGeneratorPool TEAM_LVL_2 = new ItemGeneratorPool()
-            .add(new ItemStack(Items.IRON_INGOT, 1), 10)
-            .add(new ItemStack(Items.IRON_INGOT, 2), 3)
+            .add(new ItemStack(Items.IRON_INGOT, 2), 10)
+            .add(new ItemStack(Items.IRON_INGOT, 4), 3)
             .add(new ItemStack(Items.GOLD_INGOT, 1), 3)
             .spawnInterval(30);
 
     public static final ItemGeneratorPool TEAM_LVL_3 = new ItemGeneratorPool()
-            .add(new ItemStack(Items.IRON_INGOT, 1), 36)
-            .add(new ItemStack(Items.IRON_INGOT, 2), 18)
+            .add(new ItemStack(Items.IRON_INGOT, 2), 36)
+            .add(new ItemStack(Items.IRON_INGOT, 4), 18)
             .add(new ItemStack(Items.GOLD_INGOT, 1), 9)
             .add(new ItemStack(Items.GOLD_INGOT, 2), 3)
             .add(new ItemStack(Items.EMERALD, 1), 1)
