@@ -1,22 +1,19 @@
 package xyz.nucleoid.bedwars.custom;
 
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
-import xyz.nucleoid.bedwars.game.active.BwActive;
-import xyz.nucleoid.bedwars.game.active.shop.BwItemShop;
-import xyz.nucleoid.bedwars.game.active.shop.BwTeamShop;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
-
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.bedwars.game.active.BwActive;
+import xyz.nucleoid.bedwars.game.active.shop.BwItemShop;
+import xyz.nucleoid.bedwars.game.active.shop.BwTeamShop;
 
 public final class ShopVillagerEntity extends VillagerEntity {
     private final BwActive game;
@@ -45,9 +42,11 @@ public final class ShopVillagerEntity extends VillagerEntity {
     @Override
     public ActionResult interactMob(PlayerEntity player, Hand hand) {
         if (this.type == Type.ITEM) {
-            player.openHandledScreen(BwItemShop.create((ServerPlayerEntity) player, this.game));
+            var ui = BwItemShop.create((ServerPlayerEntity) player, this.game);
+            ui.open();
         } else if (this.type == Type.TEAM) {
-            player.openHandledScreen(BwTeamShop.create((ServerPlayerEntity) player, this.game));
+            var ui = BwTeamShop.create((ServerPlayerEntity) player, this.game);
+            ui.open();
         }
         return ActionResult.SUCCESS;
     }

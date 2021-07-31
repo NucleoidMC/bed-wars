@@ -20,10 +20,10 @@ import xyz.nucleoid.bedwars.custom.ShopVillagerEntity;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.active.BwItemGenerator;
 import xyz.nucleoid.bedwars.game.active.ItemGeneratorPool;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
-import xyz.nucleoid.plasmid.map.template.MapTemplateMetadata;
-import xyz.nucleoid.plasmid.map.template.TemplateRegion;
-import xyz.nucleoid.plasmid.util.BlockBounds;
+import xyz.nucleoid.map_templates.BlockBounds;
+import xyz.nucleoid.map_templates.MapTemplateMetadata;
+import xyz.nucleoid.map_templates.TemplateRegion;
+import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -77,7 +77,7 @@ public final class BwMap {
             this.teamSpawns.put(team, teamSpawn);
             this.itemGenerators.add(teamSpawn.generator);
         } else {
-            BedWars.LOGGER.warn("Missing spawn for {}", team.getKey());
+            BedWars.LOGGER.warn("Missing spawn for {}", team.key());
         }
     }
 
@@ -100,28 +100,28 @@ public final class BwMap {
     }
 
     public void spawnShopkeepers(ServerWorld world, BwActive game, BwConfig config) {
-        for (GameTeam team : config.teams) {
+        for (GameTeam team : config.teams()) {
             TeamRegions regions = this.getTeamRegions(team);
 
             if (regions.teamShop != null) {
                 this.trySpawnEntity(ShopVillagerEntity.team(world, game), regions.teamShop, regions.teamShopDirection);
             } else {
-                BedWars.LOGGER.warn("Missing team shop for {}", team.getDisplay());
+                BedWars.LOGGER.warn("Missing team shop for {}", team.display());
             }
 
             if (regions.itemShop != null) {
                 this.trySpawnEntity(ShopVillagerEntity.item(world, game), regions.itemShop, regions.itemShopDirection);
             } else {
-                BedWars.LOGGER.warn("Missing item shop for {}", team.getDisplay());
+                BedWars.LOGGER.warn("Missing item shop for {}", team.display());
             }
         }
     }
 
     private void trySpawnEntity(Entity entity, BlockBounds bounds, Direction direction) {
-        Vec3d center = bounds.getCenter();
+        Vec3d center = bounds.center();
 
         float yaw = direction.asRotation();
-        entity.refreshPositionAndAngles(center.x, bounds.getMin().getY(), center.z, yaw, 0.0F);
+        entity.refreshPositionAndAngles(center.x, bounds.min().getY(), center.z, yaw, 0.0F);
 
         if (entity instanceof MobEntity) {
             MobEntity mob = (MobEntity) entity;
@@ -169,8 +169,8 @@ public final class BwMap {
         return true;
     }
 
-    public BlockPos getCenterSpawn() {
-        return this.centerSpawn;
+    public Vec3d getCenterSpawn() {
+        return Vec3d.ofBottomCenter(this.centerSpawn);
     }
 
     public ChunkGenerator getChunkGenerator() {
@@ -196,7 +196,7 @@ public final class BwMap {
         public void placePlayer(ServerPlayerEntity player, ServerWorld world) {
             player.fallDistance = 0.0F;
 
-            Vec3d center = this.region.getCenter();
+            Vec3d center = this.region.center();
             player.teleport(world, center.x, center.y + 0.5, center.z, 0.0F, 0.0F);
         }
 
@@ -221,31 +221,18 @@ public final class BwMap {
         }
     }
 
-    public static class TeamRegions {
+    public record TeamRegions(
+            BlockBounds spawn, BlockBounds bed,
+            BlockBounds base, BlockBounds teamChest,
+            BlockBounds itemShop,
+            BlockBounds teamShop,
+            Direction itemShopDirection,
+            Direction teamShopDirection
+    ) {
         public static final TeamRegions EMPTY = new TeamRegions(null, null, null, null, null, null, Direction.NORTH, Direction.NORTH);
 
-        public final BlockBounds base;
-        public final BlockBounds spawn;
-        public final BlockBounds bed;
-        public final BlockBounds itemShop;
-        public final BlockBounds teamShop;
-        public final BlockBounds teamChest;
-        public final Direction itemShopDirection;
-        public final Direction teamShopDirection;
-
-        public TeamRegions(BlockBounds spawn, BlockBounds bed, BlockBounds base, BlockBounds teamChest, BlockBounds itemShop, BlockBounds teamShop, Direction itemShopDirection, Direction teamShopDirection) {
-            this.spawn = spawn;
-            this.bed = bed;
-            this.base = base;
-            this.teamChest = teamChest;
-            this.itemShop = itemShop;
-            this.teamShop = teamShop;
-            this.itemShopDirection = itemShopDirection;
-            this.teamShopDirection = teamShopDirection;
-        }
-
         public static TeamRegions fromTemplate(GameTeam team, MapTemplateMetadata metadata) {
-            String teamKey = team.getKey();
+            String teamKey = team.key();
 
             BlockBounds base = metadata.getFirstRegionBounds(teamKey + "_base");
             BlockBounds spawn = metadata.getFirstRegionBounds(teamKey + "_spawn");
@@ -268,7 +255,7 @@ public final class BwMap {
                 teamShopDirection = getDirectionForRegion(teamShopRegion);
             }
 
-            return new TeamRegions(spawn, bed, base,  teamChest, itemShop, teamShop,itemShopDirection, teamShopDirection);
+            return new TeamRegions(spawn, bed, base, teamChest, itemShop, teamShop, itemShopDirection, teamShopDirection);
         }
 
         private static Direction getDirectionForRegion(TemplateRegion region) {

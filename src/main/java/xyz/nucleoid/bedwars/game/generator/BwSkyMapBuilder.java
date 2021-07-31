@@ -8,8 +8,8 @@ import xyz.nucleoid.bedwars.game.generator.island.BwCenterIsland;
 import xyz.nucleoid.bedwars.game.generator.island.BwDiamondIsland;
 import xyz.nucleoid.bedwars.game.generator.island.BwTeamIsland;
 import xyz.nucleoid.bedwars.game.generator.island.NoiseIslandConfig;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
-import xyz.nucleoid.plasmid.map.template.MapTemplate;
+import xyz.nucleoid.map_templates.MapTemplate;
+import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ public final class BwSkyMapBuilder {
         Random random = new Random();
         long seed = random.nextLong();
 
-        centerIsland.addTo(map, template, seed, this.config.teams.size(), this.skyConfig.emeraldSpawnerDistance);
+        centerIsland.addTo(map, template, seed, this.config.teams().size(), this.skyConfig.emeraldSpawnerDistance);
 
         for (BwDiamondIsland diamondIsland : diamondIslands) {
             diamondIsland.addTo(map, template, seed);
@@ -78,7 +78,7 @@ public final class BwSkyMapBuilder {
     private List<BwTeamIsland> buildTeamIslands() {
         List<BwTeamIsland> teamIslands = new ArrayList<>();
 
-        List<GameTeam> teams = this.config.teams;
+        List<GameTeam> teams = this.config.teams();
         for (int i = 0; i < teams.size(); i++) {
             GameTeam team = teams.get(i);
 

@@ -1,15 +1,15 @@
 package xyz.nucleoid.bedwars.game.active;
 
-import xyz.nucleoid.bedwars.game.BwMap;
-import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
-import xyz.nucleoid.plasmid.util.BlockBounds;
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.bedwars.game.BwMap;
+import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
+import xyz.nucleoid.map_templates.BlockBounds;
+import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 
 public final class BwTeamLogic {
     private final BwActive game;
@@ -67,11 +67,11 @@ public final class BwTeamLogic {
 
         teamState.hasBed = false;
 
-        BlockBounds bed = this.game.map.getTeamRegions(team).bed;
+        BlockBounds bed = this.game.map.getTeamRegions(team).bed();
 
         ServerWorld world = this.game.world;
         bed.forEach(p -> {
-            world.setBlockState(p, Blocks.AIR.getDefaultState(), 0b100010);
+            world.setBlockState(p, Blocks.AIR.getDefaultState(), Block.NOTIFY_LISTENERS | Block.SKIP_DROPS);
         });
 
         this.game.triggerModifiers(BwGameTriggers.BED_BROKEN);
@@ -79,9 +79,9 @@ public final class BwTeamLogic {
 
     @Nullable
     private Bed findBed(BlockPos pos) {
-        for (GameTeam team : this.game.config.teams) {
+        for (GameTeam team : this.game.config.teams()) {
             BwMap.TeamRegions teamRegions = this.game.map.getTeamRegions(team);
-            BlockBounds bed = teamRegions.bed;
+            BlockBounds bed = teamRegions.bed();
             if (bed != null && bed.contains(pos)) {
                 return new Bed(team, bed);
             }

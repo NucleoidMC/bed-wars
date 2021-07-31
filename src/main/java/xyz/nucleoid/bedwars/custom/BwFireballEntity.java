@@ -9,8 +9,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 
 public final class BwFireballEntity extends FireballEntity {
-    public BwFireballEntity(World world, LivingEntity owner, double velocityX, double velocityY, double velocityZ) {
-        super(world, owner, velocityX, velocityY, velocityZ);
+    public BwFireballEntity(World world, LivingEntity owner, double velocityX, double velocityY, double velocityZ, int explosionPower) {
+        super(world, owner, velocityX, velocityY, velocityZ, explosionPower);
     }
 
     @Override
@@ -28,7 +28,7 @@ public final class BwFireballEntity extends FireballEntity {
                     Explosion.DestructionType.DESTROY
             );
 
-            this.remove();
+            this.remove(RemovalReason.DISCARDED);
         }
     }
 

@@ -1,23 +1,18 @@
 package xyz.nucleoid.bedwars.game.generator;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.Heightmap;
-import net.minecraft.world.biome.BuiltinBiomes;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkRandom;
 import net.minecraft.world.gen.StructureAccessor;
-
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.generator.theme.MapTheme;
-import xyz.nucleoid.plasmid.game.gen.feature.GrassGen;
-import xyz.nucleoid.plasmid.game.gen.feature.tree.PoplarTreeGen;
-import xyz.nucleoid.plasmid.map.template.MapTemplate;
-import xyz.nucleoid.plasmid.map.template.TemplateChunkGenerator;
+import xyz.nucleoid.map_templates.MapTemplate;
+import xyz.nucleoid.plasmid.game.world.generator.TemplateChunkGenerator;
 
 import java.util.Random;
 
@@ -37,7 +32,6 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
 
         ChunkRandom chunkRandom = new ChunkRandom();
         chunkRandom.setTerrainSeed(chunkPos.x, chunkPos.z);
-        long seed = region.getSeed();
 
         int minWorldX = chunkPos.getStartX();
         int minWorldZ = chunkPos.getStartZ();
@@ -77,14 +71,15 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
         Random random = new Random();
         MapTheme theme = this.config.theme;
 
+        var centerPos = region.getCenterPos();
         for (int i = 0; i < theme.treeAmt(); i++) {
-            int x = (region.getCenterChunkX() * 16) + random.nextInt(16);
-            int z = (region.getCenterChunkZ() * 16) + random.nextInt(16);
+            int x = centerPos.getStartX() + random.nextInt(16);
+            int z = centerPos.getStartZ() + random.nextInt(16);
             int y = region.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
 
             boolean generate = true;
             for (BwMap.TeamRegions regions : this.map.getAllTeamRegions().values()) {
-                if (regions.base.contains(x, z)) {
+                if (regions.base().contains(x, z)) {
                     generate = false;
                     break;
                 }
@@ -96,8 +91,8 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
         }
 
         for (int i = 0; i < theme.grassAmt(); i++) {
-            int x = (region.getCenterChunkX() * 16) + random.nextInt(16);
-            int z = (region.getCenterChunkZ() * 16) + random.nextInt(16);
+            int x = centerPos.getStartX() + random.nextInt(16);
+            int z = centerPos.getStartZ() + random.nextInt(16);
             int y = region.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
 
             theme.grass().generate(region, mutable.set(x, y, z).toImmutable(), random);

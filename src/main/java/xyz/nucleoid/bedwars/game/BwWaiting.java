@@ -4,27 +4,30 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.GameMode;
 import xyz.nucleoid.bedwars.game.active.BwActive;
-import xyz.nucleoid.fantasy.BubbleWorldConfig;
+import xyz.nucleoid.fantasy.RuntimeWorldConfig;
 import xyz.nucleoid.plasmid.game.GameOpenContext;
 import xyz.nucleoid.plasmid.game.GameOpenProcedure;
+import xyz.nucleoid.plasmid.game.GameResult;
 import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.GameWaitingLobby;
-import xyz.nucleoid.plasmid.game.StartResult;
-import xyz.nucleoid.plasmid.game.TeamSelectionLobby;
-import xyz.nucleoid.plasmid.game.event.PlayerAddListener;
-import xyz.nucleoid.plasmid.game.event.PlayerDamageListener;
-import xyz.nucleoid.plasmid.game.event.PlayerDeathListener;
-import xyz.nucleoid.plasmid.game.event.RequestStartListener;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
-import xyz.nucleoid.plasmid.game.rule.GameRule;
-import xyz.nucleoid.plasmid.game.rule.RuleResult;
+import xyz.nucleoid.plasmid.game.common.GameWaitingLobby;
+import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.TeamSelectionLobby;
+import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
+import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
+import xyz.nucleoid.plasmid.game.player.PlayerOffer;
+import xyz.nucleoid.plasmid.game.player.PlayerOfferResult;
+import xyz.nucleoid.plasmid.game.rule.GameRuleType;
+import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
+import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 
 public final class BwWaiting {
+    private final ServerWorld world;
     private final GameSpace gameSpace;
     private final BwMap map;
     private final BwConfig config;
@@ -33,53 +36,54 @@ public final class BwWaiting {
 
     private final TeamSelectionLobby teamSelection;
 
-    private BwWaiting(GameSpace gameSpace, BwMap map, BwConfig config, TeamSelectionLobby teamSelection) {
+    private BwWaiting(ServerWorld world, GameSpace gameSpace, BwMap map, BwConfig config, TeamSelectionLobby teamSelection) {
+        this.world = world;
         this.gameSpace = gameSpace;
         this.map = map;
         this.config = config;
         this.teamSelection = teamSelection;
 
-        this.spawnLogic = new BwSpawnLogic(gameSpace.getWorld(), map);
+        this.spawnLogic = new BwSpawnLogic(world, map);
     }
 
     public static GameOpenProcedure open(GameOpenContext<BwConfig> context) {
-        BwConfig config = context.getConfig();
+        BwConfig config = context.config();
         BwMap map = new BwMapBuilder(config)
-                .create(context.getServer());
+                .create(context.server());
 
-        BubbleWorldConfig worldConfig = new BubbleWorldConfig()
+        RuntimeWorldConfig worldConfig = new RuntimeWorldConfig()
                 .setGenerator(map.getChunkGenerator())
-                .setDimensionType(RegistryKey.of(Registry.DIMENSION_TYPE_KEY, config.dimension))
-                .setDefaultGameMode(GameMode.SPECTATOR);
+                .setDimensionType(RegistryKey.of(Registry.DIMENSION_TYPE_KEY, config.dimension()));
 
-        return context.createOpenProcedure(worldConfig, game -> {
-            GameWaitingLobby.applyTo(game, config.players);
+        return context.openWithWorld(worldConfig, (activity, world) -> {
+            GameWaitingLobby.applyTo(activity, config.players());
 
-            TeamSelectionLobby teamSelection = TeamSelectionLobby.applyTo(game, config.teams);
-            BwWaiting waiting = new BwWaiting(game.getSpace(), map, config, teamSelection);
+            TeamSelectionLobby teamSelection = TeamSelectionLobby.applyTo(activity, config.teams());
+            BwWaiting waiting = new BwWaiting(world, activity.getGameSpace(), map, config, teamSelection);
 
-            game.setRule(GameRule.INTERACTION, RuleResult.ALLOW);
+            activity.allow(GameRuleType.INTERACTION);
 
-            game.on(RequestStartListener.EVENT, waiting::requestStart);
+            activity.listen(GameActivityEvents.REQUEST_START, waiting::requestStart);
 
-            game.on(PlayerAddListener.EVENT, waiting::addPlayer);
-            game.on(PlayerDeathListener.EVENT, waiting::onPlayerDeath);
-            game.on(PlayerDamageListener.EVENT, waiting::onPlayerDamage);
+            activity.listen(GamePlayerEvents.OFFER, waiting::onPlayerOffer);
+            activity.listen(PlayerDeathEvent.EVENT, waiting::onPlayerDeath);
+            activity.listen(PlayerDamageEvent.EVENT, waiting::onPlayerDamage);
         });
     }
 
-    private StartResult requestStart() {
+    private PlayerOfferResult onPlayerOffer(PlayerOffer offer) {
+        var player = offer.player();
+        return offer.accept(this.world, this.map.getCenterSpawn())
+                .and(() -> this.spawnLogic.respawnPlayer(player, GameMode.ADVENTURE));
+    }
+
+    private GameResult requestStart() {
         Multimap<GameTeam, ServerPlayerEntity> players = HashMultimap.create();
         this.teamSelection.allocate(players::put);
 
-        BwActive.open(this.gameSpace, this.map, this.config, players);
+        BwActive.open(this.world, this.gameSpace, this.map, this.config, players);
 
-        return StartResult.OK;
-    }
-
-    private void addPlayer(ServerPlayerEntity player) {
-        this.spawnLogic.respawnPlayer(player, GameMode.ADVENTURE);
-        this.spawnLogic.spawnAtCenter(player);
+        return GameResult.ok();
     }
 
     private ActionResult onPlayerDamage(ServerPlayerEntity player, DamageSource source, float amount) {

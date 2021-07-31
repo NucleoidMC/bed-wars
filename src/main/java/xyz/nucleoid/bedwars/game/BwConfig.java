@@ -8,56 +8,38 @@ import net.minecraft.world.dimension.DimensionType;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameModifier;
 import xyz.nucleoid.bedwars.game.generator.BwSkyMapConfig;
-import xyz.nucleoid.plasmid.game.config.CombatConfig;
-import xyz.nucleoid.plasmid.game.config.PlayerConfig;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
+import xyz.nucleoid.plasmid.game.common.config.CombatConfig;
+import xyz.nucleoid.plasmid.game.common.config.PlayerConfig;
+import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 
 import java.util.Collections;
 import java.util.List;
 
-public final class BwConfig {
+public record BwConfig(
+        Identifier dimension,
+        Either<BwSkyMapConfig, Identifier> map,
+        CombatConfig combat,
+        List<GameModifier> modifiers,
+        List<GameTeam> teams,
+        PlayerConfig players,
+        boolean keepInventory
+) {
     public static final Codec<BwConfig> CODEC = RecordCodecBuilder.create(instance -> {
         return instance.group(
-                Identifier.CODEC.optionalFieldOf("dimension", DimensionType.OVERWORLD_ID).forGetter(config -> config.dimension),
-                Codec.either(BwSkyMapConfig.CODEC, Identifier.CODEC).fieldOf("map").forGetter(config -> config.map),
-                CombatConfig.CODEC.optionalFieldOf("combat", CombatConfig.DEFAULT).forGetter(config -> config.combat),
-                GameModifier.CODEC.listOf().optionalFieldOf("modifiers", Collections.emptyList()).forGetter(config -> config.modifiers),
-                GameTeam.CODEC.listOf().fieldOf("teams").forGetter(config -> config.teams),
-                PlayerConfig.CODEC.fieldOf("players").forGetter(config -> config.players),
-                Codec.BOOL.optionalFieldOf("keep_inventory", false).forGetter(config -> config.keepInventory)
+                Identifier.CODEC.optionalFieldOf("dimension", DimensionType.OVERWORLD_ID).forGetter(BwConfig::dimension),
+                Codec.either(BwSkyMapConfig.CODEC, Identifier.CODEC).fieldOf("map").forGetter(BwConfig::map),
+                CombatConfig.CODEC.optionalFieldOf("combat", CombatConfig.DEFAULT).forGetter(BwConfig::combat),
+                GameModifier.CODEC.listOf().optionalFieldOf("modifiers", Collections.emptyList()).forGetter(BwConfig::modifiers),
+                GameTeam.CODEC.listOf().fieldOf("teams").forGetter(BwConfig::teams),
+                PlayerConfig.CODEC.fieldOf("players").forGetter(BwConfig::players),
+                Codec.BOOL.optionalFieldOf("keep_inventory", false).forGetter(BwConfig::keepInventory)
         ).apply(instance, BwConfig::new);
     });
-
-    public final Identifier dimension;
-    public final Either<BwSkyMapConfig, Identifier> map;
-    public final CombatConfig combat;
-    public final List<GameModifier> modifiers;
-    public final List<GameTeam> teams;
-    public final PlayerConfig players;
-    public final boolean keepInventory;
-
-    public BwConfig(
-            Identifier dimension,
-            Either<BwSkyMapConfig, Identifier> map,
-            CombatConfig combat,
-            List<GameModifier> modifiers,
-            List<GameTeam> teams,
-            PlayerConfig players,
-            boolean keepInventory
-    ) {
-        this.dimension = dimension;
-        this.map = map;
-        this.combat = combat;
-        this.modifiers = modifiers;
-        this.teams = teams;
-        this.players = players;
-        this.keepInventory = keepInventory;
-    }
 
     @Nullable
     public GameTeam getTeam(String key) {
         for (GameTeam team : this.teams) {
-            if (team.getKey().equals(key)) {
+            if (team.key().equals(key)) {
                 return team;
             }
         }

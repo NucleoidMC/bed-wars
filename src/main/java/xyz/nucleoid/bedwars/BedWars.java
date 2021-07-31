@@ -9,10 +9,10 @@ import xyz.nucleoid.bedwars.game.active.modifiers.BwGameModifiers;
 import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
 import xyz.nucleoid.bedwars.game.generator.theme.MapThemes;
 import xyz.nucleoid.plasmid.game.GameType;
-import xyz.nucleoid.plasmid.game.rule.GameRule;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import xyz.nucleoid.plasmid.game.rule.GameRuleType;
 
 public final class BedWars implements ModInitializer {
     public static final String ID = "bedwars";
@@ -20,13 +20,13 @@ public final class BedWars implements ModInitializer {
 
     public static final GameType<BwConfig> TYPE = GameType.register(
             new Identifier(BedWars.ID, "bed_wars"),
-            BwWaiting::open,
-            BwConfig.CODEC
+            BwConfig.CODEC,
+            BwWaiting::open
     );
 
-    public static final GameRule BLAST_PROOF_GLASS_RULE = new GameRule();
-    public static final GameRule LEAVES_DROP_GOLDEN_APPLES = new GameRule();
-    public static final GameRule FAST_TREE_GROWTH = new GameRule();
+    public static final GameRuleType BLAST_PROOF_GLASS_RULE = GameRuleType.create();
+    public static final GameRuleType LEAVES_DROP_GOLDEN_APPLES = GameRuleType.create();
+    public static final GameRuleType FAST_TREE_GROWTH = GameRuleType.create();
 
     @Override
     public void onInitialize() {

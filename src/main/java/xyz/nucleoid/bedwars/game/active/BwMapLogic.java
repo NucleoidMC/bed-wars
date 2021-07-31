@@ -50,10 +50,10 @@ public final class BwMapLogic {
         ServerWorld world = this.game.world;
         BwMap.TeamRegions regions = this.game.map.getTeamRegions(teamState.team);
 
-        if (regions.base != null) {
-            List<PlayerEntity> entities = world.getEntitiesByType(EntityType.PLAYER, regions.base.toBox(), player -> {
+        if (regions.base() != null) {
+            List<PlayerEntity> entities = world.getEntitiesByType(EntityType.PLAYER, regions.base().asBox(), player -> {
                 // Filter out creative mode and spectator mode players
-                if (player.abilities.allowFlying) {
+                if (player.getAbilities().allowFlying) {
                     return false;
                 }
 
@@ -77,8 +77,8 @@ public final class BwMapLogic {
         ServerWorld world = this.game.world;
         BwMap.TeamRegions regions = this.game.map.getTeamRegions(teamState.team);
 
-        if (regions.base != null) {
-            Box box = regions.base.toBox();
+        if (regions.base() != null) {
+            Box box = regions.base().asBox();
 
             List<PlayerEntity> entities = world.getEntitiesByType(EntityType.PLAYER, box, player -> {
                 BwParticipant participant = this.game.getParticipant(player);

@@ -4,8 +4,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.collection.WeightedList;
 
-import java.util.Random;
-
 public final class ItemGeneratorPool {
     public static final ItemGeneratorPool TEAM_LVL_1 = new ItemGeneratorPool()
             .add(new ItemStack(Items.IRON_INGOT, 1), 10)
@@ -47,8 +45,8 @@ public final class ItemGeneratorPool {
         return this;
     }
 
-    public ItemStack sample(Random random) {
-        return this.pool.pickRandom(random).copy();
+    public ItemStack sample() {
+        return this.pool.shuffle().stream().findFirst().get().copy();
     }
 
     public long getSpawnInterval() {

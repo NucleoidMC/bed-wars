@@ -1,8 +1,8 @@
 package xyz.nucleoid.bedwars.game.active;
 
-import xyz.nucleoid.plasmid.game.player.GameTeam;
-
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -78,24 +78,13 @@ public final class BwWinStateLogic {
         this.game.broadcast.broadcastTeamEliminated(teamState.team);
     }
 
-    public static class WinResult {
-        private final GameTeam team;
-
-        private WinResult(GameTeam team) {
-            this.team = team;
-        }
-
+    public record WinResult(@Nullable GameTeam team) {
         public static WinResult team(GameTeam team) {
             return new WinResult(team);
         }
 
         public static WinResult draw() {
             return new WinResult(null);
-        }
-
-        @Nullable
-        public GameTeam getTeam() {
-            return this.team;
         }
 
         public boolean isDraw() {

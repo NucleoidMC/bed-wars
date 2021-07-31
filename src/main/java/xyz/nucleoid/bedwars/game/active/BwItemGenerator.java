@@ -1,9 +1,7 @@
 package xyz.nucleoid.bedwars.game.active;
 
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.MathHelper;
-import xyz.nucleoid.plasmid.entity.FloatingText;
-import xyz.nucleoid.plasmid.util.BlockBounds;
+import eu.pb4.holograms.api.Holograms;
+import eu.pb4.holograms.api.holograms.WorldHologram;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
@@ -11,11 +9,12 @@ import net.minecraft.network.packet.s2c.play.ItemPickupAnimationS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import xyz.nucleoid.map_templates.BlockBounds;
 
 import java.util.List;
 import java.util.Random;
@@ -30,7 +29,7 @@ public final class BwItemGenerator {
     private boolean allowDuplication;
 
     private boolean hasTimerText;
-    private FloatingText timerText;
+    private WorldHologram timerHologram;
 
     public BwItemGenerator(BlockBounds bounds) {
         this.bounds = bounds;
@@ -62,7 +61,7 @@ public final class BwItemGenerator {
         long time = world.getTime();
 
         if (this.hasTimerText) {
-            this.tickTimerText(world);
+            this.tickTimerHologram(world);
         }
 
         if (time - this.lastItemSpawn > this.pool.getSpawnInterval()) {
@@ -71,20 +70,18 @@ public final class BwItemGenerator {
         }
     }
 
-    private void tickTimerText(ServerWorld world) {
+    private void tickTimerHologram(ServerWorld world) {
         long time = world.getTime();
 
-        if (this.timerText == null) {
-            Vec3d textPos = this.bounds.getCenter();
-            textPos = textPos.add(0.0, 1.0, 0.0);
-
-            if (world.isChunkLoaded(MathHelper.floor(textPos.x) >> 4, MathHelper.floor(textPos.z) >> 4)) {
-                this.timerText = FloatingText.spawn(world, textPos, this.getTimerText(time));
+        if (time % 20 == 0) {
+            var hologram = this.timerHologram;
+            if (hologram != null) {
+                hologram.setText(0, this.getTimerText(time));
+            } else {
+                Vec3d textPos = this.bounds.center().add(0.0, 1.0, 0.0);
+                this.timerHologram = Holograms.create(world, textPos, this.getTimerText(time));
+                this.timerHologram.show();
             }
-        }
-
-        if (this.timerText != null && time % 20 == 0) {
-            this.timerText.setText(this.getTimerText(time));
         }
     }
 
@@ -111,9 +108,9 @@ public final class BwItemGenerator {
 
     private void spawnItems(ServerWorld world, BwActive game) {
         Random random = world.random;
-        ItemStack stack = this.pool.sample(random).copy();
+        ItemStack stack = this.pool.sample();
 
-        Box box = this.bounds.toBox();
+        Box box = this.bounds.asBox();
 
         int itemCount = 0;
         for (ItemEntity entity : world.getEntitiesByType(EntityType.ITEM, box.expand(1.0), entity -> true)) {
@@ -142,10 +139,10 @@ public final class BwItemGenerator {
     }
 
     private boolean giveItems(ServerWorld world, BwActive game, ItemEntity entity) {
-        List<ServerPlayerEntity> players = world.getEntitiesByClass(ServerPlayerEntity.class, this.bounds.toBox(), game::isParticipant);
+        List<ServerPlayerEntity> players = world.getEntitiesByClass(ServerPlayerEntity.class, this.bounds.asBox(), game::isParticipant);
         for (ServerPlayerEntity player : players) {
             // Don't gen split to spectator or creative players
-            if (player.abilities.allowFlying) {
+            if (player.getAbilities().allowFlying) {
                 continue;
             }
 
@@ -153,9 +150,9 @@ public final class BwItemGenerator {
 
             player.giveItemStack(stack.copy());
             player.networkHandler.sendPacket(entity.createSpawnPacket());
-            player.networkHandler.sendPacket(new ItemPickupAnimationS2CPacket(entity.getEntityId(), player.getEntityId(), stack.getCount()));
+            player.networkHandler.sendPacket(new ItemPickupAnimationS2CPacket(entity.getId(), player.getId(), stack.getCount()));
 
-            player.inventory.markDirty();
+            player.getInventory().markDirty();
         }
 
         return !players.isEmpty();

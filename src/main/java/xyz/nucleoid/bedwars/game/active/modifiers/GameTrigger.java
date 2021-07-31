@@ -5,7 +5,7 @@ import xyz.nucleoid.plasmid.registry.TinyRegistry;
 import net.minecraft.util.Identifier;
 
 public final class GameTrigger {
-    public static final TinyRegistry<GameTrigger> REGISTRY = TinyRegistry.newStable();
+    public static final TinyRegistry<GameTrigger> REGISTRY = TinyRegistry.create();
     public static final Codec<GameTrigger> CODEC = Identifier.CODEC.xmap(REGISTRY::get, REGISTRY::getIdentifier);
 
     public final boolean tickable;

@@ -1,10 +1,8 @@
 package xyz.nucleoid.bedwars.game.active;
 
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
-import net.minecraft.text.TranslatableText;
-import xyz.nucleoid.bedwars.game.BwMap;
-import xyz.nucleoid.plasmid.util.ItemUtil;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -12,9 +10,10 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.GameMode;
+import xyz.nucleoid.bedwars.game.BwMap;
 
 import java.util.function.Predicate;
 
@@ -43,7 +42,7 @@ public final class BwPlayerLogic {
             if (player.getY() <= 0) {
 
                 // Don't kill spectators and creative players
-                if (!player.abilities.allowFlying) {
+                if (!player.getAbilities().allowFlying) {
                     player.kill();
                 }
             }
@@ -68,8 +67,8 @@ public final class BwPlayerLogic {
         player.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 20 * 5, 2));
         player.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 20 * 5, 2));
 
-        if (!this.game.config.keepInventory) {
-            player.inventory.clear();
+        if (!this.game.config.keepInventory()) {
+            player.getInventory().clear();
         }
 
         BwParticipant participant = this.game.getParticipant(player);
@@ -87,21 +86,22 @@ public final class BwPlayerLogic {
             return;
         }
 
-        this.applyEnchantments(player, stack -> stack.getItem().isIn(FabricToolTags.SWORDS), Enchantments.SHARPNESS, teamState.swordSharpness);
+        this.applyEnchantments(player, stack -> stack.isIn(FabricToolTags.SWORDS), Enchantments.SHARPNESS, teamState.swordSharpness);
         this.applyEnchantments(player, stack -> stack.getItem() instanceof ArmorItem, Enchantments.PROTECTION, teamState.armorProtection);
     }
 
     private void applyEnchantments(ServerPlayerEntity player, Predicate<ItemStack> predicate, Enchantment enchantment, int level) {
         if (level <= 0) return;
 
-        PlayerInventory inventory = player.inventory;
+        PlayerInventory inventory = player.getInventory();
         for (int slot = 0; slot < inventory.size(); slot++) {
             ItemStack stack = inventory.getStack(slot);
             if (!stack.isEmpty() && predicate.test(stack)) {
-                int existingLevel = ItemUtil.getEnchantLevel(stack, enchantment);
+                int existingLevel = EnchantmentHelper.getLevel(enchantment, stack);
                 if (existingLevel != level) {
-                    ItemUtil.removeEnchant(stack, enchantment);
-                    stack.addEnchantment(enchantment, level);
+                    var enchantments = EnchantmentHelper.get(stack);
+                    enchantments.put(enchantment, level);
+                    EnchantmentHelper.set(enchantments, stack);
                 }
             }
         }
@@ -112,10 +112,7 @@ public final class BwPlayerLogic {
         this.applyEnchantments(player, participant);
     }
 
-    public void respawnOnTimer(ServerPlayerEntity player, BwMap.TeamSpawn spawn) {
-        this.game.spawnLogic.respawnPlayer(player, GameMode.SPECTATOR);
-        this.game.spawnLogic.spawnAtCenter(player);
-
+    public void startRespawning(ServerPlayerEntity player, BwMap.TeamSpawn spawn) {
         BwParticipant participant = this.game.getParticipant(player);
         if (participant != null) {
             participant.startRespawning(spawn);

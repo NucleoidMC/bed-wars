@@ -1,5 +1,6 @@
 package xyz.nucleoid.bedwars.game.active.shop;
 
+import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -10,14 +11,14 @@ import net.minecraft.util.math.MathHelper;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.active.BwParticipant;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.shop.Cost;
 import xyz.nucleoid.plasmid.shop.ShopEntry;
 import xyz.nucleoid.plasmid.shop.ShopUi;
 
 public final class BwTeamShop {
-    public static ShopUi create(ServerPlayerEntity player, BwActive game) {
-        return ShopUi.create(new TranslatableText("text.bedwars.shop.type.team"), shop -> {
+    public static SimpleGui create(ServerPlayerEntity player, BwActive game) {
+        return ShopUi.create(player, new TranslatableText("text.bedwars.shop.type.team"), shop -> {
             BwParticipant participant = game.getParticipant(player);
             if (participant == null) return;
 

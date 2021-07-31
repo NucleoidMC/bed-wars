@@ -6,7 +6,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import xyz.nucleoid.plasmid.util.BlockBounds;
+import xyz.nucleoid.map_templates.BlockBounds;
 
 import java.util.Random;
 
@@ -128,7 +128,7 @@ public final class MovingCloud {
     }
 
     private BlockBounds getPlatformAt(BlockPos pos) {
-        return new BlockBounds(
+        return BlockBounds.of(
                 pos.add(-1, 0, -1),
                 pos.add(1, 0, 1)
         );

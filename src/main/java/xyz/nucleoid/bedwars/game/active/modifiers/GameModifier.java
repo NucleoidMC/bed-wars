@@ -11,7 +11,7 @@ import java.util.function.Function;
  */
 // TODO: make non bedwars-specific and merge with event system?
 public interface GameModifier {
-	TinyRegistry<Codec<? extends GameModifier>> REGISTRY = TinyRegistry.newStable();
+	TinyRegistry<Codec<? extends GameModifier>> REGISTRY = TinyRegistry.create();
 	Codec<GameModifier> CODEC = REGISTRY.dispatchStable(GameModifier::getCodec, Function.identity());
 
 	/**

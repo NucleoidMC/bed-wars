@@ -1,5 +1,6 @@
 package xyz.nucleoid.bedwars.custom;
 
+import eu.pb4.polymer.item.VirtualItem;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ChorusFruitItem;
@@ -12,12 +13,11 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import xyz.nucleoid.plasmid.fake.FakeItem;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Random;
 
-public final class BwChorusFruitItem extends ChorusFruitItem implements FakeItem {
+public final class BwChorusFruitItem extends ChorusFruitItem implements VirtualItem {
     private static final int ATTEMPTS = 32;
     private static final double MIN_DISTANCE_SQ = 6.0 * 6.0;
 
@@ -76,13 +76,13 @@ public final class BwChorusFruitItem extends ChorusFruitItem implements FakeItem
 
         return new Vec3d(
                 entity.getX() + deltaX,
-                MathHelper.clamp(entity.getY() + deltaY, 0.0, entity.world.getDimensionHeight() - 1),
+                MathHelper.clamp(entity.getY() + deltaY, entity.world.getBottomY(), entity.world.getTopY() - 1),
                 entity.getZ() + deltaZ
         );
     }
 
     @Override
-    public Item asProxy() {
+    public Item getVirtualItem() {
         return Items.CHORUS_FRUIT;
     }
 }

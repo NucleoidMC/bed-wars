@@ -1,12 +1,12 @@
 package xyz.nucleoid.bedwars.game.active.upgrade;
 
-import xyz.nucleoid.bedwars.game.active.BwActive;
-import xyz.nucleoid.bedwars.game.active.BwParticipant;
-import xyz.nucleoid.plasmid.shop.Cost;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
+import xyz.nucleoid.bedwars.game.active.BwActive;
+import xyz.nucleoid.bedwars.game.active.BwParticipant;
+import xyz.nucleoid.plasmid.shop.Cost;
 
 public final class WeaponUpgrade implements Upgrade {
     public final ItemStack stack;
@@ -24,15 +24,16 @@ public final class WeaponUpgrade implements Upgrade {
 
     @Override
     public void applyTo(BwActive game, ServerPlayerEntity player, BwParticipant participant) {
-        player.inventory.offerOrDrop(player.world, game.createTool(this.stack.copy()));
+        player.getInventory().offerOrDrop(game.createTool(this.stack.copy()));
     }
 
     @Override
     public void removeFrom(BwActive game, ServerPlayerEntity player) {
-        for (int slot = 0; slot < player.inventory.size(); slot++) {
-            ItemStack stack = player.inventory.getStack(slot);
+        var inventory = player.getInventory();
+        for (int slot = 0; slot < inventory.size(); slot++) {
+            ItemStack stack = inventory.getStack(slot);
             if (stack.getItem() == this.stack.getItem()) {
-                player.inventory.removeStack(slot);
+                inventory.removeStack(slot);
                 break;
             }
         }
