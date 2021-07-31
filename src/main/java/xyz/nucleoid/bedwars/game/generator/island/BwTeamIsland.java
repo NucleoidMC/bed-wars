@@ -9,9 +9,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.generator.BwSkyMapConfig;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
-import xyz.nucleoid.plasmid.map.template.MapTemplate;
-import xyz.nucleoid.plasmid.util.BlockBounds;
+import xyz.nucleoid.map_templates.BlockBounds;
+import xyz.nucleoid.map_templates.MapTemplate;
+import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.util.ColoredBlocks;
 
 import java.util.Random;
@@ -26,7 +26,7 @@ public final class BwTeamIsland {
     private final Direction direction;
 
     public BwTeamIsland(BlockPos origin, GameTeam team, double angle) {
-        this.bounds = new BlockBounds(
+        this.bounds = BlockBounds.of(
                 origin.add(-RADIUS, 0, -RADIUS),
                 origin.add(RADIUS, 0, RADIUS)
         );
@@ -39,8 +39,8 @@ public final class BwTeamIsland {
     }
 
     public void addTo(BwSkyMapConfig config, BwMap map, MapTemplate template) {
-        BlockPos origin = BwTeamIsland.this.origin;
-        BlockState terracotta = ColoredBlocks.terracotta(BwTeamIsland.this.team.getDye()).getDefaultState();
+        BlockPos origin = this.origin;
+        BlockState terracotta = ColoredBlocks.terracotta(this.team.config().blockDyeColor()).getDefaultState();
         Random random = new Random();
 
         for (BlockPos pos : this.bounds) {
@@ -65,7 +65,7 @@ public final class BwTeamIsland {
         template.setBlockState(this.transformPosition(-1, 1, -2), Blocks.CHEST.getDefaultState().with(ChestBlock.FACING, this.direction));
         template.setBlockState(this.transformPosition(1, 1, -2), Blocks.ENDER_CHEST.getDefaultState().with(ChestBlock.FACING, this.direction));
 
-        BlockState bed = ColoredBlocks.bed(this.team.getDye()).getDefaultState()
+        BlockState bed = ColoredBlocks.bed(this.team.config().blockDyeColor()).getDefaultState()
                 .with(BedBlock.FACING, this.direction);
 
         template.setBlockState(this.transformPosition(0, 1, 5), bed.with(BedBlock.PART, BedPart.FOOT));
@@ -75,22 +75,22 @@ public final class BwTeamIsland {
     }
 
     private void addRegionsTo(BwMap map) {
-        BlockBounds spawn = new BlockBounds(
+        BlockBounds spawn = BlockBounds.of(
                 this.origin.add(-1, 1, -1),
                 this.origin.add(1, 1, 1)
         );
 
-        BlockBounds base = new BlockBounds(
-                this.bounds.getMin().down(1),
-                this.bounds.getMax().up(4)
+        BlockBounds base = BlockBounds.of(
+                this.bounds.min().down(1),
+                this.bounds.max().up(4)
         );
 
-        BlockBounds chest = BlockBounds.of(this.transformPosition(-1, 1, -2));
-        BlockBounds enderChest = BlockBounds.of(this.transformPosition(1, 1, -2));
-        BlockBounds teamShop = BlockBounds.of(this.transformPosition(-2, 1, -1));
-        BlockBounds itemShop = BlockBounds.of(this.transformPosition(-2, 1, 1));
+        BlockBounds chest = BlockBounds.ofBlock(this.transformPosition(-1, 1, -2));
+        BlockBounds enderChest = BlockBounds.ofBlock(this.transformPosition(1, 1, -2));
+        BlockBounds teamShop = BlockBounds.ofBlock(this.transformPosition(-2, 1, -1));
+        BlockBounds itemShop = BlockBounds.ofBlock(this.transformPosition(-2, 1, 1));
 
-        BlockBounds bed = new BlockBounds(
+        BlockBounds bed = BlockBounds.of(
                 this.transformPosition(0, 1, 5),
                 this.transformPosition(0, 1, 6)
         );
@@ -101,7 +101,7 @@ public final class BwTeamIsland {
         map.addProtectedBlocks(bed);
 
         Direction shopDirection = this.direction.rotateYClockwise();
-        map.addTeamRegions(this.team, new BwMap.TeamRegions(spawn, bed, base, chest, itemShop, teamShop, shopDirection, shopDirection));
+        map.addTeamRegions(this.team.key(), new BwMap.TeamRegions(spawn, bed, base, chest, itemShop, teamShop, shopDirection, shopDirection));
     }
 
     private BlockPos transformPosition(int x, int y, int z) {

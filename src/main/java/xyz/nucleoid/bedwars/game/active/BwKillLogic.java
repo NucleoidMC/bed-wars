@@ -1,10 +1,6 @@
 package xyz.nucleoid.bedwars.game.active;
 
 import com.google.common.collect.Sets;
-import xyz.nucleoid.bedwars.game.BwMap;
-import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
-import xyz.nucleoid.bedwars.game.active.upgrade.UpgradeType;
-import xyz.nucleoid.plasmid.util.PlayerRef;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.damage.DamageSource;
@@ -18,6 +14,10 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
+import xyz.nucleoid.bedwars.game.BwMap;
+import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
+import xyz.nucleoid.bedwars.game.active.upgrade.UpgradeType;
+import xyz.nucleoid.plasmid.util.PlayerRef;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,7 +39,7 @@ public final class BwKillLogic {
     }
 
     public void onPlayerDeath(BwParticipant participant, ServerPlayerEntity player, DamageSource source) {
-        if (!this.game.config.keepInventory) {
+        if (!this.game.config.keepInventory()) {
             this.applyDowngrades(participant);
         }
 
@@ -57,7 +57,10 @@ public final class BwKillLogic {
         this.game.triggerModifiers(BwGameTriggers.PLAYER_DEATH);
 
         if (spawn != null) {
-            this.game.playerLogic.respawnOnTimer(player, spawn);
+            this.game.spawnLogic.respawnPlayer(player, GameMode.SPECTATOR);
+            this.game.spawnLogic.spawnAtCenter(player);
+
+            this.game.playerLogic.startRespawning(player, spawn);
         } else {
             this.onFinalDeath(participant, player);
         }
@@ -67,13 +70,13 @@ public final class BwKillLogic {
         BwParticipant attackerParticipant = null;
         Entity attacker = source.getAttacker();
         if (attacker instanceof ServerPlayerEntity) {
-            attackerParticipant = this.game.getParticipant(PlayerRef.of((PlayerEntity) attacker));
+            attackerParticipant = this.game.participantBy(PlayerRef.of((PlayerEntity) attacker));
         }
 
         if (attackerParticipant == null) {
             AttackRecord lastAttack = participant.lastAttack;
             if (lastAttack != null && lastAttack.isValid(this.game.world.getTime())) {
-                attackerParticipant = this.game.getParticipant(lastAttack.player);
+                attackerParticipant = this.game.participantBy(lastAttack.player);
             }
         }
 
@@ -89,14 +92,14 @@ public final class BwKillLogic {
     private void transferResources(ServerPlayerEntity player, ServerPlayerEntity killerPlayer) {
         Collection<ItemStack> resources = this.takeResources(player);
         for (ItemStack resource : resources) {
-            killerPlayer.inventory.offerOrDrop(this.game.world, resource);
+            killerPlayer.getInventory().offerOrDrop(resource);
         }
     }
 
     private Collection<ItemStack> takeResources(ServerPlayerEntity fromPlayer) {
         List<ItemStack> resources = new ArrayList<>();
 
-        PlayerInventory inventory = fromPlayer.inventory;
+        PlayerInventory inventory = fromPlayer.getInventory();
         for (int slot = 0; slot < inventory.size(); slot++) {
             ItemStack stack = inventory.getStack(slot);
             if (RESOURCE_ITEMS.contains(stack.getItem())) {
@@ -126,9 +129,9 @@ public final class BwKillLogic {
         ServerWorld world = this.game.world;
         EnderChestInventory enderChest = player.getEnderChestInventory();
 
-        BwMap.TeamRegions teamRegions = this.game.map.getTeamRegions(participant.team);
-        if (teamRegions.spawn != null) {
-            Vec3d dropSpawn = teamRegions.spawn.getCenter();
+        BwMap.TeamRegions teamRegions = this.game.map.getTeamRegions(participant.team.key());
+        if (teamRegions.spawn() != null) {
+            Vec3d dropSpawn = teamRegions.spawn().center();
 
             for (int slot = 0; slot < enderChest.size(); slot++) {
                 ItemStack stack = enderChest.removeStack(slot);

@@ -4,6 +4,7 @@ import net.minecraft.block.AbstractGlassBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.ServerWorldAccess;
@@ -14,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.nucleoid.bedwars.BedWars;
-import xyz.nucleoid.plasmid.game.ManagedGameSpace;
-import xyz.nucleoid.plasmid.game.rule.RuleResult;
+import xyz.nucleoid.plasmid.game.manager.GameSpaceManager;
+import xyz.nucleoid.plasmid.game.manager.ManagedGameSpace;
 
 import java.util.Optional;
 
@@ -32,10 +33,10 @@ public class ExplosionBehaviorMixin {
         if (blockView instanceof ServerWorldAccess) {
             ServerWorld world = ((ServerWorldAccess) blockView).toServerWorld();
 
-            ManagedGameSpace gameSpace = ManagedGameSpace.forWorld(world);
+            ManagedGameSpace gameSpace = GameSpaceManager.get().byWorld(world);
             if (gameSpace != null) {
-                RuleResult result = gameSpace.testRule(BedWars.BLAST_PROOF_GLASS_RULE);
-                if (result == RuleResult.ALLOW) {
+                ActionResult result = gameSpace.getBehavior().testRule(BedWars.BLAST_PROOF_GLASS_RULE);
+                if (result == ActionResult.SUCCESS) {
                     if (block.getBlock() instanceof AbstractGlassBlock) {
                         ci.setReturnValue(GLASS_RESISTANCE);
                     }

@@ -4,8 +4,8 @@ import kdotjpg.opensimplex.OpenSimplexNoise;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
-import xyz.nucleoid.plasmid.map.template.MapTemplate;
-import xyz.nucleoid.plasmid.util.BlockBounds;
+import xyz.nucleoid.map_templates.BlockBounds;
+import xyz.nucleoid.map_templates.MapTemplate;
 
 import java.util.Random;
 
@@ -18,7 +18,7 @@ public final class NoiseIslandGenerator {
     public NoiseIslandGenerator(NoiseIslandConfig config, BlockPos origin, OpenSimplexNoise noise) {
         this.config = config;
         this.origin = origin;
-        this.bounds = new BlockBounds(
+        this.bounds = BlockBounds.of(
                 origin.add(-config.radius, -config.radius, -config.radius),
                 origin.add(config.radius, config.radius, config.radius)
         );

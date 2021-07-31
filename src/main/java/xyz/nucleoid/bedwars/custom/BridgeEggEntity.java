@@ -8,7 +8,8 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-import xyz.nucleoid.plasmid.game.ManagedGameSpace;
+import xyz.nucleoid.plasmid.game.manager.GameSpaceManager;
+import xyz.nucleoid.plasmid.game.manager.ManagedGameSpace;
 
 public class BridgeEggEntity extends EggEntity {
     private static final Direction[] DIRECTIONS = Direction.values();
@@ -28,9 +29,9 @@ public class BridgeEggEntity extends EggEntity {
             return;
         }
 
-        ManagedGameSpace game = ManagedGameSpace.forWorld(this.world);
+        ManagedGameSpace game = GameSpaceManager.get().byWorld(this.world);
         if (game == null) {
-            this.remove();
+            this.remove(RemovalReason.DISCARDED);
             return;
         }
 

@@ -4,8 +4,8 @@ import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Heightmap;
 import xyz.nucleoid.bedwars.game.BwMap;
-import xyz.nucleoid.plasmid.map.template.MapTemplate;
-import xyz.nucleoid.plasmid.util.BlockBounds;
+import xyz.nucleoid.map_templates.BlockBounds;
+import xyz.nucleoid.map_templates.MapTemplate;
 
 public final class BwCenterIsland {
     private final NoiseIslandConfig config;
@@ -35,7 +35,7 @@ public final class BwCenterIsland {
         BlockPos surfacePos = template.getTopPos(pos.getX(), pos.getZ(), Heightmap.Type.WORLD_SURFACE_WG);
 
         template.setBlockState(surfacePos, Blocks.EMERALD_BLOCK.getDefaultState());
-        map.addEmeraldGenerator(BlockBounds.of(surfacePos.up()));
+        map.addEmeraldGenerator(BlockBounds.ofBlock(surfacePos.up()));
         map.addProtectedBlock(surfacePos.asLong());
     }
 

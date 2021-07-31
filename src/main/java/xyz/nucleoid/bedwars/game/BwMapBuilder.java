@@ -6,12 +6,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Heightmap;
 import xyz.nucleoid.bedwars.BedWars;
 import xyz.nucleoid.bedwars.game.generator.BwSkyMapBuilder;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
-import xyz.nucleoid.plasmid.map.template.MapTemplate;
-import xyz.nucleoid.plasmid.map.template.MapTemplateMetadata;
-import xyz.nucleoid.plasmid.map.template.MapTemplateSerializer;
-import xyz.nucleoid.plasmid.map.template.TemplateChunkGenerator;
-import xyz.nucleoid.plasmid.util.BlockBounds;
+import xyz.nucleoid.map_templates.BlockBounds;
+import xyz.nucleoid.map_templates.MapTemplate;
+import xyz.nucleoid.map_templates.MapTemplateMetadata;
+import xyz.nucleoid.map_templates.MapTemplateSerializer;
+import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.world.generator.TemplateChunkGenerator;
 
 import java.io.IOException;
 
@@ -23,12 +23,12 @@ public final class BwMapBuilder {
     }
 
     public BwMap create(MinecraftServer server) {
-        return this.config.map.map(
+        return this.config.map().map(
                 skyConfig -> new BwSkyMapBuilder(this.config, skyConfig).build(server),
                 path -> {
                     MapTemplate template;
                     try {
-                        template = MapTemplateSerializer.INSTANCE.loadFromResource(path);
+                        template = MapTemplateSerializer.loadFromResource(server, path);
                     } catch (IOException e) {
                         template = MapTemplate.createEmpty();
                         BedWars.LOGGER.error("Failed to find map template at {}", path, e);
@@ -46,9 +46,9 @@ public final class BwMapBuilder {
         metadata.getRegionBounds("diamond_spawn").forEach(map::addDiamondGenerator);
         metadata.getRegionBounds("emerald_spawn").forEach(map::addEmeraldGenerator);
 
-        for (GameTeam team : this.config.teams) {
-            BwMap.TeamRegions regions = BwMap.TeamRegions.fromTemplate(team, metadata);
-            map.addTeamRegions(team, regions);
+        for (GameTeam team : this.config.teams()) {
+            BwMap.TeamRegions regions = BwMap.TeamRegions.fromTemplate(team.key(), metadata);
+            map.addTeamRegions(team.key(), regions);
         }
 
         for (BlockPos pos : template.getBounds()) {
@@ -65,7 +65,7 @@ public final class BwMapBuilder {
             centerSpawnBounds = template.getBounds();
         }
 
-        BlockPos centerSpawn = new BlockPos(centerSpawnBounds.getCenter());
+        BlockPos centerSpawn = new BlockPos(centerSpawnBounds.center());
         centerSpawn = template.getTopPos(centerSpawn.getX(), centerSpawn.getZ(), Heightmap.Type.WORLD_SURFACE).up();
 
         map.setCenterSpawn(centerSpawn);

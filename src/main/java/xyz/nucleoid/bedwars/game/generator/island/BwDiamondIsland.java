@@ -4,8 +4,8 @@ import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Heightmap;
 import xyz.nucleoid.bedwars.game.BwMap;
-import xyz.nucleoid.plasmid.map.template.MapTemplate;
-import xyz.nucleoid.plasmid.util.BlockBounds;
+import xyz.nucleoid.map_templates.BlockBounds;
+import xyz.nucleoid.map_templates.MapTemplate;
 
 public final class BwDiamondIsland {
     private final NoiseIslandConfig config;
@@ -27,7 +27,7 @@ public final class BwDiamondIsland {
         BlockPos surfacePos = template.getTopPos(this.origin.getX(), this.origin.getZ(), Heightmap.Type.WORLD_SURFACE_WG);
 
         template.setBlockState(surfacePos, Blocks.DIAMOND_BLOCK.getDefaultState());
-        map.addDiamondGenerator(BlockBounds.of(surfacePos.up()));
+        map.addDiamondGenerator(BlockBounds.ofBlock(surfacePos.up()));
         map.addProtectedBlock(surfacePos.asLong());
     }
 }

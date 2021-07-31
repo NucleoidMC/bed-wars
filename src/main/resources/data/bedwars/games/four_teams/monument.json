@@ -1,20 +1,21 @@
 {
-	"type": "bedwars:bed_wars",
-	"translation": "game.bedwars.four_teams.monument",
-	"map": "bedwars:monument",
-	"players": {
-		"min": 4,
-		"max": 16,
-		"threshold": 4
-	},
-	"keep_inventory": false,
-	"combat": {
-		"old_mechanics": false
-	},
-	"teams": [
-		{"key": "blue", "display": "Blue", "color": "blue"},
-		{"key": "green", "display": "Green", "color": "green"},
-		{"key": "yellow", "display": "Yellow", "color": "yellow"},
-		{"key": "red", "display": "Red", "color": "red"}
-	]
+  "type": "bedwars:bed_wars",
+  "icon": "minecraft:red_bed",
+  "description": "game.bedwars.desc",
+  "map": "bedwars:monument",
+  "players": {
+    "min": 4,
+    "max": 16,
+    "threshold": 4
+  },
+  "keep_inventory": false,
+  "combat": {
+    "old_mechanics": false
+  },
+  "teams": [
+    {"key": "blue", "name": "Blue", "color": "blue"},
+    {"key": "green", "name": "Green", "color": "green"},
+    {"key": "yellow", "name": "Yellow", "color": "yellow"},
+    {"key": "red", "name": "Red", "color": "red"}
+  ]
 }

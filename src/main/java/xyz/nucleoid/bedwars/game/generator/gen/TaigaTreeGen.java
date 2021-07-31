@@ -1,16 +1,15 @@
 package xyz.nucleoid.bedwars.game.generator.gen;
 
-import java.util.Random;
-
-import xyz.nucleoid.plasmid.game.gen.GenHelper;
-import xyz.nucleoid.substrate.gen.MapGen;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.ServerWorldAccess;
+import xyz.nucleoid.substrate.gen.GenHelper;
+import xyz.nucleoid.substrate.gen.MapGen;
+
+import java.util.Random;
 
 public class TaigaTreeGen implements MapGen {
 	public static final MapGen INSTANCE = new TaigaTreeGen(Blocks.SPRUCE_LOG.getDefaultState(), Blocks.SPRUCE_LEAVES.getDefaultState().with(Properties.DISTANCE_1_7, 1));

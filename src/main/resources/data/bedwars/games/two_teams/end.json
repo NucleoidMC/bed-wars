@@ -1,18 +1,19 @@
 {
-	"type": "bedwars:bed_wars",
-	"translation": "game.bedwars.two_teams.end",
-	"map": "bedwars:end",
-	"players": {
-		"min": 2,
-		"max": 8,
-		"threshold": 2
-	},
-	"keep_inventory": true,
-	"combat": {
-		"old_mechanics": false
-	},
-	"teams": [
-		{"key": "shulker", "display": "Shulker", "color": "magenta"},
-		{"key": "enderman", "display": "Enderman", "color": "black"}
-	]
+  "type": "bedwars:bed_wars",
+  "icon": "minecraft:red_bed",
+  "description": "game.bedwars.desc",
+  "map": "bedwars:end",
+  "players": {
+    "min": 2,
+    "max": 8,
+    "threshold": 2
+  },
+  "keep_inventory": true,
+  "combat": {
+    "old_mechanics": false
+  },
+  "teams": [
+    {"key": "blue", "name": "Blue", "color": "blue"},
+    {"key": "red", "name": "Red", "color": "red"}
+  ]
 }

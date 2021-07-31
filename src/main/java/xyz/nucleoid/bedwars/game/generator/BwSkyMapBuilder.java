@@ -8,8 +8,7 @@ import xyz.nucleoid.bedwars.game.generator.island.BwCenterIsland;
 import xyz.nucleoid.bedwars.game.generator.island.BwDiamondIsland;
 import xyz.nucleoid.bedwars.game.generator.island.BwTeamIsland;
 import xyz.nucleoid.bedwars.game.generator.island.NoiseIslandConfig;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
-import xyz.nucleoid.plasmid.map.template.MapTemplate;
+import xyz.nucleoid.map_templates.MapTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +35,7 @@ public final class BwSkyMapBuilder {
         Random random = new Random();
         long seed = random.nextLong();
 
-        centerIsland.addTo(map, template, seed, this.config.teams.size(), this.skyConfig.emeraldSpawnerDistance);
+        centerIsland.addTo(map, template, seed, this.config.teams().list().size(), this.skyConfig.emeraldSpawnerDistance);
 
         for (BwDiamondIsland diamondIsland : diamondIslands) {
             diamondIsland.addTo(map, template, seed);
@@ -78,9 +77,10 @@ public final class BwSkyMapBuilder {
     private List<BwTeamIsland> buildTeamIslands() {
         List<BwTeamIsland> teamIslands = new ArrayList<>();
 
-        List<GameTeam> teams = this.config.teams;
+        var teams = this.config.teams().list();
+
         for (int i = 0; i < teams.size(); i++) {
-            GameTeam team = teams.get(i);
+            var team = teams.get(i);
 
             double theta = ((double) i / teams.size()) * (2 * Math.PI);
             double x = Math.cos(theta) * this.skyConfig.spawnIslandDistance;
@@ -88,6 +88,7 @@ public final class BwSkyMapBuilder {
 
             BlockPos pos = new BlockPos(x, 72, z);
             teamIslands.add(new BwTeamIsland(pos, team, theta));
+
         }
 
         return teamIslands;

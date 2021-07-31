@@ -1,9 +1,10 @@
 {
   "type": "bedwars:bed_wars",
-  "translation": "game.bedwars.eight_teams.beach",
+  "icon": "minecraft:red_bed",
+  "description": "game.bedwars.desc",
   "map": "bedwars:beach",
   "players": {
-    "min": 2,
+    "min": 1,
     "max": 16,
     "threshold": 4
   },
@@ -12,13 +13,13 @@
     "old_mechanics": false
   },
   "teams": [
-    {"key": "dark_blue", "display": "Blue", "color": "blue"},
-    {"key": "light_blue", "display": "Light Blue", "color": "cyan"},
-    {"key": "green", "display": "Green", "color": "green"},
-    {"key": "lime", "display": "Lime", "color": "lime"},
-    {"key": "yellow", "display": "Yellow", "color": "yellow"},
-    {"key": "orange", "display": "Orange", "color": "orange"},
-    {"key": "red", "display": "Red", "color": "red"},
-    {"key": "purple", "display": "Purple", "color": "purple"}
+    {"key": "dark_blue", "name": "Blue", "color": "blue"},
+    {"key": "light_blue", "name": "Light Blue", "color": "cyan"},
+    {"key": "green", "name": "Green", "color": "green"},
+    {"key": "lime", "name": "Lime", "color": "lime"},
+    {"key": "yellow", "name": "Yellow", "color": "yellow"},
+    {"key": "orange", "name": "Orange", "color": "orange"},
+    {"key": "red", "name": "Red", "color": "red"},
+    {"key": "purple", "name": "Purple", "color": "purple"}
   ]
 }

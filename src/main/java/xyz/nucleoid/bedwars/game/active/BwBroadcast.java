@@ -1,17 +1,16 @@
 package xyz.nucleoid.bedwars.game.active;
 
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
-import xyz.nucleoid.plasmid.game.player.MutablePlayerSet;
+import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.game.player.PlayerSet;
 
 public final class BwBroadcast {
@@ -21,23 +20,24 @@ public final class BwBroadcast {
         this.game = game;
     }
 
-    public void broadcastTrapSetOff(BwActive.TeamState team) {
-        MutablePlayerSet players = team.players;
+    public void broadcastTrapSetOff(GameTeam team) {
+        var players = this.game.playersFor(team.key());
 
         players.sendMessage(new TranslatableText("text.bedwars.trap_set_off").formatted(Formatting.BOLD, Formatting.RED));
         this.sendTitle(players, new TranslatableText("text.bedwars.title.trap_set_off").formatted(Formatting.RED), null);
-        players.sendSound(SoundEvents.BLOCK_BELL_USE);
+        players.playSound(SoundEvents.BLOCK_BELL_USE);
     }
 
     public void broadcastToTeam(GameTeam team, MutableText upgradeText) {
-        this.game.playersFor(team).sendMessage(upgradeText);
+        this.game.playersFor(team.key()).sendMessage(upgradeText);
     }
 
     public void broadcastGameOver(BwWinStateLogic.WinResult winResult) {
-        GameTeam winningTeam = winResult.getTeam();
+        var winningTeam = winResult.team();
+
         if (winningTeam != null) {
             this.game.players().sendMessage(
-                    new TranslatableText("text.bedwars.team_win", winningTeam.getDisplay()).formatted(winningTeam.getFormatting(), Formatting.BOLD)
+                    new TranslatableText("text.bedwars.team_win", winningTeam.config().name()).formatted(winningTeam.config().chatFormatting(), Formatting.BOLD)
             );
         } else {
             this.game.players().sendMessage(new TranslatableText("text.bedwars.draw").formatted(Formatting.BOLD));
@@ -60,13 +60,15 @@ public final class BwBroadcast {
     }
 
     public void broadcastBedBroken(ServerPlayerEntity player, GameTeam bedTeam, @Nullable GameTeam destroyerTeam) {
-        Text announcement = new TranslatableText("text.bedwars.bed_destroyed", new LiteralText(bedTeam.getDisplay()).formatted(bedTeam.getFormatting()), player.getDisplayName().shallowCopy().formatted(destroyerTeam != null ? destroyerTeam.getFormatting() : Formatting.OBFUSCATED)).formatted(Formatting.GRAY);
+        var playerName = player.getDisplayName().shallowCopy()
+                .formatted(destroyerTeam != null ? destroyerTeam.config().chatFormatting() : Formatting.OBFUSCATED);
+        Text announcement = new TranslatableText("text.bedwars.bed_destroyed", bedTeam.config().name(), playerName).formatted(Formatting.GRAY);
 
         PlayerSet players = this.game.players();
         players.sendMessage(announcement);
-        players.sendSound(SoundEvents.BLOCK_END_PORTAL_SPAWN);
+        players.playSound(SoundEvents.BLOCK_END_PORTAL_SPAWN);
 
-        PlayerSet teamPlayers = this.game.playersFor(bedTeam);
+        PlayerSet teamPlayers = this.game.playersFor(bedTeam.key());
 
         teamPlayers.sendMessage(new TranslatableText("text.bedwars.cannot_respawn").formatted(Formatting.RED));
 
@@ -78,18 +80,18 @@ public final class BwBroadcast {
     }
 
     public void broadcastTeamEliminated(GameTeam team) {
-        this.game.playersFor(team).sendMessage(
-                new TranslatableText("text.bedwars.team_eliminated", new LiteralText(team.getDisplay()).formatted(team.getFormatting())).formatted(Formatting.BOLD)
+        this.game.playersFor(team.key()).sendMessage(
+                new TranslatableText("text.bedwars.team_eliminated", team.config().name()).formatted(team.config().chatFormatting()).formatted(Formatting.BOLD)
         );
     }
 
     public void sendTitle(PlayerSet players, Text title, Text subtitle) {
         if (title != null) {
-            players.sendPacket(new TitleS2CPacket(TitleS2CPacket.Action.TITLE, title));
+            players.sendPacket(new TitleS2CPacket(title));
         }
 
         if (subtitle != null) {
-            players.sendPacket(new TitleS2CPacket(TitleS2CPacket.Action.SUBTITLE, subtitle));
+            players.sendPacket(new SubtitleS2CPacket(subtitle));
         }
     }
 }
