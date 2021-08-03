@@ -30,7 +30,7 @@ public final class BwMapLogic {
             this.game.teams().forEach(team -> {
                 if (team.trapSet) {
                     if (this.tickTrap(team)) {
-                        this.game.broadcast.broadcastTrapSetOff(team);
+                        this.game.broadcast.broadcastTrapSetOff(team.team);
                         team.trapSet = false;
                     }
                 }

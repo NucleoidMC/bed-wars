@@ -17,7 +17,6 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.scoreboard.AbstractTeam;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -45,7 +44,6 @@ import xyz.nucleoid.bedwars.game.BwSpawnLogic;
 import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameModifier;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameTrigger;
-import xyz.nucleoid.bedwars.util.WoodBlocks;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.plasmid.game.GameActivity;
 import xyz.nucleoid.plasmid.game.GameCloseReason;
@@ -57,7 +55,6 @@ import xyz.nucleoid.plasmid.game.common.team.TeamChat;
 import xyz.nucleoid.plasmid.game.common.team.TeamManager;
 import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
 import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
-import xyz.nucleoid.plasmid.game.player.MutablePlayerSet;
 import xyz.nucleoid.plasmid.game.player.PlayerOffer;
 import xyz.nucleoid.plasmid.game.player.PlayerOfferResult;
 import xyz.nucleoid.plasmid.game.player.PlayerSet;
@@ -65,6 +62,7 @@ import xyz.nucleoid.plasmid.game.rule.GameRuleType;
 import xyz.nucleoid.plasmid.util.ColoredBlocks;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 import xyz.nucleoid.plasmid.util.PlayerRef;
+import xyz.nucleoid.plasmid.util.WoodType;
 import xyz.nucleoid.stimuli.event.block.BlockBreakEvent;
 import xyz.nucleoid.stimuli.event.block.BlockUseEvent;
 import xyz.nucleoid.stimuli.event.item.ItemUseEvent;
@@ -93,9 +91,9 @@ public final class BwActive {
     public final BwConfig config;
 
     private final Map<PlayerRef, BwParticipant> participants = new Object2ObjectOpenHashMap<>();
-    private final Map<GameTeam, TeamState> teams = new Reference2ObjectOpenHashMap<>();
+    private final Map<GameTeam, TeamState> teamStates = new Reference2ObjectOpenHashMap<>();
 
-    private final TeamManager teamManager;
+    private final TeamManager teams;
 
     public final BwSidebar sidebar;
     public final BwBroadcast broadcast;
@@ -117,14 +115,14 @@ public final class BwActive {
 
     private final List<MovingCloud> movingClouds = new ArrayList<>();
 
-    private BwActive(ServerWorld world, GameActivity activity, BwMap map, BwConfig config, TeamManager teamManager, GlobalWidgets widgets) {
+    private BwActive(ServerWorld world, GameActivity activity, BwMap map, BwConfig config, TeamManager teams, GlobalWidgets widgets) {
         this.world = world;
         this.gameSpace = activity.getGameSpace();
 
         this.map = map;
         this.config = config;
 
-        this.teamManager = teamManager;
+        this.teams = teams;
 
         this.sidebar = BwSidebar.create(this, widgets);
 
@@ -147,13 +145,8 @@ public final class BwActive {
             TeamChat.addTo(activity, teamManager);
 
             BwActive active = new BwActive(world, activity, map, config, teamManager, widgets);
+            active.addTeams(config.teams());
             active.addPlayers(players);
-
-            for (GameTeam team : config.teams()) {
-                teamManager.addTeam(team);
-                teamManager.setCollisionRule(team, AbstractTeam.CollisionRule.NEVER);
-                teamManager.setFriendlyFire(team, false);
-            }
 
             activity.deny(GameRuleType.PORTALS);
             activity.allow(GameRuleType.PVP);
@@ -185,15 +178,22 @@ public final class BwActive {
         });
     }
 
-    private void addPlayers(Multimap<GameTeam, ServerPlayerEntity> players) {
-        MinecraftServer server = this.gameSpace.getServer();
+    private void addTeams(List<GameTeam> teams) {
+        for (GameTeam team : teams) {
+            this.teams.addTeam(team);
+            this.teams.setCollisionRule(team, AbstractTeam.CollisionRule.NEVER);
+            this.teams.setFriendlyFire(team, false);
 
+            this.teamStates.put(team, new TeamState(team));
+        }
+    }
+
+    private void addPlayers(Multimap<GameTeam, ServerPlayerEntity> players) {
         players.forEach((team, player) -> {
             BwParticipant participant = new BwParticipant(this, player, team);
             this.participants.put(participant.ref, participant);
 
-            TeamState teamState = this.teams.computeIfAbsent(team, t -> new TeamState(server, t));
-            teamState.players.add(player);
+            this.teams.addPlayerTo(player, team);
         });
     }
 
@@ -260,7 +260,7 @@ public final class BwActive {
             Set<BlockPos> logs = new HashSet<>();
             logs.add(pos);
 
-            findLogs(world, pos, logs);
+            this.findLogs(world, pos, logs);
 
             for (BlockPos log : logs) {
                 BlockState logState = world.getBlockState(log);
@@ -268,7 +268,9 @@ public final class BwActive {
 
                 // Drop 1-3 planks
                 int count = 1 + world.random.nextInt(3);
-                world.spawnEntity(new ItemEntity(world, log.getX(), log.getY(), log.getZ(), new ItemStack(WoodBlocks.planksOf(logState).getBlock(), count)));
+
+                var planks = WoodType.getType(logState.getBlock()).getPlanks();
+                world.spawnEntity(new ItemEntity(world, log.getX(), log.getY(), log.getZ(), new ItemStack(planks, count)));
             }
 
             return ActionResult.FAIL;
@@ -276,7 +278,8 @@ public final class BwActive {
 
         if (state.isIn(BlockTags.LEAVES)) {
             if (world.random.nextDouble() < 0.025) {
-                world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(WoodBlocks.saplingOf(state).getBlock())));
+                var sapling = WoodType.getType(state.getBlock()).getSapling();
+                world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(sapling)));
             }
 
             if (world.random.nextDouble() < 0.01) {
@@ -327,7 +330,7 @@ public final class BwActive {
                     if (!logs.contains(local)) {
                         if (state.isIn(BlockTags.LOGS)) {
                             logs.add(local);
-                            findLogs(world, local, logs);
+                            this.findLogs(world, local, logs);
                         }
                     }
                 }
@@ -650,7 +653,7 @@ public final class BwActive {
 
     @Nullable
     public GameTeam getTeam(PlayerRef player) {
-        return this.teamManager.teamFor(player);
+        return this.teams.teamFor(player);
     }
 
     public boolean isParticipant(PlayerEntity player) {
@@ -662,8 +665,7 @@ public final class BwActive {
     }
 
     public PlayerSet playersFor(GameTeam team) {
-        TeamState teamState = this.teams.get(team);
-        return teamState != null ? teamState.players : PlayerSet.EMPTY;
+        return this.teams.playersIn(team);
     }
 
     public PlayerSet players() {
@@ -675,23 +677,22 @@ public final class BwActive {
     }
 
     public Stream<TeamState> teams() {
-        return this.teams.values().stream();
+        return this.teamStates.values().stream();
     }
 
     public int getTeamCount() {
-        return this.teams.size();
+        return this.teamStates.size();
     }
 
     @Nullable
     public TeamState getTeam(GameTeam team) {
-        return this.teams.get(team);
+        return this.teamStates.get(team);
     }
 
     public static class TeamState {
         public static final int MAX_SHARPNESS = 3;
         public static final int MAX_PROTECTION = 3;
 
-        final MutablePlayerSet players;
         final GameTeam team;
         boolean hasBed = true;
         boolean eliminated;
@@ -702,8 +703,7 @@ public final class BwActive {
         public int swordSharpness;
         public int armorProtection;
 
-        TeamState(MinecraftServer server, GameTeam team) {
-            this.players = new MutablePlayerSet(server);
+        TeamState(GameTeam team) {
             this.team = team;
         }
     }

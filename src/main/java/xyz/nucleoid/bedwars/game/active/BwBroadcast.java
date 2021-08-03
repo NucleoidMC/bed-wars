@@ -11,7 +11,6 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
-import xyz.nucleoid.plasmid.game.player.MutablePlayerSet;
 import xyz.nucleoid.plasmid.game.player.PlayerSet;
 
 public final class BwBroadcast {
@@ -21,8 +20,8 @@ public final class BwBroadcast {
         this.game = game;
     }
 
-    public void broadcastTrapSetOff(BwActive.TeamState team) {
-        MutablePlayerSet players = team.players;
+    public void broadcastTrapSetOff(GameTeam team) {
+        var players = this.game.playersFor(team);
 
         players.sendMessage(new TranslatableText("text.bedwars.trap_set_off").formatted(Formatting.BOLD, Formatting.RED));
         this.sendTitle(players, new TranslatableText("text.bedwars.title.trap_set_off").formatted(Formatting.RED), null);
