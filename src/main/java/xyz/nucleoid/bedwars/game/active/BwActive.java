@@ -6,9 +6,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.block.AbstractChestBlock;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FireworkRocketEntity;
@@ -62,7 +60,6 @@ import xyz.nucleoid.plasmid.game.rule.GameRuleType;
 import xyz.nucleoid.plasmid.util.ColoredBlocks;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 import xyz.nucleoid.plasmid.util.PlayerRef;
-import xyz.nucleoid.plasmid.util.WoodType;
 import xyz.nucleoid.stimuli.event.block.BlockBreakEvent;
 import xyz.nucleoid.stimuli.event.block.BlockUseEvent;
 import xyz.nucleoid.stimuli.event.item.ItemUseEvent;
@@ -71,11 +68,9 @@ import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 import xyz.nucleoid.stimuli.event.world.ExplosionDetonatedEvent;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.stream.Stream;
 
 public final class BwActive {
@@ -104,6 +99,8 @@ public final class BwActive {
     public final BwPlayerLogic playerLogic;
     public final BwSpawnLogic spawnLogic;
     private final BwBar bar;
+
+    private final BwTreeChopper treeChopper = new BwTreeChopper();
 
     private long startTime;
     private boolean destroyedBeds;
@@ -253,89 +250,11 @@ public final class BwActive {
             return ActionResult.FAIL;
         }
 
-        BlockState state = world.getBlockState(pos);
-
-        // Automatic tree breaking
-        if (state.isIn(BlockTags.LOGS) && !player.isSneaking()) {
-            Set<BlockPos> logs = new HashSet<>();
-            logs.add(pos);
-
-            this.findLogs(world, pos, logs);
-
-            for (BlockPos log : logs) {
-                BlockState logState = world.getBlockState(log);
-                world.breakBlock(log, false);
-
-                // Drop 1-3 planks
-                int count = 1 + world.random.nextInt(3);
-
-                var planks = WoodType.getType(logState.getBlock()).getPlanks();
-                world.spawnEntity(new ItemEntity(world, log.getX(), log.getY(), log.getZ(), new ItemStack(planks, count)));
-            }
-
+        if (this.treeChopper.onBreakBlock(player, world, pos)) {
             return ActionResult.FAIL;
-        }
-
-        if (state.isIn(BlockTags.LEAVES)) {
-            if (world.random.nextDouble() < 0.025) {
-                var sapling = WoodType.getType(state.getBlock()).getSapling();
-                world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(sapling)));
-            }
-
-            if (world.random.nextDouble() < 0.01) {
-                world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.GOLDEN_APPLE)));
-            }
-
-            world.removeBlock(pos, false);
-
-            return ActionResult.FAIL;
-        }
-
-        // Drop ingots from gold
-        if (state.isOf(Blocks.GOLD_ORE)) {
-            world.breakBlock(pos, false);
-
-            // Drop 2-4 ingots
-            int count = 2 + world.random.nextInt(3);
-            ItemStack stack = new ItemStack(Items.GOLD_INGOT, count);
-
-            if (!player.getInventory().insertStack(stack.copy())) {
-                world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), stack));
-            }
-        }
-
-        // Drop ingots from gold
-        if (state.isOf(Blocks.DIAMOND_ORE)) {
-            world.breakBlock(pos, false);
-
-            // Drop 1-2 diamonds
-            int count = 1 + world.random.nextInt(2);
-            ItemStack stack = new ItemStack(Items.DIAMOND, count);
-
-            if (!player.getInventory().insertStack(stack.copy())) {
-                world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), stack));
-            }
         }
 
         return ActionResult.PASS;
-    }
-
-    private void findLogs(ServerWorld world, BlockPos pos, Set<BlockPos> logs) {
-        for (int x = -1; x <= 1; x++) {
-            for (int z = -1; z <= 1; z++) {
-                for (int y = -1; y <= 1; y++) {
-                    BlockPos local = pos.add(x, y, z);
-                    BlockState state = world.getBlockState(local);
-
-                    if (!logs.contains(local)) {
-                        if (state.isIn(BlockTags.LOGS)) {
-                            logs.add(local);
-                            this.findLogs(world, local, logs);
-                        }
-                    }
-                }
-            }
-        }
     }
 
     private ActionResult onPlayerDamage(ServerPlayerEntity attackedPlayer, DamageSource source, float amount) {
@@ -349,8 +268,7 @@ public final class BwActive {
         }
 
         Entity attacker = source.getAttacker();
-        if (attacker instanceof ServerPlayerEntity) {
-            ServerPlayerEntity attackerPlayer = (ServerPlayerEntity) attacker;
+        if (attacker instanceof ServerPlayerEntity attackerPlayer) {
             BwParticipant attackerParticipant = this.getParticipant(attackerPlayer);
 
             if (attackerParticipant != null) {
