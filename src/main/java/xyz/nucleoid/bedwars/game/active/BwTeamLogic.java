@@ -3,7 +3,6 @@ package xyz.nucleoid.bedwars.game.active;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.bedwars.game.BwMap;
@@ -44,37 +43,39 @@ public final class BwTeamLogic {
     public void onBedBroken(ServerPlayerEntity player, BlockPos pos) {
         GameTeam destroyerTeam = null;
 
-        BwParticipant participant = this.game.getParticipant(player);
+        var participant = this.game.getParticipant(player);
         if (participant != null && !participant.eliminated) {
             destroyerTeam = participant.team;
         }
 
-        Bed bed = this.findBed(pos);
+        var bed = this.findBed(pos);
         if (bed == null || bed.team.equals(destroyerTeam)) {
             return;
         }
 
-        this.game.broadcast.broadcastBedBroken(player, bed.team, destroyerTeam);
-
-        this.removeBed(bed.team);
+        if (this.removeBed(bed.team)) {
+            this.game.broadcast.broadcastBedBroken(player, bed.team, destroyerTeam);
+        }
     }
 
-    public void removeBed(GameTeam team) {
+    public boolean removeBed(GameTeam team) {
         BwActive.TeamState teamState = this.game.getTeam(team);
-        if (teamState == null || !teamState.hasBed) {
-            return;
+        if (teamState != null && teamState.hasBed) {
+            teamState.hasBed = false;
+
+            var bed = this.game.map.getTeamRegions(teamState.team).bed();
+
+            var world = this.game.world;
+            for (BlockPos pos : bed) {
+                world.setBlockState(pos, Blocks.AIR.getDefaultState(), Block.NOTIFY_LISTENERS | Block.SKIP_DROPS);
+            }
+
+            this.game.triggerModifiers(BwGameTriggers.BED_BROKEN);
+
+            return true;
+        } else {
+            return false;
         }
-
-        teamState.hasBed = false;
-
-        BlockBounds bed = this.game.map.getTeamRegions(team).bed();
-
-        ServerWorld world = this.game.world;
-        bed.forEach(p -> {
-            world.setBlockState(p, Blocks.AIR.getDefaultState(), Block.NOTIFY_LISTENERS | Block.SKIP_DROPS);
-        });
-
-        this.game.triggerModifiers(BwGameTriggers.BED_BROKEN);
     }
 
     @Nullable
