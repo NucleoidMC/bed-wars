@@ -42,11 +42,9 @@ public final class ShopVillagerEntity extends VillagerEntity {
     @Override
     public ActionResult interactMob(PlayerEntity player, Hand hand) {
         if (this.type == Type.ITEM) {
-            var ui = BwItemShop.create((ServerPlayerEntity) player, this.game);
-            ui.open();
+            BwItemShop.open((ServerPlayerEntity) player, this.game);
         } else if (this.type == Type.TEAM) {
-            var ui = BwTeamShop.create((ServerPlayerEntity) player, this.game);
-            ui.open();
+            BwTeamShop.open((ServerPlayerEntity) player, this.game);
         }
         return ActionResult.SUCCESS;
     }
