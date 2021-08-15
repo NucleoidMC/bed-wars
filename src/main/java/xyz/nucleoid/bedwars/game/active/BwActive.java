@@ -78,8 +78,7 @@ public final class BwActive {
     public final BwPlayerLogic playerLogic;
     public final BwSpawnLogic spawnLogic;
     private final BwBedDestruction bedDestruction;
-
-    private final BwInteractions interactions = new BwInteractions(this);
+    private final BwInteractions interactions;
 
     private long startTime;
 
@@ -108,8 +107,8 @@ public final class BwActive {
         this.mapLogic = new BwMapLogic(this);
         this.playerLogic = new BwPlayerLogic(this);
         this.spawnLogic = new BwSpawnLogic(this.world, map);
-
         this.bedDestruction = new BwBedDestruction(widgets);
+        this.interactions = new BwInteractions(this);
     }
 
     public static void open(ServerWorld world, GameSpace gameSpace, BwMap map, BwConfig config, Multimap<GameTeam, ServerPlayerEntity> players) {
