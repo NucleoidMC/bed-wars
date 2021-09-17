@@ -46,7 +46,7 @@ public final class BwMapBuilder {
         metadata.getRegionBounds("diamond_spawn").forEach(map::addDiamondGenerator);
         metadata.getRegionBounds("emerald_spawn").forEach(map::addEmeraldGenerator);
 
-        for (GameTeam team : this.config.teams()) {
+        for (GameTeam team : this.config.teams().map().keySet()) {
             BwMap.TeamRegions regions = BwMap.TeamRegions.fromTemplate(team, metadata);
             map.addTeamRegions(team, regions);
         }

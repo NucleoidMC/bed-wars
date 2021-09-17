@@ -33,10 +33,12 @@ public final class BwBroadcast {
     }
 
     public void broadcastGameOver(BwWinStateLogic.WinResult winResult) {
-        GameTeam winningTeam = winResult.team();
+        var winningTeam = winResult.team();
+
         if (winningTeam != null) {
+            var winningTeamConfig = this.game.getTeamConfig(winningTeam);
             this.game.players().sendMessage(
-                    new TranslatableText("text.bedwars.team_win", winningTeam.display()).formatted(winningTeam.formatting(), Formatting.BOLD)
+                    new TranslatableText("text.bedwars.team_win", winningTeamConfig.name()).formatted(winningTeamConfig.chatFormatting(), Formatting.BOLD)
             );
         } else {
             this.game.players().sendMessage(new TranslatableText("text.bedwars.draw").formatted(Formatting.BOLD));
@@ -59,7 +61,12 @@ public final class BwBroadcast {
     }
 
     public void broadcastBedBroken(ServerPlayerEntity player, GameTeam bedTeam, @Nullable GameTeam destroyerTeam) {
-        Text announcement = new TranslatableText("text.bedwars.bed_destroyed", bedTeam.display().shallowCopy().formatted(bedTeam.formatting()), player.getDisplayName().shallowCopy().formatted(destroyerTeam != null ? destroyerTeam.formatting() : Formatting.OBFUSCATED)).formatted(Formatting.GRAY);
+        var bedTeamConfig = this.game.getTeamConfig(bedTeam);
+        var destroyerTeamConfig = destroyerTeam != null ? this.game.getTeamConfig(destroyerTeam) : null;
+
+        var playerName = player.getDisplayName().shallowCopy()
+                .formatted(destroyerTeamConfig != null ? destroyerTeamConfig.chatFormatting() : Formatting.OBFUSCATED);
+        Text announcement = new TranslatableText("text.bedwars.bed_destroyed", bedTeamConfig.name(), playerName).formatted(Formatting.GRAY);
 
         PlayerSet players = this.game.players();
         players.sendMessage(announcement);
@@ -77,8 +84,10 @@ public final class BwBroadcast {
     }
 
     public void broadcastTeamEliminated(GameTeam team) {
+        var teamConfig = this.game.getTeamConfig(team);
+
         this.game.playersFor(team).sendMessage(
-                new TranslatableText("text.bedwars.team_eliminated", team.display()).formatted(team.formatting()).formatted(Formatting.BOLD)
+                new TranslatableText("text.bedwars.team_eliminated", teamConfig.name()).formatted(teamConfig.chatFormatting()).formatted(Formatting.BOLD)
         );
     }
 

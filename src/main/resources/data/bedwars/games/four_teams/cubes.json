@@ -1,20 +1,20 @@
 {
-	"type": "bedwars:bed_wars",
-	"translation": "game.bedwars.four_teams.cubes",
-	"map": "bedwars:cubes",
-	"players": {
-		"min": 4,
-		"max": 16,
-		"threshold": 4
-	},
-	"keep_inventory": true,
-	"combat": {
-		"old_mechanics": false
-	},
-	"teams": [
-		{"key": "blue", "display": "Blue", "color": "blue"},
-		{"key": "green", "display": "Green", "color": "green"},
-		{"key": "yellow", "display": "Yellow", "color": "yellow"},
-		{"key": "red", "display": "Red", "color": "red"}
-	]
+  "type": "bedwars:bed_wars",
+  "translation": "game.bedwars.four_teams.cubes",
+  "map": "bedwars:cubes",
+  "players": {
+    "min": 4,
+    "max": 16,
+    "threshold": 4
+  },
+  "keep_inventory": true,
+  "combat": {
+    "old_mechanics": false
+  },
+  "teams": {
+    "blue": {"name": "Blue", "color": "blue"},
+    "green": {"name": "Green", "color": "green"},
+    "yellow": {"name": "Yellow", "color": "yellow"},
+    "red": {"name": "Red", "color": "red"}
+  }
 }

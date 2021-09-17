@@ -124,7 +124,7 @@ public final class BwItemShop extends LayeredGui {
     }
 
     private void createBlocks(Consumer<GuiElementInterface> items) {
-        DyeColor color = participant.team.blockDyeColor();
+        DyeColor color = participant.teamConfig.blockDyeColor();
         items.accept(ShopEntry.buyItem(new ItemStack(ColoredBlocks.wool(color), 16), Cost.ofIron(4)));
         items.accept(ShopEntry.buyItem(new ItemStack(ColoredBlocks.terracotta(color), 16), Cost.ofIron(16)));
 

@@ -57,13 +57,13 @@ public final class BwSidebar {
                         state += " (no bed)";
                     }
 
-                    Text name = teamState.team.display().shallowCopy()
+                    Text name = teamState.config.name().shallowCopy()
                             .formatted(Formatting.BOLD);
                     Text description = new LiteralText(": " + state)
                             .formatted(Formatting.GRAY);
                     content.add(new LiteralText("  ").append(name).append(description));
                 } else {
-                    Text name = teamState.team.display().shallowCopy()
+                    Text name = teamState.config.name().shallowCopy()
                             .formatted(Formatting.BOLD, Formatting.STRIKETHROUGH);
                     Text description = new LiteralText(": eliminated!")
                             .formatted(Formatting.RED);

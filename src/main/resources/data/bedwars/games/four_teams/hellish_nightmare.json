@@ -1,21 +1,21 @@
 {
-	"type": "bedwars:bed_wars",
-	"translation": "game.bedwars.four_teams.hellish_nightmare",
-	"map": "bedwars:hellish_nightmare",
-	"dimension": "minecraft:the_nether",
-	"players": {
-		"min": 4,
-		"max": 16,
-		"threshold": 4
-	},
-	"keep_inventory": true,
-	"combat": {
-		"old_mechanics": false
-	},
-	"teams": [
-		{"key": "warped", "display": "Warped", "color": "cyan"},
-		{"key": "crimson", "display": "Crimson", "color": "red"},
-		{"key": "soul", "display": "Soul", "color": "brown"},
-		{"key": "basalt", "display": "Basalt", "color": "gray"}
-	]
+  "type": "bedwars:bed_wars",
+  "translation": "game.bedwars.four_teams.hellish_nightmare",
+  "map": "bedwars:hellish_nightmare",
+  "dimension": "minecraft:the_nether",
+  "players": {
+    "min": 4,
+    "max": 16,
+    "threshold": 4
+  },
+  "keep_inventory": true,
+  "combat": {
+    "old_mechanics": false
+  },
+  "teams": {
+    "warped": {"name": "Warped", "color": "cyan"},
+    "crimson": {"name": "Crimson", "color": "red"},
+    "soul": {"name": "Soul", "color": "brown"},
+    "basalt": {"name": "Basalt", "color": "gray"}
+  }
 }

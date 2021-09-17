@@ -1,62 +1,62 @@
 {
-	"type": "bedwars:bed_wars",
-	"translation": "game.bedwars.four_teams.taiga",
-	"map": {
-		"theme": {
-			"type": "bedwars:taiga"
-		},
-		"diamond_generator": {
-			"radius": 10,
-			"falloff_multiplier": 1.0,
-			"falloff_strength": 40.0,
-			"falloff_offset": -4.25,
-			"horizontal_frequency": 0.125,
-			"vertical_frequency": 0.0833,
-			"check_space": false
-		},
-		"center_generator": {
-			"radius": 20,
-			"falloff_multiplier": 0.75,
-			"falloff_strength": 90.0,
-			"falloff_offset": -3.4,
-			"horizontal_frequency": 0.0833,
-			"vertical_frequency": 0.0625,
-			"check_space": false,
-			"diamond_ore_chance": 240,
-			"gold_ore_chance": 120
-		},
-		"small_island_generator": {
-			"radius": 6,
-			"falloff_multiplier": 0.5,
-			"falloff_strength": 15.0,
-			"falloff_offset": -2,
-			"horizontal_frequency": 0.1666,
-			"vertical_frequency": 0.125,
-			"check_space": true,
-			"diamond_ore_chance": 120,
-			"gold_ore_chance": 80
-		},
-		"spawn_island_distance": 72,
-		"diamond_island_distance": 40,
-		"emerald_spawner_distance": 12,
-		"small_island_count": 24,
-		"small_island_horizontal_spread": 100,
-		"small_island_vertical_spread": 10,
-		"small_island_cutoff": 25
-	},
-	"players": {
-		"min": 4,
-		"max": 16,
-		"threshold": 4
-	},
-	"keep_inventory": true,
-	"combat": {
-		"old_mechanics": false
-	},
-	"teams": [
-		{"key": "blue", "display": "Blue", "color": "blue"},
-		{"key": "green", "display": "Green", "color": "green"},
-		{"key": "yellow", "display": "Yellow", "color": "yellow"},
-		{"key": "red", "display": "Red", "color": "red"}
-	]
+  "type": "bedwars:bed_wars",
+  "translation": "game.bedwars.four_teams.taiga",
+  "map": {
+    "theme": {
+      "type": "bedwars:taiga"
+    },
+    "diamond_generator": {
+      "radius": 10,
+      "falloff_multiplier": 1.0,
+      "falloff_strength": 40.0,
+      "falloff_offset": -4.25,
+      "horizontal_frequency": 0.125,
+      "vertical_frequency": 0.0833,
+      "check_space": false
+    },
+    "center_generator": {
+      "radius": 20,
+      "falloff_multiplier": 0.75,
+      "falloff_strength": 90.0,
+      "falloff_offset": -3.4,
+      "horizontal_frequency": 0.0833,
+      "vertical_frequency": 0.0625,
+      "check_space": false,
+      "diamond_ore_chance": 240,
+      "gold_ore_chance": 120
+    },
+    "small_island_generator": {
+      "radius": 6,
+      "falloff_multiplier": 0.5,
+      "falloff_strength": 15.0,
+      "falloff_offset": -2,
+      "horizontal_frequency": 0.1666,
+      "vertical_frequency": 0.125,
+      "check_space": true,
+      "diamond_ore_chance": 120,
+      "gold_ore_chance": 80
+    },
+    "spawn_island_distance": 72,
+    "diamond_island_distance": 40,
+    "emerald_spawner_distance": 12,
+    "small_island_count": 24,
+    "small_island_horizontal_spread": 100,
+    "small_island_vertical_spread": 10,
+    "small_island_cutoff": 25
+  },
+  "players": {
+    "min": 4,
+    "max": 16,
+    "threshold": 4
+  },
+  "keep_inventory": true,
+  "combat": {
+    "old_mechanics": false
+  },
+  "teams": {
+    "blue": {"name": "Blue", "color": "blue"},
+    "green": {"name": "Green", "color": "green"},
+    "yellow": {"name": "Yellow", "color": "yellow"},
+    "red": {"name": "Red", "color": "red"}
+  }
 }

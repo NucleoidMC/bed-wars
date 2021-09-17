@@ -33,6 +33,8 @@ import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.common.GlobalWidgets;
 import xyz.nucleoid.plasmid.game.common.OldCombat;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamConfig;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamsConfig;
 import xyz.nucleoid.plasmid.game.common.team.TeamChat;
 import xyz.nucleoid.plasmid.game.common.team.TeamManager;
 import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
@@ -148,19 +150,24 @@ public final class BwActive {
         });
     }
 
-    private void addTeams(List<GameTeam> teams) {
-        for (GameTeam team : teams) {
-            this.teams.addTeam(team);
-            this.teams.setCollisionRule(team, AbstractTeam.CollisionRule.NEVER);
-            this.teams.setFriendlyFire(team, false);
+    private void addTeams(GameTeamsConfig teams) {
+        for (var entry : teams.map().entrySet()) {
+            var team = entry.getKey();
+            var config = GameTeamConfig.builder(entry.getValue())
+                    .setCollision(AbstractTeam.CollisionRule.NEVER)
+                    .setFriendlyFire(false)
+                    .build();
 
-            this.teamStates.put(team, new TeamState(team));
+            this.teams.addTeam(team, config);
+
+            this.teamStates.put(team, new TeamState(team, config));
         }
     }
 
     private void addPlayers(Multimap<GameTeam, ServerPlayerEntity> players) {
         players.forEach((team, player) -> {
-            BwParticipant participant = new BwParticipant(this, player, team);
+            var config = this.teams.getTeamConfig(team);
+            var participant = new BwParticipant(this, player, team, config);
             this.participants.put(participant.ref, participant);
 
             this.teams.addPlayerTo(player, team);
@@ -253,7 +260,7 @@ public final class BwActive {
             long gameTime = time - this.startTime;
 
             if (this.bedDestruction.update(gameTime)) {
-                for (GameTeam team : this.config.teams()) {
+                for (GameTeam team : this.config.teams().map().keySet()) {
                     this.teamLogic.removeBed(team);
                 }
 
@@ -328,7 +335,7 @@ public final class BwActive {
                     player.getX(),
                     player.getEyeY(),
                     player.getZ(),
-                    team.createFirework(flight, type)
+                    this.getTeamConfig(team).createFirework(flight, type)
             );
 
             this.world.spawnEntity(firework);
@@ -383,6 +390,10 @@ public final class BwActive {
         return this.teams.teamFor(player);
     }
 
+    public GameTeamConfig getTeamConfig(GameTeam team) {
+        return this.teams.getTeamConfig(team);
+    }
+
     public boolean isParticipant(PlayerEntity player) {
         return this.participants.containsKey(PlayerRef.of(player));
     }
@@ -421,6 +432,8 @@ public final class BwActive {
         public static final int MAX_PROTECTION = 3;
 
         final GameTeam team;
+        final GameTeamConfig config;
+
         boolean hasBed = true;
         boolean eliminated;
 
@@ -430,8 +443,9 @@ public final class BwActive {
         public int swordSharpness;
         public int armorProtection;
 
-        TeamState(GameTeam team) {
+        TeamState(GameTeam team, GameTeamConfig config) {
             this.team = team;
+            this.config = config;
         }
     }
 }

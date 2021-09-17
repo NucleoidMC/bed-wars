@@ -77,7 +77,7 @@ public final class BwMap {
             this.teamSpawns.put(team, teamSpawn);
             this.itemGenerators.add(teamSpawn.generator);
         } else {
-            BedWars.LOGGER.warn("Missing spawn for {}", team.key());
+            BedWars.LOGGER.warn("Missing spawn for {}", team.id());
         }
     }
 
@@ -100,19 +100,19 @@ public final class BwMap {
     }
 
     public void spawnShopkeepers(ServerWorld world, BwActive game, BwConfig config) {
-        for (GameTeam team : config.teams()) {
+        for (GameTeam team : config.teams().map().keySet()) {
             TeamRegions regions = this.getTeamRegions(team);
 
             if (regions.teamShop != null) {
                 this.trySpawnEntity(ShopVillagerEntity.team(world, game), regions.teamShop, regions.teamShopDirection);
             } else {
-                BedWars.LOGGER.warn("Missing team shop for {}", team.display());
+                BedWars.LOGGER.warn("Missing team shop for {}", team.id());
             }
 
             if (regions.itemShop != null) {
                 this.trySpawnEntity(ShopVillagerEntity.item(world, game), regions.itemShop, regions.itemShopDirection);
             } else {
-                BedWars.LOGGER.warn("Missing item shop for {}", team.display());
+                BedWars.LOGGER.warn("Missing item shop for {}", team.id());
             }
         }
     }
@@ -232,7 +232,7 @@ public final class BwMap {
         public static final TeamRegions EMPTY = new TeamRegions(null, null, null, null, null, null, Direction.NORTH, Direction.NORTH);
 
         public static TeamRegions fromTemplate(GameTeam team, MapTemplateMetadata metadata) {
-            String teamKey = team.key();
+            String teamKey = team.id();
 
             BlockBounds base = metadata.getFirstRegionBounds(teamKey + "_base");
             BlockBounds spawn = metadata.getFirstRegionBounds(teamKey + "_spawn");

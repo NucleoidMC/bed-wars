@@ -12,6 +12,7 @@ import xyz.nucleoid.bedwars.game.generator.BwSkyMapConfig;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.MapTemplate;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamConfig;
 import xyz.nucleoid.plasmid.util.ColoredBlocks;
 
 import java.util.Random;
@@ -22,10 +23,11 @@ public final class BwTeamIsland {
     final BlockPos origin;
     final BlockBounds bounds;
     final GameTeam team;
+    final GameTeamConfig teamConfig;
     private final double angle;
     private final Direction direction;
 
-    public BwTeamIsland(BlockPos origin, GameTeam team, double angle) {
+    public BwTeamIsland(BlockPos origin, GameTeam team, GameTeamConfig teamConfig, double angle) {
         this.bounds = BlockBounds.of(
                 origin.add(-RADIUS, 0, -RADIUS),
                 origin.add(RADIUS, 0, RADIUS)
@@ -33,14 +35,15 @@ public final class BwTeamIsland {
 
         this.origin = origin;
         this.team = team;
+        this.teamConfig = teamConfig;
 
         this.angle = angle;
         this.direction = Direction.fromRotation(Math.toDegrees(angle) + 90.0);
     }
 
     public void addTo(BwSkyMapConfig config, BwMap map, MapTemplate template) {
-        BlockPos origin = BwTeamIsland.this.origin;
-        BlockState terracotta = ColoredBlocks.terracotta(BwTeamIsland.this.team.blockDyeColor()).getDefaultState();
+        BlockPos origin = this.origin;
+        BlockState terracotta = ColoredBlocks.terracotta(this.teamConfig.blockDyeColor()).getDefaultState();
         Random random = new Random();
 
         for (BlockPos pos : this.bounds) {
@@ -65,7 +68,7 @@ public final class BwTeamIsland {
         template.setBlockState(this.transformPosition(-1, 1, -2), Blocks.CHEST.getDefaultState().with(ChestBlock.FACING, this.direction));
         template.setBlockState(this.transformPosition(1, 1, -2), Blocks.ENDER_CHEST.getDefaultState().with(ChestBlock.FACING, this.direction));
 
-        BlockState bed = ColoredBlocks.bed(this.team.blockDyeColor()).getDefaultState()
+        BlockState bed = ColoredBlocks.bed(this.teamConfig.blockDyeColor()).getDefaultState()
                 .with(BedBlock.FACING, this.direction);
 
         template.setBlockState(this.transformPosition(0, 1, 5), bed.with(BedBlock.PART, BedPart.FOOT));

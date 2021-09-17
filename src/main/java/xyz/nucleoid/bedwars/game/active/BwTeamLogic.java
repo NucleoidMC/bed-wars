@@ -80,7 +80,8 @@ public final class BwTeamLogic {
 
     @Nullable
     private Bed findBed(BlockPos pos) {
-        for (GameTeam team : this.game.config.teams()) {
+        var teams = this.game.config.teams();
+        for (var team : teams.map().keySet()) {
             BwMap.TeamRegions teamRegions = this.game.map.getTeamRegions(team);
             BlockBounds bed = teamRegions.bed();
             if (bed != null && bed.contains(pos)) {

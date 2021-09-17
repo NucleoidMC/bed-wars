@@ -56,9 +56,11 @@ public final class BwWaiting {
                 .setDimensionType(RegistryKey.of(Registry.DIMENSION_TYPE_KEY, config.dimension()));
 
         return context.openWithWorld(worldConfig, (activity, world) -> {
-            GameWaitingLobby.applyTo(activity, config.players());
+            GameWaitingLobby.addTo(activity, config.players());
 
-            TeamSelectionLobby teamSelection = TeamSelectionLobby.applyTo(activity, config.teams());
+            TeamSelectionLobby teamSelection = TeamSelectionLobby.addTo(activity);
+            teamSelection.addTeams(config.teams());
+
             BwWaiting waiting = new BwWaiting(world, activity.getGameSpace(), map, config, teamSelection);
 
             activity.allow(GameRuleType.INTERACTION);
@@ -79,7 +81,7 @@ public final class BwWaiting {
 
     private GameResult requestStart() {
         Multimap<GameTeam, ServerPlayerEntity> players = HashMultimap.create();
-        this.teamSelection.allocate(players::put);
+        this.teamSelection.allocate(this.gameSpace.getPlayers(), players::put);
 
         BwActive.open(this.world, this.gameSpace, this.map, this.config, players);
 

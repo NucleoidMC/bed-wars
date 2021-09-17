@@ -25,7 +25,6 @@ import xyz.nucleoid.bedwars.custom.BwFireballEntity;
 import xyz.nucleoid.bedwars.custom.BwItems;
 import xyz.nucleoid.bedwars.custom.MovingCloud;
 import xyz.nucleoid.bedwars.game.BwMap;
-import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.plasmid.game.GameActivity;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.util.ColoredBlocks;
@@ -53,8 +52,9 @@ public final class BwInteractions {
 
     private ActionResult onBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos pos) {
         if (this.game.map.isProtectedBlock(pos)) {
-            for (GameTeam team : this.game.config.teams()) {
-                BlockBounds bed = this.game.map.getTeamRegions(team).bed();
+            var teams = this.game.config.teams();
+            for (var team : teams.map().keySet()) {
+                var bed = this.game.map.getTeamRegions(team).bed();
                 if (bed != null && bed.contains(pos)) {
                     this.game.teamLogic.onBedBroken(player, pos);
                 }
@@ -117,7 +117,8 @@ public final class BwInteractions {
 
     @Nullable
     private GameTeam getOwningTeamForChest(BlockPos pos) {
-        for (GameTeam team : this.game.config.teams()) {
+        var teams = this.game.config.teams();
+        for (var team : teams.map().keySet()) {
             BwMap.TeamRegions regions = this.game.map.getTeamRegions(team);
             if (regions.teamChest() != null && regions.teamChest().contains(pos)) {
                 return team;
@@ -170,7 +171,9 @@ public final class BwInteractions {
             return TypedActionResult.pass(stack);
         }
 
-        BlockState state = ColoredBlocks.wool(team.blockDyeColor()).getDefaultState();
+        var teamConfig = this.game.getTeamConfig(team);
+
+        BlockState state = ColoredBlocks.wool(teamConfig.blockDyeColor()).getDefaultState();
 
         // Spawn egg
         BridgeEggEntity eggEntity = new BridgeEggEntity(this.world, player, state);

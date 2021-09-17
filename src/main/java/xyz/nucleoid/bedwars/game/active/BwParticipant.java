@@ -7,12 +7,14 @@ import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.active.upgrade.PlayerUpgrades;
 import xyz.nucleoid.bedwars.game.active.upgrade.UpgradeType;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamConfig;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 
 public final class BwParticipant {
     private final ServerWorld world;
     public final PlayerRef ref;
     public final GameTeam team;
+    public final GameTeamConfig teamConfig;
 
     public final PlayerUpgrades upgrades;
 
@@ -22,10 +24,11 @@ public final class BwParticipant {
     long respawnTime = -1;
     boolean eliminated;
 
-    BwParticipant(BwActive game, ServerPlayerEntity player, GameTeam team) {
+    BwParticipant(BwActive game, ServerPlayerEntity player, GameTeam team, GameTeamConfig teamConfig) {
         this.world = player.getServerWorld();
         this.ref = PlayerRef.of(player);
         this.team = team;
+        this.teamConfig = teamConfig;
 
         this.upgrades = new PlayerUpgrades(game, this);
 

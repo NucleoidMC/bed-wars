@@ -5,12 +5,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.dimension.DimensionType;
-import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameModifier;
 import xyz.nucleoid.bedwars.game.generator.BwSkyMapConfig;
 import xyz.nucleoid.plasmid.game.common.config.CombatConfig;
 import xyz.nucleoid.plasmid.game.common.config.PlayerConfig;
-import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamsConfig;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +19,7 @@ public record BwConfig(
         Either<BwSkyMapConfig, Identifier> map,
         CombatConfig combat,
         List<GameModifier> modifiers,
-        List<GameTeam> teams,
+        GameTeamsConfig teams,
         PlayerConfig players,
         boolean keepInventory
 ) {
@@ -30,19 +29,9 @@ public record BwConfig(
                 Codec.either(BwSkyMapConfig.CODEC, Identifier.CODEC).fieldOf("map").forGetter(BwConfig::map),
                 CombatConfig.CODEC.optionalFieldOf("combat", CombatConfig.DEFAULT).forGetter(BwConfig::combat),
                 GameModifier.CODEC.listOf().optionalFieldOf("modifiers", Collections.emptyList()).forGetter(BwConfig::modifiers),
-                GameTeam.CODEC.listOf().fieldOf("teams").forGetter(BwConfig::teams),
+                GameTeamsConfig.CODEC.fieldOf("teams").forGetter(BwConfig::teams),
                 PlayerConfig.CODEC.fieldOf("players").forGetter(BwConfig::players),
                 Codec.BOOL.optionalFieldOf("keep_inventory", false).forGetter(BwConfig::keepInventory)
         ).apply(instance, BwConfig::new);
     });
-
-    @Nullable
-    public GameTeam getTeam(String key) {
-        for (GameTeam team : this.teams) {
-            if (team.key().equals(key)) {
-                return team;
-            }
-        }
-        return null;
-    }
 }
