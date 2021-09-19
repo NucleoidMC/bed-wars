@@ -35,7 +35,7 @@ public final class BwSkyMapBuilder {
         Random random = new Random();
         long seed = random.nextLong();
 
-        centerIsland.addTo(map, template, seed, this.config.teams().map().size(), this.skyConfig.emeraldSpawnerDistance);
+        centerIsland.addTo(map, template, seed, this.config.teams().list().size(), this.skyConfig.emeraldSpawnerDistance);
 
         for (BwDiamondIsland diamondIsland : diamondIslands) {
             diamondIsland.addTo(map, template, seed);
@@ -77,21 +77,18 @@ public final class BwSkyMapBuilder {
     private List<BwTeamIsland> buildTeamIslands() {
         List<BwTeamIsland> teamIslands = new ArrayList<>();
 
-        var teams = this.config.teams().map();
+        var teams = this.config.teams().list();
 
-        int i = 0;
-        for (var entry : teams.entrySet()) {
-            var team = entry.getKey();
-            var teamConfig = entry.getValue();
+        for (int i = 0; i < teams.size(); i++) {
+            var team = teams.get(i);
 
             double theta = ((double) i / teams.size()) * (2 * Math.PI);
             double x = Math.cos(theta) * this.skyConfig.spawnIslandDistance;
             double z = Math.sin(theta) * this.skyConfig.spawnIslandDistance;
 
             BlockPos pos = new BlockPos(x, 72, z);
-            teamIslands.add(new BwTeamIsland(pos, team, teamConfig, theta));
+            teamIslands.add(new BwTeamIsland(pos, team, theta));
 
-            i++;
         }
 
         return teamIslands;

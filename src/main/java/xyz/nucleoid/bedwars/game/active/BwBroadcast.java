@@ -21,7 +21,7 @@ public final class BwBroadcast {
     }
 
     public void broadcastTrapSetOff(GameTeam team) {
-        var players = this.game.playersFor(team);
+        var players = this.game.playersFor(team.key());
 
         players.sendMessage(new TranslatableText("text.bedwars.trap_set_off").formatted(Formatting.BOLD, Formatting.RED));
         this.sendTitle(players, new TranslatableText("text.bedwars.title.trap_set_off").formatted(Formatting.RED), null);
@@ -29,16 +29,15 @@ public final class BwBroadcast {
     }
 
     public void broadcastToTeam(GameTeam team, MutableText upgradeText) {
-        this.game.playersFor(team).sendMessage(upgradeText);
+        this.game.playersFor(team.key()).sendMessage(upgradeText);
     }
 
     public void broadcastGameOver(BwWinStateLogic.WinResult winResult) {
         var winningTeam = winResult.team();
 
         if (winningTeam != null) {
-            var winningTeamConfig = this.game.getTeamConfig(winningTeam);
             this.game.players().sendMessage(
-                    new TranslatableText("text.bedwars.team_win", winningTeamConfig.name()).formatted(winningTeamConfig.chatFormatting(), Formatting.BOLD)
+                    new TranslatableText("text.bedwars.team_win", winningTeam.config().name()).formatted(winningTeam.config().chatFormatting(), Formatting.BOLD)
             );
         } else {
             this.game.players().sendMessage(new TranslatableText("text.bedwars.draw").formatted(Formatting.BOLD));
@@ -61,18 +60,15 @@ public final class BwBroadcast {
     }
 
     public void broadcastBedBroken(ServerPlayerEntity player, GameTeam bedTeam, @Nullable GameTeam destroyerTeam) {
-        var bedTeamConfig = this.game.getTeamConfig(bedTeam);
-        var destroyerTeamConfig = destroyerTeam != null ? this.game.getTeamConfig(destroyerTeam) : null;
-
         var playerName = player.getDisplayName().shallowCopy()
-                .formatted(destroyerTeamConfig != null ? destroyerTeamConfig.chatFormatting() : Formatting.OBFUSCATED);
-        Text announcement = new TranslatableText("text.bedwars.bed_destroyed", bedTeamConfig.name(), playerName).formatted(Formatting.GRAY);
+                .formatted(destroyerTeam != null ? destroyerTeam.config().chatFormatting() : Formatting.OBFUSCATED);
+        Text announcement = new TranslatableText("text.bedwars.bed_destroyed", bedTeam.config().name(), playerName).formatted(Formatting.GRAY);
 
         PlayerSet players = this.game.players();
         players.sendMessage(announcement);
         players.playSound(SoundEvents.BLOCK_END_PORTAL_SPAWN);
 
-        PlayerSet teamPlayers = this.game.playersFor(bedTeam);
+        PlayerSet teamPlayers = this.game.playersFor(bedTeam.key());
 
         teamPlayers.sendMessage(new TranslatableText("text.bedwars.cannot_respawn").formatted(Formatting.RED));
 
@@ -84,10 +80,8 @@ public final class BwBroadcast {
     }
 
     public void broadcastTeamEliminated(GameTeam team) {
-        var teamConfig = this.game.getTeamConfig(team);
-
-        this.game.playersFor(team).sendMessage(
-                new TranslatableText("text.bedwars.team_eliminated", teamConfig.name()).formatted(teamConfig.chatFormatting()).formatted(Formatting.BOLD)
+        this.game.playersFor(team.key()).sendMessage(
+                new TranslatableText("text.bedwars.team_eliminated", team.config().name()).formatted(team.config().chatFormatting()).formatted(Formatting.BOLD)
         );
     }
 

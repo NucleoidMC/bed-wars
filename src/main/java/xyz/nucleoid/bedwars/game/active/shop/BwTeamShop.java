@@ -32,10 +32,10 @@ public final class BwTeamShop {
     public static void open(ServerPlayerEntity player, BwActive game) {
         List<GuiElementInterface> shop = new ArrayList<>();
 
-        BwParticipant participant = game.getParticipant(player);
+        BwParticipant participant = game.participantBy(player);
         if (participant == null) return;
 
-        BwActive.TeamState teamState = game.getTeam(participant.team);
+        BwActive.TeamState teamState = game.teamState(participant.team.key());
         GameTeam team = participant.team;
         if (teamState != null) {
             String baseTrapName = "base_trap";
@@ -98,7 +98,7 @@ public final class BwTeamShop {
             );
         }
 
-        BwMap.TeamSpawn teamSpawn = game.map.getTeamSpawn(participant.team);
+        BwMap.TeamSpawn teamSpawn = game.map.getTeamSpawn(participant.team.key());
         if (teamSpawn != null) {
 
             String generatorName = "generator";
@@ -121,7 +121,7 @@ public final class BwTeamShop {
     }
 
     private static int teamScaledCost(BwActive game, GameTeam team, double original) {
-        return game.playersFor(team).size() <= 2 ? (int) original : (int) (original * 2);
+        return game.playersFor(team.key()).size() <= 2 ? (int) original : (int) (original * 2);
     }
 
     private static ItemStack createIcon(Item item, String id) {

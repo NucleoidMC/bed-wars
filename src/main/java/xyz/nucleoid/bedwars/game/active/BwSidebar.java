@@ -45,9 +45,11 @@ public final class BwSidebar {
             content.add(LiteralText.EMPTY);
 
             content.add(new LiteralText("Teams:").formatted(Formatting.BOLD));
-            this.game.teams().forEach(teamState -> {
-                long totalPlayerCount = this.game.participantsFor(teamState.team).count();
-                long alivePlayerCount = this.game.participantsFor(teamState.team)
+            this.game.teamsStates().forEach(teamState -> {
+                var team = teamState.team;
+
+                long totalPlayerCount = this.game.participantsFor(team.key()).count();
+                long alivePlayerCount = this.game.participantsFor(team.key())
                         .filter(BwParticipant::isAlive)
                         .count();
 
@@ -57,13 +59,13 @@ public final class BwSidebar {
                         state += " (no bed)";
                     }
 
-                    Text name = teamState.config.name().shallowCopy()
+                    Text name = team.config().name().shallowCopy()
                             .formatted(Formatting.BOLD);
                     Text description = new LiteralText(": " + state)
                             .formatted(Formatting.GRAY);
                     content.add(new LiteralText("  ").append(name).append(description));
                 } else {
-                    Text name = teamState.config.name().shallowCopy()
+                    Text name = team.config().name().shallowCopy()
                             .formatted(Formatting.BOLD, Formatting.STRIKETHROUGH);
                     Text description = new LiteralText(": eliminated!")
                             .formatted(Formatting.RED);

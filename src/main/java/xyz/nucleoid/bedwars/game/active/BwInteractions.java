@@ -52,9 +52,8 @@ public final class BwInteractions {
 
     private ActionResult onBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos pos) {
         if (this.game.map.isProtectedBlock(pos)) {
-            var teams = this.game.config.teams();
-            for (var team : teams.map().keySet()) {
-                var bed = this.game.map.getTeamRegions(team).bed();
+            for (var team : this.game.teams()) {
+                var bed = this.game.map.getTeamRegions(team.key()).bed();
                 if (bed != null && bed.contains(pos)) {
                     this.game.teamLogic.onBedBroken(player, pos);
                 }
@@ -76,7 +75,7 @@ public final class BwInteractions {
             return ActionResult.PASS;
         }
 
-        BwParticipant participant = this.game.getParticipant(player);
+        BwParticipant participant = this.game.participantBy(player);
         if (participant != null) {
             ItemStack heldStack = player.getStackInHand(hand);
             if (heldStack.getItem() == Items.FIRE_CHARGE) {
@@ -105,7 +104,7 @@ public final class BwInteractions {
             return ActionResult.PASS;
         }
 
-        BwActive.TeamState chestTeamState = this.game.getTeam(chestTeam);
+        BwActive.TeamState chestTeamState = this.game.teamState(chestTeam.key());
         if (chestTeamState == null || chestTeamState.eliminated) {
             return ActionResult.PASS;
         }
@@ -117,9 +116,8 @@ public final class BwInteractions {
 
     @Nullable
     private GameTeam getOwningTeamForChest(BlockPos pos) {
-        var teams = this.game.config.teams();
-        for (var team : teams.map().keySet()) {
-            BwMap.TeamRegions regions = this.game.map.getTeamRegions(team);
+        for (var team : this.game.teams()) {
+            BwMap.TeamRegions regions = this.game.map.getTeamRegions(team.key());
             if (regions.teamChest() != null && regions.teamChest().contains(pos)) {
                 return team;
             }
@@ -166,14 +164,12 @@ public final class BwInteractions {
         );
 
         // Get player wool color
-        GameTeam team = this.game.getTeam(PlayerRef.of(player));
+        GameTeam team = this.game.teamFor(PlayerRef.of(player));
         if (team == null) {
             return TypedActionResult.pass(stack);
         }
 
-        var teamConfig = this.game.getTeamConfig(team);
-
-        BlockState state = ColoredBlocks.wool(teamConfig.blockDyeColor()).getDefaultState();
+        BlockState state = ColoredBlocks.wool(team.config().blockDyeColor()).getDefaultState();
 
         // Spawn egg
         BridgeEggEntity eggEntity = new BridgeEggEntity(this.world, player, state);

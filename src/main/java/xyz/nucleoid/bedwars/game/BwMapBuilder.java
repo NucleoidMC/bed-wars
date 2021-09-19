@@ -46,9 +46,9 @@ public final class BwMapBuilder {
         metadata.getRegionBounds("diamond_spawn").forEach(map::addDiamondGenerator);
         metadata.getRegionBounds("emerald_spawn").forEach(map::addEmeraldGenerator);
 
-        for (GameTeam team : this.config.teams().map().keySet()) {
-            BwMap.TeamRegions regions = BwMap.TeamRegions.fromTemplate(team, metadata);
-            map.addTeamRegions(team, regions);
+        for (GameTeam team : this.config.teams()) {
+            BwMap.TeamRegions regions = BwMap.TeamRegions.fromTemplate(team.key(), metadata);
+            map.addTeamRegions(team.key(), regions);
         }
 
         for (BlockPos pos : template.getBounds()) {

@@ -12,10 +12,10 @@
   "combat": {
     "old_mechanics": false
   },
-  "teams": {
-    "warped": {"name": "Warped", "color": "cyan"},
-    "crimson": {"name": "Crimson", "color": "red"},
-    "soul": {"name": "Soul", "color": "brown"},
-    "basalt": {"name": "Basalt", "color": "gray"}
-  }
+  "teams": [
+    {"key": "warped", "name": "Warped", "color": "cyan"},
+    {"key": "crimson", "name": "Crimson", "color": "red"},
+    {"key": "soul", "name": "Soul", "color": "brown"},
+    {"key": "basalt", "name": "Basalt", "color": "gray"}
+  ]
 }

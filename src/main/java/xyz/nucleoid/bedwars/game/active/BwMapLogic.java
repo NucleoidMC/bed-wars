@@ -27,7 +27,7 @@ public final class BwMapLogic {
         }
 
         if (world.getTime() % 20 == 0) {
-            this.game.teams().forEach(team -> {
+            this.game.teamsStates().forEach(team -> {
                 if (team.trapSet) {
                     if (this.tickTrap(team)) {
                         this.game.broadcast.broadcastTrapSetOff(team.team);
@@ -48,7 +48,7 @@ public final class BwMapLogic {
 
     private boolean tickTrap(BwActive.TeamState teamState) {
         ServerWorld world = this.game.world;
-        BwMap.TeamRegions regions = this.game.map.getTeamRegions(teamState.team);
+        BwMap.TeamRegions regions = this.game.map.getTeamRegions(teamState.team.key());
 
         if (regions.base() != null) {
             List<PlayerEntity> entities = world.getEntitiesByType(EntityType.PLAYER, regions.base().asBox(), player -> {
@@ -57,7 +57,7 @@ public final class BwMapLogic {
                     return false;
                 }
 
-                BwParticipant participant = this.game.getParticipant(player);
+                BwParticipant participant = this.game.participantBy(player);
                 return participant != null && !participant.team.equals(teamState.team) && !participant.eliminated;
             });
 
@@ -75,13 +75,13 @@ public final class BwMapLogic {
 
     private void tickHealPool(BwActive.TeamState teamState) {
         ServerWorld world = this.game.world;
-        BwMap.TeamRegions regions = this.game.map.getTeamRegions(teamState.team);
+        BwMap.TeamRegions regions = this.game.map.getTeamRegions(teamState.team.key());
 
         if (regions.base() != null) {
             Box box = regions.base().asBox();
 
             List<PlayerEntity> entities = world.getEntitiesByType(EntityType.PLAYER, box, player -> {
-                BwParticipant participant = this.game.getParticipant(player);
+                BwParticipant participant = this.game.participantBy(player);
                 return participant != null && participant.team.equals(teamState.team);
             });
 
@@ -92,7 +92,7 @@ public final class BwMapLogic {
     }
 
     private void tickTeamEffect(BwActive.TeamState teamState, StatusEffect effect, int amplifier) {
-        this.game.participantsFor(teamState.team).forEach(participant -> {
+        this.game.participantsFor(teamState.team.key()).forEach(participant -> {
             ServerPlayerEntity player = participant.player();
             if (player == null) {
                 return;

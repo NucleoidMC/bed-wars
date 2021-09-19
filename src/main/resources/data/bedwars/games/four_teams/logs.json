@@ -11,10 +11,10 @@
   "combat": {
     "old_mechanics": false
   },
-  "teams": {
-    "blue": {"name": "Blue", "color": "blue"},
-    "green": {"name": "Green", "color": "green"},
-    "yellow": {"name": "Yellow", "color": "yellow"},
-    "red": {"name": "Red", "color": "red"}
-  }
+  "teams": [
+    {"key": "blue", "name": "Blue", "color": "blue"},
+    {"key": "green", "name": "Green", "color": "green"},
+    {"key": "yellow", "name": "Yellow", "color": "yellow"},
+    {"key": "red", "name": "Red", "color": "red"}
+  ]
 }

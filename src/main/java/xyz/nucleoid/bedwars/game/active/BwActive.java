@@ -34,7 +34,8 @@ import xyz.nucleoid.plasmid.game.common.GlobalWidgets;
 import xyz.nucleoid.plasmid.game.common.OldCombat;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.game.common.team.GameTeamConfig;
-import xyz.nucleoid.plasmid.game.common.team.GameTeamsConfig;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamList;
 import xyz.nucleoid.plasmid.game.common.team.TeamChat;
 import xyz.nucleoid.plasmid.game.common.team.TeamManager;
 import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
@@ -67,7 +68,7 @@ public final class BwActive {
     public final BwConfig config;
 
     private final Map<PlayerRef, BwParticipant> participants = new Object2ObjectOpenHashMap<>();
-    private final Map<GameTeam, TeamState> teamStates = new Reference2ObjectOpenHashMap<>();
+    private final Map<GameTeamKey, TeamState> teamStates = new Reference2ObjectOpenHashMap<>();
 
     private final TeamManager teams;
 
@@ -113,7 +114,7 @@ public final class BwActive {
         this.interactions = new BwInteractions(this);
     }
 
-    public static void open(ServerWorld world, GameSpace gameSpace, BwMap map, BwConfig config, Multimap<GameTeam, ServerPlayerEntity> players) {
+    public static void open(ServerWorld world, GameSpace gameSpace, BwMap map, BwConfig config, Multimap<GameTeamKey, ServerPlayerEntity> players) {
         gameSpace.setActivity(activity -> {
             TeamManager teamManager = TeamManager.addTo(activity);
             GlobalWidgets widgets = GlobalWidgets.addTo(activity);
@@ -150,27 +151,27 @@ public final class BwActive {
         });
     }
 
-    private void addTeams(GameTeamsConfig teams) {
-        for (var entry : teams.map().entrySet()) {
-            var team = entry.getKey();
-            var config = GameTeamConfig.builder(entry.getValue())
+    private void addTeams(GameTeamList teams) {
+        for (var team : teams) {
+            var config = GameTeamConfig.builder(team.config())
                     .setCollision(AbstractTeam.CollisionRule.NEVER)
                     .setFriendlyFire(false)
                     .build();
 
-            this.teams.addTeam(team, config);
+            var newTeam = new GameTeam(team.key(), config);
+            this.teams.addTeam(newTeam);
 
-            this.teamStates.put(team, new TeamState(team, config));
+            this.teamStates.put(team.key(), new TeamState(newTeam));
         }
     }
 
-    private void addPlayers(Multimap<GameTeam, ServerPlayerEntity> players) {
-        players.forEach((team, player) -> {
-            var config = this.teams.getTeamConfig(team);
-            var participant = new BwParticipant(this, player, team, config);
+    private void addPlayers(Multimap<GameTeamKey, ServerPlayerEntity> players) {
+        players.forEach((teamKey, player) -> {
+            var teamConfig = this.teams.getTeamConfig(teamKey);
+            var participant = new BwParticipant(this, player, new GameTeam(teamKey, teamConfig));
             this.participants.put(participant.ref, participant);
 
-            this.teams.addPlayerTo(player, team);
+            this.teams.addPlayerTo(player, teamKey);
         });
     }
 
@@ -204,7 +205,7 @@ public final class BwActive {
         return offer.accept(this.world, this.map.getCenterSpawn())
                 .and(() -> {
                     this.spawnLogic.resetPlayer(player, GameMode.SPECTATOR);
-                    BwParticipant participant = this.getParticipant(player);
+                    BwParticipant participant = this.participantBy(player);
                     if (participant != null) {
                         this.rejoinParticipant(player, participant);
                     }
@@ -223,14 +224,14 @@ public final class BwActive {
             return ActionResult.FAIL;
         }
 
-        BwParticipant attackedParticipant = this.getParticipant(attackedPlayer);
+        BwParticipant attackedParticipant = this.participantBy(attackedPlayer);
         if (attackedParticipant == null) {
             return ActionResult.PASS;
         }
 
         Entity attacker = source.getAttacker();
         if (attacker instanceof ServerPlayerEntity attackerPlayer) {
-            BwParticipant attackerParticipant = this.getParticipant(attackerPlayer);
+            BwParticipant attackerParticipant = this.participantBy(attackerPlayer);
 
             if (attackerParticipant != null) {
                 if (attackerParticipant.team == attackedParticipant.team) {
@@ -260,8 +261,8 @@ public final class BwActive {
             long gameTime = time - this.startTime;
 
             if (this.bedDestruction.update(gameTime)) {
-                for (GameTeam team : this.config.teams().map().keySet()) {
-                    this.teamLogic.removeBed(team);
+                for (GameTeam team : this.teams) {
+                    this.teamLogic.removeBed(team.key());
                 }
 
                 players.sendMessage(new TranslatableText("text.bedwars.all_beds_destroyed").formatted(Formatting.RED));
@@ -335,7 +336,7 @@ public final class BwActive {
                     player.getX(),
                     player.getEyeY(),
                     player.getZ(),
-                    this.getTeamConfig(team).createFirework(flight, type)
+                    team.config().createFirework(flight, type)
             );
 
             this.world.spawnEntity(firework);
@@ -343,7 +344,7 @@ public final class BwActive {
     }
 
     private ActionResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
-        BwParticipant participant = this.getParticipant(player);
+        BwParticipant participant = this.participantBy(player);
 
         // TODO: cancel if cause is own player
         if (participant != null) {
@@ -376,33 +377,30 @@ public final class BwActive {
     }
 
     @Nullable
-    public BwParticipant getParticipant(PlayerEntity player) {
+    public BwParticipant participantBy(PlayerEntity player) {
         return this.participants.get(PlayerRef.of(player));
     }
 
     @Nullable
-    public BwParticipant getParticipant(PlayerRef player) {
+    public BwParticipant participantBy(PlayerRef player) {
         return this.participants.get(player);
     }
 
     @Nullable
-    public GameTeam getTeam(PlayerRef player) {
-        return this.teams.teamFor(player);
-    }
-
-    public GameTeamConfig getTeamConfig(GameTeam team) {
-        return this.teams.getTeamConfig(team);
+    public GameTeam teamFor(PlayerRef player) {
+        var participant = this.participants.get(player);
+        return participant!= null ? participant.team : null;
     }
 
     public boolean isParticipant(PlayerEntity player) {
         return this.participants.containsKey(PlayerRef.of(player));
     }
 
-    public Stream<BwParticipant> participantsFor(GameTeam team) {
-        return this.participants.values().stream().filter(participant -> participant.team == team);
+    public Stream<BwParticipant> participantsFor(GameTeamKey team) {
+        return this.participants.values().stream().filter(participant -> participant.team.key() == team);
     }
 
-    public PlayerSet playersFor(GameTeam team) {
+    public PlayerSet playersFor(GameTeamKey team) {
         return this.teams.playersIn(team);
     }
 
@@ -414,7 +412,11 @@ public final class BwActive {
         return this.participants.values().stream();
     }
 
-    public Stream<TeamState> teams() {
+    public TeamManager teams() {
+        return this.teams;
+    }
+
+    public Stream<TeamState> teamsStates() {
         return this.teamStates.values().stream();
     }
 
@@ -423,7 +425,7 @@ public final class BwActive {
     }
 
     @Nullable
-    public TeamState getTeam(GameTeam team) {
+    public TeamState teamState(GameTeamKey team) {
         return this.teamStates.get(team);
     }
 
@@ -432,7 +434,6 @@ public final class BwActive {
         public static final int MAX_PROTECTION = 3;
 
         final GameTeam team;
-        final GameTeamConfig config;
 
         boolean hasBed = true;
         boolean eliminated;
@@ -443,9 +444,8 @@ public final class BwActive {
         public int swordSharpness;
         public int armorProtection;
 
-        TeamState(GameTeam team, GameTeamConfig config) {
+        TeamState(GameTeam team) {
             this.team = team;
-            this.config = config;
         }
     }
 }

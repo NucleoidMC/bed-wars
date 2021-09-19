@@ -40,7 +40,7 @@ public final class ArmorUpgrade implements Upgrade {
 
         for (int i = 0; i < armorStacks.length; i++) {
             int slot = ARMOR_SLOTS[i].getEntitySlotId();
-            ItemStack stack = game.createArmor(participant.teamConfig.applyDye(armorStacks[i]));
+            ItemStack stack = game.createArmor(participant.team.config().applyDye(armorStacks[i]));
             player.getInventory().armor.set(slot, stack);
         }
     }

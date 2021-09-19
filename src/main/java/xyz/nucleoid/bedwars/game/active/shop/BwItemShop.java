@@ -63,7 +63,7 @@ public final class BwItemShop extends LayeredGui {
     }
 
     public static void open(ServerPlayerEntity player, BwActive game) {
-        BwParticipant participant = game.getParticipant(player);
+        BwParticipant participant = game.participantBy(player);
         if (participant != null) {
             new BwItemShop(player, participant).open();
         }
@@ -124,7 +124,7 @@ public final class BwItemShop extends LayeredGui {
     }
 
     private void createBlocks(Consumer<GuiElementInterface> items) {
-        DyeColor color = participant.teamConfig.blockDyeColor();
+        DyeColor color = participant.team.config().blockDyeColor();
         items.accept(ShopEntry.buyItem(new ItemStack(ColoredBlocks.wool(color), 16), Cost.ofIron(4)));
         items.accept(ShopEntry.buyItem(new ItemStack(ColoredBlocks.terracotta(color), 16), Cost.ofIron(16)));
 

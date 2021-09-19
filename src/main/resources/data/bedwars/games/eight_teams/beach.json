@@ -11,14 +11,14 @@
   "combat": {
     "old_mechanics": false
   },
-  "teams": {
-    "dark_blue": {"name": "Blue", "color": "blue"},
-    "light_blue": {"name": "Light Blue", "color": "cyan"},
-    "green": {"name": "Green", "color": "green"},
-    "lime": {"name": "Lime", "color": "lime"},
-    "yellow": {"name": "Yellow", "color": "yellow"},
-    "orange": {"name": "Orange", "color": "orange"},
-    "red": {"name": "Red", "color": "red"},
-    "purple": {"name": "Purple", "color": "purple"}
-  }
+  "teams": [
+    {"key": "dark_blue", "name": "Blue", "color": "blue"},
+    {"key": "light_blue", "name": "Light Blue", "color": "cyan"},
+    {"key": "green", "name": "Green", "color": "green"},
+    {"key": "lime", "name": "Lime", "color": "lime"},
+    {"key": "yellow", "name": "Yellow", "color": "yellow"},
+    {"key": "orange", "name": "Orange", "color": "orange"},
+    {"key": "red", "name": "Red", "color": "red"},
+    {"key": "purple", "name": "Purple", "color": "purple"}
+  ]
 }

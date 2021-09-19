@@ -71,7 +71,7 @@ public final class BwPlayerLogic {
             player.getInventory().clear();
         }
 
-        BwParticipant participant = this.game.getParticipant(player);
+        BwParticipant participant = this.game.participantBy(player);
         if (participant != null) {
             this.equipDefault(player, participant);
         }
@@ -81,7 +81,7 @@ public final class BwPlayerLogic {
 
     // TODO: integrate enchantment system as "modifiers" to upgrades
     public void applyEnchantments(ServerPlayerEntity player, BwParticipant participant) {
-        BwActive.TeamState teamState = this.game.getTeam(participant.team);
+        BwActive.TeamState teamState = this.game.teamState(participant.team.key());
         if (teamState == null) {
             return;
         }
@@ -113,7 +113,7 @@ public final class BwPlayerLogic {
     }
 
     public void startRespawning(ServerPlayerEntity player, BwMap.TeamSpawn spawn) {
-        BwParticipant participant = this.game.getParticipant(player);
+        BwParticipant participant = this.game.participantBy(player);
         if (participant != null) {
             participant.startRespawning(spawn);
             player.sendMessage(new TranslatableText("text.bedwars.respawn_cooldown", BwActive.RESPAWN_TIME_SECONDS).formatted(Formatting.BOLD), false);

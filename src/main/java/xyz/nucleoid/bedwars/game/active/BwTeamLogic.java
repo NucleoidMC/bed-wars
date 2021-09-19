@@ -9,6 +9,7 @@ import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
 
 public final class BwTeamLogic {
     private final BwActive game;
@@ -18,7 +19,7 @@ public final class BwTeamLogic {
     }
 
     public void applyEnchantments(GameTeam team) {
-        this.game.participantsFor(team).forEach(participant -> {
+        this.game.participantsFor(team.key()).forEach(participant -> {
             ServerPlayerEntity player = participant.player();
             if (player != null) {
                 this.game.playerLogic.applyEnchantments(player, participant);
@@ -32,9 +33,9 @@ public final class BwTeamLogic {
 
     @Nullable
     public BwMap.TeamSpawn tryRespawn(BwParticipant participant) {
-        BwActive.TeamState teamState = this.game.getTeam(participant.team);
+        BwActive.TeamState teamState = this.game.teamState(participant.team.key());
         if (teamState != null && teamState.hasBed) {
-            return this.game.map.getTeamSpawn(participant.team);
+            return this.game.map.getTeamSpawn(participant.team.key());
         }
 
         return null;
@@ -43,7 +44,7 @@ public final class BwTeamLogic {
     public void onBedBroken(ServerPlayerEntity player, BlockPos pos) {
         GameTeam destroyerTeam = null;
 
-        var participant = this.game.getParticipant(player);
+        var participant = this.game.participantBy(player);
         if (participant != null && !participant.eliminated) {
             destroyerTeam = participant.team;
         }
@@ -53,17 +54,17 @@ public final class BwTeamLogic {
             return;
         }
 
-        if (this.removeBed(bed.team)) {
+        if (this.removeBed(bed.team.key())) {
             this.game.broadcast.broadcastBedBroken(player, bed.team, destroyerTeam);
         }
     }
 
-    public boolean removeBed(GameTeam team) {
-        BwActive.TeamState teamState = this.game.getTeam(team);
+    public boolean removeBed(GameTeamKey team) {
+        BwActive.TeamState teamState = this.game.teamState(team);
         if (teamState != null && teamState.hasBed) {
             teamState.hasBed = false;
 
-            var bed = this.game.map.getTeamRegions(teamState.team).bed();
+            var bed = this.game.map.getTeamRegions(teamState.team.key()).bed();
 
             var world = this.game.world;
             for (BlockPos pos : bed) {
@@ -80,9 +81,8 @@ public final class BwTeamLogic {
 
     @Nullable
     private Bed findBed(BlockPos pos) {
-        var teams = this.game.config.teams();
-        for (var team : teams.map().keySet()) {
-            BwMap.TeamRegions teamRegions = this.game.map.getTeamRegions(team);
+        for (var team : this.game.teams()) {
+            BwMap.TeamRegions teamRegions = this.game.map.getTeamRegions(team.key());
             BlockBounds bed = teamRegions.bed();
             if (bed != null && bed.contains(pos)) {
                 return new Bed(team, bed);

@@ -2,6 +2,7 @@ package xyz.nucleoid.bedwars.game.active;
 
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,7 +24,7 @@ public final class BwWinStateLogic {
             return null;
         }
 
-        List<BwActive.TeamState> remainingTeams = this.game.teams()
+        List<BwActive.TeamState> remainingTeams = this.game.teamsStates()
                 .filter(team -> !team.eliminated)
                 .collect(Collectors.toList());
 
@@ -40,10 +41,10 @@ public final class BwWinStateLogic {
     }
 
     private void checkEliminatedTeams() {
-        Stream<BwActive.TeamState> eliminatedTeams = this.game.teams()
+        Stream<BwActive.TeamState> eliminatedTeams = this.game.teamsStates()
                 .filter(team -> !team.eliminated)
-                .filter(team -> {
-                    long remainingCount = this.countRemainingPlayers(team.team);
+                .filter(state -> {
+                    long remainingCount = this.countRemainingPlayers(state.team.key());
                     return remainingCount <= 0;
                 });
 
@@ -53,16 +54,16 @@ public final class BwWinStateLogic {
     public void eliminatePlayer(BwParticipant participant) {
         participant.eliminated = true;
 
-        BwActive.TeamState teamState = this.game.getTeam(participant.team);
+        BwActive.TeamState teamState = this.game.teamState(participant.team.key());
         if (teamState != null && !teamState.eliminated) {
-            long remainingCount = this.countRemainingPlayers(participant.team);
+            long remainingCount = this.countRemainingPlayers(participant.team.key());
             if (remainingCount <= 0) {
                 this.eliminateTeam(teamState);
             }
         }
     }
 
-    private long countRemainingPlayers(GameTeam team) {
+    private long countRemainingPlayers(GameTeamKey team) {
         return this.game.participantsFor(team)
                 .filter(BwParticipant::isAlive)
                 .count();
@@ -71,7 +72,7 @@ public final class BwWinStateLogic {
     private void eliminateTeam(BwActive.TeamState teamState) {
         teamState.eliminated = true;
 
-        this.game.participantsFor(teamState.team).forEach(participant -> {
+        this.game.participantsFor(teamState.team.key()).forEach(participant -> {
             participant.eliminated = true;
         });
 

@@ -16,7 +16,7 @@ import xyz.nucleoid.plasmid.game.GameOpenProcedure;
 import xyz.nucleoid.plasmid.game.GameResult;
 import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.common.GameWaitingLobby;
-import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
 import xyz.nucleoid.plasmid.game.common.team.TeamSelectionLobby;
 import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
 import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
@@ -58,8 +58,7 @@ public final class BwWaiting {
         return context.openWithWorld(worldConfig, (activity, world) -> {
             GameWaitingLobby.addTo(activity, config.players());
 
-            TeamSelectionLobby teamSelection = TeamSelectionLobby.addTo(activity);
-            teamSelection.addTeams(config.teams());
+            TeamSelectionLobby teamSelection = TeamSelectionLobby.addTo(activity, config.teams());
 
             BwWaiting waiting = new BwWaiting(world, activity.getGameSpace(), map, config, teamSelection);
 
@@ -80,7 +79,7 @@ public final class BwWaiting {
     }
 
     private GameResult requestStart() {
-        Multimap<GameTeam, ServerPlayerEntity> players = HashMultimap.create();
+        Multimap<GameTeamKey, ServerPlayerEntity> players = HashMultimap.create();
         this.teamSelection.allocate(this.gameSpace.getPlayers(), players::put);
 
         BwActive.open(this.world, this.gameSpace, this.map, this.config, players);

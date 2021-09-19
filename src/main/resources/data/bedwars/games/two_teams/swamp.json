@@ -53,8 +53,8 @@
   "combat": {
     "old_mechanics": false
   },
-  "teams": {
-    "lily_pad": {"name": "Lily Pad", "color": "green"},
-    "dirt": {"name": "Dirt", "color": "brown"}
-  }
+  "teams": [
+    {"key": "lily_pad", "name": "Lily Pad", "color": "green"},
+    {"key": "dirt", "name": "Dirt", "color": "brown"}
+  ]
 }

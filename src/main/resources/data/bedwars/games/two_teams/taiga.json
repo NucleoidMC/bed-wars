@@ -53,8 +53,8 @@
   "combat": {
     "old_mechanics": false
   },
-  "teams": {
-    "blue": {"name": "Blue", "color": "blue"},
-    "red": {"name": "Red", "color": "red"}
-  }
+  "teams": [
+    {"key": "blue", "name": "Blue", "color": "blue"},
+    {"key": "red", "name": "Red", "color": "red"}
+  ]
 }

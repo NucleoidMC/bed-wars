@@ -70,13 +70,13 @@ public final class BwKillLogic {
         BwParticipant attackerParticipant = null;
         Entity attacker = source.getAttacker();
         if (attacker instanceof ServerPlayerEntity) {
-            attackerParticipant = this.game.getParticipant(PlayerRef.of((PlayerEntity) attacker));
+            attackerParticipant = this.game.participantBy(PlayerRef.of((PlayerEntity) attacker));
         }
 
         if (attackerParticipant == null) {
             AttackRecord lastAttack = participant.lastAttack;
             if (lastAttack != null && lastAttack.isValid(this.game.world.getTime())) {
-                attackerParticipant = this.game.getParticipant(lastAttack.player);
+                attackerParticipant = this.game.participantBy(lastAttack.player);
             }
         }
 
@@ -129,7 +129,7 @@ public final class BwKillLogic {
         ServerWorld world = this.game.world;
         EnderChestInventory enderChest = player.getEnderChestInventory();
 
-        BwMap.TeamRegions teamRegions = this.game.map.getTeamRegions(participant.team);
+        BwMap.TeamRegions teamRegions = this.game.map.getTeamRegions(participant.team.key());
         if (teamRegions.spawn() != null) {
             Vec3d dropSpawn = teamRegions.spawn().center();
 
