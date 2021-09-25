@@ -5,6 +5,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Heightmap;
 import xyz.nucleoid.bedwars.BedWars;
+import xyz.nucleoid.bedwars.game.active.ItemGeneratorPools;
+import xyz.nucleoid.bedwars.game.config.BwConfig;
 import xyz.nucleoid.bedwars.game.generator.BwSkyMapBuilder;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.MapTemplate;
@@ -43,12 +45,13 @@ public final class BwMapBuilder {
         BwMap map = new BwMap();
 
         MapTemplateMetadata metadata = template.getMetadata();
+        map.pools = new ItemGeneratorPools(config);
         metadata.getRegionBounds("diamond_spawn").forEach(map::addDiamondGenerator);
         metadata.getRegionBounds("emerald_spawn").forEach(map::addEmeraldGenerator);
 
         for (GameTeam team : this.config.teams()) {
             BwMap.TeamRegions regions = BwMap.TeamRegions.fromTemplate(team.key(), metadata);
-            map.addTeamRegions(team.key(), regions);
+            map.addTeamRegions(team.key(), regions, new ItemGeneratorPools(config));
         }
 
         for (BlockPos pos : template.getBounds()) {

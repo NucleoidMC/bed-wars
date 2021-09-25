@@ -1,5 +1,6 @@
 package xyz.nucleoid.bedwars.game.active;
 
+import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
@@ -21,6 +22,11 @@ public final class BwWinStateLogic {
 
         // if there's only one team, disable the win state
         if (this.game.getTeamCount() <= 1) {
+            return null;
+        }
+
+        // If this is a development environment, disable the win state
+        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
             return null;
         }
 

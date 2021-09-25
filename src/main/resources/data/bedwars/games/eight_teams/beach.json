@@ -21,5 +21,27 @@
     {"key": "orange", "name": "Orange", "color": "orange"},
     {"key": "red", "name": "Red", "color": "red"},
     {"key": "purple", "name": "Purple", "color": "purple"}
-  ]
+  ],
+  "generator": {
+    "level_1": {
+      "gold": 2,
+      "iron": 10,
+      "spawnIntervalTicks": 34
+    },
+    "level_2": {
+      "gold": 2,
+      "iron": 10,
+      "spawnIntervalTicks": 30
+    },
+    "level_3": {
+      "gold": 9,
+      "iron": 36,
+      "emerald": 1,
+      "spawnIntervalTicks": 26
+    },
+    "diamond": 1,
+    "diamondSpawnInterval": 900,
+    "emerald": 1,
+    "emeraldSpawnInterval": 1800
+  }
 }

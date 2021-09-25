@@ -17,6 +17,8 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.bedwars.BedWars;
+import xyz.nucleoid.bedwars.game.active.ItemGeneratorPools;
+import xyz.nucleoid.bedwars.game.config.BwConfig;
 import xyz.nucleoid.bedwars.custom.ShopVillagerEntity;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.active.BwItemGenerator;
@@ -46,13 +48,15 @@ public final class BwMap {
 
     private final LongSet protectedBlocks = new LongOpenHashSet();
 
+    public ItemGeneratorPools pools;
+
     public void setChunkGenerator(ChunkGenerator chunkGenerator) {
         this.chunkGenerator = chunkGenerator;
     }
 
     public void addDiamondGenerator(BlockBounds bounds) {
         this.itemGenerators.add(new BwItemGenerator(bounds)
-                .setPool(ItemGeneratorPool.DIAMOND)
+                .setPool(pools.DIAMOND)
                 .maxItems(6)
                 .addTimerText()
         );
@@ -62,7 +66,7 @@ public final class BwMap {
 
     public void addEmeraldGenerator(BlockBounds bounds) {
         this.itemGenerators.add(new BwItemGenerator(bounds)
-                .setPool(ItemGeneratorPool.EMERALD)
+                .setPool(pools.EMERALD)
                 .maxItems(3)
                 .addTimerText()
         );
@@ -70,11 +74,11 @@ public final class BwMap {
         this.addProtectedBlocks(bounds);
     }
 
-    public void addTeamRegions(GameTeamKey team, TeamRegions regions) {
+    public void addTeamRegions(GameTeamKey team, TeamRegions regions, ItemGeneratorPools pools) {
         this.teamRegions.put(team, regions);
 
         if (regions.spawn != null) {
-            TeamSpawn teamSpawn = new TeamSpawn(regions.spawn);
+            TeamSpawn teamSpawn = new TeamSpawn(regions.spawn, pools);
             this.teamSpawns.put(team, teamSpawn);
             this.itemGenerators.add(teamSpawn.generator);
         } else {
@@ -124,8 +128,7 @@ public final class BwMap {
         float yaw = direction.asRotation();
         entity.refreshPositionAndAngles(center.x, bounds.min().getY(), center.z, yaw, 0.0F);
 
-        if (entity instanceof MobEntity) {
-            MobEntity mob = (MobEntity) entity;
+        if (entity instanceof MobEntity mob) {
 
             LocalDifficulty difficulty = entity.world.getLocalDifficulty(mob.getBlockPos());
             mob.initialize((ServerWorld) entity.world, difficulty, SpawnReason.COMMAND, null, null);
@@ -186,10 +189,10 @@ public final class BwMap {
 
         private int level = 1;
 
-        TeamSpawn(BlockBounds region) {
+        TeamSpawn(BlockBounds region, ItemGeneratorPools pools) {
             this.region = region;
             this.generator = new BwItemGenerator(region)
-                    .setPool(poolForLevel(this.level))
+                    .setPool(poolForLevel(this.level, pools))
                     .maxItems(64)
                     .allowDuplication();
         }
@@ -201,24 +204,22 @@ public final class BwMap {
             player.teleport(world, center.x, center.y + 0.5, center.z, 0.0F, 0.0F);
         }
 
-        public void setLevel(int level) {
+        public void setLevel(int level, ItemGeneratorPools pools) {
             this.level = Math.max(level, this.level);
-            this.generator.setPool(poolForLevel(this.level));
+            this.generator.setPool(poolForLevel(this.level, pools));
         }
 
         public int getLevel() {
             return this.level;
         }
 
-        private static ItemGeneratorPool poolForLevel(int level) {
-            if (level == 1) {
-                return ItemGeneratorPool.TEAM_LVL_1;
-            } else if (level == 2) {
-                return ItemGeneratorPool.TEAM_LVL_2;
+        private static ItemGeneratorPool poolForLevel(int level, ItemGeneratorPools pools) {
+            if (level == 2) {
+                return pools.TEAM_LVL_2;
             } else if (level == 3) {
-                return ItemGeneratorPool.TEAM_LVL_3;
+                return pools.TEAM_LVL_3;
             }
-            return ItemGeneratorPool.TEAM_LVL_1;
+            return pools.TEAM_LVL_1;
         }
     }
 

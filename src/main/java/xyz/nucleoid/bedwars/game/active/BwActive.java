@@ -8,7 +8,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FireworkRocketEntity;
-import net.minecraft.item.FireworkItem;
+import net.minecraft.item.FireworkRocketItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.scoreboard.AbstractTeam;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -21,7 +21,7 @@ import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.bedwars.BedWars;
 import xyz.nucleoid.bedwars.custom.MovingCloud;
-import xyz.nucleoid.bedwars.game.BwConfig;
+import xyz.nucleoid.bedwars.game.config.BwConfig;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.BwSpawnLogic;
 import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
@@ -90,6 +90,8 @@ public final class BwActive {
     private GameTeam winningTeam;
     private long closeTime;
 
+    private final ItemGeneratorPools pools;
+
     final List<MovingCloud> movingClouds = new ArrayList<>();
 
     private BwActive(ServerWorld world, GameActivity activity, BwMap map, BwConfig config, TeamManager teams, GlobalWidgets widgets) {
@@ -112,6 +114,8 @@ public final class BwActive {
         this.spawnLogic = new BwSpawnLogic(this.world, map);
         this.bedDestruction = new BwBedDestruction(widgets);
         this.interactions = new BwInteractions(this);
+
+        this.pools = new ItemGeneratorPools(config);
     }
 
     public static void open(ServerWorld world, GameSpace gameSpace, BwMap map, BwConfig config, Multimap<GameTeamKey, ServerPlayerEntity> players) {
@@ -330,7 +334,7 @@ public final class BwActive {
             ServerPlayerEntity player = players.get(random.nextInt(players.size()));
 
             int flight = random.nextInt(3);
-            FireworkItem.Type type = random.nextInt(4) == 0 ? FireworkItem.Type.STAR : FireworkItem.Type.BURST;
+            FireworkRocketItem.Type type = random.nextInt(4) == 0 ? FireworkRocketItem.Type.STAR : FireworkRocketItem.Type.BURST;
             FireworkRocketEntity firework = new FireworkRocketEntity(
                     this.world,
                     player.getX(),
@@ -422,6 +426,10 @@ public final class BwActive {
 
     public int getTeamCount() {
         return this.teamStates.size();
+    }
+
+    public ItemGeneratorPools getPools() {
+        return pools;
     }
 
     @Nullable

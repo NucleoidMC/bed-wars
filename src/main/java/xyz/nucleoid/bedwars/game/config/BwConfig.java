@@ -1,4 +1,4 @@
-package xyz.nucleoid.bedwars.game;
+package xyz.nucleoid.bedwars.game.config;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
@@ -21,7 +21,8 @@ public record BwConfig(
         List<GameModifier> modifiers,
         GameTeamList teams,
         PlayerConfig players,
-        boolean keepInventory
+        boolean keepInventory,
+        GeneratorConfig generatorConfig
 ) {
     public static final Codec<BwConfig> CODEC = RecordCodecBuilder.create(instance -> {
         return instance.group(
@@ -31,7 +32,8 @@ public record BwConfig(
                 GameModifier.CODEC.listOf().optionalFieldOf("modifiers", Collections.emptyList()).forGetter(BwConfig::modifiers),
                 GameTeamList.CODEC.fieldOf("teams").forGetter(BwConfig::teams),
                 PlayerConfig.CODEC.fieldOf("players").forGetter(BwConfig::players),
-                Codec.BOOL.optionalFieldOf("keep_inventory", false).forGetter(BwConfig::keepInventory)
+                Codec.BOOL.optionalFieldOf("keep_inventory", false).forGetter(BwConfig::keepInventory),
+                GeneratorConfig.CODEC.fieldOf("generator").forGetter(BwConfig::generatorConfig)
         ).apply(instance, BwConfig::new);
     });
 }
