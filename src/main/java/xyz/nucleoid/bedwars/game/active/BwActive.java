@@ -90,8 +90,6 @@ public final class BwActive {
     private GameTeam winningTeam;
     private long closeTime;
 
-    private final ItemGeneratorPools pools;
-
     final List<MovingCloud> movingClouds = new ArrayList<>();
 
     private BwActive(ServerWorld world, GameActivity activity, BwMap map, BwConfig config, TeamManager teams, GlobalWidgets widgets) {
@@ -114,8 +112,6 @@ public final class BwActive {
         this.spawnLogic = new BwSpawnLogic(this.world, map);
         this.bedDestruction = new BwBedDestruction(widgets);
         this.interactions = new BwInteractions(this);
-
-        this.pools = new ItemGeneratorPools(config);
     }
 
     public static void open(ServerWorld world, GameSpace gameSpace, BwMap map, BwConfig config, Multimap<GameTeamKey, ServerPlayerEntity> players) {
@@ -426,10 +422,6 @@ public final class BwActive {
 
     public int getTeamCount() {
         return this.teamStates.size();
-    }
-
-    public ItemGeneratorPools getPools() {
-        return pools;
     }
 
     @Nullable

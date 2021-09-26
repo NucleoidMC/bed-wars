@@ -50,6 +50,10 @@ public final class BwMap {
 
     public ItemGeneratorPools pools;
 
+    public BwMap(BwConfig config) {
+        this.pools = new ItemGeneratorPools(config);
+    }
+
     public void setChunkGenerator(ChunkGenerator chunkGenerator) {
         this.chunkGenerator = chunkGenerator;
     }
@@ -215,11 +219,11 @@ public final class BwMap {
 
         private static ItemGeneratorPool poolForLevel(int level, ItemGeneratorPools pools) {
             if (level == 2) {
-                return pools.TEAM_LVL_2;
+                return pools.teamLvl2;
             } else if (level == 3) {
-                return pools.TEAM_LVL_3;
+                return pools.teamLvl3;
             }
-            return pools.TEAM_LVL_1;
+            return pools.teamLvl1;
         }
     }
 

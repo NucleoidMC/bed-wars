@@ -24,7 +24,7 @@ public final class BwSkyMapBuilder {
     }
 
     public BwMap build(MinecraftServer server) {
-        BwMap map = new BwMap();
+        BwMap map = new BwMap(config);
 
         MapTemplate template = MapTemplate.createEmpty();
 

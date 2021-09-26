@@ -9,9 +9,9 @@ public record GeneratorConfig(GeneratorLevelConfig level1, GeneratorLevelConfig 
             GeneratorLevelConfig.CODEC.fieldOf("level_2").forGetter(GeneratorConfig::level2),
             GeneratorLevelConfig.CODEC.fieldOf("level_3").forGetter(GeneratorConfig::level3),
             Codec.INT.fieldOf("diamond").forGetter(GeneratorConfig::diamond),
-            Codec.LONG.fieldOf("diamondSpawnInterval").forGetter(GeneratorConfig::diamondSpawnInterval),
+            Codec.LONG.fieldOf("diamond_spawn_interval").forGetter(GeneratorConfig::diamondSpawnInterval),
             Codec.INT.fieldOf("emerald").forGetter(GeneratorConfig::emerald),
-            Codec.LONG.fieldOf("emeraldSpawnInterval").forGetter(GeneratorConfig::emeraldSpawnInterval)
+            Codec.LONG.fieldOf("emerald_spawn_interval").forGetter(GeneratorConfig::emeraldSpawnInterval)
     ).apply(instance, GeneratorConfig::new));
 
     public static record GeneratorLevelConfig(int ironSpawnRate, int goldSpawnRate, int emeraldSpawnRate, int diamondSpawnRate, long spawnIntervalTicks) {
@@ -20,7 +20,7 @@ public record GeneratorConfig(GeneratorLevelConfig level1, GeneratorLevelConfig 
                 Codec.INT.fieldOf("gold").forGetter(GeneratorLevelConfig::goldSpawnRate),
                 Codec.INT.optionalFieldOf("emerald", 0).forGetter(GeneratorLevelConfig::emeraldSpawnRate),
                 Codec.INT.optionalFieldOf("diamond", 0).forGetter(GeneratorLevelConfig::diamondSpawnRate),
-                Codec.LONG.fieldOf("spawnIntervalTicks").forGetter(GeneratorLevelConfig::spawnIntervalTicks)
+                Codec.LONG.fieldOf("spawn_interval_ticks").forGetter(GeneratorLevelConfig::spawnIntervalTicks)
         ).apply(instance, GeneratorLevelConfig::new));
     }
 }

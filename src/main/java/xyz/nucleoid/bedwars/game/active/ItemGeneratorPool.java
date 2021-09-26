@@ -1,14 +1,7 @@
 package xyz.nucleoid.bedwars.game.active;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.util.collection.WeightedList;
-import xyz.nucleoid.bedwars.game.config.BwConfig;
-import xyz.nucleoid.bedwars.game.config.GeneratorConfig;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
 
 public final class ItemGeneratorPool {
     private final WeightedList<ItemStack> pool = new WeightedList<>();

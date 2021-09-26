@@ -106,7 +106,7 @@ public final class BwTeamShop {
                     .withCost((p, e) -> Cost.ofDiamonds(teamScaledCost(game, team, stagedUpgrade(1, teamSpawn.getLevel()))))
                     .onBuyCheck((p, e) -> teamSpawn.getLevel() < BwMap.TeamSpawn.MAX_LEVEL && e.getCost(p).takeItems(p))
                     .onBuy(p -> {
-                        teamSpawn.setLevel(teamSpawn.getLevel() + 1, game.getPools());
+                        teamSpawn.setLevel(teamSpawn.getLevel() + 1, game.map.pools);
                         game.broadcast.broadcastToTeam(participant.team, new TranslatableText("text.bedwars.shop.upgrade.generator.buy", p.getDisplayName().shallowCopy(), teamSpawn.getLevel()).formatted(Formatting.BOLD, Formatting.AQUA));
                     })
             );
