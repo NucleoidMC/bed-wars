@@ -8,6 +8,7 @@ import net.minecraft.block.enums.BedPart;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import xyz.nucleoid.bedwars.game.BwMap;
+import xyz.nucleoid.bedwars.game.active.ItemGeneratorPools;
 import xyz.nucleoid.bedwars.game.generator.BwSkyMapConfig;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.MapTemplate;
@@ -101,7 +102,7 @@ public final class BwTeamIsland {
         map.addProtectedBlocks(bed);
 
         Direction shopDirection = this.direction.rotateYClockwise();
-        map.addTeamRegions(this.team.key(), new BwMap.TeamRegions(spawn, bed, base, chest, itemShop, teamShop, shopDirection, shopDirection));
+        map.addTeamRegions(this.team.key(), new BwMap.TeamRegions(spawn, bed, base, chest, itemShop, teamShop, shopDirection, shopDirection), map.pools);
     }
 
     private BlockPos transformPosition(int x, int y, int z) {

@@ -17,7 +17,7 @@ public class BedBlockMixin {
 	 *
 	 * @author SuperCoder79
 	 */
-	@Inject(method = "isOverworld", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "isBedWorking", at = @At("HEAD"), cancellable = true)
 	private static void noExplosion(World world, CallbackInfoReturnable<Boolean> cir) {
 		ManagedGameSpace gameSpace = GameSpaceManager.get().byWorld(world);
 		if (gameSpace != null) {

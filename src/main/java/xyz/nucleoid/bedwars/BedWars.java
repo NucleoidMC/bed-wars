@@ -3,7 +3,7 @@ package xyz.nucleoid.bedwars;
 import com.google.common.reflect.Reflection;
 import net.fabricmc.api.ModInitializer;
 import xyz.nucleoid.bedwars.custom.BwItems;
-import xyz.nucleoid.bedwars.game.BwConfig;
+import xyz.nucleoid.bedwars.game.config.BwConfig;
 import xyz.nucleoid.bedwars.game.BwWaiting;
 import xyz.nucleoid.bedwars.game.active.modifiers.BwGameModifiers;
 import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;

@@ -57,5 +57,27 @@
   "teams": [
     {"key": "blue", "name": "Blue", "color": "blue"},
     {"key": "red", "name": "Red", "color": "red"}
-  ]
+  ],
+  "generator": {
+    "level_1": {
+      "gold": 2,
+      "iron": 10,
+      "spawn_interval_ticks": 34
+    },
+    "level_2": {
+      "gold": 2,
+      "iron": 10,
+      "spawn_interval_ticks": 30
+    },
+    "level_3": {
+      "gold": 9,
+      "iron": 36,
+      "emerald": 1,
+      "spawn_interval_ticks": 26
+    },
+    "diamond": 1,
+    "diamond_spawn_interval": 900,
+    "emerald": 1,
+    "emerald_spawn_interval": 1800
+  }
 }

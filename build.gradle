@@ -33,6 +33,7 @@ dependencies {
   modRuntime("supercoder79:databreaker:0.2.7") {
     exclude module: "fabric-loader"
   }
+  modImplementation('fr.catcore:server-translations-api:1.4.0')
 }
 
 processResources {

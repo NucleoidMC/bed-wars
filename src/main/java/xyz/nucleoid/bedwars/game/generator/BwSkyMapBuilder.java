@@ -2,7 +2,7 @@ package xyz.nucleoid.bedwars.game.generator;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import xyz.nucleoid.bedwars.game.BwConfig;
+import xyz.nucleoid.bedwars.game.config.BwConfig;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.generator.island.BwCenterIsland;
 import xyz.nucleoid.bedwars.game.generator.island.BwDiamondIsland;
@@ -24,7 +24,7 @@ public final class BwSkyMapBuilder {
     }
 
     public BwMap build(MinecraftServer server) {
-        BwMap map = new BwMap();
+        BwMap map = new BwMap(config);
 
         MapTemplate template = MapTemplate.createEmpty();
 
