@@ -6,8 +6,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.Heightmap;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.ChunkRandom;
 import net.minecraft.world.gen.StructureAccessor;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.generator.theme.MapTheme;
@@ -27,11 +27,8 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
     }
 
     @Override
-    public void buildSurface(ChunkRegion region, Chunk chunk) {
+    public void buildSurface(ChunkRegion region, StructureAccessor structures, Chunk chunk) {
         ChunkPos chunkPos = chunk.getPos();
-
-        ChunkRandom chunkRandom = new ChunkRandom();
-        chunkRandom.setTerrainSeed(chunkPos.x, chunkPos.z);
 
         int minWorldX = chunkPos.getStartX();
         int minWorldZ = chunkPos.getStartZ();
@@ -66,16 +63,16 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
     }
 
     @Override
-    public void generateFeatures(ChunkRegion region, StructureAccessor structures) {
+    public void generateFeatures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
         BlockPos.Mutable mutable = new BlockPos.Mutable();
         Random random = new Random();
         MapTheme theme = this.config.theme;
 
-        var centerPos = region.getCenterPos();
+        var centerPos = chunk.getPos();
         for (int i = 0; i < theme.treeAmt(); i++) {
             int x = centerPos.getStartX() + random.nextInt(16);
             int z = centerPos.getStartZ() + random.nextInt(16);
-            int y = region.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
+            int y = world.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
 
             boolean generate = true;
             for (BwMap.TeamRegions regions : this.map.getAllTeamRegions().values()) {
@@ -86,16 +83,16 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
             }
 
             if (generate) {
-                theme.tree().generate(region, mutable.set(x, y, z).toImmutable(), random);
+                theme.tree().generate(world, mutable.set(x, y, z).toImmutable(), random);
             }
         }
 
         for (int i = 0; i < theme.grassAmt(); i++) {
             int x = centerPos.getStartX() + random.nextInt(16);
             int z = centerPos.getStartZ() + random.nextInt(16);
-            int y = region.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
+            int y = world.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
 
-            theme.grass().generate(region, mutable.set(x, y, z).toImmutable(), random);
+            theme.grass().generate(world, mutable.set(x, y, z).toImmutable(), random);
         }
     }
 }
