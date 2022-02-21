@@ -1,12 +1,13 @@
 package xyz.nucleoid.bedwars.custom;
 
-import eu.pb4.polymer.item.VirtualItem;
+import eu.pb4.polymer.api.item.PolymerItem;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ChorusFruitItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -17,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 
-public final class BwChorusFruitItem extends ChorusFruitItem implements VirtualItem {
+public final class BwChorusFruitItem extends ChorusFruitItem implements PolymerItem {
     private static final int ATTEMPTS = 32;
     private static final double MIN_DISTANCE_SQ = 6.0 * 6.0;
 
@@ -82,7 +83,7 @@ public final class BwChorusFruitItem extends ChorusFruitItem implements VirtualI
     }
 
     @Override
-    public Item getVirtualItem() {
+    public Item getPolymerItem(ItemStack stack, @Nullable ServerPlayerEntity player) {
         return Items.CHORUS_FRUIT;
     }
 }

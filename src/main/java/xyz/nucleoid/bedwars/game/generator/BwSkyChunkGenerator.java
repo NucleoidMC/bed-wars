@@ -64,7 +64,6 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
 
     @Override
     public void generateFeatures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
-        BlockPos.Mutable mutable = new BlockPos.Mutable();
         Random random = new Random();
         MapTheme theme = this.config.theme;
 
@@ -83,7 +82,7 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
             }
 
             if (generate) {
-                theme.tree().generate(world, mutable.set(x, y, z).toImmutable(), random);
+                theme.tree().generate(world, new BlockPos(x, y, z), random);
             }
         }
 
@@ -92,7 +91,7 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
             int z = centerPos.getStartZ() + random.nextInt(16);
             int y = world.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
 
-            theme.grass().generate(world, mutable.set(x, y, z).toImmutable(), random);
+            theme.grass().generate(world, new BlockPos(x, y, z), random);
         }
     }
 }
