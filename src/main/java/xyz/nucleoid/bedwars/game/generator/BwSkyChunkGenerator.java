@@ -4,17 +4,17 @@ import net.minecraft.block.Blocks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.StructureAccessor;
+import net.minecraft.world.gen.noise.NoiseConfig;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.generator.theme.MapTheme;
 import xyz.nucleoid.map_templates.MapTemplate;
 import xyz.nucleoid.plasmid.game.world.generator.TemplateChunkGenerator;
-
-import java.util.Random;
 
 public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
     private final BwMap map;
@@ -27,7 +27,7 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
     }
 
     @Override
-    public void buildSurface(ChunkRegion region, StructureAccessor structures, Chunk chunk) {
+    public void buildSurface(ChunkRegion region, StructureAccessor structures, NoiseConfig noiseConfig, Chunk chunk) {
         ChunkPos chunkPos = chunk.getPos();
 
         int minWorldX = chunkPos.getStartX();
@@ -64,7 +64,7 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
 
     @Override
     public void generateFeatures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
-        Random random = new Random();
+        Random random = Random.createLocal();
         MapTheme theme = this.config.theme;
 
         var centerPos = chunk.getPos();

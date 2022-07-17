@@ -1,8 +1,8 @@
 package xyz.nucleoid.bedwars.game.active;
 
 import net.minecraft.entity.boss.BossBar;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.screen.ScreenTexts;
+import net.minecraft.text.Text;
 import xyz.nucleoid.plasmid.game.common.GlobalWidgets;
 import xyz.nucleoid.plasmid.game.common.widget.BossBarWidget;
 
@@ -39,7 +39,7 @@ public final class BwBedDestruction {
     private void updateCountdown(long time) {
         var countdown = this.countdown;
         if (countdown == null && time >= TIME - WARN_TIME) {
-            this.countdown = countdown = this.widgets.addBossBar(LiteralText.EMPTY, BossBar.Color.RED, BossBar.Style.PROGRESS);
+            this.countdown = countdown = this.widgets.addBossBar(ScreenTexts.EMPTY, BossBar.Color.RED, BossBar.Style.PROGRESS);
         }
 
         if (countdown == null) {
@@ -48,10 +48,10 @@ public final class BwBedDestruction {
 
         long timeUntil = TIME - time;
         if (timeUntil > 0) {
-            countdown.setTitle(new TranslatableText("text.bedwars.bar.beds_cooldown", this.formatTime(timeUntil)));
+            countdown.setTitle(Text.translatable("text.bedwars.bar.beds_cooldown", this.formatTime(timeUntil)));
             countdown.setProgress((float) timeUntil / WARN_TIME);
         } else {
-            countdown.setTitle(new TranslatableText("text.bedwars.bar.beds_destroyed"));
+            countdown.setTitle(Text.translatable("text.bedwars.bar.beds_destroyed"));
             countdown.setProgress(0.0F);
         }
     }

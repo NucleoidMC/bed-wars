@@ -6,7 +6,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
@@ -56,8 +55,8 @@ public final class ShopVillagerEntity extends VillagerEntity {
     }
 
     private enum Type {
-        ITEM(new TranslatableText("text.bedwars.shop.type.item")),
-        TEAM(new TranslatableText("text.bedwars.shop.type.team"));
+        ITEM(Text.translatable("text.bedwars.shop.type.item")),
+        TEAM(Text.translatable("text.bedwars.shop.type.team"));
 
         private final Text name;
 

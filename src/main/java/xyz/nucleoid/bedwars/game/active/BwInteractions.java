@@ -10,7 +10,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.tag.BlockTags;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -109,7 +109,7 @@ public final class BwInteractions {
             return ActionResult.PASS;
         }
 
-        player.sendMessage(new TranslatableText("text.bedwars.cannot_open_chest").formatted(Formatting.RED), true);
+        player.sendMessage(Text.translatable("text.bedwars.cannot_open_chest").formatted(Formatting.RED), true);
 
         return ActionResult.FAIL;
     }

@@ -14,19 +14,20 @@ import net.minecraft.scoreboard.AbstractTeam;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.bedwars.BedWars;
 import xyz.nucleoid.bedwars.custom.MovingCloud;
-import xyz.nucleoid.bedwars.game.config.BwConfig;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.BwSpawnLogic;
 import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameModifier;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameTrigger;
+import xyz.nucleoid.bedwars.game.config.BwConfig;
 import xyz.nucleoid.plasmid.game.GameActivity;
 import xyz.nucleoid.plasmid.game.GameCloseReason;
 import xyz.nucleoid.plasmid.game.GameSpace;
@@ -53,7 +54,6 @@ import xyz.nucleoid.stimuli.event.world.ExplosionDetonatedEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Stream;
 
 public final class BwActive {
@@ -265,7 +265,7 @@ public final class BwActive {
                     this.teamLogic.removeBed(team.key());
                 }
 
-                players.sendMessage(new TranslatableText("text.bedwars.all_beds_destroyed").formatted(Formatting.RED));
+                players.sendMessage(Text.translatable("text.bedwars.all_beds_destroyed").formatted(Formatting.RED));
                 players.playSound(SoundEvents.BLOCK_END_PORTAL_SPAWN);
             }
 

@@ -1,8 +1,7 @@
 package xyz.nucleoid.bedwars.game.active;
 
-import net.minecraft.text.LiteralText;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import xyz.nucleoid.plasmid.game.common.GlobalWidgets;
 import xyz.nucleoid.plasmid.game.common.widget.SidebarWidget;
@@ -20,7 +19,7 @@ public final class BwSidebar {
     }
 
     public static BwSidebar create(BwActive game, GlobalWidgets widgets) {
-        SidebarWidget sidebar = widgets.addSidebar(new TranslatableText("game.bedwars.bed_wars").formatted(Formatting.GOLD, Formatting.BOLD));
+        SidebarWidget sidebar = widgets.addSidebar(Text.translatable("game.bedwars.bed_wars").formatted(Formatting.GOLD, Formatting.BOLD));
         return new BwSidebar(game, sidebar);
     }
 
@@ -35,16 +34,16 @@ public final class BwSidebar {
             long seconds = (this.ticks / 20) % 60;
             long minutes = this.ticks / (20 * 60);
 
-            var timer = new LiteralText(String.format("%02d:%02d", minutes, seconds)).formatted(Formatting.WHITE);
-            content.add(new LiteralText("Time: ").formatted(Formatting.RED, Formatting.BOLD).append(timer));
+            var timer = Text.literal(String.format("%02d:%02d", minutes, seconds)).formatted(Formatting.WHITE);
+            content.add(Text.literal("Time: ").formatted(Formatting.RED, Formatting.BOLD).append(timer));
 
             long playersAlive = this.game.participants()
                     .filter(BwParticipant::isAlive)
                     .count();
-            content.add(new LiteralText(playersAlive + " players alive").formatted(Formatting.BLUE));
-            content.add(LiteralText.EMPTY);
+            content.add(Text.literal(playersAlive + " players alive").formatted(Formatting.BLUE));
+            content.add(ScreenTexts.EMPTY);
 
-            content.add(new LiteralText("Teams:").formatted(Formatting.BOLD));
+            content.add(Text.literal("Teams:").formatted(Formatting.BOLD));
             this.game.teamsStates().forEach(teamState -> {
                 var team = teamState.team;
 
@@ -59,17 +58,17 @@ public final class BwSidebar {
                         state += " (no bed)";
                     }
 
-                    Text name = team.config().name().shallowCopy()
+                    Text name = team.config().name().copy()
                             .formatted(Formatting.BOLD);
-                    Text description = new LiteralText(": " + state)
+                    Text description = Text.literal(": " + state)
                             .formatted(Formatting.GRAY);
-                    content.add(new LiteralText("  ").append(name).append(description));
+                    content.add(Text.literal("  ").append(name).append(description));
                 } else {
-                    Text name = team.config().name().shallowCopy()
+                    Text name = team.config().name().copy()
                             .formatted(Formatting.BOLD, Formatting.STRIKETHROUGH);
-                    Text description = new LiteralText(": eliminated!")
+                    Text description = Text.literal(": eliminated!")
                             .formatted(Formatting.RED);
-                    content.add(new LiteralText("  ").append(name).append(description));
+                    content.add(Text.literal("  ").append(name).append(description));
                 }
             });
         });

@@ -16,10 +16,8 @@ import net.minecraft.item.Items;
 import net.minecraft.potion.PotionUtil;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
 import xyz.nucleoid.bedwars.custom.BwItems;
@@ -39,7 +37,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public final class BwItemShop extends LayeredGui {
-    private static final Text MAX_LEVEL_TEXT = new TranslatableText("text.bedwars.shop.max_level").setStyle(Style.EMPTY.withColor(Formatting.YELLOW));
+    private static final Text MAX_LEVEL_TEXT = Text.translatable("text.bedwars.shop.max_level").setStyle(Style.EMPTY.withColor(Formatting.YELLOW));
     private static final int SHOP_X = 1;
     private static final int SHOP_Y = 2;
 
@@ -48,7 +46,7 @@ public final class BwItemShop extends LayeredGui {
 
     private BwItemShop(ServerPlayerEntity player, BwParticipant participant) {
         super(ScreenHandlerType.GENERIC_9X5, player, false);
-        this.setTitle(new TranslatableText("text.bedwars.shop.type.item"));
+        this.setTitle(Text.translatable("text.bedwars.shop.type.item"));
         this.participant = participant;
         List<GuiElementInterface> navbar = new ArrayList<>();
 
@@ -78,13 +76,13 @@ public final class BwItemShop extends LayeredGui {
             boolean canBuy = entry.canBuy(player);
 
             var style = Style.EMPTY.withItalic(false).withColor(canBuy && levelUp != null ? Formatting.BLUE : Formatting.RED);
-            var name = new TranslatableText("text.bedwars.shop.upgrade." + upgradeName).setStyle(style);
+            var name = Text.translatable("text.bedwars.shop.upgrade." + upgradeName).setStyle(style);
 
             if (levelUp == null) {
-                name.append(new LiteralText(" (").append(MAX_LEVEL_TEXT).append(")").setStyle(MAX_LEVEL_TEXT.getStyle()));
+                name.append(Text.literal(" (").append(MAX_LEVEL_TEXT).append(")").setStyle(MAX_LEVEL_TEXT.getStyle()));
             } else if (entry.getCost(player) != null) {
                 var costText = entry.getCost(player).getDisplay();
-                costText = new LiteralText(" (").append(costText).append(")").setStyle(costText.getStyle());
+                costText = Text.literal(" (").append(costText).append(")").setStyle(costText.getStyle());
                 name.append(costText);
             }
 
@@ -110,7 +108,7 @@ public final class BwItemShop extends LayeredGui {
         Layer layer = Guis.createSelectorLayer(3, 7, items);
 
         var builder = ItemStackBuilder.of(icon)
-                .setName(new TranslatableText("text.bedwars.shop.category." + name)
+                .setName(Text.translatable("text.bedwars.shop.category." + name)
                         .setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.YELLOW)))
                 .hideFlags();
         var normal = builder.build();
@@ -129,7 +127,7 @@ public final class BwItemShop extends LayeredGui {
         items.accept(ShopEntry.buyItem(new ItemStack(ColoredBlocks.terracotta(color), 16), Cost.ofIron(16)));
 
         ItemStack glass = ItemStackBuilder.of(ColoredBlocks.glass(color))
-                .setName(new TranslatableText("item.bedwars.shatterproof_glass")).setCount(4).build();
+                .setName(Text.translatable("item.bedwars.shatterproof_glass")).setCount(4).build();
 
         items.accept(ShopEntry.buyItem(glass, Cost.ofIron(12)));
         items.accept(ShopEntry.buyItem(new ItemStack(Blocks.OAK_PLANKS, 16), Cost.ofGold(4)));
@@ -147,7 +145,7 @@ public final class BwItemShop extends LayeredGui {
 
         ItemStack knockbackStick = ItemStackBuilder.of(Items.STICK)
                 .addEnchantment(Enchantments.KNOCKBACK, 1)
-                .addLore(new TranslatableText("item.bedwars.knockback_stick.description"))
+                .addLore(Text.translatable("item.bedwars.knockback_stick.description"))
                 .build();
 
         items.accept(ShopEntry.buyItem(knockbackStick, Cost.ofGold(10)));
@@ -180,18 +178,18 @@ public final class BwItemShop extends LayeredGui {
     private void createUtils(Consumer<GuiElementInterface> items) {
 
         StatusEffectInstance jumpBoostEffect = new StatusEffectInstance(StatusEffects.JUMP_BOOST, 600, 5);
-        items.accept(ShopEntry.buyItem(createPotion(jumpBoostEffect).setCustomName(new TranslatableText("item.minecraft.potion.effect.leaping")), Cost.ofEmeralds(1)));
+        items.accept(ShopEntry.buyItem(createPotion(jumpBoostEffect).setCustomName(Text.translatable("item.minecraft.potion.effect.leaping")), Cost.ofEmeralds(1)));
 
         StatusEffectInstance swiftnessEffect = new StatusEffectInstance(StatusEffects.SPEED, 600, 2);
-        items.accept(ShopEntry.buyItem(createPotion(swiftnessEffect).setCustomName(new TranslatableText("item.minecraft.potion.effect.swiftness")), Cost.ofEmeralds(1)));
+        items.accept(ShopEntry.buyItem(createPotion(swiftnessEffect).setCustomName(Text.translatable("item.minecraft.potion.effect.swiftness")), Cost.ofEmeralds(1)));
 
         items.accept(ShopEntry.buyItem(new ItemStack(Blocks.TNT), Cost.ofGold(8)));
-        items.accept(ShopEntry.buyItem(new ItemStack(Items.FIRE_CHARGE).setCustomName(new TranslatableText(EntityType.FIREBALL.getTranslationKey())), Cost.ofIron(40)));
+        items.accept(ShopEntry.buyItem(new ItemStack(Items.FIRE_CHARGE).setCustomName(Text.translatable(EntityType.FIREBALL.getTranslationKey())), Cost.ofIron(40)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.ENDER_PEARL), Cost.ofEmeralds(4)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.WATER_BUCKET), Cost.ofGold(10)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.LAVA_BUCKET), Cost.ofGold(24)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.GOLDEN_APPLE), Cost.ofGold(3)));
-        items.accept(ShopEntry.buyItem(new ItemStack(BwItems.CHORUS_FRUIT).setCustomName(new TranslatableText(Items.CHORUS_FRUIT.getTranslationKey())), Cost.ofGold(8)));
+        items.accept(ShopEntry.buyItem(new ItemStack(BwItems.CHORUS_FRUIT).setCustomName(Text.translatable(Items.CHORUS_FRUIT.getTranslationKey())), Cost.ofGold(8)));
         items.accept(ShopEntry.buyItem(new ItemStack(BwItems.BRIDGE_EGG), Cost.ofEmeralds(2)));
         items.accept(ShopEntry.buyItem(new ItemStack(BwItems.MOVING_CLOUD), Cost.ofEmeralds(1)));
     }

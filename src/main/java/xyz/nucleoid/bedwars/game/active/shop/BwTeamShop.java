@@ -5,10 +5,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.MathHelper;
 import xyz.nucleoid.bedwars.game.BwMap;
@@ -26,8 +24,8 @@ import java.util.List;
 @SuppressWarnings("ConstantConditions")
 public final class BwTeamShop {
 
-    private static final Text ACTIVE_TEXT = new TranslatableText("text.bedwars.shop.active").setStyle(Style.EMPTY.withColor(Formatting.YELLOW));
-    private static final Text MAX_LEVEL_TEXT = new TranslatableText("text.bedwars.shop.max_level").setStyle(Style.EMPTY.withColor(Formatting.YELLOW));
+    private static final Text ACTIVE_TEXT = Text.translatable("text.bedwars.shop.active").setStyle(Style.EMPTY.withColor(Formatting.YELLOW));
+    private static final Text MAX_LEVEL_TEXT = Text.translatable("text.bedwars.shop.max_level").setStyle(Style.EMPTY.withColor(Formatting.YELLOW));
 
     public static void open(ServerPlayerEntity player, BwActive game) {
         List<GuiElementInterface> shop = new ArrayList<>();
@@ -45,7 +43,7 @@ public final class BwTeamShop {
                     .onBuyCheck((p, e) -> !teamState.trapSet && e.getCost(p).takeItems(p))
                     .onBuy(p -> {
                         teamState.trapSet = true;
-                        game.broadcast.broadcastToTeam(participant.team, new TranslatableText("text.bedwars.shop.upgrade." + baseTrapName + ".buy", p.getDisplayName().shallowCopy()).formatted(Formatting.BOLD, Formatting.AQUA));
+                        game.broadcast.broadcastToTeam(participant.team, Text.translatable("text.bedwars.shop.upgrade." + baseTrapName + ".buy", p.getDisplayName().copy()).formatted(Formatting.BOLD, Formatting.AQUA));
                     })
             );
 
@@ -56,7 +54,7 @@ public final class BwTeamShop {
                     .onBuyCheck((p, e) -> !teamState.healPool && e.getCost(p).takeItems(p))
                     .onBuy(p -> {
                         teamState.healPool = true;
-                        game.broadcast.broadcastToTeam(participant.team, new TranslatableText("text.bedwars.shop.upgrade." + healPoolName + ".buy", p.getDisplayName().shallowCopy()).formatted(Formatting.BOLD, Formatting.AQUA));
+                        game.broadcast.broadcastToTeam(participant.team, Text.translatable("text.bedwars.shop.upgrade." + healPoolName + ".buy", p.getDisplayName().copy()).formatted(Formatting.BOLD, Formatting.AQUA));
                     })
             );
 
@@ -67,7 +65,7 @@ public final class BwTeamShop {
                     .onBuyCheck((p, e) -> !teamState.hasteEnabled && e.getCost(p).takeItems(p))
                     .onBuy(p -> {
                         teamState.hasteEnabled = true;
-                        game.broadcast.broadcastToTeam(participant.team, new TranslatableText("text.bedwars.shop.upgrade." + hasteName + ".buy", p.getDisplayName().shallowCopy()).formatted(Formatting.BOLD, Formatting.AQUA));
+                        game.broadcast.broadcastToTeam(participant.team, Text.translatable("text.bedwars.shop.upgrade." + hasteName + ".buy", p.getDisplayName().copy()).formatted(Formatting.BOLD, Formatting.AQUA));
                     })
             );
 
@@ -80,7 +78,7 @@ public final class BwTeamShop {
                             .onBuy(p -> {
                                 teamState.swordSharpness++;
                                 game.teamLogic.applyEnchantments(participant.team);
-                                game.broadcast.broadcastToTeam(participant.team, new TranslatableText("text.bedwars.shop.upgrade." + sharpnessName + ".buy", p.getDisplayName().shallowCopy(), new TranslatableText("enchantment.level." + teamState.swordSharpness)).formatted(Formatting.BOLD, Formatting.AQUA));
+                                game.broadcast.broadcastToTeam(participant.team, Text.translatable("text.bedwars.shop.upgrade." + sharpnessName + ".buy", p.getDisplayName().copy(), Text.translatable("enchantment.level." + teamState.swordSharpness)).formatted(Formatting.BOLD, Formatting.AQUA));
                             })
             );
 
@@ -93,7 +91,7 @@ public final class BwTeamShop {
                             .onBuy(p -> {
                                 teamState.armorProtection++;
                                 game.teamLogic.applyEnchantments(participant.team);
-                                game.broadcast.broadcastToTeam(participant.team, new TranslatableText("text.bedwars.shop.upgrade." + protectionName + ".buy", p.getDisplayName().shallowCopy(), new TranslatableText("enchantment.level." + teamState.armorProtection)).formatted(Formatting.BOLD, Formatting.AQUA));
+                                game.broadcast.broadcastToTeam(participant.team, Text.translatable("text.bedwars.shop.upgrade." + protectionName + ".buy", p.getDisplayName().copy(), Text.translatable("enchantment.level." + teamState.armorProtection)).formatted(Formatting.BOLD, Formatting.AQUA));
                             })
             );
         }
@@ -107,12 +105,12 @@ public final class BwTeamShop {
                     .onBuyCheck((p, e) -> teamSpawn.getLevel() < BwMap.TeamSpawn.MAX_LEVEL && e.getCost(p).takeItems(p))
                     .onBuy(p -> {
                         teamSpawn.setLevel(teamSpawn.getLevel() + 1, game.map.pools);
-                        game.broadcast.broadcastToTeam(participant.team, new TranslatableText("text.bedwars.shop.upgrade.generator.buy", p.getDisplayName().shallowCopy(), teamSpawn.getLevel()).formatted(Formatting.BOLD, Formatting.AQUA));
+                        game.broadcast.broadcastToTeam(participant.team, Text.translatable("text.bedwars.shop.upgrade.generator.buy", p.getDisplayName().copy(), teamSpawn.getLevel()).formatted(Formatting.BOLD, Formatting.AQUA));
                     })
             );
         }
 
-        var ui = Guis.createSelectorGui(player, new TranslatableText("text.bedwars.shop.type.team"), shop);
+        var ui = Guis.createSelectorGui(player, Text.translatable("text.bedwars.shop.type.team"), shop);
         ui.open();
     }
 
@@ -126,9 +124,9 @@ public final class BwTeamShop {
 
     private static ItemStack createIcon(Item item, String id) {
         return ItemStackBuilder.of(item)
-                .setName(new TranslatableText("text.bedwars.shop.upgrade." + id))
-                .addLore(new TranslatableText("text.bedwars.shop.upgrade." + id + ".description.1").formatted(Formatting.GRAY))
-                .addLore(new TranslatableText("text.bedwars.shop.upgrade." + id + ".description.2").formatted(Formatting.GRAY))
+                .setName(Text.translatable("text.bedwars.shop.upgrade." + id))
+                .addLore(Text.translatable("text.bedwars.shop.upgrade." + id + ".description.1").formatted(Formatting.GRAY))
+                .addLore(Text.translatable("text.bedwars.shop.upgrade." + id + ".description.2").formatted(Formatting.GRAY))
                 .hideFlags()
                 .build();
     }
@@ -137,13 +135,13 @@ public final class BwTeamShop {
         boolean canBuy = entry.canBuy(player);
 
         var style = Style.EMPTY.withItalic(false).withColor(canBuy && !active ? Formatting.BLUE : Formatting.RED);
-        var name = icon.getName().shallowCopy().setStyle(style);
+        var name = icon.getName().copy().setStyle(style);
 
         if (active) {
-            name.append(new LiteralText(" (").append(ACTIVE_TEXT).append(")").setStyle(ACTIVE_TEXT.getStyle()));
+            name.append(Text.literal(" (").append(ACTIVE_TEXT).append(")").setStyle(ACTIVE_TEXT.getStyle()));
         } else if (entry.getCost(player) != null) {
             var costText = entry.getCost(player).getDisplay();
-            costText = new LiteralText(" (").append(costText).append(")").setStyle(costText.getStyle());
+            costText = Text.literal(" (").append(costText).append(")").setStyle(costText.getStyle());
             name.append(costText);
         }
 
@@ -156,20 +154,20 @@ public final class BwTeamShop {
         boolean canBuy = entry.canBuy(player);
 
         var itemStackBuilder = ItemStackBuilder.of(icon)
-                .addLore(new TranslatableText("text.bedwars.shop.upgrade." + id + ".description.1", new TranslatableText("enchantment.level." + level)).formatted(Formatting.GRAY))
-                .addLore(new TranslatableText("text.bedwars.shop.upgrade." + id + ".description.2", new TranslatableText("enchantment.level." + level)).formatted(Formatting.GRAY))
+                .addLore(Text.translatable("text.bedwars.shop.upgrade." + id + ".description.1", Text.translatable("enchantment.level." + level)).formatted(Formatting.GRAY))
+                .addLore(Text.translatable("text.bedwars.shop.upgrade." + id + ".description.2", Text.translatable("enchantment.level." + level)).formatted(Formatting.GRAY))
                 .hideFlags()
                 .setCount(level);
 
 
         var style = Style.EMPTY.withItalic(false).withColor(canBuy && !maxLvl ? Formatting.BLUE : Formatting.RED);
-        var name = new TranslatableText("text.bedwars.shop.upgrade." + id, new TranslatableText("enchantment.level." + level)).setStyle(style);
+        var name = Text.translatable("text.bedwars.shop.upgrade." + id, Text.translatable("enchantment.level." + level)).setStyle(style);
 
         if (maxLvl) {
-            name.append(new LiteralText(" (").append(MAX_LEVEL_TEXT).append(")").setStyle(MAX_LEVEL_TEXT.getStyle()));
+            name.append(Text.literal(" (").append(MAX_LEVEL_TEXT).append(")").setStyle(MAX_LEVEL_TEXT.getStyle()));
         } else if (entry.getCost(player) != null) {
             var costText = entry.getCost(player).getDisplay();
-            costText = new LiteralText(" (").append(costText).append(")").setStyle(costText.getStyle());
+            costText = Text.literal(" (").append(costText).append(")").setStyle(costText.getStyle());
             name.append(costText);
         }
 

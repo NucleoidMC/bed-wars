@@ -10,7 +10,7 @@ import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.GameMode;
 import xyz.nucleoid.bedwars.game.BwMap;
@@ -116,7 +116,7 @@ public final class BwPlayerLogic {
         BwParticipant participant = this.game.participantBy(player);
         if (participant != null) {
             participant.startRespawning(spawn);
-            player.sendMessage(new TranslatableText("text.bedwars.respawn_cooldown", BwActive.RESPAWN_TIME_SECONDS).formatted(Formatting.BOLD), false);
+            player.sendMessage(Text.translatable("text.bedwars.respawn_cooldown", BwActive.RESPAWN_TIME_SECONDS).formatted(Formatting.BOLD), false);
         }
     }
 }
