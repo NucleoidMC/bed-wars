@@ -1,19 +1,17 @@
 package xyz.nucleoid.bedwars.game.generator.theme;
 
-import java.util.Random;
-
 import com.mojang.serialization.Codec;
-import xyz.nucleoid.substrate.gen.GrassGen;
-import xyz.nucleoid.substrate.gen.MapGen;
-import xyz.nucleoid.substrate.gen.tree.PoplarTreeGen;
-import xyz.nucleoid.substrate.gen.tree.SwampTreeGen;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.collection.WeightedList;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
+import xyz.nucleoid.substrate.gen.GrassGen;
+import xyz.nucleoid.substrate.gen.MapGen;
+import xyz.nucleoid.substrate.gen.tree.SwampTreeGen;
+
+import java.util.Random;
 
 public final class SwampMapTheme implements MapTheme {
 	public static final GrassGen SWAMP_GRASS = new GrassGen(new WeightedList<BlockState>()

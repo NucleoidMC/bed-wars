@@ -1,6 +1,6 @@
 package xyz.nucleoid.bedwars.custom;
 
-import eu.pb4.polymer.api.item.PolymerItem;
+import eu.pb4.polymer.core.api.item.PolymerItem;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ChorusFruitItem;

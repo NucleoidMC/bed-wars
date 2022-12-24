@@ -21,14 +21,11 @@ public final class BwFireballEntity extends FireballEntity {
         }
 
         if (!this.world.isClient) {
-            this.world.createExplosion(
-                    null, this.getX(), this.getY(), this.getZ(),
-                    this.explosionPower,
-                    false,
-                    Explosion.DestructionType.DESTROY
-            );
+            Explosion explosion = new Explosion(this.world, this, null, null, this.getX(), this.getY(), this.getZ(), this.explosionPower, false, Explosion.DestructionType.DESTROY);
+            explosion.collectBlocksAndDamageEntities();
+            explosion.affectWorld(true);
 
-            this.remove(RemovalReason.DISCARDED);
+            this.discard();
         }
     }
 

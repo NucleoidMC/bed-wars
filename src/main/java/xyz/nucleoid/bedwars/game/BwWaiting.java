@@ -3,14 +3,14 @@ package xyz.nucleoid.bedwars.game;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.GameMode;
-import xyz.nucleoid.bedwars.game.config.BwConfig;
 import xyz.nucleoid.bedwars.game.active.BwActive;
+import xyz.nucleoid.bedwars.game.config.BwConfig;
 import xyz.nucleoid.fantasy.RuntimeWorldConfig;
 import xyz.nucleoid.plasmid.game.GameOpenContext;
 import xyz.nucleoid.plasmid.game.GameOpenProcedure;
@@ -54,7 +54,7 @@ public final class BwWaiting {
 
         RuntimeWorldConfig worldConfig = new RuntimeWorldConfig()
                 .setGenerator(map.getChunkGenerator())
-                .setDimensionType(RegistryKey.of(Registry.DIMENSION_TYPE_KEY, config.dimension()));
+                .setDimensionType(RegistryKey.of(RegistryKeys.DIMENSION_TYPE, config.dimension()));
 
         return context.openWithWorld(worldConfig, (activity, world) -> {
             GameWaitingLobby.addTo(activity, config.players());

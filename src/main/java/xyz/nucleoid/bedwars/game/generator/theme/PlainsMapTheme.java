@@ -3,7 +3,7 @@ package xyz.nucleoid.bedwars.game.generator.theme;
 import com.mojang.serialization.Codec;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
 import xyz.nucleoid.substrate.gen.GrassGen;

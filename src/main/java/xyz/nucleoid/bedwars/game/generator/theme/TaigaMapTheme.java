@@ -1,20 +1,17 @@
 package xyz.nucleoid.bedwars.game.generator.theme;
 
-import java.util.Random;
-
 import com.mojang.serialization.Codec;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.util.collection.WeightedList;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeKeys;
 import xyz.nucleoid.bedwars.game.generator.gen.TaigaTreeGen;
 import xyz.nucleoid.substrate.gen.GrassGen;
 import xyz.nucleoid.substrate.gen.MapGen;
-import xyz.nucleoid.substrate.gen.tree.PoplarTreeGen;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.collection.WeightedList;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeKeys;
+import java.util.Random;
 
 public final class TaigaMapTheme implements MapTheme {
 	public static final Codec<TaigaMapTheme> CODEC = Codec.unit(new TaigaMapTheme());

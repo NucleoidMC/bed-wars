@@ -1,5 +1,5 @@
 plugins {
-  id 'fabric-loom' version '0.12-SNAPSHOT'
+  id 'fabric-loom' version '1.0.+'
   id 'maven-publish'
 }
 
@@ -25,11 +25,9 @@ dependencies {
 
   modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-  modImplementation 'xyz.nucleoid:plasmid:0.5+1.19-SNAPSHOT'
+  modImplementation "xyz.nucleoid:plasmid:${project.plasmid_version}"
   modImplementation "xyz.nucleoid:substrate:0.2.0"
   implementation include('kdotjpg:open-simplex:2.0')
-
-  modImplementation 'fr.catcore:server-translations-api:1.4.16+1.19'
 }
 
 processResources {
