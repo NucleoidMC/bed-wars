@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FireworkRocketEntity;
 import net.minecraft.item.FireworkRocketItem;
@@ -220,7 +221,7 @@ public final class BwActive {
     }
 
     private ActionResult onPlayerDamage(ServerPlayerEntity attackedPlayer, DamageSource source, float amount) {
-        if (source == DamageSource.OUT_OF_WORLD && attackedPlayer.isSpectator()) {
+        if (source.isOf(DamageTypes.OUT_OF_WORLD) && attackedPlayer.isSpectator()) {
             return ActionResult.FAIL;
         }
 
@@ -271,7 +272,7 @@ public final class BwActive {
 
             for (ServerPlayerEntity player : players) {
                 if (!player.isSpectator() && !this.map.isLegalAt(player.getBlockPos())) {
-                    player.damage(DamageSource.OUT_OF_WORLD, 10000.0F);
+                    player.damage(player.getDamageSources().outOfWorld(), 10000.0F);
                 }
             }
         }

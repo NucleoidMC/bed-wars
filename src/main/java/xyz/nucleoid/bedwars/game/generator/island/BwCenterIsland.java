@@ -2,6 +2,7 @@ package xyz.nucleoid.bedwars.game.generator.island;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.Heightmap;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.map_templates.BlockBounds;
@@ -25,7 +26,7 @@ public final class BwCenterIsland {
             double x = Math.cos(theta) * emeraldDistance;
             double z = Math.sin(theta) * emeraldDistance;
 
-            this.addEmeraldSpawner(map, template, this.origin.add(x, 0, z));
+            this.addEmeraldSpawner(map, template, this.origin.add(MathHelper.floor(x), 0, MathHelper.floor(z)));
         }
 
         this.addCenterSpawn(map, template);

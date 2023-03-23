@@ -66,7 +66,7 @@ public final class BwMapBuilder {
             centerSpawnBounds = template.getBounds();
         }
 
-        BlockPos centerSpawn = new BlockPos(centerSpawnBounds.center());
+        BlockPos centerSpawn = BlockPos.ofFloored(centerSpawnBounds.center());
         centerSpawn = template.getTopPos(centerSpawn.getX(), centerSpawn.getZ(), Heightmap.Type.WORLD_SURFACE).up();
 
         map.setCenterSpawn(centerSpawn);
