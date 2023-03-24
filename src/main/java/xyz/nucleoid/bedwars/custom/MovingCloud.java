@@ -38,7 +38,7 @@ public final class MovingCloud {
 
     public boolean tick() {
         if (this.lastBlockPos == null) {
-            this.updatePlatform(new BlockPos(this.pos));
+            this.updatePlatform(BlockPos.ofFloored(this.pos));
         }
 
         if (this.ticks++ >= MAX_AGE) {
@@ -67,7 +67,7 @@ public final class MovingCloud {
 
         this.pos = this.pos.add(this.movePerTick);
 
-        BlockPos blockPos = new BlockPos(this.pos);
+        BlockPos blockPos = BlockPos.ofFloored(this.pos);
         if (!blockPos.equals(this.lastBlockPos)) {
             this.updatePlatform(blockPos);
         }

@@ -1,9 +1,11 @@
 package xyz.nucleoid.bedwars.game.active;
 
-import eu.pb4.holograms.api.Holograms;
-import eu.pb4.holograms.api.holograms.WorldHologram;
+import eu.pb4.polymer.virtualentity.api.ElementHolder;
+import eu.pb4.polymer.virtualentity.api.attachment.ChunkAttachment;
+import eu.pb4.polymer.virtualentity.api.elements.TextDisplayElement;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.decoration.DisplayEntity.BillboardMode;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.ItemPickupAnimationS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -27,7 +29,8 @@ public final class BwItemGenerator {
     private boolean allowDuplication;
 
     private boolean hasTimerText;
-    private WorldHologram timerHologram;
+    private ElementHolder timerHologram;
+    private TextDisplayElement timerTextElement;
 
     public BwItemGenerator(BlockBounds bounds) {
         this.bounds = bounds;
@@ -74,11 +77,17 @@ public final class BwItemGenerator {
         if (time % 20 == 0) {
             var hologram = this.timerHologram;
             if (hologram != null) {
-                hologram.setText(0, this.getTimerText(time));
+                this.timerTextElement.setText(this.getTimerText(time));
+                hologram.tick();
             } else {
+                this.timerTextElement = new TextDisplayElement(this.getTimerText(time));
+                this.timerTextElement.setBillboardMode(BillboardMode.CENTER);
+                this.timerTextElement.setViewRange(0.3f);
+
                 Vec3d textPos = this.bounds.center().add(0.0, 1.0, 0.0);
-                this.timerHologram = Holograms.create(world, textPos, this.getTimerText(time));
-                this.timerHologram.show();
+                this.timerHologram = new ElementHolder();
+                this.timerHologram.addElement(this.timerTextElement);
+                ChunkAttachment.of(this.timerHologram, world, textPos);
             }
         }
     }

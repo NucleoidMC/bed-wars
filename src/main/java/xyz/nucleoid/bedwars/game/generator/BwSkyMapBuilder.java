@@ -66,10 +66,10 @@ public final class BwSkyMapBuilder {
         NoiseIslandConfig diamondGenerator = this.skyConfig.diamondGenerator;
         double diamondIslandDistance = this.skyConfig.diamondIslandDistance;
 
-        diamondIslands.add(new BwDiamondIsland(diamondGenerator, new BlockPos(diamondIslandDistance, 72, diamondIslandDistance)));
-        diamondIslands.add(new BwDiamondIsland(diamondGenerator, new BlockPos(-diamondIslandDistance, 72, diamondIslandDistance)));
-        diamondIslands.add(new BwDiamondIsland(diamondGenerator, new BlockPos(diamondIslandDistance, 72, -diamondIslandDistance)));
-        diamondIslands.add(new BwDiamondIsland(diamondGenerator, new BlockPos(-diamondIslandDistance, 72, -diamondIslandDistance)));
+        diamondIslands.add(new BwDiamondIsland(diamondGenerator, BlockPos.ofFloored(diamondIslandDistance, 72, diamondIslandDistance)));
+        diamondIslands.add(new BwDiamondIsland(diamondGenerator, BlockPos.ofFloored(-diamondIslandDistance, 72, diamondIslandDistance)));
+        diamondIslands.add(new BwDiamondIsland(diamondGenerator, BlockPos.ofFloored(diamondIslandDistance, 72, -diamondIslandDistance)));
+        diamondIslands.add(new BwDiamondIsland(diamondGenerator, BlockPos.ofFloored(-diamondIslandDistance, 72, -diamondIslandDistance)));
 
         return diamondIslands;
     }
@@ -86,7 +86,7 @@ public final class BwSkyMapBuilder {
             double x = Math.cos(theta) * this.skyConfig.spawnIslandDistance;
             double z = Math.sin(theta) * this.skyConfig.spawnIslandDistance;
 
-            BlockPos pos = new BlockPos(x, 72, z);
+            BlockPos pos = BlockPos.ofFloored(x, 72, z);
             teamIslands.add(new BwTeamIsland(pos, team, theta));
 
         }
