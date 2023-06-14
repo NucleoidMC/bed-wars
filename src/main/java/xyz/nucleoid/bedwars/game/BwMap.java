@@ -134,16 +134,16 @@ public final class BwMap {
 
         if (entity instanceof MobEntity mob) {
 
-            LocalDifficulty difficulty = entity.world.getLocalDifficulty(mob.getBlockPos());
-            mob.initialize((ServerWorld) entity.world, difficulty, SpawnReason.COMMAND, null, null);
+            LocalDifficulty difficulty = entity.getWorld().getLocalDifficulty(mob.getBlockPos());
+            mob.initialize((ServerWorld) entity.getWorld(), difficulty, SpawnReason.COMMAND, null, null);
 
             mob.headYaw = yaw;
             mob.bodyYaw = yaw;
         }
 
         // force-load the chunk before trying to spawn
-        entity.world.getChunk(MathHelper.floor(center.x) >> 4, MathHelper.floor(center.z) >> 4);
-        entity.world.spawnEntity(entity);
+        entity.getWorld().getChunk(MathHelper.floor(center.x) >> 4, MathHelper.floor(center.z) >> 4);
+        entity.getWorld().spawnEntity(entity);
     }
 
     @Nullable

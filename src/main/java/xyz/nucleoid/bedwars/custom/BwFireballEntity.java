@@ -20,8 +20,8 @@ public final class BwFireballEntity extends FireballEntity {
             this.onBlockHit((BlockHitResult) result);
         }
 
-        if (!this.world.isClient) {
-            Explosion explosion = new Explosion(this.world, this, null, null, this.getX(), this.getY(), this.getZ(), this.explosionPower, false, Explosion.DestructionType.DESTROY);
+        if (!this.getWorld().isClient()) {
+            Explosion explosion = new Explosion(this.getWorld(), this, null, null, this.getX(), this.getY(), this.getZ(), this.explosionPower, false, Explosion.DestructionType.DESTROY);
             explosion.collectBlocksAndDamageEntities();
             explosion.affectWorld(true);
 

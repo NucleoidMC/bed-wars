@@ -23,7 +23,7 @@ public final class BwParticipant {
     boolean eliminated;
 
     BwParticipant(BwActive game, ServerPlayerEntity player, GameTeam team) {
-        this.world = player.getWorld();
+        this.world = player.getServerWorld();
         this.ref = PlayerRef.of(player);
         this.team = team;
 
