@@ -19,7 +19,7 @@ public final class BwSidebar {
     }
 
     public static BwSidebar create(BwActive game, GlobalWidgets widgets) {
-        SidebarWidget sidebar = widgets.addSidebar(Text.translatable("game.bedwars.bed_wars").formatted(Formatting.GOLD, Formatting.BOLD));
+        SidebarWidget sidebar = widgets.addSidebar(Text.translatable("gameType.bedwars.bed_wars").formatted(Formatting.GOLD, Formatting.BOLD));
         return new BwSidebar(game, sidebar);
     }
 
