@@ -3,6 +3,7 @@ package xyz.nucleoid.bedwars.game.active;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.MutableText;
@@ -52,7 +53,9 @@ public final class BwBroadcast {
         }
 
         if (eliminated) {
-            announcement = announcement.append(Text.translatable("text.bedwars.player_eliminated").formatted(Formatting.GRAY));
+            announcement = announcement
+                    .append(ScreenTexts.SPACE)
+                    .append(Text.translatable("text.bedwars.player_eliminated").formatted(Formatting.GRAY));
         }
 
         this.game.players().sendMessage(announcement);
