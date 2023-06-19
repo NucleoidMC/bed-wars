@@ -76,7 +76,7 @@ public final class BwChorusFruitItem extends ChorusFruitItem implements PolymerI
 
         return new Vec3d(
                 entity.getX() + deltaX,
-                MathHelper.clamp(entity.getY() + deltaY, entity.world.getBottomY(), entity.world.getTopY() - 1),
+                MathHelper.clamp(entity.getY() + deltaY, entity.getWorld().getBottomY(), entity.getWorld().getTopY() - 1),
                 entity.getZ() + deltaZ
         );
     }
