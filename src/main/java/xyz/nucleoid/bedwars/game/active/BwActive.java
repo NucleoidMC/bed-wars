@@ -132,6 +132,7 @@ public final class BwActive {
             activity.deny(GameRuleType.CRAFTING);
             activity.allow(GameRuleType.FALL_DAMAGE);
             activity.deny(GameRuleType.HUNGER);
+            activity.deny(GameRuleType.SATURATED_REGENERATION);
             activity.allow(GameRuleType.TRIDENTS_LOYAL_IN_VOID);
             activity.allow(BedWars.BLAST_PROOF_GLASS_RULE);
             activity.allow(BedWars.LEAVES_DROP_GOLDEN_APPLES);
