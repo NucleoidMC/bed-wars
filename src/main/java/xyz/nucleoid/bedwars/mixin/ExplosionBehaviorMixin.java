@@ -1,7 +1,8 @@
 package xyz.nucleoid.bedwars.mixin;
 
-import net.minecraft.block.AbstractGlassBlock;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.StainedGlassBlock;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
@@ -37,7 +38,7 @@ public class ExplosionBehaviorMixin {
             if (gameSpace != null) {
                 ActionResult result = gameSpace.getBehavior().testRule(BedWars.BLAST_PROOF_GLASS_RULE);
                 if (result == ActionResult.SUCCESS) {
-                    if (block.getBlock() instanceof AbstractGlassBlock) {
+                    if (block.isOf(Blocks.GLASS) || block.isOf(Blocks.TINTED_GLASS) || block.getBlock() instanceof StainedGlassBlock) {
                         ci.setReturnValue(GLASS_RESISTANCE);
                     }
                 }
