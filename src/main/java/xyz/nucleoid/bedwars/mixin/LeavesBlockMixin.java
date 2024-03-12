@@ -32,8 +32,8 @@ public class LeavesBlockMixin {
         if (gameSpace != null && gameSpace.getBehavior().testRule(BedWars.LEAVES_DROP_GOLDEN_APPLES) == ActionResult.SUCCESS) {
             if (!state.get(LeavesBlock.PERSISTENT) && state.get(LeavesBlock.DISTANCE) == 7) {
                 if (world.random.nextDouble() < 0.025) {
-                    var sapling = WoodType.getType(state.getBlock()).getSapling();
-                    world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(sapling)));
+                    var plant = WoodType.getType(state.getBlock()).getPlant();
+                    world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(plant)));
                 }
 
                 if (world.random.nextDouble() < 0.01) {
