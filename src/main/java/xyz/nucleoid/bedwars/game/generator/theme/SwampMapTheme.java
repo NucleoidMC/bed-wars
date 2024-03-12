@@ -15,7 +15,7 @@ import java.util.Random;
 
 public final class SwampMapTheme implements MapTheme {
 	public static final GrassGen SWAMP_GRASS = new GrassGen(new WeightedList<BlockState>()
-			.add(Blocks.GRASS.getDefaultState(), 12)
+			.add(Blocks.SHORT_GRASS.getDefaultState(), 12)
 			.add(Blocks.BLUE_ORCHID.getDefaultState(), 1), 24, 8, 4);
 
 	public static final Codec<SwampMapTheme> CODEC = Codec.unit(new SwampMapTheme());

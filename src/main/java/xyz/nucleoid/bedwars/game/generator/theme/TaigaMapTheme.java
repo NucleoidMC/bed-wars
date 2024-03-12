@@ -17,7 +17,7 @@ public final class TaigaMapTheme implements MapTheme {
 	public static final Codec<TaigaMapTheme> CODEC = Codec.unit(new TaigaMapTheme());
 	private static final MapGen TAIGA_GRASS = new GrassGen(
 			new WeightedList<BlockState>()
-					.add(Blocks.GRASS.getDefaultState(), 32)
+					.add(Blocks.SHORT_GRASS.getDefaultState(), 32)
 					.add(Blocks.FERN.getDefaultState(), 16)
 					.add(Blocks.DANDELION.getDefaultState(), 1)
 					.add(Blocks.POPPY.getDefaultState(), 1),
