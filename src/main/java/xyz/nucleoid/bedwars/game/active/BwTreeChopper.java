@@ -58,8 +58,8 @@ public final class BwTreeChopper {
 
     private void onBreakLeaves(ServerWorld world, BlockPos pos, BlockState state) {
         if (world.random.nextDouble() < 0.025) {
-            var sapling = WoodType.getType(state.getBlock()).getSapling();
-            world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(sapling)));
+            var plant = WoodType.getType(state.getBlock()).getPlant();
+            world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(plant)));
         }
 
         if (world.random.nextDouble() < 0.01) {
