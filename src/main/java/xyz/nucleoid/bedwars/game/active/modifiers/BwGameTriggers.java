@@ -17,6 +17,6 @@ public final class BwGameTriggers {
     }
 
     private static void register(String identifier, GameTrigger trigger) {
-        GameTrigger.REGISTRY.register(new Identifier(BedWars.ID, identifier), trigger);
+        GameTrigger.REGISTRY.register(Identifier.of(BedWars.ID, identifier), trigger);
     }
 }

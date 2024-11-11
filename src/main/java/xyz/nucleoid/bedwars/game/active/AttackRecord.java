@@ -1,6 +1,6 @@
 package xyz.nucleoid.bedwars.game.active;
 
-import xyz.nucleoid.plasmid.util.PlayerRef;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public final class AttackRecord {

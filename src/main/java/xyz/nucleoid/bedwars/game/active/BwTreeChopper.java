@@ -13,8 +13,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
-import xyz.nucleoid.plasmid.util.BlockTraversal;
-import xyz.nucleoid.plasmid.util.WoodType;
+import xyz.nucleoid.plasmid.api.util.BlockTraversal;
+import xyz.nucleoid.plasmid.api.util.WoodType;
 
 public final class BwTreeChopper {
     public boolean onBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos pos) {

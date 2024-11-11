@@ -1,6 +1,7 @@
 package xyz.nucleoid.bedwars.game.generator.theme;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.registry.RegistryKey;
@@ -14,7 +15,7 @@ import xyz.nucleoid.substrate.gen.MapGen;
 import java.util.Random;
 
 public final class TaigaMapTheme implements MapTheme {
-	public static final Codec<TaigaMapTheme> CODEC = Codec.unit(new TaigaMapTheme());
+	public static final MapCodec<TaigaMapTheme> CODEC = MapCodec.unit(new TaigaMapTheme());
 	private static final MapGen TAIGA_GRASS = new GrassGen(
 			new WeightedList<BlockState>()
 					.add(Blocks.SHORT_GRASS.getDefaultState(), 32)
@@ -72,7 +73,7 @@ public final class TaigaMapTheme implements MapTheme {
 	}
 
 	@Override
-	public Codec<? extends MapTheme> getCodec() {
+	public MapCodec<? extends MapTheme> getCodec() {
 		return CODEC;
 	}
 

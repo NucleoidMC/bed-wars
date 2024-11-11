@@ -3,7 +3,6 @@ package xyz.nucleoid.bedwars.custom;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ChorusFruitItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -16,8 +15,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
-public final class BwChorusFruitItem extends ChorusFruitItem implements PolymerItem {
+public final class BwChorusFruitItem extends Item implements PolymerItem {
     private static final int ATTEMPTS = 32;
     private static final double MIN_DISTANCE_SQ = 6.0 * 6.0;
 
@@ -28,7 +28,7 @@ public final class BwChorusFruitItem extends ChorusFruitItem implements PolymerI
     @Override
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity entity) {
         if (!world.isClient) {
-            ItemStack resultStack = entity.eatFood(world, stack);
+            stack.decrement(1);
 
             double originX = entity.getX();
             double originY = entity.getY();
@@ -53,10 +53,10 @@ public final class BwChorusFruitItem extends ChorusFruitItem implements PolymerI
             }
 
             if (entity instanceof PlayerEntity) {
-                ((PlayerEntity) entity).getItemCooldownManager().set(stack.getItem(), 20);
+                ((PlayerEntity) entity).getItemCooldownManager().set(stack, 20);
             }
 
-            return resultStack;
+            return stack;
         }
 
         return stack;
@@ -76,13 +76,13 @@ public final class BwChorusFruitItem extends ChorusFruitItem implements PolymerI
 
         return new Vec3d(
                 entity.getX() + deltaX,
-                MathHelper.clamp(entity.getY() + deltaY, entity.getWorld().getBottomY(), entity.getWorld().getTopY() - 1),
+                MathHelper.clamp(entity.getY() + deltaY, entity.getWorld().getBottomY(), entity.getWorld().getTopYInclusive()),
                 entity.getZ() + deltaZ
         );
     }
 
     @Override
-    public Item getPolymerItem(ItemStack stack, @Nullable ServerPlayerEntity player) {
+    public Item getPolymerItem(ItemStack stack, PacketContext context) {
         return Items.CHORUS_FRUIT;
     }
 }

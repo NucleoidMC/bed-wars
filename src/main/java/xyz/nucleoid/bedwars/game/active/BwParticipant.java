@@ -6,8 +6,8 @@ import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.active.upgrade.PlayerUpgrades;
 import xyz.nucleoid.bedwars.game.active.upgrade.UpgradeType;
-import xyz.nucleoid.plasmid.game.common.team.GameTeam;
-import xyz.nucleoid.plasmid.util.PlayerRef;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
 
 public final class BwParticipant {
     private final ServerWorld world;

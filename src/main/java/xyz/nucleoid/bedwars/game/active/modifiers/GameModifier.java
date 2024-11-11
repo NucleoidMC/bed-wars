@@ -1,8 +1,9 @@
 package xyz.nucleoid.bedwars.game.active.modifiers;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import xyz.nucleoid.bedwars.game.active.BwActive;
-import xyz.nucleoid.plasmid.registry.TinyRegistry;
+import xyz.nucleoid.plasmid.api.util.TinyRegistry;
 
 import java.util.function.Function;
 
@@ -11,8 +12,8 @@ import java.util.function.Function;
  */
 // TODO: make non bedwars-specific and merge with event system?
 public interface GameModifier {
-	TinyRegistry<Codec<? extends GameModifier>> REGISTRY = TinyRegistry.create();
-	Codec<GameModifier> CODEC = REGISTRY.dispatchStable(GameModifier::getCodec, Function.identity());
+	TinyRegistry<MapCodec<? extends GameModifier>> REGISTRY = TinyRegistry.create();
+	Codec<GameModifier> CODEC = REGISTRY.<GameModifier>dispatchMap(GameModifier::getCodec, Function.identity()).codec();
 
 	/**
 	 * @return The type of trigger used to start this modifier
@@ -30,5 +31,5 @@ public interface GameModifier {
 	default void tick(BwActive game) {
 	}
 
-	Codec<? extends GameModifier> getCodec();
+	MapCodec<? extends GameModifier> getCodec();
 }

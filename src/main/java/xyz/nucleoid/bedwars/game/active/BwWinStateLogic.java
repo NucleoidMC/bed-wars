@@ -2,8 +2,8 @@ package xyz.nucleoid.bedwars.game.active;
 
 import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.plasmid.game.common.team.GameTeam;
-import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
 
 import java.util.List;
 import java.util.stream.Collectors;

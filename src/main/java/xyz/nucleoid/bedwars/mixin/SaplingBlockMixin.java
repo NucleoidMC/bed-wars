@@ -12,8 +12,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.nucleoid.bedwars.BedWars;
-import xyz.nucleoid.plasmid.game.manager.GameSpaceManager;
-import xyz.nucleoid.plasmid.game.manager.ManagedGameSpace;
+import xyz.nucleoid.plasmid.api.game.GameSpaceManager;
+import xyz.nucleoid.stimuli.event.EventResult;
 
 @Mixin(SaplingBlock.class)
 public abstract class SaplingBlockMixin {
@@ -26,8 +26,8 @@ public abstract class SaplingBlockMixin {
 	 */
 	@Inject(method = "randomTick", at = @At("HEAD"), cancellable = true)
 	public void handleRandomTick(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo ci) {
-		ManagedGameSpace gameSpace = GameSpaceManager.get().byWorld(world);
-		if (gameSpace != null && gameSpace.getBehavior().testRule(BedWars.FAST_TREE_GROWTH) == ActionResult.SUCCESS) {
+		var gameSpace = GameSpaceManager.get().byWorld(world);
+		if (gameSpace != null && gameSpace.getBehavior().testRule(BedWars.FAST_TREE_GROWTH) == EventResult.ALLOW) {
 			if (world.getLightLevel(pos.up()) >= 9) {
 				this.generate(world, pos, state, random);
 			}

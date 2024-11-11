@@ -1,6 +1,7 @@
 package xyz.nucleoid.bedwars.game.generator.theme;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.registry.RegistryKey;
@@ -18,7 +19,7 @@ public final class SwampMapTheme implements MapTheme {
 			.add(Blocks.SHORT_GRASS.getDefaultState(), 12)
 			.add(Blocks.BLUE_ORCHID.getDefaultState(), 1), 24, 8, 4);
 
-	public static final Codec<SwampMapTheme> CODEC = Codec.unit(new SwampMapTheme());
+	public static final MapCodec<SwampMapTheme> CODEC = MapCodec.unit(new SwampMapTheme());
 
 	@Override
 	public BlockState topState() {
@@ -69,7 +70,7 @@ public final class SwampMapTheme implements MapTheme {
 	}
 
 	@Override
-	public Codec<? extends MapTheme> getCodec() {
+	public MapCodec<? extends MapTheme> getCodec() {
 		return CODEC;
 	}
 

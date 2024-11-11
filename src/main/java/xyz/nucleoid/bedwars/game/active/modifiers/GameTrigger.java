@@ -1,8 +1,8 @@
 package xyz.nucleoid.bedwars.game.active.modifiers;
 
 import com.mojang.serialization.Codec;
-import xyz.nucleoid.plasmid.registry.TinyRegistry;
 import net.minecraft.util.Identifier;
+import xyz.nucleoid.plasmid.api.util.TinyRegistry;
 
 public final class GameTrigger {
     public static final TinyRegistry<GameTrigger> REGISTRY = TinyRegistry.create();

@@ -1,6 +1,7 @@
 package xyz.nucleoid.bedwars.game.active.shop;
 
 import eu.pb4.sgui.api.elements.GuiElementInterface;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -12,11 +13,11 @@ import net.minecraft.util.math.MathHelper;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.active.BwParticipant;
-import xyz.nucleoid.plasmid.game.common.team.GameTeam;
-import xyz.nucleoid.plasmid.shop.Cost;
-import xyz.nucleoid.plasmid.shop.ShopEntry;
-import xyz.nucleoid.plasmid.util.Guis;
-import xyz.nucleoid.plasmid.util.ItemStackBuilder;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.api.shop.Cost;
+import xyz.nucleoid.plasmid.api.shop.ShopEntry;
+import xyz.nucleoid.plasmid.api.util.Guis;
+import xyz.nucleoid.plasmid.api.util.ItemStackBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,11 +124,11 @@ public final class BwTeamShop {
     }
 
     private static ItemStack createIcon(Item item, String id) {
-        return ItemStackBuilder.of(item)
+        return ItemStackBuilder.of(Items.STONE)
+                .set(DataComponentTypes.ITEM_MODEL, item.getComponents().get(DataComponentTypes.ITEM_MODEL))
                 .setName(Text.translatable("text.bedwars.shop.upgrade." + id))
                 .addLore(Text.translatable("text.bedwars.shop.upgrade." + id + ".description.1").formatted(Formatting.GRAY))
                 .addLore(Text.translatable("text.bedwars.shop.upgrade." + id + ".description.2").formatted(Formatting.GRAY))
-                .hideFlags()
                 .build();
     }
 
@@ -145,7 +146,7 @@ public final class BwTeamShop {
             name.append(costText);
         }
 
-        icon.setCustomName(name);
+        icon.set(DataComponentTypes.CUSTOM_NAME, name);
 
         return icon;
     }
@@ -153,10 +154,10 @@ public final class BwTeamShop {
     private static ItemStack createIconLvlFor(ServerPlayerEntity player, ShopEntry entry, Item icon, String id, int level, boolean maxLvl) {
         boolean canBuy = entry.canBuy(player);
 
-        var itemStackBuilder = ItemStackBuilder.of(icon)
+        var itemStackBuilder = ItemStackBuilder.of(Items.STONE)
+                .set(DataComponentTypes.ITEM_MODEL, icon.getComponents().get(DataComponentTypes.ITEM_MODEL))
                 .addLore(Text.translatable("text.bedwars.shop.upgrade." + id + ".description.1", Text.translatable("enchantment.level." + level)).formatted(Formatting.GRAY))
                 .addLore(Text.translatable("text.bedwars.shop.upgrade." + id + ".description.2", Text.translatable("enchantment.level." + level)).formatted(Formatting.GRAY))
-                .hideFlags()
                 .setCount(level);
 
 

@@ -1,11 +1,14 @@
 package xyz.nucleoid.bedwars.game.active.shop;
 
 import com.google.common.collect.ImmutableList;
+import eu.pb4.sgui.api.GuiHelpers;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
 import eu.pb4.sgui.api.gui.layered.Layer;
 import eu.pb4.sgui.api.gui.layered.LayerView;
 import eu.pb4.sgui.api.gui.layered.LayeredGui;
 import net.minecraft.block.Blocks;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -13,8 +16,8 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.potion.PotionUtil;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -26,14 +29,15 @@ import xyz.nucleoid.bedwars.game.active.BwParticipant;
 import xyz.nucleoid.bedwars.game.active.upgrade.PlayerUpgrades;
 import xyz.nucleoid.bedwars.game.active.upgrade.Upgrade;
 import xyz.nucleoid.bedwars.game.active.upgrade.UpgradeType;
-import xyz.nucleoid.plasmid.shop.Cost;
-import xyz.nucleoid.plasmid.shop.ShopEntry;
-import xyz.nucleoid.plasmid.util.ColoredBlocks;
-import xyz.nucleoid.plasmid.util.Guis;
-import xyz.nucleoid.plasmid.util.ItemStackBuilder;
+import xyz.nucleoid.plasmid.api.shop.Cost;
+import xyz.nucleoid.plasmid.api.shop.ShopEntry;
+import xyz.nucleoid.plasmid.api.util.ColoredBlocks;
+import xyz.nucleoid.plasmid.api.util.Guis;
+import xyz.nucleoid.plasmid.api.util.ItemStackBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public final class BwItemShop extends LayeredGui {
@@ -50,11 +54,11 @@ public final class BwItemShop extends LayeredGui {
         this.participant = participant;
         List<GuiElementInterface> navbar = new ArrayList<>();
 
-        this.addNavigationEntry(Items.END_STONE, "blocks", true, navbar, this::createBlocks);
-        this.addNavigationEntry(Items.DIAMOND_SWORD, "weapons", false, navbar, this::createWeapons);
-        this.addNavigationEntry(Items.IRON_CHESTPLATE, "armor", false, navbar, this::createArmor);
-        this.addNavigationEntry(Items.STONE_PICKAXE, "tools", false, navbar, this::createTools);
-        this.addNavigationEntry(Items.POTION, "utils", false, navbar, this::createUtils);
+        this.addNavigationEntry(player.getServer(), Items.END_STONE, "blocks", true, navbar, this::createBlocks);
+        this.addNavigationEntry(player.getServer(), Items.DIAMOND_SWORD, "weapons", false, navbar, this::createWeapons);
+        this.addNavigationEntry(player.getServer(), Items.IRON_CHESTPLATE, "armor", false, navbar, this::createArmor);
+        this.addNavigationEntry(player.getServer(), Items.STONE_PICKAXE, "tools", false, navbar, this::createTools);
+        this.addNavigationEntry(player.getServer(), Items.POTION, "utils", false, navbar, this::createUtils);
 
         Layer navbar1 = Guis.createSelectorLayer(1, 9, navbar);
         this.addLayer(navbar1, 0, 0);
@@ -86,7 +90,7 @@ public final class BwItemShop extends LayeredGui {
                 name.append(costText);
             }
 
-            return ItemStackBuilder.of(levelUp != null ? levelUp.getIcon() : type.forLevel(level).getIcon()).setName(name).build();
+            return ItemStackBuilder.of(levelUp != null ? levelUp.getIcon() : type.forLevel(level).getIcon()).set(DataComponentTypes.CUSTOM_NAME, name.styled(x -> x.withItalic(x.isItalic()))).build();
         })
                 .withCost((p, e) -> {
                     int level = upgrades.getLevel(type);
@@ -97,22 +101,28 @@ public final class BwItemShop extends LayeredGui {
                 .onBuy(p -> upgrades.applyLevel(type, upgrades.getLevel(type) + 1)));
     }
 
-    private static ItemStack createPotion(StatusEffectInstance effect) {
-        return PotionUtil.setCustomPotionEffects(new ItemStack(Items.POTION), ImmutableList.of(effect));
+    private static ItemStack createPotion(StatusEffectInstance effect, Text name) {
+        var stack = new ItemStack(Items.POTION);
+        stack.set(DataComponentTypes.CUSTOM_NAME, name.copy().styled(x -> x.withItalic(x.isItalic())));
+        stack.set(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT.with(effect));
+        return stack;
     }
 
-    private void addNavigationEntry(Item icon, String name, boolean defaultSelected, List<GuiElementInterface> navbar, Consumer<Consumer<GuiElementInterface>> adder) {
+    private void addNavigationEntry(MinecraftServer server, Item icon, String name, boolean defaultSelected, List<GuiElementInterface> navbar, Consumer<Consumer<GuiElementInterface>> adder) {
+        addNavigationEntry(server, icon, name, defaultSelected, navbar, (s, consumer) -> adder.accept(consumer));
+    }
+    private void addNavigationEntry(MinecraftServer server, Item icon, String name, boolean defaultSelected, List<GuiElementInterface> navbar, BiConsumer<MinecraftServer, Consumer<GuiElementInterface>> adder) {
         List<GuiElementInterface> items = new ArrayList<>();
-        adder.accept(items::add);
+        adder.accept(server, items::add);
 
         Layer layer = Guis.createSelectorLayer(3, 7, items);
 
-        var builder = ItemStackBuilder.of(icon)
+        var builder = ItemStackBuilder.of(Items.STONE)
+                .set(DataComponentTypes.ITEM_MODEL, icon.getComponents().get(DataComponentTypes.ITEM_MODEL))
                 .setName(Text.translatable("text.bedwars.shop.category." + name)
-                        .setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.YELLOW)))
-                .hideFlags();
+                        .setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.YELLOW)));
         var normal = builder.build();
-        var selected = builder.addEnchantment(Enchantments.LOYALTY, 0).build();
+        var selected = builder.addEnchantment(server, Enchantments.LOYALTY, 0).build();
 
         navbar.add(new NavbarItem(normal, selected, layer));
 
@@ -138,13 +148,13 @@ public final class BwItemShop extends LayeredGui {
         items.accept(ShopEntry.buyItem(new ItemStack(Items.TORCH, 8), Cost.ofGold(1)));
     }
 
-    private void createWeapons(Consumer<GuiElementInterface> items) {
+    private void createWeapons(MinecraftServer server, Consumer<GuiElementInterface> items) {
         PlayerUpgrades upgrades = participant.upgrades;
         addUpgrade(items, upgrades, UpgradeType.SWORD, "sword");
 
 
         ItemStack knockbackStick = ItemStackBuilder.of(Items.STICK)
-                .addEnchantment(Enchantments.KNOCKBACK, 1)
+                .addEnchantment(server, Enchantments.KNOCKBACK, 1)
                 .addLore(Text.translatable("item.bedwars.knockback_stick.description"))
                 .build();
 
@@ -152,13 +162,13 @@ public final class BwItemShop extends LayeredGui {
 
         ItemStack trident = ItemStackBuilder.of(Items.TRIDENT)
                 .setUnbreakable()
-                .addEnchantment(Enchantments.LOYALTY, 1)
+                .addEnchantment(server, Enchantments.LOYALTY, 1)
                 .build();
         items.accept(ShopEntry.buyItem(trident, Cost.ofEmeralds(6)));
 
         items.accept(ShopEntry.buyItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().build(), Cost.ofGold(12)));
-        items.accept(ShopEntry.buyItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().addEnchantment(Enchantments.POWER, 2).build(), Cost.ofGold(24)));
-        items.accept(ShopEntry.buyItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().addEnchantment(Enchantments.PUNCH, 1).build(), Cost.ofEmeralds(6)));
+        items.accept(ShopEntry.buyItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().addEnchantment(server, Enchantments.POWER, 2).build(), Cost.ofGold(24)));
+        items.accept(ShopEntry.buyItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().addEnchantment(server, Enchantments.PUNCH, 1).build(), Cost.ofEmeralds(6)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.ARROW, 8), Cost.ofGold(2)));
     }
 
@@ -178,18 +188,18 @@ public final class BwItemShop extends LayeredGui {
     private void createUtils(Consumer<GuiElementInterface> items) {
 
         StatusEffectInstance jumpBoostEffect = new StatusEffectInstance(StatusEffects.JUMP_BOOST, 600, 5);
-        items.accept(ShopEntry.buyItem(createPotion(jumpBoostEffect).setCustomName(Text.translatable("item.minecraft.potion.effect.leaping")), Cost.ofEmeralds(1)));
+        items.accept(ShopEntry.buyItem(createPotion(jumpBoostEffect, Text.translatable("item.minecraft.potion.effect.leaping")), Cost.ofEmeralds(1)));
 
         StatusEffectInstance swiftnessEffect = new StatusEffectInstance(StatusEffects.SPEED, 600, 2);
-        items.accept(ShopEntry.buyItem(createPotion(swiftnessEffect).setCustomName(Text.translatable("item.minecraft.potion.effect.swiftness")), Cost.ofEmeralds(1)));
+        items.accept(ShopEntry.buyItem(createPotion(swiftnessEffect, Text.translatable("item.minecraft.potion.effect.swiftness")), Cost.ofEmeralds(1)));
 
         items.accept(ShopEntry.buyItem(new ItemStack(Blocks.TNT), Cost.ofGold(8)));
-        items.accept(ShopEntry.buyItem(new ItemStack(Items.FIRE_CHARGE).setCustomName(Text.translatable(EntityType.FIREBALL.getTranslationKey())), Cost.ofIron(40)));
+        items.accept(ShopEntry.buyItem(new ItemStack(Items.FIRE_CHARGE)/*.setCustomName(Text.translatable(EntityType.FIREBALL.getTranslationKey()))*/, Cost.ofIron(40)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.ENDER_PEARL), Cost.ofEmeralds(4)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.WATER_BUCKET), Cost.ofGold(10)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.LAVA_BUCKET), Cost.ofGold(24)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.GOLDEN_APPLE), Cost.ofGold(3)));
-        items.accept(ShopEntry.buyItem(new ItemStack(BwItems.CHORUS_FRUIT).setCustomName(Text.translatable(Items.CHORUS_FRUIT.getTranslationKey())), Cost.ofGold(8)));
+        items.accept(ShopEntry.buyItem(new ItemStack(BwItems.CHORUS_FRUIT), Cost.ofGold(8)));
         items.accept(ShopEntry.buyItem(new ItemStack(BwItems.BRIDGE_EGG), Cost.ofEmeralds(2)));
         items.accept(ShopEntry.buyItem(new ItemStack(BwItems.MOVING_CLOUD), Cost.ofEmeralds(1)));
     }

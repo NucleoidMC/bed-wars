@@ -14,7 +14,7 @@ import net.minecraft.world.gen.noise.NoiseConfig;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.generator.theme.MapTheme;
 import xyz.nucleoid.map_templates.MapTemplate;
-import xyz.nucleoid.plasmid.game.world.generator.TemplateChunkGenerator;
+import xyz.nucleoid.plasmid.api.game.world.generator.TemplateChunkGenerator;
 
 public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
     private final BwMap map;

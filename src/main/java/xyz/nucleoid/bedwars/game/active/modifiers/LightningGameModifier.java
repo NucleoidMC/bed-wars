@@ -1,7 +1,9 @@
 package xyz.nucleoid.bedwars.game.active.modifiers;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.entity.SpawnReason;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LightningEntity;
@@ -9,7 +11,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 
 public class LightningGameModifier implements GameModifier {
-    public static final Codec<LightningGameModifier> CODEC = RecordCodecBuilder.create(instance -> {
+    public static final MapCodec<LightningGameModifier> CODEC = RecordCodecBuilder.mapCodec(instance -> {
         return instance.group(
                 GameTrigger.CODEC.fieldOf("trigger").forGetter(LightningGameModifier::getTrigger),
                 Codec.BOOL.fieldOf("cosmetic").orElse(false).forGetter(modifier -> modifier.cosmetic)
@@ -34,7 +36,7 @@ public class LightningGameModifier implements GameModifier {
         game.players().forEach(player -> {
             ServerWorld world = game.world;
 
-            LightningEntity entity = EntityType.LIGHTNING_BOLT.create(world);
+            LightningEntity entity = EntityType.LIGHTNING_BOLT.create(world, SpawnReason.LOAD);
             if (entity == null) {
                 return;
             }
@@ -46,7 +48,7 @@ public class LightningGameModifier implements GameModifier {
     }
 
     @Override
-    public Codec<? extends GameModifier> getCodec() {
+    public MapCodec<? extends GameModifier> getCodec() {
         return CODEC;
     }
 }

@@ -14,9 +14,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.nucleoid.bedwars.BedWars;
-import xyz.nucleoid.plasmid.game.manager.GameSpaceManager;
-import xyz.nucleoid.plasmid.game.manager.ManagedGameSpace;
-import xyz.nucleoid.plasmid.util.WoodType;
+import xyz.nucleoid.plasmid.api.game.GameSpaceManager;
+import xyz.nucleoid.plasmid.api.util.WoodType;
+import xyz.nucleoid.stimuli.event.EventResult;
 
 @Mixin(LeavesBlock.class)
 public class LeavesBlockMixin {
@@ -28,8 +28,8 @@ public class LeavesBlockMixin {
      */
     @Inject(method = "randomTick", at = @At("HEAD"), cancellable = true)
     public void handleRandomTick(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo ci) {
-        ManagedGameSpace gameSpace = GameSpaceManager.get().byWorld(world);
-        if (gameSpace != null && gameSpace.getBehavior().testRule(BedWars.LEAVES_DROP_GOLDEN_APPLES) == ActionResult.SUCCESS) {
+        var gameSpace = GameSpaceManager.get().byWorld(world);
+        if (gameSpace != null && gameSpace.getBehavior().testRule(BedWars.LEAVES_DROP_GOLDEN_APPLES) == EventResult.ALLOW) {
             if (!state.get(LeavesBlock.PERSISTENT) && state.get(LeavesBlock.DISTANCE) == 7) {
                 if (world.random.nextDouble() < 0.025) {
                     var plant = WoodType.getType(state.getBlock()).getPlant();

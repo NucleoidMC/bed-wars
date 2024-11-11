@@ -1,6 +1,7 @@
 package xyz.nucleoid.bedwars.game.generator.theme;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.registry.RegistryKey;
@@ -13,7 +14,7 @@ import xyz.nucleoid.substrate.gen.tree.PoplarTreeGen;
 import java.util.Random;
 
 public final class PlainsMapTheme implements MapTheme {
-	public static final Codec<PlainsMapTheme> CODEC = Codec.unit(new PlainsMapTheme());
+	public static final MapCodec<PlainsMapTheme> CODEC = MapCodec.unit(new PlainsMapTheme());
 
 	@Override
 	public BlockState topState() {
@@ -64,7 +65,7 @@ public final class PlainsMapTheme implements MapTheme {
 	}
 
 	@Override
-	public Codec<? extends MapTheme> getCodec() {
+	public MapCodec<? extends MapTheme> getCodec() {
 		return CODEC;
 	}
 

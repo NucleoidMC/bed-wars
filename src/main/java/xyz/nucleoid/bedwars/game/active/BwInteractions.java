@@ -14,7 +14,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -25,10 +24,11 @@ import xyz.nucleoid.bedwars.custom.BwFireballEntity;
 import xyz.nucleoid.bedwars.custom.BwItems;
 import xyz.nucleoid.bedwars.custom.MovingCloud;
 import xyz.nucleoid.bedwars.game.BwMap;
-import xyz.nucleoid.plasmid.game.GameActivity;
-import xyz.nucleoid.plasmid.game.common.team.GameTeam;
-import xyz.nucleoid.plasmid.util.ColoredBlocks;
-import xyz.nucleoid.plasmid.util.PlayerRef;
+import xyz.nucleoid.plasmid.api.game.GameActivity;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.api.util.ColoredBlocks;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
+import xyz.nucleoid.stimuli.event.EventResult;
 import xyz.nucleoid.stimuli.event.block.BlockBreakEvent;
 import xyz.nucleoid.stimuli.event.block.BlockUseEvent;
 import xyz.nucleoid.stimuli.event.item.ItemUseEvent;
@@ -50,7 +50,7 @@ public final class BwInteractions {
         activity.listen(ItemUseEvent.EVENT, this::onUseItem);
     }
 
-    private ActionResult onBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos pos) {
+    private EventResult onBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos pos) {
         if (this.game.map.isProtectedBlock(pos)) {
             for (var team : this.game.teams()) {
                 var bed = this.game.map.getTeamRegions(team.key()).bed();
@@ -59,14 +59,14 @@ public final class BwInteractions {
                 }
             }
 
-            return ActionResult.FAIL;
+            return EventResult.DENY;
         }
 
         if (this.treeChopper.onBreakBlock(player, world, pos)) {
-            return ActionResult.FAIL;
+            return EventResult.DENY;
         }
 
-        return ActionResult.PASS;
+        return EventResult.PASS;
     }
 
     private ActionResult onUseBlock(ServerPlayerEntity player, Hand hand, BlockHitResult hitResult) {
@@ -125,10 +125,10 @@ public final class BwInteractions {
         return null;
     }
 
-    private TypedActionResult<ItemStack> onUseItem(ServerPlayerEntity player, Hand hand) {
+    private ActionResult onUseItem(ServerPlayerEntity player, Hand hand) {
         ItemStack stack = player.getStackInHand(hand);
         if (stack.isEmpty()) {
-            return TypedActionResult.pass(ItemStack.EMPTY);
+            return ActionResult.PASS;
         }
 
         if (stack.getItem() == Items.FIRE_CHARGE) {
@@ -139,10 +139,10 @@ public final class BwInteractions {
             return this.onUseMovingCloud(player, stack);
         }
 
-        return TypedActionResult.pass(ItemStack.EMPTY);
+        return ActionResult.PASS;
     }
 
-    private TypedActionResult<ItemStack> onUseFireball(ServerPlayerEntity player, ItemStack stack) {
+    private ActionResult onUseFireball(ServerPlayerEntity player, ItemStack stack) {
         Vec3d dir = player.getRotationVec(1.0F);
 
         BwFireballEntity fireball = new BwFireballEntity(this.world, player, dir.x * 0.5, dir.y * 0.5, dir.z * 0.5, 2);
@@ -150,13 +150,13 @@ public final class BwInteractions {
 
         this.world.spawnEntity(fireball);
 
-        player.getItemCooldownManager().set(Items.FIRE_CHARGE, 20);
+        player.getItemCooldownManager().set(stack, 20);
         stack.decrement(1);
 
-        return TypedActionResult.success(ItemStack.EMPTY);
+        return ActionResult.SUCCESS_SERVER.withNewHandStack(ItemStack.EMPTY);
     }
 
-    private TypedActionResult<ItemStack> onUseBridgeEgg(ServerPlayerEntity player, ItemStack stack) {
+    private ActionResult onUseBridgeEgg(ServerPlayerEntity player, ItemStack stack) {
         this.world.playSound(
                 null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.ENTITY_EGG_THROW, SoundCategory.PLAYERS,
@@ -166,7 +166,7 @@ public final class BwInteractions {
         // Get player wool color
         GameTeam team = this.game.teamFor(PlayerRef.of(player));
         if (team == null) {
-            return TypedActionResult.pass(stack);
+            return ActionResult.PASS;
         }
 
         BlockState state = ColoredBlocks.wool(team.config().blockDyeColor()).getDefaultState();
@@ -182,10 +182,10 @@ public final class BwInteractions {
             stack.decrement(1);
         }
 
-        return TypedActionResult.consume(stack);
+        return ActionResult.CONSUME;
     }
 
-    private TypedActionResult<ItemStack> onUseMovingCloud(ServerPlayerEntity player, ItemStack stack) {
+    private ActionResult onUseMovingCloud(ServerPlayerEntity player, ItemStack stack) {
         this.world.playSound(
                 null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.ENTITY_EGG_THROW, SoundCategory.PLAYERS,
@@ -195,7 +195,7 @@ public final class BwInteractions {
         Direction direction = player.getHorizontalFacing();
         BlockPos blockPos = player.getBlockPos().down().offset(direction);
         if (!this.world.isAir(blockPos)) {
-            return TypedActionResult.fail(stack);
+            return ActionResult.PASS;
         }
 
         MovingCloud cloud = new MovingCloud(this.world, blockPos, direction);
@@ -205,6 +205,6 @@ public final class BwInteractions {
             stack.decrement(1);
         }
 
-        return TypedActionResult.consume(stack);
+        return ActionResult.CONSUME;
     }
 }

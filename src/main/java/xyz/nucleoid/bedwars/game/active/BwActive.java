@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import net.minecraft.component.type.FireworkExplosionComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
@@ -29,25 +30,27 @@ import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameModifier;
 import xyz.nucleoid.bedwars.game.active.modifiers.GameTrigger;
 import xyz.nucleoid.bedwars.game.config.BwConfig;
-import xyz.nucleoid.plasmid.game.GameActivity;
-import xyz.nucleoid.plasmid.game.GameCloseReason;
-import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.common.GlobalWidgets;
-import xyz.nucleoid.plasmid.game.common.OldCombat;
-import xyz.nucleoid.plasmid.game.common.team.GameTeam;
-import xyz.nucleoid.plasmid.game.common.team.GameTeamConfig;
-import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
-import xyz.nucleoid.plasmid.game.common.team.GameTeamList;
-import xyz.nucleoid.plasmid.game.common.team.TeamChat;
-import xyz.nucleoid.plasmid.game.common.team.TeamManager;
-import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
-import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
-import xyz.nucleoid.plasmid.game.player.PlayerOffer;
-import xyz.nucleoid.plasmid.game.player.PlayerOfferResult;
-import xyz.nucleoid.plasmid.game.player.PlayerSet;
-import xyz.nucleoid.plasmid.game.rule.GameRuleType;
-import xyz.nucleoid.plasmid.util.ItemStackBuilder;
-import xyz.nucleoid.plasmid.util.PlayerRef;
+import xyz.nucleoid.plasmid.api.game.GameActivity;
+import xyz.nucleoid.plasmid.api.game.GameCloseReason;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.common.GlobalWidgets;
+import xyz.nucleoid.plasmid.api.game.common.OldCombat;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeamConfig;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeamList;
+import xyz.nucleoid.plasmid.api.game.common.team.TeamChat;
+import xyz.nucleoid.plasmid.api.game.common.team.TeamManager;
+import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
+import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
+import xyz.nucleoid.plasmid.api.game.player.JoinAcceptor;
+import xyz.nucleoid.plasmid.api.game.player.JoinAcceptorResult;
+import xyz.nucleoid.plasmid.api.game.player.JoinIntent;
+import xyz.nucleoid.plasmid.api.game.player.PlayerSet;
+import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
+import xyz.nucleoid.plasmid.api.util.ItemStackBuilder;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
+import xyz.nucleoid.stimuli.event.EventResult;
 import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 import xyz.nucleoid.stimuli.event.world.ExplosionDetonatedEvent;
@@ -139,7 +142,8 @@ public final class BwActive {
             activity.allow(BedWars.FAST_TREE_GROWTH);
 
             activity.listen(GameActivityEvents.ENABLE, active::onEnable);
-            activity.listen(GamePlayerEvents.OFFER, active::offerPlayer);
+            activity.listen(GamePlayerEvents.OFFER, offer -> offer.intent() == JoinIntent.SPECTATE || offer.players().stream().allMatch(x -> active.participantBy(PlayerRef.of(x)) != null) ? offer.accept() : offer.pass());
+            activity.listen(GamePlayerEvents.ACCEPT, active::acceptPlayer);
             activity.listen(GameActivityEvents.TICK, active::tick);
 
             activity.listen(PlayerDeathEvent.EVENT, active::onPlayerDeath);
@@ -147,8 +151,9 @@ public final class BwActive {
 
             active.interactions.addTo(activity);
 
-            activity.listen(ExplosionDetonatedEvent.EVENT, (explosion, particles) -> {
-                explosion.getAffectedBlocks().removeIf(map::isProtectedBlock);
+            activity.listen(ExplosionDetonatedEvent.EVENT, (explosion, blocks) -> {
+                blocks.removeIf(map::isProtectedBlock);
+                return EventResult.PASS;
             });
         });
     }
@@ -201,14 +206,12 @@ public final class BwActive {
         this.startTime = this.world.getTime();
     }
 
-    private PlayerOfferResult offerPlayer(PlayerOffer offer) {
-        var player = offer.player();
-
-        return offer.accept(this.world, this.map.getCenterSpawn())
-                .and(() -> {
+    private JoinAcceptorResult acceptPlayer(JoinAcceptor offer) {
+        return offer.teleport(this.world, this.map.getCenterSpawn())
+                .thenRunForEach((player, intent) -> {
                     this.spawnLogic.resetPlayer(player, GameMode.SPECTATOR);
                     BwParticipant participant = this.participantBy(player);
-                    if (participant != null) {
+                    if (participant != null && intent == JoinIntent.PLAY) {
                         this.rejoinParticipant(player, participant);
                     }
                 });
@@ -221,14 +224,14 @@ public final class BwActive {
         }
     }
 
-    private ActionResult onPlayerDamage(ServerPlayerEntity attackedPlayer, DamageSource source, float amount) {
+    private EventResult onPlayerDamage(ServerPlayerEntity attackedPlayer, DamageSource source, float amount) {
         if (source.isOf(DamageTypes.OUT_OF_WORLD) && attackedPlayer.isSpectator()) {
-            return ActionResult.FAIL;
+            return EventResult.DENY;
         }
 
         BwParticipant attackedParticipant = this.participantBy(attackedPlayer);
         if (attackedParticipant == null) {
-            return ActionResult.PASS;
+            return EventResult.PASS;
         }
 
         Entity attacker = source.getAttacker();
@@ -237,14 +240,14 @@ public final class BwActive {
 
             if (attackerParticipant != null) {
                 if (attackerParticipant.team == attackedParticipant.team) {
-                    return ActionResult.FAIL;
+                    return EventResult.DENY;
                 }
 
                 attackedParticipant.lastAttack = AttackRecord.fromAttacker(attackerPlayer);
             }
         }
 
-        return ActionResult.PASS;
+        return EventResult.PASS;
     }
 
     private void tick() {
@@ -273,7 +276,7 @@ public final class BwActive {
 
             for (ServerPlayerEntity player : players) {
                 if (!player.isSpectator() && !this.map.isLegalAt(player.getBlockPos())) {
-                    player.damage(player.getDamageSources().outOfWorld(), 10000.0F);
+                    player.damage(player.getServerWorld(), player.getDamageSources().outOfWorld(), 10000.0F);
                 }
             }
         }
@@ -332,7 +335,7 @@ public final class BwActive {
             ServerPlayerEntity player = players.get(random.nextInt(players.size()));
 
             int flight = random.nextInt(3);
-            FireworkRocketItem.Type type = random.nextInt(4) == 0 ? FireworkRocketItem.Type.STAR : FireworkRocketItem.Type.BURST;
+            var type = random.nextInt(4) == 0 ? FireworkExplosionComponent.Type.STAR : FireworkExplosionComponent.Type.BURST;
             FireworkRocketEntity firework = new FireworkRocketEntity(
                     this.world,
                     player.getX(),
@@ -345,16 +348,16 @@ public final class BwActive {
         }
     }
 
-    private ActionResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
+    private EventResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
         BwParticipant participant = this.participantBy(player);
 
         // TODO: cancel if cause is own player
         if (participant != null) {
             this.killLogic.onPlayerDeath(participant, player, source);
-            return ActionResult.FAIL;
+            return EventResult.DENY;
         }
 
-        return ActionResult.SUCCESS;
+        return EventResult.ALLOW;
     }
 
     public ItemStack createArmor(ItemStack stack) {

@@ -8,6 +8,7 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.decoration.DisplayEntity.BillboardMode;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.ItemPickupAnimationS2CPacket;
+import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -156,7 +157,7 @@ public final class BwItemGenerator {
             ItemStack stack = entity.getStack();
 
             player.giveItemStack(stack.copy());
-            player.networkHandler.sendPacket(entity.createSpawnPacket());
+            player.networkHandler.sendPacket(entity.createSpawnPacket(new EntityTrackerEntry(world, entity, 1, true, (c) -> {})));
             player.networkHandler.sendPacket(new ItemPickupAnimationS2CPacket(entity.getId(), player.getId(), stack.getCount()));
 
             player.getInventory().markDirty();

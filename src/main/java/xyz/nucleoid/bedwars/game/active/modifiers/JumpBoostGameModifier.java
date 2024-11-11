@@ -1,6 +1,7 @@
 package xyz.nucleoid.bedwars.game.active.modifiers;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -8,7 +9,7 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class JumpBoostGameModifier implements GameModifier {
-    public static final Codec<JumpBoostGameModifier> CODEC = RecordCodecBuilder.create(instance -> {
+    public static final MapCodec<JumpBoostGameModifier> CODEC = RecordCodecBuilder.mapCodec(instance -> {
         return instance.group(
                 GameTrigger.CODEC.fieldOf("trigger").forGetter(JumpBoostGameModifier::getTrigger)
         ).apply(instance, JumpBoostGameModifier::new);
@@ -37,7 +38,7 @@ public class JumpBoostGameModifier implements GameModifier {
     }
 
     @Override
-    public Codec<? extends GameModifier> getCodec() {
+    public MapCodec<? extends GameModifier> getCodec() {
         return CODEC;
     }
 

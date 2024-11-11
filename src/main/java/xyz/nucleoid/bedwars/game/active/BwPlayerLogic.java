@@ -9,6 +9,8 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -43,7 +45,7 @@ public final class BwPlayerLogic {
 
                 // Don't kill spectators and creative players
                 if (!player.getAbilities().allowFlying) {
-                    player.kill();
+                    player.kill(player.getServerWorld());
                 }
             }
         });
@@ -90,18 +92,18 @@ public final class BwPlayerLogic {
         this.applyEnchantments(player, stack -> stack.getItem() instanceof ArmorItem, Enchantments.PROTECTION, teamState.armorProtection);
     }
 
-    private void applyEnchantments(ServerPlayerEntity player, Predicate<ItemStack> predicate, Enchantment enchantment, int level) {
+    private void applyEnchantments(ServerPlayerEntity player, Predicate<ItemStack> predicate, RegistryKey<Enchantment> enchantment, int level) {
         if (level <= 0) return;
+
+        var ench = player.getRegistryManager().getOrThrow(RegistryKeys.ENCHANTMENT).getOrThrow(enchantment);
 
         PlayerInventory inventory = player.getInventory();
         for (int slot = 0; slot < inventory.size(); slot++) {
             ItemStack stack = inventory.getStack(slot);
             if (!stack.isEmpty() && predicate.test(stack)) {
-                int existingLevel = EnchantmentHelper.getLevel(enchantment, stack);
+                int existingLevel = stack.getEnchantments().getLevel(ench);
                 if (existingLevel != level) {
-                    var enchantments = EnchantmentHelper.get(stack);
-                    enchantments.put(enchantment, level);
-                    EnchantmentHelper.set(enchantments, stack);
+                    stack.addEnchantment(ench, level);
                 }
             }
         }

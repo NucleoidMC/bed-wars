@@ -5,6 +5,8 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 
+import java.util.Set;
+
 public final class BwSpawnLogic {
     private final ServerWorld world;
     private final BwMap map;
@@ -32,7 +34,7 @@ public final class BwSpawnLogic {
 
     public void spawnAtCenter(ServerPlayerEntity player) {
         Vec3d pos = this.map.getCenterSpawn();
-        player.teleport(this.world, pos.x, pos.y + 0.5, pos.z, 0.0F, 0.0F);
+        player.teleport(this.world, pos.x, pos.y + 0.5, pos.z, Set.of(), 0.0F, 0.0F, false);
         player.networkHandler.syncWithPlayerPosition();
     }
 }

@@ -1,5 +1,6 @@
 package xyz.nucleoid.bedwars.game.active;
 
+import net.minecraft.registry.entry.RegistryEntry;
 import xyz.nucleoid.bedwars.game.BwMap;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
@@ -91,7 +92,7 @@ public final class BwMapLogic {
         }
     }
 
-    private void tickTeamEffect(BwActive.TeamState teamState, StatusEffect effect, int amplifier) {
+    private void tickTeamEffect(BwActive.TeamState teamState, RegistryEntry<StatusEffect> effect, int amplifier) {
         this.game.participantsFor(teamState.team.key()).forEach(participant -> {
             ServerPlayerEntity player = participant.player();
             if (player == null) {

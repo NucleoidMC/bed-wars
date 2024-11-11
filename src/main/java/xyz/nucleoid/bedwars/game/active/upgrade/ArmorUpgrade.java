@@ -2,7 +2,7 @@ package xyz.nucleoid.bedwars.game.active.upgrade;
 
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.active.BwParticipant;
-import xyz.nucleoid.plasmid.shop.Cost;
+import xyz.nucleoid.plasmid.api.shop.Cost;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

@@ -26,13 +26,10 @@ import xyz.nucleoid.bedwars.game.active.ItemGeneratorPool;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.MapTemplateMetadata;
 import xyz.nucleoid.map_templates.TemplateRegion;
-import xyz.nucleoid.plasmid.game.common.team.GameTeam;
-import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class BwMap {
     private ChunkGenerator chunkGenerator;
@@ -135,7 +132,7 @@ public final class BwMap {
         if (entity instanceof MobEntity mob) {
 
             LocalDifficulty difficulty = entity.getWorld().getLocalDifficulty(mob.getBlockPos());
-            mob.initialize((ServerWorld) entity.getWorld(), difficulty, SpawnReason.COMMAND, null, null);
+            mob.initialize((ServerWorld) entity.getWorld(), difficulty, SpawnReason.COMMAND, null);
 
             mob.headYaw = yaw;
             mob.bodyYaw = yaw;
@@ -205,7 +202,7 @@ public final class BwMap {
             player.fallDistance = 0.0F;
 
             Vec3d center = this.region.center();
-            player.teleport(world, center.x, center.y + 0.5, center.z, 0.0F, 0.0F);
+            player.teleport(world, center.x, center.y + 0.5, center.z, Set.of(), 0.0F, 0.0F, false);
         }
 
         public void setLevel(int level, ItemGeneratorPools pools) {

@@ -7,23 +7,23 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
 import net.minecraft.world.GameMode;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.config.BwConfig;
 import xyz.nucleoid.fantasy.RuntimeWorldConfig;
-import xyz.nucleoid.plasmid.game.GameOpenContext;
-import xyz.nucleoid.plasmid.game.GameOpenProcedure;
-import xyz.nucleoid.plasmid.game.GameResult;
-import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.common.GameWaitingLobby;
-import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
-import xyz.nucleoid.plasmid.game.common.team.TeamSelectionLobby;
-import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
-import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
-import xyz.nucleoid.plasmid.game.player.PlayerOffer;
-import xyz.nucleoid.plasmid.game.player.PlayerOfferResult;
-import xyz.nucleoid.plasmid.game.rule.GameRuleType;
+import xyz.nucleoid.plasmid.api.game.GameOpenContext;
+import xyz.nucleoid.plasmid.api.game.GameOpenProcedure;
+import xyz.nucleoid.plasmid.api.game.GameResult;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.common.GameWaitingLobby;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
+import xyz.nucleoid.plasmid.api.game.common.team.TeamSelectionLobby;
+import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
+import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
+import xyz.nucleoid.plasmid.api.game.player.JoinAcceptor;
+import xyz.nucleoid.plasmid.api.game.player.JoinAcceptorResult;
+import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
+import xyz.nucleoid.stimuli.event.EventResult;
 import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 
@@ -67,16 +67,15 @@ public final class BwWaiting {
 
             activity.listen(GameActivityEvents.REQUEST_START, waiting::requestStart);
 
-            activity.listen(GamePlayerEvents.OFFER, waiting::onPlayerOffer);
+            activity.listen(GamePlayerEvents.ACCEPT, waiting::onPlayerOffer);
             activity.listen(PlayerDeathEvent.EVENT, waiting::onPlayerDeath);
             activity.listen(PlayerDamageEvent.EVENT, waiting::onPlayerDamage);
         });
     }
 
-    private PlayerOfferResult onPlayerOffer(PlayerOffer offer) {
-        var player = offer.player();
-        return offer.accept(this.world, this.map.getCenterSpawn())
-                .and(() -> this.spawnLogic.respawnPlayer(player, GameMode.ADVENTURE));
+    private JoinAcceptorResult onPlayerOffer(JoinAcceptor offer) {
+        return offer.teleport(this.world, this.map.getCenterSpawn())
+                .thenRunForEach((player, intent) -> this.spawnLogic.respawnPlayer(player, GameMode.ADVENTURE));
     }
 
     private GameResult requestStart() {
@@ -88,13 +87,13 @@ public final class BwWaiting {
         return GameResult.ok();
     }
 
-    private ActionResult onPlayerDamage(ServerPlayerEntity player, DamageSource source, float amount) {
-        return ActionResult.FAIL;
+    private EventResult onPlayerDamage(ServerPlayerEntity player, DamageSource source, float amount) {
+        return EventResult.DENY;
     }
 
-    private ActionResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
+    private EventResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
         this.spawnLogic.respawnPlayer(player, GameMode.ADVENTURE);
         this.spawnLogic.spawnAtCenter(player);
-        return ActionResult.FAIL;
+        return EventResult.DENY;
     }
 }

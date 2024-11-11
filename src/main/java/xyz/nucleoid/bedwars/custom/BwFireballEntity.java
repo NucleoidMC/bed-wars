@@ -7,12 +7,13 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 
 public final class BwFireballEntity extends FireballEntity {
     public BwFireballEntity(World world, LivingEntity owner, double velocityX, double velocityY, double velocityZ, int explosionPower) {
-        super(world, owner, velocityX, velocityY, velocityZ, explosionPower);
+        super(world, owner, new Vec3d(velocityX, velocityY, velocityZ), explosionPower);
     }
 
     @Override
@@ -23,10 +24,7 @@ public final class BwFireballEntity extends FireballEntity {
         }
 
         if (!this.getWorld().isClient()) {
-            Explosion explosion = new Explosion(this.getWorld(), this, null, null, this.getX(), this.getY(), this.getZ(), this.explosionPower, false, Explosion.DestructionType.DESTROY, ParticleTypes.EXPLOSION, ParticleTypes.EXPLOSION_EMITTER, SoundEvents.ENTITY_GENERIC_EXPLODE);
-            explosion.collectBlocksAndDamageEntities();
-            explosion.affectWorld(true);
-
+            this.getWorld().createExplosion(this, this.getX(), this.getY(), this.getZ(), this.explosionPower, World.ExplosionSourceType.MOB);
             this.discard();
         }
     }

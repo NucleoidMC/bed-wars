@@ -3,7 +3,7 @@ package xyz.nucleoid.bedwars.game.generator.theme;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.BlockState;
-import xyz.nucleoid.plasmid.registry.TinyRegistry;
+import xyz.nucleoid.plasmid.api.util.TinyRegistry;
 import xyz.nucleoid.substrate.biome.BaseBiomeGen;
 import xyz.nucleoid.substrate.gen.MapGen;
 
@@ -11,7 +11,7 @@ import java.util.Random;
 import java.util.function.Function;
 
 public interface MapTheme extends BaseBiomeGen {
-	TinyRegistry<Codec<? extends MapTheme>> REGISTRY = TinyRegistry.create();
+	TinyRegistry<MapCodec<? extends MapTheme>> REGISTRY = TinyRegistry.create();
 	MapCodec<MapTheme> CODEC = REGISTRY.dispatchMap(MapTheme::getCodec, Function.identity());
 
 	BlockState topState();
@@ -30,5 +30,5 @@ public interface MapTheme extends BaseBiomeGen {
 
 	MapGen grass();
 
-	Codec<? extends MapTheme> getCodec();
+	MapCodec<? extends MapTheme> getCodec();
 }

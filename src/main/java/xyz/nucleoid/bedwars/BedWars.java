@@ -8,18 +8,18 @@ import xyz.nucleoid.bedwars.game.BwWaiting;
 import xyz.nucleoid.bedwars.game.active.modifiers.BwGameModifiers;
 import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
 import xyz.nucleoid.bedwars.game.generator.theme.MapThemes;
-import xyz.nucleoid.plasmid.game.GameType;
+import xyz.nucleoid.plasmid.api.game.GameType;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import xyz.nucleoid.plasmid.game.rule.GameRuleType;
+import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
 
 public final class BedWars implements ModInitializer {
     public static final String ID = "bedwars";
     public static final Logger LOGGER = LogManager.getLogger(ID);
 
     public static final GameType<BwConfig> TYPE = GameType.register(
-            new Identifier(BedWars.ID, "bed_wars"),
+            Identifier.of(BedWars.ID, "bed_wars"),
             BwConfig.CODEC,
             BwWaiting::open
     );

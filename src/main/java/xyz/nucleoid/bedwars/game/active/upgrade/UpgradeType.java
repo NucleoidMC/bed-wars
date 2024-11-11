@@ -1,6 +1,9 @@
 package xyz.nucleoid.bedwars.game.active.upgrade;
 
-import xyz.nucleoid.plasmid.shop.Cost;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.server.MinecraftServer;
+import xyz.nucleoid.plasmid.api.shop.Cost;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -26,20 +29,20 @@ public final class UpgradeType<T extends Upgrade> {
             .addLevel(new WeaponUpgrade(Items.WOODEN_PICKAXE, Cost.ofIron(8)))
             .addLevel(new WeaponUpgrade(Items.STONE_PICKAXE, Cost.ofIron(12)))
             .addLevel(new WeaponUpgrade(Items.IRON_PICKAXE, Cost.ofGold(4)))
-            .addLevel(new WeaponUpgrade(diamondTool(Items.DIAMOND_PICKAXE), Cost.ofGold(12)));
+            .addLevel(new WeaponUpgrade(Items.DIAMOND_PICKAXE, (s) -> diamondTool(s, Items.DIAMOND_PICKAXE), Cost.ofGold(12)));
 
     public static final UpgradeType<WeaponUpgrade> AXE = new UpgradeType<WeaponUpgrade>()
             .addLevel(new WeaponUpgrade(Items.WOODEN_AXE, Cost.ofIron(8)))
             .addLevel(new WeaponUpgrade(Items.STONE_AXE, Cost.ofIron(12)))
             .addLevel(new WeaponUpgrade(Items.IRON_AXE, Cost.ofGold(4)))
-            .addLevel(new WeaponUpgrade(diamondTool(Items.DIAMOND_AXE), Cost.ofGold(8)));
+            .addLevel(new WeaponUpgrade(Items.DIAMOND_AXE, (s) -> diamondTool(s, Items.DIAMOND_AXE), Cost.ofGold(8)));
 
     public static final UpgradeType<WeaponUpgrade> SHEARS = new UpgradeType<WeaponUpgrade>()
             .addLevel(new WeaponUpgrade(Items.SHEARS, Cost.ofIron(40)));
 
-    private static ItemStack diamondTool(Item item) {
+    private static ItemStack diamondTool(MinecraftServer server, Item item) {
         ItemStack stack = new ItemStack(item);
-        stack.addEnchantment(Enchantments.EFFICIENCY, 2);
+        stack.addEnchantment(server.getRegistryManager().getOrThrow(RegistryKeys.ENCHANTMENT).getOrThrow(Enchantments.EFFICIENCY), 2);
         return stack;
     }
 
