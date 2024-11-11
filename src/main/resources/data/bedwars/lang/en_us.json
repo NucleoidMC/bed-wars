@@ -1,6 +1,7 @@
 {
   "gameType.bedwars.bed_wars": "Bed Wars",
-  "game.bedwars.desc": "In Bed Wars, teams must battle in the sky to destroy the other teams' beds!",
+  "gameType.bedwars.bed_wars.desc.1": "Teams must battle in the sky to",
+  "gameType.bedwars.bed_wars.desc.2": "destroy the other teams' beds!",
   "game.bedwars.four_teams.aspen_forest": "Bed Wars: Aspen Forest (4 Teams)",
   "game.bedwars.four_teams.cubes": "Bed Wars: Cubes (4 Teams)",
   "game.bedwars.four_teams.desert": "Bed Wars: Desert (4 Teams)",

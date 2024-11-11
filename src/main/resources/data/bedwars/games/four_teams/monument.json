@@ -1,7 +1,14 @@
 {
   "type": "bedwars:bed_wars",
   "icon": "minecraft:red_bed",
-  "description": "game.bedwars.desc",
+  "description": [
+    {
+      "translate": "gameType.bedwars.bed_wars.desc.1"
+    },
+    {
+      "translate": "gameType.bedwars.bed_wars.desc.2"
+    }
+  ],
   "map": "bedwars:monument",
   "players": {
     "min": 4,
