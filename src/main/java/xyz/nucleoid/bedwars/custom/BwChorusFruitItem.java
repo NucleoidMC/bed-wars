@@ -1,6 +1,7 @@
 package xyz.nucleoid.bedwars.custom;
 
 import eu.pb4.polymer.core.api.item.PolymerItem;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -10,12 +11,16 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
+
+import java.util.Objects;
 
 public final class BwChorusFruitItem extends Item implements PolymerItem {
     private static final int ATTEMPTS = 32;
@@ -84,5 +89,17 @@ public final class BwChorusFruitItem extends Item implements PolymerItem {
     @Override
     public Item getPolymerItem(ItemStack stack, PacketContext context) {
         return Items.CHORUS_FRUIT;
+    }
+
+    @Override
+    public Text getName(ItemStack stack) {
+        var name = stack.getComponentChanges().get(DataComponentTypes.ITEM_NAME);
+        return name != null && name.isPresent() ? name.get() : Items.CHORUS_FRUIT.getName();
+    }
+
+    @Override
+    @Nullable
+    public Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+        return null;
     }
 }
