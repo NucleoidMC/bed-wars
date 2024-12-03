@@ -126,7 +126,7 @@ public final class BwMap {
     private void trySpawnEntity(Entity entity, BlockBounds bounds, Direction direction) {
         Vec3d center = bounds.center();
 
-        float yaw = direction.asRotation();
+        float yaw = direction.getPositiveHorizontalDegrees();
         entity.refreshPositionAndAngles(center.x, bounds.min().getY(), center.z, yaw, 0.0F);
 
         if (entity instanceof MobEntity mob) {

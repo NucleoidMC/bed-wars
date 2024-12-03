@@ -36,7 +36,7 @@ public final class BwTeamIsland {
         this.team = team;
 
         this.angle = angle;
-        this.direction = Direction.fromRotation(Math.toDegrees(angle) + 90.0);
+        this.direction = Direction.fromHorizontalDegrees(Math.toDegrees(angle) + 90.0);
     }
 
     public void addTo(BwSkyMapConfig config, BwMap map, MapTemplate template) {

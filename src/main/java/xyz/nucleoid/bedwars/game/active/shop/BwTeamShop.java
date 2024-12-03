@@ -111,7 +111,7 @@ public final class BwTeamShop {
             );
         }
 
-        var ui = Guis.createSelectorGui(player, Text.translatable("text.bedwars.shop.type.team"), shop);
+        var ui = Guis.createSelectorGui(player, Text.translatable("text.bedwars.shop.type.team"), false, shop);
         ui.open();
     }
 
