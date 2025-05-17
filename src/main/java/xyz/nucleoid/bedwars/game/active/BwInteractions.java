@@ -172,8 +172,7 @@ public final class BwInteractions {
         BlockState state = ColoredBlocks.wool(team.config().blockDyeColor()).getDefaultState();
 
         // Spawn egg
-        BridgeEggEntity eggEntity = new BridgeEggEntity(this.world, player, state);
-        eggEntity.setItem(stack);
+        BridgeEggEntity eggEntity = new BridgeEggEntity(this.world, player, stack, state);
         eggEntity.setVelocity(player, player.getPitch(), player.getYaw(), 0.0F, 1.5F, 1.0F);
 
         this.world.spawnEntity(eggEntity);

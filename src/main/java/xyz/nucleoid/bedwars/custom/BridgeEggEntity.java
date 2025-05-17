@@ -17,8 +17,8 @@ public class BridgeEggEntity extends EggEntity {
 
     private final BlockState trailBlock;
 
-    public BridgeEggEntity(World world, LivingEntity thrower, BlockState trailBlock) {
-        super(world, thrower, new ItemStack(Items.EGG));
+    public BridgeEggEntity(World world, LivingEntity thrower, ItemStack stack, BlockState trailBlock) {
+        super(world, thrower, stack);
         this.trailBlock = trailBlock;
     }
 
@@ -56,11 +56,18 @@ public class BridgeEggEntity extends EggEntity {
     protected void onCollision(HitResult hitResult) {
         // ignore self-collisions
         if (hitResult.getType() == HitResult.Type.BLOCK) {
-            if (this.getWorld().getBlockState(((BlockHitResult) hitResult).getBlockPos()) == this.trailBlock) {
+            var pos = ((BlockHitResult) hitResult).getBlockPos();
+            var state = this.getWorld().getBlockState(pos);
+
+            if (isTrailBlock(state, pos)) {
                 return;
             }
         }
 
         super.onCollision(hitResult);
+    }
+
+    public boolean isTrailBlock(BlockState state, BlockPos pos) {
+        return state == this.trailBlock;
     }
 }

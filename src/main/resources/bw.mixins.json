@@ -4,6 +4,7 @@
   "package": "xyz.nucleoid.bedwars.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "AbstractBlockMixin",
     "BedBlockMixin",
     "ExplosionBehaviorMixin",
     "LeavesBlockMixin",
