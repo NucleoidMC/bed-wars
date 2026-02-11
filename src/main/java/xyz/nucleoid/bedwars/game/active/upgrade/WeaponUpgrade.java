@@ -1,10 +1,10 @@
 package xyz.nucleoid.bedwars.game.active.upgrade;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.active.BwParticipant;
 import xyz.nucleoid.plasmid.api.shop.Cost;
@@ -16,13 +16,7 @@ public final class WeaponUpgrade implements Upgrade {
     public final Cost cost;
     private final Item icon;
 
-    public WeaponUpgrade(ItemStack stack, Cost cost) {
-        this.icon = stack.getItem();
-        this.stack = (s) -> stack;
-        this.cost = cost;
-    }
-
-    public WeaponUpgrade(ItemConvertible item, Cost cost) {
+    public WeaponUpgrade(ItemLike item, Cost cost) {
         this.icon = item.asItem();
         this.stack = (s) -> new ItemStack(item);
         this.cost = cost;
@@ -35,17 +29,17 @@ public final class WeaponUpgrade implements Upgrade {
     }
 
     @Override
-    public void applyTo(BwActive game, ServerPlayerEntity player, BwParticipant participant) {
-        player.getInventory().offerOrDrop(game.createTool(this.stack.apply(player.getEntityWorld().getServer())));
+    public void applyTo(BwActive game, ServerPlayer player, BwParticipant participant) {
+        player.getInventory().placeItemBackInInventory(game.createTool(this.stack.apply(player.level().getServer())));
     }
 
     @Override
-    public void removeFrom(BwActive game, ServerPlayerEntity player) {
+    public void removeFrom(BwActive game, ServerPlayer player) {
         var inventory = player.getInventory();
-        for (int slot = 0; slot < inventory.size(); slot++) {
-            ItemStack stack = inventory.getStack(slot);
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            ItemStack stack = inventory.getItem(slot);
             if (stack.getItem() == this.icon) {
-                inventory.removeStack(slot);
+                inventory.removeItemNoUpdate(slot);
                 break;
             }
         }

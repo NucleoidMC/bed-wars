@@ -1,51 +1,51 @@
 package xyz.nucleoid.bedwars.custom;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.active.shop.BwItemShop;
 import xyz.nucleoid.bedwars.game.active.shop.BwTeamShop;
 
-public final class ShopVillagerEntity extends VillagerEntity {
+public final class ShopVillagerEntity extends Villager {
     private final BwActive game;
     private final Type type;
 
-    private ShopVillagerEntity(World world, BwActive game, Type type) {
+    private ShopVillagerEntity(Level world, BwActive game, Type type) {
         super(EntityType.VILLAGER, world);
         this.game = game;
         this.type = type;
 
         this.setCustomName(type.name);
 
-        this.setAiDisabled(true);
+        this.setNoAi(true);
         this.setInvulnerable(true);
         this.setCustomNameVisible(true);
     }
 
-    public static ShopVillagerEntity item(World world, BwActive game) {
+    public static ShopVillagerEntity item(Level world, BwActive game) {
         return new ShopVillagerEntity(world, game, Type.ITEM);
     }
 
-    public static ShopVillagerEntity team(World world, BwActive game) {
+    public static ShopVillagerEntity team(Level world, BwActive game) {
         return new ShopVillagerEntity(world, game, Type.TEAM);
     }
 
     @Override
-    public ActionResult interactMob(PlayerEntity player, Hand hand) {
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (this.type == Type.ITEM) {
-            BwItemShop.open((ServerPlayerEntity) player, this.game);
+            BwItemShop.open((ServerPlayer) player, this.game);
         } else if (this.type == Type.TEAM) {
-            BwTeamShop.open((ServerPlayerEntity) player, this.game);
+            BwTeamShop.open((ServerPlayer) player, this.game);
         }
-        return ActionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Nullable
@@ -55,12 +55,12 @@ public final class ShopVillagerEntity extends VillagerEntity {
     }
 
     private enum Type {
-        ITEM(Text.translatable("text.bedwars.shop.type.item")),
-        TEAM(Text.translatable("text.bedwars.shop.type.team"));
+        ITEM(Component.translatable("text.bedwars.shop.type.item")),
+        TEAM(Component.translatable("text.bedwars.shop.type.team"));
 
-        private final Text name;
+        private final Component name;
 
-        Type(Text name) {
+        Type(Component name) {
             this.name = name;
         }
     }

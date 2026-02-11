@@ -1,8 +1,7 @@
 package xyz.nucleoid.bedwars.game.generator.theme;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import xyz.nucleoid.plasmid.api.util.TinyRegistry;
 import xyz.nucleoid.substrate.biome.BaseBiomeGen;
 import xyz.nucleoid.substrate.gen.MapGen;

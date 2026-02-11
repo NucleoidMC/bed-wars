@@ -1,9 +1,8 @@
 package xyz.nucleoid.bedwars.game.active.modifiers;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import xyz.nucleoid.bedwars.BedWars;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 public final class BwGameModifiers {
     public static void register() {
@@ -12,6 +11,6 @@ public final class BwGameModifiers {
     }
 
     private static void register(String identifier, MapCodec<? extends GameModifier> modifier) {
-        GameModifier.REGISTRY.register(Identifier.of(BedWars.ID, identifier), modifier);
+        GameModifier.REGISTRY.register(Identifier.fromNamespaceAndPath(BedWars.ID, identifier), modifier);
     }
 }

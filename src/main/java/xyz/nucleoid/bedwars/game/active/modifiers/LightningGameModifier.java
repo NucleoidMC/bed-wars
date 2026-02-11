@@ -3,20 +3,18 @@ package xyz.nucleoid.bedwars.game.active.modifiers;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.entity.SpawnReason;
+import net.minecraft.world.entity.EntitySpawnReason;
 import xyz.nucleoid.bedwars.game.active.BwActive;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LightningEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 
 public class LightningGameModifier implements GameModifier {
-    public static final MapCodec<LightningGameModifier> CODEC = RecordCodecBuilder.mapCodec(instance -> {
-        return instance.group(
-                GameTrigger.CODEC.fieldOf("trigger").forGetter(LightningGameModifier::getTrigger),
-                Codec.BOOL.fieldOf("cosmetic").orElse(false).forGetter(modifier -> modifier.cosmetic)
-        ).apply(instance, LightningGameModifier::new);
-    });
+    public static final MapCodec<LightningGameModifier> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            GameTrigger.CODEC.fieldOf("trigger").forGetter(LightningGameModifier::trigger),
+            Codec.BOOL.fieldOf("cosmetic").orElse(false).forGetter(modifier -> modifier.cosmetic)
+    ).apply(instance, LightningGameModifier::new));
 
     private final GameTrigger trigger;
     private final boolean cosmetic;
@@ -27,23 +25,23 @@ public class LightningGameModifier implements GameModifier {
     }
 
     @Override
-    public GameTrigger getTrigger() {
+    public GameTrigger trigger() {
         return this.trigger;
     }
 
     @Override
     public void init(BwActive game) {
         game.players().forEach(player -> {
-            ServerWorld world = game.world;
+            ServerLevel world = game.world;
 
-            LightningEntity entity = EntityType.LIGHTNING_BOLT.create(world, SpawnReason.LOAD);
+            LightningBolt entity = EntityType.LIGHTNING_BOLT.create(world, EntitySpawnReason.LOAD);
             if (entity == null) {
                 return;
             }
 
-            entity.refreshPositionAfterTeleport(Vec3d.ofBottomCenter(player.getBlockPos()));
-            entity.setCosmetic(this.cosmetic);
-            world.spawnEntity(entity);
+            entity.snapTo(Vec3.atBottomCenterOf(player.blockPosition()));
+            entity.setVisualOnly(this.cosmetic);
+            world.addFreshEntity(entity);
         });
     }
 

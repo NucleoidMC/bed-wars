@@ -1,7 +1,7 @@
 package xyz.nucleoid.bedwars.game.active;
 
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.active.upgrade.PlayerUpgrades;
@@ -10,7 +10,7 @@ import xyz.nucleoid.plasmid.api.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.api.util.PlayerRef;
 
 public final class BwParticipant {
-    private final ServerWorld world;
+    private final ServerLevel world;
     public final PlayerRef ref;
     public final GameTeam team;
 
@@ -22,8 +22,8 @@ public final class BwParticipant {
     long respawnTime = -1;
     boolean eliminated;
 
-    BwParticipant(BwActive game, ServerPlayerEntity player, GameTeam team) {
-        this.world = player.getEntityWorld();
+    BwParticipant(BwActive game, ServerPlayer player, GameTeam team) {
+        this.world = player.level();
         this.ref = PlayerRef.of(player);
         this.team = team;
 
@@ -38,7 +38,7 @@ public final class BwParticipant {
     }
 
     public void startRespawning(BwMap.TeamSpawn spawn) {
-        this.respawnTime = this.world.getTime() + BwActive.RESPAWN_TICKS;
+        this.respawnTime = this.world.getGameTime() + BwActive.RESPAWN_TICKS;
         this.respawningAt = spawn;
     }
 
@@ -52,7 +52,7 @@ public final class BwParticipant {
     }
 
     @Nullable
-    public ServerPlayerEntity player() {
+    public ServerPlayer player() {
         return this.ref.getEntity(this.world);
     }
 

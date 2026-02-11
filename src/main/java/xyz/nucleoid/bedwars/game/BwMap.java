@@ -3,17 +3,17 @@ package xyz.nucleoid.bedwars.game;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.LocalDifficulty;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.bedwars.BedWars;
@@ -41,7 +41,7 @@ public final class BwMap {
 
     private final List<BlockBounds> illegalBounds = new ArrayList<>();
 
-    private BlockPos centerSpawn = BlockPos.ORIGIN;
+    private BlockPos centerSpawn = BlockPos.ZERO;
 
     private final LongSet protectedBlocks = new LongOpenHashSet();
 
@@ -105,7 +105,7 @@ public final class BwMap {
         this.illegalBounds.add(bounds);
     }
 
-    public void spawnShopkeepers(ServerWorld world, BwActive game, BwConfig config) {
+    public void spawnShopkeepers(ServerLevel world, BwActive game, BwConfig config) {
         for (GameTeam team : config.teams()) {
             TeamRegions regions = this.getTeamRegions(team.key());
 
@@ -124,22 +124,22 @@ public final class BwMap {
     }
 
     private void trySpawnEntity(Entity entity, BlockBounds bounds, Direction direction) {
-        Vec3d center = bounds.center();
+        Vec3 center = bounds.center();
 
-        float yaw = direction.getPositiveHorizontalDegrees();
-        entity.refreshPositionAndAngles(center.x, bounds.min().getY(), center.z, yaw, 0.0F);
+        float yaw = direction.toYRot();
+        entity.snapTo(center.x, bounds.min().getY(), center.z, yaw, 0.0F);
 
-        if (entity instanceof MobEntity mob) {
-            LocalDifficulty difficulty = ((ServerWorld) entity.getEntityWorld()).getLocalDifficulty(mob.getBlockPos());
-            mob.initialize((ServerWorld) entity.getEntityWorld(), difficulty, SpawnReason.COMMAND, null);
+        if (entity instanceof Mob mob) {
+            DifficultyInstance difficulty = ((ServerLevel) entity.level()).getCurrentDifficultyAt(mob.blockPosition());
+            mob.finalizeSpawn((ServerLevel) entity.level(), difficulty, EntitySpawnReason.COMMAND, null);
 
-            mob.headYaw = yaw;
-            mob.bodyYaw = yaw;
+            mob.yHeadRot = yaw;
+            mob.yBodyRot = yaw;
         }
 
         // force-load the chunk before trying to spawn
-        entity.getEntityWorld().getChunk(MathHelper.floor(center.x) >> 4, MathHelper.floor(center.z) >> 4);
-        entity.getEntityWorld().spawnEntity(entity);
+        entity.level().getChunk(Mth.floor(center.x) >> 4, Mth.floor(center.z) >> 4);
+        entity.level().addFreshEntity(entity);
     }
 
     @Nullable
@@ -173,8 +173,8 @@ public final class BwMap {
         return true;
     }
 
-    public Vec3d getCenterSpawn() {
-        return Vec3d.ofBottomCenter(this.centerSpawn);
+    public Vec3 getCenterSpawn() {
+        return Vec3.atBottomCenterOf(this.centerSpawn);
     }
 
     public ChunkGenerator getChunkGenerator() {
@@ -197,11 +197,11 @@ public final class BwMap {
                     .allowDuplication();
         }
 
-        public void placePlayer(ServerPlayerEntity player, ServerWorld world) {
+        public void placePlayer(ServerPlayer player, ServerLevel world) {
             player.fallDistance = 0.0F;
 
-            Vec3d center = this.region.center();
-            player.teleport(world, center.x, center.y + 0.5, center.z, Set.of(), 0.0F, 0.0F, false);
+            Vec3 center = this.region.center();
+            player.teleportTo(world, center.x, center.y + 0.5, center.z, Set.of(), 0.0F, 0.0F, false);
         }
 
         public void setLevel(int level, ItemGeneratorPools pools) {
@@ -261,9 +261,9 @@ public final class BwMap {
         }
 
         private static Direction getDirectionForRegion(TemplateRegion region) {
-            String key = region.getData().getString("direction", "");
+            String key = region.getData().getStringOr("direction", "");
             for (Direction direction : Direction.values()) {
-                if (direction.getId().equalsIgnoreCase(key)) {
+                if (direction.getName().equalsIgnoreCase(key)) {
                     return direction;
                 }
             }

@@ -1,28 +1,25 @@
 package xyz.nucleoid.bedwars.game.active.shop;
 
-import com.google.common.collect.ImmutableList;
-import eu.pb4.sgui.api.GuiHelpers;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
 import eu.pb4.sgui.api.gui.layered.Layer;
 import eu.pb4.sgui.api.gui.layered.LayerView;
 import eu.pb4.sgui.api.gui.layered.LayeredGui;
-import net.minecraft.block.Blocks;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.Formatting;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.ChatFormatting;
 import xyz.nucleoid.bedwars.custom.BwItems;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.active.BwParticipant;
@@ -41,30 +38,30 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public final class BwItemShop extends LayeredGui {
-    private static final Text MAX_LEVEL_TEXT = Text.translatable("text.bedwars.shop.max_level").setStyle(Style.EMPTY.withColor(Formatting.YELLOW));
+    private static final Component MAX_LEVEL_TEXT = Component.translatable("text.bedwars.shop.max_level").setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW));
     private static final int SHOP_X = 1;
     private static final int SHOP_Y = 2;
 
     private final BwParticipant participant;
     private LayerView currentShop;
 
-    private BwItemShop(ServerPlayerEntity player, BwParticipant participant) {
-        super(ScreenHandlerType.GENERIC_9X5, player, false);
-        this.setTitle(Text.translatable("text.bedwars.shop.type.item"));
+    private BwItemShop(ServerPlayer player, BwParticipant participant) {
+        super(MenuType.GENERIC_9x5, player, false);
+        this.setTitle(Component.translatable("text.bedwars.shop.type.item"));
         this.participant = participant;
         List<GuiElementInterface> navbar = new ArrayList<>();
 
-        this.addNavigationEntry(player.getEntityWorld().getServer(), Items.END_STONE, "blocks", true, navbar, this::createBlocks);
-        this.addNavigationEntry(player.getEntityWorld().getServer(), Items.DIAMOND_SWORD, "weapons", false, navbar, this::createWeapons);
-        this.addNavigationEntry(player.getEntityWorld().getServer(), Items.IRON_CHESTPLATE, "armor", false, navbar, this::createArmor);
-        this.addNavigationEntry(player.getEntityWorld().getServer(), Items.STONE_PICKAXE, "tools", false, navbar, this::createTools);
-        this.addNavigationEntry(player.getEntityWorld().getServer(), Items.POTION, "utils", false, navbar, this::createUtils);
+        this.addNavigationEntry(player.level().getServer(), Items.END_STONE, "blocks", true, navbar, this::createBlocks);
+        this.addNavigationEntry(player.level().getServer(), Items.DIAMOND_SWORD, "weapons", false, navbar, this::createWeapons);
+        this.addNavigationEntry(player.level().getServer(), Items.IRON_CHESTPLATE, "armor", false, navbar, this::createArmor);
+        this.addNavigationEntry(player.level().getServer(), Items.STONE_PICKAXE, "tools", false, navbar, this::createTools);
+        this.addNavigationEntry(player.level().getServer(), Items.POTION, "utils", false, navbar, this::createUtils);
 
         Layer navbar1 = Guis.createSelectorLayer(1, 9, navbar);
         this.addLayer(navbar1, 0, 0);
     }
 
-    public static void open(ServerPlayerEntity player, BwActive game) {
+    public static void open(ServerPlayer player, BwActive game) {
         BwParticipant participant = game.participantBy(player);
         if (participant != null) {
             new BwItemShop(player, participant).open();
@@ -79,18 +76,18 @@ public final class BwItemShop extends LayeredGui {
 
             boolean canBuy = entry.canBuy(player);
 
-            var style = Style.EMPTY.withItalic(false).withColor(canBuy && levelUp != null ? Formatting.BLUE : Formatting.RED);
-            var name = Text.translatable("text.bedwars.shop.upgrade." + upgradeName).setStyle(style);
+            var style = Style.EMPTY.withItalic(false).withColor(canBuy && levelUp != null ? ChatFormatting.BLUE : ChatFormatting.RED);
+            var name = Component.translatable("text.bedwars.shop.upgrade." + upgradeName).setStyle(style);
 
             if (levelUp == null) {
-                name.append(Text.literal(" (").append(MAX_LEVEL_TEXT).append(")").setStyle(MAX_LEVEL_TEXT.getStyle()));
+                name.append(Component.literal(" (").append(MAX_LEVEL_TEXT).append(")").setStyle(MAX_LEVEL_TEXT.getStyle()));
             } else if (entry.getCost(player) != null) {
                 var costText = entry.getCost(player).getDisplay();
-                costText = Text.literal(" (").append(costText).append(")").setStyle(costText.getStyle());
+                costText = Component.literal(" (").append(costText).append(")").setStyle(costText.getStyle());
                 name.append(costText);
             }
 
-            return ItemStackBuilder.of(levelUp != null ? levelUp.getIcon() : type.forLevel(level).getIcon()).set(DataComponentTypes.CUSTOM_NAME, name.styled(x -> x.withItalic(x.isItalic()))).build();
+            return ItemStackBuilder.of(levelUp != null ? levelUp.getIcon() : type.forLevel(level).getIcon()).set(DataComponents.CUSTOM_NAME, name.withStyle(x -> x.withItalic(x.isItalic()))).build();
         })
                 .withCost((p, e) -> {
                     int level = upgrades.getLevel(type);
@@ -101,10 +98,10 @@ public final class BwItemShop extends LayeredGui {
                 .onBuy(p -> upgrades.applyLevel(type, upgrades.getLevel(type) + 1)));
     }
 
-    private static ItemStack createPotion(StatusEffectInstance effect, Text name) {
+    private static ItemStack createPotion(MobEffectInstance effect, Component name) {
         var stack = new ItemStack(Items.POTION);
-        stack.set(DataComponentTypes.CUSTOM_NAME, name.copy().styled(x -> x.withItalic(x.isItalic())));
-        stack.set(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT.with(effect));
+        stack.set(DataComponents.CUSTOM_NAME, name.copy().withStyle(x -> x.withItalic(x.isItalic())));
+        stack.set(DataComponents.POTION_CONTENTS, PotionContents.EMPTY.withEffectAdded(effect));
         return stack;
     }
 
@@ -118,9 +115,9 @@ public final class BwItemShop extends LayeredGui {
         Layer layer = Guis.createSelectorLayer(3, 7, items);
 
         var builder = ItemStackBuilder.of(Items.STONE)
-                .set(DataComponentTypes.ITEM_MODEL, icon.getComponents().get(DataComponentTypes.ITEM_MODEL))
-                .setName(Text.translatable("text.bedwars.shop.category." + name)
-                        .setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.YELLOW)));
+                .set(DataComponents.ITEM_MODEL, icon.components().get(DataComponents.ITEM_MODEL))
+                .setName(Component.translatable("text.bedwars.shop.category." + name)
+                        .setStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.YELLOW)));
         var normal = builder.build();
         var selected = builder.addEnchantment(server, Enchantments.LOYALTY, 0).build();
 
@@ -137,7 +134,7 @@ public final class BwItemShop extends LayeredGui {
         items.accept(ShopEntry.buyItem(new ItemStack(ColoredBlocks.terracotta(color), 16), Cost.ofIron(16)));
 
         ItemStack glass = ItemStackBuilder.of(ColoredBlocks.glass(color))
-                .setName(Text.translatable("item.bedwars.shatterproof_glass")).setCount(4).build();
+                .setName(Component.translatable("item.bedwars.shatterproof_glass")).setCount(4).build();
 
         items.accept(ShopEntry.buyItem(glass, Cost.ofIron(12)));
         items.accept(ShopEntry.buyItem(new ItemStack(Blocks.OAK_PLANKS, 16), Cost.ofGold(4)));
@@ -156,7 +153,7 @@ public final class BwItemShop extends LayeredGui {
 
         ItemStack knockbackRod = ItemStackBuilder.of(Items.BREEZE_ROD)
                 .addEnchantment(server, Enchantments.KNOCKBACK, 1)
-                .addLore(Text.translatable("item.bedwars.knockback_stick.description"))
+                .addLore(Component.translatable("item.bedwars.knockback_stick.description"))
                 .build();
 
         items.accept(ShopEntry.buyItem(knockbackRod, Cost.ofGold(10)));
@@ -199,11 +196,11 @@ public final class BwItemShop extends LayeredGui {
 
     private void createUtils(Consumer<GuiElementInterface> items) {
 
-        StatusEffectInstance jumpBoostEffect = new StatusEffectInstance(StatusEffects.JUMP_BOOST, 600, 5);
-        items.accept(ShopEntry.buyItem(createPotion(jumpBoostEffect, Text.translatable("item.minecraft.potion.effect.leaping")), Cost.ofEmeralds(1)));
+        MobEffectInstance jumpBoostEffect = new MobEffectInstance(MobEffects.JUMP_BOOST, 600, 5);
+        items.accept(ShopEntry.buyItem(createPotion(jumpBoostEffect, Component.translatable("item.minecraft.potion.effect.leaping")), Cost.ofEmeralds(1)));
 
-        StatusEffectInstance swiftnessEffect = new StatusEffectInstance(StatusEffects.SPEED, 600, 2);
-        items.accept(ShopEntry.buyItem(createPotion(swiftnessEffect, Text.translatable("item.minecraft.potion.effect.swiftness")), Cost.ofEmeralds(1)));
+        MobEffectInstance swiftnessEffect = new MobEffectInstance(MobEffects.SPEED, 600, 2);
+        items.accept(ShopEntry.buyItem(createPotion(swiftnessEffect, Component.translatable("item.minecraft.potion.effect.swiftness")), Cost.ofEmeralds(1)));
 
         items.accept(ShopEntry.buyItem(new ItemStack(Blocks.TNT), Cost.ofGold(8)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.FIRE_CHARGE)/*.setCustomName(Text.translatable(EntityType.FIREBALL.getTranslationKey()))*/, Cost.ofIron(40)));

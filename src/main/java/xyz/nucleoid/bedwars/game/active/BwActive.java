@@ -4,23 +4,21 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
-import net.minecraft.component.type.FireworkExplosionComponent;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageTypes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.FireworkRocketEntity;
-import net.minecraft.item.FireworkRocketItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.scoreboard.AbstractTeam;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.GameMode;
+import net.minecraft.world.item.component.FireworkExplosion;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.FireworkRocketEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.scores.Team;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.GameType;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.bedwars.BedWars;
 import xyz.nucleoid.bedwars.custom.MovingCloud;
@@ -65,7 +63,7 @@ public final class BwActive {
     public static final long RESPAWN_TICKS = 20 * RESPAWN_TIME_SECONDS;
     public static final long CLOSE_TICKS = 10 * 20;
 
-    public final ServerWorld world;
+    public final ServerLevel world;
     public final GameSpace gameSpace;
 
     public final BwMap map;
@@ -96,7 +94,7 @@ public final class BwActive {
 
     final List<MovingCloud> movingClouds = new ArrayList<>();
 
-    private BwActive(ServerWorld world, GameActivity activity, BwMap map, BwConfig config, TeamManager teams, GlobalWidgets widgets) {
+    private BwActive(ServerLevel world, GameActivity activity, BwMap map, BwConfig config, TeamManager teams, GlobalWidgets widgets) {
         this.world = world;
         this.gameSpace = activity.getGameSpace();
 
@@ -118,7 +116,7 @@ public final class BwActive {
         this.interactions = new BwInteractions(this);
     }
 
-    public static void open(ServerWorld world, GameSpace gameSpace, BwMap map, BwConfig config, Multimap<GameTeamKey, ServerPlayerEntity> players) {
+    public static void open(ServerLevel world, GameSpace gameSpace, BwMap map, BwConfig config, Multimap<GameTeamKey, ServerPlayer> players) {
         gameSpace.setActivity(activity -> {
             TeamManager teamManager = TeamManager.addTo(activity);
             GlobalWidgets widgets = GlobalWidgets.addTo(activity);
@@ -161,7 +159,7 @@ public final class BwActive {
     private void addTeams(GameTeamList teams) {
         for (var team : teams) {
             var config = GameTeamConfig.builder(team.config())
-                    .setCollision(AbstractTeam.CollisionRule.NEVER)
+                    .setCollision(Team.CollisionRule.NEVER)
                     .setFriendlyFire(false)
                     .build();
 
@@ -172,7 +170,7 @@ public final class BwActive {
         }
     }
 
-    private void addPlayers(Multimap<GameTeamKey, ServerPlayerEntity> players) {
+    private void addPlayers(Multimap<GameTeamKey, ServerPlayer> players) {
         players.forEach((teamKey, player) -> {
             var teamConfig = this.teams.getTeamConfig(teamKey);
             var participant = new BwParticipant(this, player, new GameTeam(teamKey, teamConfig));
@@ -184,12 +182,12 @@ public final class BwActive {
 
     private void onEnable() {
         this.participants().forEach(participant -> {
-            ServerPlayerEntity player = participant.player();
+            ServerPlayer player = participant.player();
             if (player == null) {
                 return;
             }
 
-            this.spawnLogic.resetPlayer(player, GameMode.SPECTATOR);
+            this.spawnLogic.resetPlayer(player, GameType.SPECTATOR);
 
             BwMap.TeamSpawn spawn = this.teamLogic.tryRespawn(participant);
             if (spawn != null) {
@@ -203,13 +201,13 @@ public final class BwActive {
         this.map.spawnShopkeepers(this.world, this, this.config);
         this.triggerModifiers(BwGameTriggers.GAME_RUNNING);
 
-        this.startTime = this.world.getTime();
+        this.startTime = this.world.getGameTime();
     }
 
     private JoinAcceptorResult acceptPlayer(JoinAcceptor offer) {
         return offer.teleport(this.world, this.map.getCenterSpawn())
                 .thenRunForEach((player, intent) -> {
-                    this.spawnLogic.resetPlayer(player, GameMode.SPECTATOR);
+                    this.spawnLogic.resetPlayer(player, GameType.SPECTATOR);
                     BwParticipant participant = this.participantBy(player);
                     if (participant != null && intent == JoinIntent.PLAY) {
                         this.rejoinParticipant(player, participant);
@@ -217,15 +215,15 @@ public final class BwActive {
                 });
     }
 
-    private void rejoinParticipant(ServerPlayerEntity player, BwParticipant participant) {
+    private void rejoinParticipant(ServerPlayer player, BwParticipant participant) {
         BwMap.TeamSpawn spawn = this.teamLogic.tryRespawn(participant);
         if (spawn != null) {
             this.playerLogic.startRespawning(player, spawn);
         }
     }
 
-    private EventResult onPlayerDamage(ServerPlayerEntity attackedPlayer, DamageSource source, float amount) {
-        if (source.isOf(DamageTypes.OUT_OF_WORLD) && attackedPlayer.isSpectator()) {
+    private EventResult onPlayerDamage(ServerPlayer attackedPlayer, DamageSource source, float amount) {
+        if (source.is(DamageTypes.FELL_OUT_OF_WORLD) && attackedPlayer.isSpectator()) {
             return EventResult.DENY;
         }
 
@@ -234,8 +232,8 @@ public final class BwActive {
             return EventResult.PASS;
         }
 
-        Entity attacker = source.getAttacker();
-        if (attacker instanceof ServerPlayerEntity attackerPlayer) {
+        Entity attacker = source.getEntity();
+        if (attacker instanceof ServerPlayer attackerPlayer) {
             BwParticipant attackerParticipant = this.participantBy(attackerPlayer);
 
             if (attackerParticipant != null) {
@@ -258,7 +256,7 @@ public final class BwActive {
             return;
         }
 
-        long time = this.world.getTime();
+        long time = this.world.getGameTime();
 
         PlayerSet players = this.gameSpace.getPlayers();
 
@@ -270,13 +268,13 @@ public final class BwActive {
                     this.teamLogic.removeBed(team.key());
                 }
 
-                players.sendMessage(Text.translatable("text.bedwars.all_beds_destroyed").formatted(Formatting.RED));
-                players.playSound(SoundEvents.BLOCK_END_PORTAL_SPAWN);
+                players.sendMessage(Component.translatable("text.bedwars.all_beds_destroyed").withStyle(ChatFormatting.RED));
+                players.playSound(SoundEvents.END_PORTAL_SPAWN);
             }
 
-            for (ServerPlayerEntity player : players) {
-                if (!player.isSpectator() && !this.map.isLegalAt(player.getBlockPos())) {
-                    player.damage(player.getEntityWorld(), player.getDamageSources().outOfWorld(), 10000.0F);
+            for (ServerPlayer player : players) {
+                if (!player.isSpectator() && !this.map.isLegalAt(player.blockPosition())) {
+                    player.hurtServer(player.level(), player.damageSources().fellOutOfWorld(), 10000.0F);
                 }
             }
         }
@@ -286,13 +284,13 @@ public final class BwActive {
         BwWinStateLogic.WinResult winResult = this.tickActive();
         if (winResult != null) {
             this.winningTeam = winResult.team();
-            this.closeTime = this.world.getTime() + CLOSE_TICKS;
+            this.closeTime = this.world.getGameTime() + CLOSE_TICKS;
         }
     }
 
     @Nullable
     private BwWinStateLogic.WinResult tickActive() {
-        long time = this.world.getTime();
+        long time = this.world.getGameTime();
 
         if (time - this.lastWinCheck > 20) {
             BwWinStateLogic.WinResult winResult = this.winStateLogic.checkWinResult();
@@ -311,7 +309,7 @@ public final class BwActive {
 
         // Tick modifiers
         for (GameModifier modifier : this.config.modifiers()) {
-            if (modifier.getTrigger().tickable) {
+            if (modifier.trigger().tickable) {
                 modifier.tick(this);
             }
         }
@@ -324,18 +322,18 @@ public final class BwActive {
             this.spawnFireworks(this.winningTeam);
         }
 
-        return this.world.getTime() >= this.closeTime;
+        return this.world.getGameTime() >= this.closeTime;
     }
 
     private void spawnFireworks(GameTeam team) {
-        Random random = this.world.random;
+        RandomSource random = this.world.random;
 
         if (random.nextInt(18) == 0) {
-            List<ServerPlayerEntity> players = Lists.newArrayList(this.players());
-            ServerPlayerEntity player = players.get(random.nextInt(players.size()));
+            List<ServerPlayer> players = Lists.newArrayList(this.players());
+            ServerPlayer player = players.get(random.nextInt(players.size()));
 
             int flight = random.nextInt(3);
-            var type = random.nextInt(4) == 0 ? FireworkExplosionComponent.Type.STAR : FireworkExplosionComponent.Type.BURST;
+            var type = random.nextInt(4) == 0 ? FireworkExplosion.Shape.STAR : FireworkExplosion.Shape.BURST;
             FireworkRocketEntity firework = new FireworkRocketEntity(
                     this.world,
                     player.getX(),
@@ -344,11 +342,11 @@ public final class BwActive {
                     team.config().createFirework(flight, type)
             );
 
-            this.world.spawnEntity(firework);
+            this.world.addFreshEntity(firework);
         }
     }
 
-    private EventResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
+    private EventResult onPlayerDeath(ServerPlayer player, DamageSource source) {
         BwParticipant participant = this.participantBy(player);
 
         // TODO: cancel if cause is own player
@@ -367,7 +365,7 @@ public final class BwActive {
     public ItemStack createTool(ItemStack stack) {
         stack = ItemStackBuilder.of(stack).setUnbreakable().build();
         if (this.config.combat().oldMechanics()) {
-            stack = OldCombat.applyTo(stack);
+            OldCombat.applyTo(stack);
         }
 
         return stack;
@@ -375,14 +373,14 @@ public final class BwActive {
 
     public void triggerModifiers(GameTrigger type) {
         for (GameModifier modifier : this.config.modifiers()) {
-            if (modifier.getTrigger() == type) {
+            if (modifier.trigger() == type) {
                 modifier.init(this);
             }
         }
     }
 
     @Nullable
-    public BwParticipant participantBy(PlayerEntity player) {
+    public BwParticipant participantBy(Player player) {
         return this.participants.get(PlayerRef.of(player));
     }
 
@@ -397,7 +395,7 @@ public final class BwActive {
         return participant!= null ? participant.team : null;
     }
 
-    public boolean isParticipant(PlayerEntity player) {
+    public boolean isParticipant(Player player) {
         return this.participants.containsKey(PlayerRef.of(player));
     }
 

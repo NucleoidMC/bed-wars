@@ -1,40 +1,40 @@
 package xyz.nucleoid.bedwars.game;
 
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameMode;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.GameType;
 
 import java.util.Set;
 
 public final class BwSpawnLogic {
-    private final ServerWorld world;
+    private final ServerLevel world;
     private final BwMap map;
 
-    public BwSpawnLogic(ServerWorld world, BwMap map) {
+    public BwSpawnLogic(ServerLevel world, BwMap map) {
         this.world = world;
         this.map = map;
     }
 
-    public void resetPlayer(ServerPlayerEntity player, GameMode gameMode) {
-        player.getInventory().clear();
-        player.getEnderChestInventory().clear();
+    public void resetPlayer(ServerPlayer player, GameType gameMode) {
+        player.getInventory().clearContent();
+        player.getEnderChestInventory().clearContent();
 
         this.respawnPlayer(player, gameMode);
     }
 
-    public void respawnPlayer(ServerPlayerEntity player, GameMode gameMode) {
-        player.clearStatusEffects();
+    public void respawnPlayer(ServerPlayer player, GameType gameMode) {
+        player.removeAllEffects();
         player.setHealth(20.0F);
-        player.getHungerManager().setFoodLevel(20);
+        player.getFoodData().setFoodLevel(20);
         player.fallDistance = 0.0F;
-        player.setFireTicks(0);
-        player.changeGameMode(gameMode);
+        player.setRemainingFireTicks(0);
+        player.setGameMode(gameMode);
     }
 
-    public void spawnAtCenter(ServerPlayerEntity player) {
-        Vec3d pos = this.map.getCenterSpawn();
-        player.teleport(this.world, pos.x, pos.y + 0.5, pos.z, Set.of(), 0.0F, 0.0F, false);
-        player.networkHandler.syncWithPlayerPosition();
+    public void spawnAtCenter(ServerPlayer player) {
+        Vec3 pos = this.map.getCenterSpawn();
+        player.teleportTo(this.world, pos.x, pos.y + 0.5, pos.z, Set.of(), 0.0F, 0.0F, false);
+        player.connection.resetPosition();
     }
 }

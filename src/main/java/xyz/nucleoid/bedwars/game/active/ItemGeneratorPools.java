@@ -1,7 +1,7 @@
 package xyz.nucleoid.bedwars.game.active;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import xyz.nucleoid.bedwars.game.config.BwConfig;
 
 public class ItemGeneratorPools {

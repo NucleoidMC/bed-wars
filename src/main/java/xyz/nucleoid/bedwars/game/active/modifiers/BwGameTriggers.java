@@ -1,7 +1,7 @@
 package xyz.nucleoid.bedwars.game.active.modifiers;
 
 import xyz.nucleoid.bedwars.BedWars;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 public final class BwGameTriggers {
     public static final GameTrigger GAME_RUNNING = GameTrigger.tickable();
@@ -17,6 +17,6 @@ public final class BwGameTriggers {
     }
 
     private static void register(String identifier, GameTrigger trigger) {
-        GameTrigger.REGISTRY.register(Identifier.of(BedWars.ID, identifier), trigger);
+        GameTrigger.REGISTRY.register(Identifier.fromNamespaceAndPath(BedWars.ID, identifier), trigger);
     }
 }

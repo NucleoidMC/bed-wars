@@ -1,9 +1,9 @@
 package xyz.nucleoid.bedwars.game.active;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
@@ -20,7 +20,7 @@ public final class BwTeamLogic {
 
     public void applyEnchantments(GameTeam team) {
         this.game.participantsFor(team.key()).forEach(participant -> {
-            ServerPlayerEntity player = participant.player();
+            ServerPlayer player = participant.player();
             if (player != null) {
                 this.game.playerLogic.applyEnchantments(player, participant);
             }
@@ -41,7 +41,7 @@ public final class BwTeamLogic {
         return null;
     }
 
-    public void onBedBroken(ServerPlayerEntity player, BlockPos pos) {
+    public void onBedBroken(ServerPlayer player, BlockPos pos) {
         GameTeam destroyerTeam = null;
 
         var participant = this.game.participantBy(player);
@@ -68,7 +68,7 @@ public final class BwTeamLogic {
 
             var world = this.game.world;
             for (BlockPos pos : bed) {
-                world.setBlockState(pos, Blocks.AIR.getDefaultState(), Block.NOTIFY_LISTENERS | Block.SKIP_DROPS);
+                world.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_SUPPRESS_DROPS);
             }
 
             this.game.triggerModifiers(BwGameTriggers.BED_BROKEN);

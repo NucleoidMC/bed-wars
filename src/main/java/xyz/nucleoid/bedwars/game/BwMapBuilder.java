@@ -1,9 +1,9 @@
 package xyz.nucleoid.bedwars.game;
 
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.Heightmap;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.levelgen.Heightmap;
 import xyz.nucleoid.bedwars.BedWars;
 import xyz.nucleoid.bedwars.game.config.BwConfig;
 import xyz.nucleoid.bedwars.game.generator.BwSkyMapBuilder;
@@ -66,8 +66,8 @@ public final class BwMapBuilder {
             centerSpawnBounds = template.getBounds();
         }
 
-        BlockPos centerSpawn = BlockPos.ofFloored(centerSpawnBounds.center());
-        centerSpawn = template.getTopPos(centerSpawn.getX(), centerSpawn.getZ(), Heightmap.Type.WORLD_SURFACE).up();
+        BlockPos centerSpawn = BlockPos.containing(centerSpawnBounds.center());
+        centerSpawn = template.getTopPos(centerSpawn.getX(), centerSpawn.getZ(), Heightmap.Types.WORLD_SURFACE).above();
 
         map.setCenterSpawn(centerSpawn);
 

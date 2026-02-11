@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.active.BwParticipant;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 public final class PlayerUpgrades {
     private final BwActive game;
@@ -31,7 +31,7 @@ public final class PlayerUpgrades {
     }
 
     public void applyAll() {
-        ServerPlayerEntity player = this.participant.player();
+        ServerPlayer player = this.participant.player();
         if (player == null) {
             return;
         }
@@ -54,7 +54,7 @@ public final class PlayerUpgrades {
 
         int lastLevel = this.map.put(type, level);
 
-        ServerPlayerEntity player = this.participant.player();
+        ServerPlayer player = this.participant.player();
         if (player != null) {
             T lastUpgrade = type.forLevel(lastLevel);
             if (lastUpgrade != null) {

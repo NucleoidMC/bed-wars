@@ -1,7 +1,7 @@
 package xyz.nucleoid.bedwars.game.generator;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import xyz.nucleoid.bedwars.game.config.BwConfig;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.generator.island.BwCenterIsland;
@@ -66,10 +66,10 @@ public final class BwSkyMapBuilder {
         NoiseIslandConfig diamondGenerator = this.skyConfig.diamondGenerator;
         double diamondIslandDistance = this.skyConfig.diamondIslandDistance;
 
-        diamondIslands.add(new BwDiamondIsland(diamondGenerator, BlockPos.ofFloored(diamondIslandDistance, 72, diamondIslandDistance)));
-        diamondIslands.add(new BwDiamondIsland(diamondGenerator, BlockPos.ofFloored(-diamondIslandDistance, 72, diamondIslandDistance)));
-        diamondIslands.add(new BwDiamondIsland(diamondGenerator, BlockPos.ofFloored(diamondIslandDistance, 72, -diamondIslandDistance)));
-        diamondIslands.add(new BwDiamondIsland(diamondGenerator, BlockPos.ofFloored(-diamondIslandDistance, 72, -diamondIslandDistance)));
+        diamondIslands.add(new BwDiamondIsland(diamondGenerator, BlockPos.containing(diamondIslandDistance, 72, diamondIslandDistance)));
+        diamondIslands.add(new BwDiamondIsland(diamondGenerator, BlockPos.containing(-diamondIslandDistance, 72, diamondIslandDistance)));
+        diamondIslands.add(new BwDiamondIsland(diamondGenerator, BlockPos.containing(diamondIslandDistance, 72, -diamondIslandDistance)));
+        diamondIslands.add(new BwDiamondIsland(diamondGenerator, BlockPos.containing(-diamondIslandDistance, 72, -diamondIslandDistance)));
 
         return diamondIslands;
     }
@@ -86,7 +86,7 @@ public final class BwSkyMapBuilder {
             double x = Math.cos(theta) * this.skyConfig.spawnIslandDistance;
             double z = Math.sin(theta) * this.skyConfig.spawnIslandDistance;
 
-            BlockPos pos = BlockPos.ofFloored(x, 72, z);
+            BlockPos pos = BlockPos.containing(x, 72, z);
             teamIslands.add(new BwTeamIsland(pos, team, theta));
 
         }

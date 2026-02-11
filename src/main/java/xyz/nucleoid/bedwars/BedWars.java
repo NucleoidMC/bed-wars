@@ -9,7 +9,7 @@ import xyz.nucleoid.bedwars.game.active.modifiers.BwGameModifiers;
 import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
 import xyz.nucleoid.bedwars.game.generator.theme.MapThemes;
 import xyz.nucleoid.plasmid.api.game.GameType;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import xyz.nucleoid.plasmid.api.game.GameTypes;
@@ -20,7 +20,7 @@ public final class BedWars implements ModInitializer {
     public static final Logger LOGGER = LogManager.getLogger(ID);
 
     public static final GameType<BwConfig> TYPE = GameTypes.register(
-            Identifier.of(BedWars.ID, "bed_wars"),
+            Identifier.fromNamespaceAndPath(BedWars.ID, "bed_wars"),
             BwConfig.CODEC,
             BwWaiting::open
     );

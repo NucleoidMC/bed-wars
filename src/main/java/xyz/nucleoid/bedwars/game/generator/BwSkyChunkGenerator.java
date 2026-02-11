@@ -1,16 +1,16 @@
 package xyz.nucleoid.bedwars.game.generator;
 
-import net.minecraft.block.Blocks;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.ChunkRegion;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.noise.NoiseConfig;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.util.RandomSource;
+import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.levelgen.RandomState;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.generator.theme.MapTheme;
 import xyz.nucleoid.map_templates.MapTemplate;
@@ -27,17 +27,17 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
     }
 
     @Override
-    public void buildSurface(ChunkRegion region, StructureAccessor structures, NoiseConfig noiseConfig, Chunk chunk) {
+    public void buildSurface(WorldGenRegion region, StructureManager structures, RandomState noiseConfig, ChunkAccess chunk) {
         ChunkPos chunkPos = chunk.getPos();
 
-        int minWorldX = chunkPos.getStartX();
-        int minWorldZ = chunkPos.getStartZ();
-        BlockPos.Mutable mutablePos = new BlockPos.Mutable();
+        int minWorldX = chunkPos.getMinBlockX();
+        int minWorldZ = chunkPos.getMinBlockZ();
+        BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
         MapTheme theme = this.config.theme;
 
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                int height = chunk.sampleHeightmap(Heightmap.Type.WORLD_SURFACE_WG, x, z);
+                int height = chunk.getHeight(Heightmap.Types.WORLD_SURFACE_WG, x, z);
 
                 mutablePos.set(minWorldX + x, height, minWorldZ + z);
 
@@ -48,13 +48,13 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
                         height = y - 1;
                     }
 
-                    if (region.getBlockState(mutablePos).isOf(Blocks.STONE)) {
+                    if (region.getBlockState(mutablePos).is(Blocks.STONE)) {
                         if (y == height) {
-                            region.setBlockState(mutablePos, theme.topState(), 3);
+                            region.setBlock(mutablePos, theme.topState(), 3);
                         } else if (height - y <= 4) {
-                            region.setBlockState(mutablePos, theme.middleState(), 3);
+                            region.setBlock(mutablePos, theme.middleState(), 3);
                         } else {
-                            region.setBlockState(mutablePos, theme.stoneState(), 3);
+                            region.setBlock(mutablePos, theme.stoneState(), 3);
                         }
                     }
                 }
@@ -63,15 +63,15 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
     }
 
     @Override
-    public void generateFeatures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
-        Random random = Random.createLocal();
+    public void applyBiomeDecoration(WorldGenLevel world, ChunkAccess chunk, StructureManager structureAccessor) {
+        RandomSource random = RandomSource.createNewThreadLocalInstance();
         MapTheme theme = this.config.theme;
 
         var centerPos = chunk.getPos();
         for (int i = 0; i < theme.treeAmt(); i++) {
-            int x = centerPos.getStartX() + random.nextInt(16);
-            int z = centerPos.getStartZ() + random.nextInt(16);
-            int y = world.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
+            int x = centerPos.getMinBlockX() + random.nextInt(16);
+            int z = centerPos.getMinBlockZ() + random.nextInt(16);
+            int y = world.getHeight(Heightmap.Types.WORLD_SURFACE_WG, x, z);
 
             boolean generate = true;
             for (BwMap.TeamRegions regions : this.map.getAllTeamRegions().values()) {
@@ -87,9 +87,9 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
         }
 
         for (int i = 0; i < theme.grassAmt(); i++) {
-            int x = centerPos.getStartX() + random.nextInt(16);
-            int z = centerPos.getStartZ() + random.nextInt(16);
-            int y = world.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
+            int x = centerPos.getMinBlockX() + random.nextInt(16);
+            int z = centerPos.getMinBlockZ() + random.nextInt(16);
+            int y = world.getHeight(Heightmap.Types.WORLD_SURFACE_WG, x, z);
 
             theme.grass().generate(world, new BlockPos(x, y, z), random);
         }

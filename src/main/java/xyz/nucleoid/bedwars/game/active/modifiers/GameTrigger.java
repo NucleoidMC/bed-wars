@@ -1,7 +1,7 @@
 package xyz.nucleoid.bedwars.game.active.modifiers;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 import xyz.nucleoid.plasmid.api.util.TinyRegistry;
 
 public final class GameTrigger {

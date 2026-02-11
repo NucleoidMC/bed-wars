@@ -1,30 +1,16 @@
 package xyz.nucleoid.bedwars.game.active.modifiers;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import xyz.nucleoid.bedwars.game.active.BwActive;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.server.level.ServerPlayer;
 
-public class JumpBoostGameModifier implements GameModifier {
-    public static final MapCodec<JumpBoostGameModifier> CODEC = RecordCodecBuilder.mapCodec(instance -> {
-        return instance.group(
-                GameTrigger.CODEC.fieldOf("trigger").forGetter(JumpBoostGameModifier::getTrigger)
-        ).apply(instance, JumpBoostGameModifier::new);
-    });
-
-    private final GameTrigger trigger;
-
-    public JumpBoostGameModifier(GameTrigger trigger) {
-        this.trigger = trigger;
-    }
-
-    @Override
-    public GameTrigger getTrigger() {
-        return this.trigger;
-    }
+public record JumpBoostGameModifier(GameTrigger trigger) implements GameModifier {
+    public static final MapCodec<JumpBoostGameModifier> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            GameTrigger.CODEC.fieldOf("trigger").forGetter(JumpBoostGameModifier::trigger)
+    ).apply(instance, JumpBoostGameModifier::new));
 
     @Override
     public void init(BwActive game) {
@@ -32,7 +18,7 @@ public class JumpBoostGameModifier implements GameModifier {
 
     @Override
     public void tick(BwActive game) {
-        if (game.world.getTime() % 20 == 0) {
+        if (game.world.getGameTime() % 20 == 0) {
             game.players().forEach(this::addEffect);
         }
     }
@@ -42,7 +28,7 @@ public class JumpBoostGameModifier implements GameModifier {
         return CODEC;
     }
 
-    private void addEffect(ServerPlayerEntity player) {
-        player.addStatusEffect(new StatusEffectInstance(StatusEffects.JUMP_BOOST, 20 * 2, 1, false, false));
+    private void addEffect(ServerPlayer player) {
+        player.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, 20 * 2, 1, false, false));
     }
 }

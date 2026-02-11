@@ -2,12 +2,12 @@ package xyz.nucleoid.bedwars.game;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.GameMode;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.GameType;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.config.BwConfig;
 import xyz.nucleoid.fantasy.RuntimeWorldConfig;
@@ -28,7 +28,7 @@ import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 
 public final class BwWaiting {
-    private final ServerWorld world;
+    private final ServerLevel world;
     private final GameSpace gameSpace;
     private final BwMap map;
     private final BwConfig config;
@@ -37,7 +37,7 @@ public final class BwWaiting {
 
     private final TeamSelectionLobby teamSelection;
 
-    private BwWaiting(ServerWorld world, GameSpace gameSpace, BwMap map, BwConfig config, TeamSelectionLobby teamSelection) {
+    private BwWaiting(ServerLevel world, GameSpace gameSpace, BwMap map, BwConfig config, TeamSelectionLobby teamSelection) {
         this.world = world;
         this.gameSpace = gameSpace;
         this.map = map;
@@ -54,7 +54,7 @@ public final class BwWaiting {
 
         RuntimeWorldConfig worldConfig = new RuntimeWorldConfig()
                 .setGenerator(map.getChunkGenerator())
-                .setDimensionType(RegistryKey.of(RegistryKeys.DIMENSION_TYPE, config.dimension()));
+                .setDimensionType(ResourceKey.create(Registries.DIMENSION_TYPE, config.dimension()));
 
         return context.openWithWorld(worldConfig, (activity, world) -> {
             GameWaitingLobby.addTo(activity, config.players());
@@ -75,11 +75,11 @@ public final class BwWaiting {
 
     private JoinAcceptorResult onPlayerOffer(JoinAcceptor offer) {
         return offer.teleport(this.world, this.map.getCenterSpawn())
-                .thenRunForEach((player, intent) -> this.spawnLogic.respawnPlayer(player, GameMode.ADVENTURE));
+                .thenRunForEach((player, intent) -> this.spawnLogic.respawnPlayer(player, GameType.ADVENTURE));
     }
 
     private GameResult requestStart() {
-        Multimap<GameTeamKey, ServerPlayerEntity> players = HashMultimap.create();
+        Multimap<GameTeamKey, ServerPlayer> players = HashMultimap.create();
         this.teamSelection.allocate(this.gameSpace.getPlayers(), players::put);
 
         BwActive.open(this.world, this.gameSpace, this.map, this.config, players);
@@ -87,12 +87,12 @@ public final class BwWaiting {
         return GameResult.ok();
     }
 
-    private EventResult onPlayerDamage(ServerPlayerEntity player, DamageSource source, float amount) {
+    private EventResult onPlayerDamage(ServerPlayer player, DamageSource source, float amount) {
         return EventResult.DENY;
     }
 
-    private EventResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
-        this.spawnLogic.respawnPlayer(player, GameMode.ADVENTURE);
+    private EventResult onPlayerDeath(ServerPlayer player, DamageSource source) {
+        this.spawnLogic.respawnPlayer(player, GameType.ADVENTURE);
         this.spawnLogic.spawnAtCenter(player);
         return EventResult.DENY;
     }

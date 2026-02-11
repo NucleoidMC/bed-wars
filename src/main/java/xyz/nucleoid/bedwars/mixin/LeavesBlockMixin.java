@@ -1,14 +1,13 @@
 package xyz.nucleoid.bedwars.mixin;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.LeavesBlock;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,17 +26,17 @@ public class LeavesBlockMixin {
      * @author SuperCoder79
      */
     @Inject(method = "randomTick", at = @At("HEAD"), cancellable = true)
-    public void handleRandomTick(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo ci) {
+    public void handleRandomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random, CallbackInfo ci) {
         var gameSpace = GameSpaceManager.get().byWorld(world);
         if (gameSpace != null && gameSpace.getBehavior().testRule(BedWars.LEAVES_DROP_GOLDEN_APPLES) == EventResult.ALLOW) {
-            if (!state.get(LeavesBlock.PERSISTENT) && state.get(LeavesBlock.DISTANCE) == 7) {
+            if (!state.getValue(LeavesBlock.PERSISTENT) && state.getValue(LeavesBlock.DISTANCE) == 7) {
                 if (world.random.nextDouble() < 0.025) {
                     var plant = WoodType.getType(state.getBlock()).getPlant();
-                    world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(plant)));
+                    world.addFreshEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(plant)));
                 }
 
                 if (world.random.nextDouble() < 0.01) {
-                    world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.GOLDEN_APPLE)));
+                    world.addFreshEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.GOLDEN_APPLE)));
                 }
 
                 world.removeBlock(pos, false);

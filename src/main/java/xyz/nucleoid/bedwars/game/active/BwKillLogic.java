@@ -1,19 +1,19 @@
 package xyz.nucleoid.bedwars.game.active;
 
 import com.google.common.collect.Sets;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.EnderChestInventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameMode;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.PlayerEnderChestContainer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.GameType;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.active.modifiers.BwGameTriggers;
 import xyz.nucleoid.bedwars.game.active.upgrade.UpgradeType;
@@ -38,26 +38,26 @@ public final class BwKillLogic {
         this.game = game;
     }
 
-    public void onPlayerDeath(BwParticipant participant, ServerPlayerEntity player, DamageSource source) {
+    public void onPlayerDeath(BwParticipant participant, ServerPlayer player, DamageSource source) {
         if (!this.game.config.keepInventory()) {
             this.applyDowngrades(participant);
         }
 
         BwParticipant killerParticipant = this.getAttackerParticipant(participant, source);
-        ServerPlayerEntity killerPlayer = killerParticipant != null ? killerParticipant.player() : null;
+        ServerPlayer killerPlayer = killerParticipant != null ? killerParticipant.player() : null;
 
         if (killerPlayer != null) {
             this.transferResources(player, killerPlayer);
         }
 
         BwMap.TeamSpawn spawn = this.game.teamLogic.tryRespawn(participant);
-        this.game.broadcast.broadcastDeath(player, killerPlayer, source, spawn == null);
+        this.game.broadcast.broadcastDeath(player, killerPlayer, spawn == null);
 
         // Run death modifiers
         this.game.triggerModifiers(BwGameTriggers.PLAYER_DEATH);
 
         if (spawn != null) {
-            this.game.spawnLogic.respawnPlayer(player, GameMode.SPECTATOR);
+            this.game.spawnLogic.respawnPlayer(player, GameType.SPECTATOR);
             this.game.spawnLogic.spawnAtCenter(player);
 
             this.game.playerLogic.startRespawning(player, spawn);
@@ -68,14 +68,14 @@ public final class BwKillLogic {
 
     private BwParticipant getAttackerParticipant(BwParticipant participant, DamageSource source) {
         BwParticipant attackerParticipant = null;
-        Entity attacker = source.getAttacker();
-        if (attacker instanceof ServerPlayerEntity) {
-            attackerParticipant = this.game.participantBy(PlayerRef.of((PlayerEntity) attacker));
+        Entity attacker = source.getEntity();
+        if (attacker instanceof ServerPlayer) {
+            attackerParticipant = this.game.participantBy(PlayerRef.of((Player) attacker));
         }
 
         if (attackerParticipant == null) {
             AttackRecord lastAttack = participant.lastAttack;
-            if (lastAttack != null && lastAttack.isValid(this.game.world.getTime())) {
+            if (lastAttack != null && lastAttack.isValid(this.game.world.getGameTime())) {
                 attackerParticipant = this.game.participantBy(lastAttack.player);
             }
         }
@@ -90,21 +90,21 @@ public final class BwKillLogic {
         participant.upgrades.tryDowngrade(UpgradeType.AXE);
     }
 
-    private void transferResources(ServerPlayerEntity player, ServerPlayerEntity killerPlayer) {
+    private void transferResources(ServerPlayer player, ServerPlayer killerPlayer) {
         Collection<ItemStack> resources = this.takeResources(player);
         for (ItemStack resource : resources) {
-            killerPlayer.getInventory().offerOrDrop(resource);
+            killerPlayer.getInventory().placeItemBackInInventory(resource);
         }
     }
 
-    private Collection<ItemStack> takeResources(ServerPlayerEntity fromPlayer) {
+    private Collection<ItemStack> takeResources(ServerPlayer fromPlayer) {
         List<ItemStack> resources = new ArrayList<>();
 
-        PlayerInventory inventory = fromPlayer.getInventory();
-        for (int slot = 0; slot < inventory.size(); slot++) {
-            ItemStack stack = inventory.getStack(slot);
+        Inventory inventory = fromPlayer.getInventory();
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            ItemStack stack = inventory.getItem(slot);
             if (RESOURCE_ITEMS.contains(stack.getItem())) {
-                ItemStack removed = inventory.removeStack(slot);
+                ItemStack removed = inventory.removeItemNoUpdate(slot);
                 if (!removed.isEmpty()) {
                     resources.add(removed);
                 }
@@ -114,10 +114,10 @@ public final class BwKillLogic {
         return resources;
     }
 
-    private void onFinalDeath(BwParticipant participant, ServerPlayerEntity player) {
+    private void onFinalDeath(BwParticipant participant, ServerPlayer player) {
         this.dropEnderChest(player, participant);
 
-        this.game.spawnLogic.resetPlayer(player, GameMode.SPECTATOR);
+        this.game.spawnLogic.resetPlayer(player, GameType.SPECTATOR);
         this.game.spawnLogic.spawnAtCenter(player);
 
         this.game.winStateLogic.eliminatePlayer(participant);
@@ -126,22 +126,22 @@ public final class BwKillLogic {
         this.game.triggerModifiers(BwGameTriggers.FINAL_DEATH);
     }
 
-    private void dropEnderChest(ServerPlayerEntity player, BwParticipant participant) {
-        ServerWorld world = this.game.world;
-        EnderChestInventory enderChest = player.getEnderChestInventory();
+    private void dropEnderChest(ServerPlayer player, BwParticipant participant) {
+        ServerLevel world = this.game.world;
+        PlayerEnderChestContainer enderChest = player.getEnderChestInventory();
 
         BwMap.TeamRegions teamRegions = this.game.map.getTeamRegions(participant.team.key());
         if (teamRegions.spawn() != null) {
-            Vec3d dropSpawn = teamRegions.spawn().center();
+            Vec3 dropSpawn = teamRegions.spawn().center();
 
-            for (int slot = 0; slot < enderChest.size(); slot++) {
-                ItemStack stack = enderChest.removeStack(slot);
+            for (int slot = 0; slot < enderChest.getContainerSize(); slot++) {
+                ItemStack stack = enderChest.removeItemNoUpdate(slot);
                 if (!stack.isEmpty()) {
-                    world.spawnEntity(new ItemEntity(world, dropSpawn.x, dropSpawn.y + 0.5, dropSpawn.z, stack));
+                    world.addFreshEntity(new ItemEntity(world, dropSpawn.x, dropSpawn.y + 0.5, dropSpawn.z, stack));
                 }
             }
         }
 
-        enderChest.clear();
+        enderChest.clearContent();
     }
 }

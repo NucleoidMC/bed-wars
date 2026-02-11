@@ -1,13 +1,12 @@
 package xyz.nucleoid.bedwars.game.active.upgrade;
 
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
 import xyz.nucleoid.plasmid.api.shop.Cost;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
@@ -48,7 +47,7 @@ public final class UpgradeType<T extends Upgrade> {
 
     private static ItemStack diamondTool(MinecraftServer server, Item item) {
         ItemStack stack = new ItemStack(item);
-        stack.addEnchantment(server.getRegistryManager().getOrThrow(RegistryKeys.ENCHANTMENT).getOrThrow(Enchantments.EFFICIENCY), 2);
+        stack.enchant(server.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.EFFICIENCY), 2);
         return stack;
     }
 

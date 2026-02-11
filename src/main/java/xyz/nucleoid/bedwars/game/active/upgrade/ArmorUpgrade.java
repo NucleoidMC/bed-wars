@@ -3,11 +3,11 @@ package xyz.nucleoid.bedwars.game.active.upgrade;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.active.BwParticipant;
 import xyz.nucleoid.plasmid.api.shop.Cost;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.server.level.ServerPlayer;
 
 public final class ArmorUpgrade implements Upgrade {
     private static final EquipmentSlot[] ARMOR_SLOTS = {
@@ -30,7 +30,7 @@ public final class ArmorUpgrade implements Upgrade {
     }
 
     @Override
-    public void applyTo(BwActive game, ServerPlayerEntity player, BwParticipant participant) {
+    public void applyTo(BwActive game, ServerPlayer player, BwParticipant participant) {
         ItemStack[] armorStacks = new ItemStack[] {
                 new ItemStack(Items.LEATHER_HELMET),
                 new ItemStack(this.chest),
@@ -41,15 +41,15 @@ public final class ArmorUpgrade implements Upgrade {
         for (int i = 0; i < armorStacks.length; i++) {
             var slot = ARMOR_SLOTS[i];
             ItemStack stack = game.createArmor(participant.team.config().applyDye(armorStacks[i]));
-            player.equipStack(slot, stack);
+            player.setItemSlot(slot, stack);
             //player.setQ.getInventory().armor.set(slot, stack);
         }
     }
 
     @Override
-    public void removeFrom(BwActive game, ServerPlayerEntity player) {
+    public void removeFrom(BwActive game, ServerPlayer player) {
         for (EquipmentSlot slot : ARMOR_SLOTS) {
-            player.equipStack(slot, ItemStack.EMPTY);
+            player.setItemSlot(slot, ItemStack.EMPTY);
         }
     }
 

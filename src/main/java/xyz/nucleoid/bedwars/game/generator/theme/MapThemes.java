@@ -1,8 +1,7 @@
 package xyz.nucleoid.bedwars.game.generator.theme;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 import xyz.nucleoid.bedwars.BedWars;
 
 public final class MapThemes {
@@ -16,6 +15,6 @@ public final class MapThemes {
 	}
 
 	private static void register(String identifier, MapCodec<? extends MapTheme> modifier) {
-		MapTheme.REGISTRY.register(Identifier.of(BedWars.ID, identifier), modifier);
+		MapTheme.REGISTRY.register(Identifier.fromNamespaceAndPath(BedWars.ID, identifier), modifier);
 	}
 }

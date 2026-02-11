@@ -3,7 +3,7 @@ package xyz.nucleoid.bedwars.game.generator.island;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import kdotjpg.opensimplex.OpenSimplexNoise;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 public final class NoiseIslandConfig {
     public static final Codec<NoiseIslandConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(

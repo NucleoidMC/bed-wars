@@ -1,12 +1,12 @@
 package xyz.nucleoid.bedwars.custom;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.RandomSource;
 import xyz.nucleoid.map_templates.BlockBounds;
 
 public final class MovingCloud {
@@ -16,9 +16,9 @@ public final class MovingCloud {
 
     private static final int MAX_AGE = 20 * 60;
 
-    private final ServerWorld world;
-    private Vec3d pos;
-    private final Vec3d movePerTick;
+    private final ServerLevel world;
+    private Vec3 pos;
+    private final Vec3 movePerTick;
 
     private int ticks;
     private BlockPos lastBlockPos;
@@ -26,19 +26,19 @@ public final class MovingCloud {
     private int pauseTicks = PAUSE_TICKS;
     private int stoppedTicks;
 
-    public MovingCloud(ServerWorld world, BlockPos pos, Direction direction) {
+    public MovingCloud(ServerLevel world, BlockPos pos, Direction direction) {
         this.world = world;
-        this.pos = Vec3d.ofCenter(pos);
-        this.movePerTick = new Vec3d(
-                direction.getOffsetX() * MOVE_PER_TICK,
-                direction.getOffsetY() * MOVE_PER_TICK,
-                direction.getOffsetZ() * MOVE_PER_TICK
+        this.pos = Vec3.atCenterOf(pos);
+        this.movePerTick = new Vec3(
+                direction.getStepX() * MOVE_PER_TICK,
+                direction.getStepY() * MOVE_PER_TICK,
+                direction.getStepZ() * MOVE_PER_TICK
         );
     }
 
     public boolean tick() {
         if (this.lastBlockPos == null) {
-            this.updatePlatform(BlockPos.ofFloored(this.pos));
+            this.updatePlatform(BlockPos.containing(this.pos));
         }
 
         if (this.ticks++ >= MAX_AGE) {
@@ -67,7 +67,7 @@ public final class MovingCloud {
 
         this.pos = this.pos.add(this.movePerTick);
 
-        BlockPos blockPos = BlockPos.ofFloored(this.pos);
+        BlockPos blockPos = BlockPos.containing(this.pos);
         if (!blockPos.equals(this.lastBlockPos)) {
             this.updatePlatform(blockPos);
         }
@@ -88,7 +88,7 @@ public final class MovingCloud {
     }
 
     private void spawnParticles() {
-        Random random = this.world.random;
+        RandomSource random = this.world.random;
 
         double centerX = this.pos.x + this.movePerTick.x * 20.0;
         double centerZ = this.pos.z + this.movePerTick.z * 20.0;
@@ -98,7 +98,7 @@ public final class MovingCloud {
             double x = centerX + random.nextGaussian() * 0.5;
             double z = centerZ + random.nextGaussian() * 0.5;
 
-            this.world.spawnParticles(ParticleTypes.CLOUD, x, y, z, 1, 0.0, 0.0, 0.0, 0.0);
+            this.world.sendParticles(ParticleTypes.CLOUD, x, y, z, 1, 0.0, 0.0, 0.0, 0.0);
         }
     }
 
@@ -106,20 +106,20 @@ public final class MovingCloud {
         BlockBounds platform = this.getPlatformAt(origin);
         for (BlockPos pos : platform) {
             if (this.world.getBlockState(pos).getBlock() == Blocks.BARRIER) {
-                this.world.setBlockState(pos, Blocks.AIR.getDefaultState());
+                this.world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
             }
         }
     }
 
     private boolean tryAddPlatform(BlockPos origin) {
-        if (!this.world.isAir(origin)) {
+        if (!this.world.isEmptyBlock(origin)) {
             return false;
         }
 
         BlockBounds platform = this.getPlatformAt(origin);
         for (BlockPos pos : platform) {
-            if (this.world.isAir(pos)) {
-                this.world.setBlockState(pos, Blocks.BARRIER.getDefaultState());
+            if (this.world.isEmptyBlock(pos)) {
+                this.world.setBlockAndUpdate(pos, Blocks.BARRIER.defaultBlockState());
             }
         }
 
@@ -128,8 +128,8 @@ public final class MovingCloud {
 
     private BlockBounds getPlatformAt(BlockPos pos) {
         return BlockBounds.of(
-                pos.add(-1, 0, -1),
-                pos.add(1, 0, 1)
+                pos.offset(-1, 0, -1),
+                pos.offset(1, 0, 1)
         );
     }
 }

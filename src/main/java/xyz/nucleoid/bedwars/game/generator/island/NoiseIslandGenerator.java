@@ -1,9 +1,9 @@
 package xyz.nucleoid.bedwars.game.generator.island;
 
 import kdotjpg.opensimplex.OpenSimplexNoise;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.core.BlockPos;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.MapTemplate;
 
@@ -19,8 +19,8 @@ public final class NoiseIslandGenerator {
         this.config = config;
         this.origin = origin;
         this.bounds = BlockBounds.of(
-                origin.add(-config.radius, -config.radius, -config.radius),
-                origin.add(config.radius, config.radius, config.radius)
+                origin.offset(-config.radius, -config.radius, -config.radius),
+                origin.offset(config.radius, config.radius, config.radius)
         );
         this.noise = noise;
     }
@@ -49,7 +49,7 @@ public final class NoiseIslandGenerator {
         }
 
         for (BlockPos pos : this.bounds) {
-            state = Blocks.STONE.getDefaultState();
+            state = Blocks.STONE.defaultBlockState();
 
             double localX = ((double)(pos.getX() - origin.getX())) / radius;
             double localY = ((double)(pos.getY() - origin.getY())) / radius;
@@ -68,11 +68,11 @@ public final class NoiseIslandGenerator {
                 noise += this.computeNoiseFalloff(pos.getY() - origin.getY());
 
                 if (config.goldOreChance > 1 && random.nextInt(config.goldOreChance) == 0) {
-                    state = Blocks.GOLD_ORE.getDefaultState();
+                    state = Blocks.GOLD_ORE.defaultBlockState();
                 }
 
                 if (config.diamondOreChance > 1 && random.nextInt(config.diamondOreChance) == 0) {
-                    state = Blocks.DIAMOND_ORE.getDefaultState();
+                    state = Blocks.DIAMOND_ORE.defaultBlockState();
                 }
 
                 if (noise > 0) {

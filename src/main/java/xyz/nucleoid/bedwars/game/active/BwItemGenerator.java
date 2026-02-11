@@ -3,19 +3,18 @@ package xyz.nucleoid.bedwars.game.active;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.ChunkAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.TextDisplayElement;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.decoration.DisplayEntity.BillboardMode;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.s2c.play.ItemPickupAnimationS2CPacket;
-import net.minecraft.server.network.EntityTrackerEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.Display.BillboardConstraints;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.protocol.game.ClientboundTakeItemEntityPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.RandomSource;
 import xyz.nucleoid.map_templates.BlockBounds;
 
 import java.util.List;
@@ -57,10 +56,10 @@ public final class BwItemGenerator {
         return this;
     }
 
-    public void tick(ServerWorld world, BwActive game) {
+    public void tick(ServerLevel world, BwActive game) {
         if (this.pool == null) return;
 
-        long time = world.getTime();
+        long time = world.getGameTime();
 
         if (this.hasTimerText) {
             this.tickTimerHologram(world);
@@ -72,8 +71,8 @@ public final class BwItemGenerator {
         }
     }
 
-    private void tickTimerHologram(ServerWorld world) {
-        long time = world.getTime();
+    private void tickTimerHologram(ServerLevel world) {
+        long time = world.getGameTime();
 
         if (time % 20 == 0) {
             var hologram = this.timerHologram;
@@ -82,10 +81,10 @@ public final class BwItemGenerator {
                 hologram.tick();
             } else {
                 this.timerTextElement = new TextDisplayElement(this.getTimerText(time));
-                this.timerTextElement.setBillboardMode(BillboardMode.CENTER);
+                this.timerTextElement.setBillboardMode(BillboardConstraints.CENTER);
                 this.timerTextElement.setViewRange(0.3f);
 
-                Vec3d textPos = this.bounds.center().add(0.0, 1.0, 0.0);
+                Vec3 textPos = this.bounds.center().add(0.0, 1.0, 0.0);
                 this.timerHologram = new ElementHolder();
                 this.timerHologram.addElement(this.timerTextElement);
                 ChunkAttachment.of(this.timerHologram, world, textPos);
@@ -93,7 +92,7 @@ public final class BwItemGenerator {
         }
     }
 
-    private Text getTimerText(long time) {
+    private Component getTimerText(long time) {
         long timeSinceSpawn = time - this.lastItemSpawn;
 
         long timeUntilSpawn = this.pool.getSpawnInterval() - timeSinceSpawn;
@@ -103,39 +102,39 @@ public final class BwItemGenerator {
         long seconds = (timeUntilSpawn / 20) % 60;
         long minutes = timeUntilSpawn / (20 * 60);
 
-        Formatting numberFormatting = Formatting.WHITE;
+        ChatFormatting numberFormatting = ChatFormatting.WHITE;
 
         long secondsUntilSpawn = timeUntilSpawn / 20;
         if (secondsUntilSpawn < 5) {
             if ((secondsUntilSpawn & 1) == 0) {
-                numberFormatting = Formatting.AQUA;
+                numberFormatting = ChatFormatting.AQUA;
             }
         }
-        return Text.translatable("text.bedwars.floating.spawn_cooldown", Text.literal(String.format("%02d:%02d", minutes, seconds)).formatted(numberFormatting)).formatted(Formatting.GOLD);
+        return Component.translatable("text.bedwars.floating.spawn_cooldown", Component.literal(String.format("%02d:%02d", minutes, seconds)).withStyle(numberFormatting)).withStyle(ChatFormatting.GOLD);
     }
 
-    private void spawnItems(ServerWorld world, BwActive game) {
-        Random random = world.random;
+    private void spawnItems(ServerLevel world, BwActive game) {
+        RandomSource random = world.random;
         ItemStack stack = this.pool.sample();
 
-        Box box = this.bounds.asBox();
+        AABB box = this.bounds.asBox();
 
         int itemCount = 0;
-        for (ItemEntity entity : world.getEntitiesByType(EntityType.ITEM, box.expand(1.0), entity -> true)) {
-            itemCount += entity.getStack().getCount();
+        for (ItemEntity entity : world.getEntities(EntityType.ITEM, box.inflate(1.0), entity -> true)) {
+            itemCount += entity.getItem().getCount();
         }
 
         if (itemCount >= this.maxItems) {
             return;
         }
 
-        Box spawnBox = box.expand(-0.5, 0.0, -0.5);
+        AABB spawnBox = box.inflate(-0.5, 0.0, -0.5);
         double x = spawnBox.minX + (spawnBox.maxX - spawnBox.minX) * random.nextDouble();
         double y = spawnBox.minY + 0.5;
         double z = spawnBox.minZ + (spawnBox.maxZ - spawnBox.minZ) * random.nextDouble();
 
         ItemEntity itemEntity = new ItemEntity(world, x, y, z, stack);
-        itemEntity.setVelocity(Vec3d.ZERO);
+        itemEntity.setDeltaMovement(Vec3.ZERO);
 
         if (this.allowDuplication) {
             if (this.giveItems(world, game, itemEntity)) {
@@ -143,29 +142,29 @@ public final class BwItemGenerator {
             }
         }
 
-        world.spawnEntity(itemEntity);
+        world.addFreshEntity(itemEntity);
     }
 
-    private boolean giveItems(ServerWorld world, BwActive game, ItemEntity entity) {
-        List<ServerPlayerEntity> players = world.getEntitiesByClass(ServerPlayerEntity.class, this.bounds.asBox(), game::isParticipant);
-        for (ServerPlayerEntity player : players) {
+    private boolean giveItems(ServerLevel world, BwActive game, ItemEntity entity) {
+        List<ServerPlayer> players = world.getEntitiesOfClass(ServerPlayer.class, this.bounds.asBox(), game::isParticipant);
+        for (ServerPlayer player : players) {
             // Don't gen split to spectator or creative players
-            if (player.getAbilities().allowFlying) {
+            if (player.getAbilities().mayfly) {
                 continue;
             }
 
-            ItemStack stack = entity.getStack();
+            ItemStack stack = entity.getItem();
 
-            player.giveItemStack(stack.copy());
-            player.networkHandler.sendPacket(
-                        new ItemPickupAnimationS2CPacket(
+            player.addItem(stack.copy());
+            player.connection.send(
+                        new ClientboundTakeItemEntityPacket(
                                 entity.getId(),
                                 player.getId(),
                                 stack.getCount()
                         )
             );
 
-            player.getInventory().markDirty();
+            player.getInventory().setChanged();
         }
 
         return !players.isEmpty();

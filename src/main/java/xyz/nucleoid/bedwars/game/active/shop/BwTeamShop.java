@@ -1,15 +1,15 @@
 package xyz.nucleoid.bedwars.game.active.shop;
 
 import eu.pb4.sgui.api.elements.GuiElementInterface;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.util.Mth;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.active.BwParticipant;
@@ -25,10 +25,10 @@ import java.util.List;
 @SuppressWarnings("ConstantConditions")
 public final class BwTeamShop {
 
-    private static final Text ACTIVE_TEXT = Text.translatable("text.bedwars.shop.active").setStyle(Style.EMPTY.withColor(Formatting.YELLOW));
-    private static final Text MAX_LEVEL_TEXT = Text.translatable("text.bedwars.shop.max_level").setStyle(Style.EMPTY.withColor(Formatting.YELLOW));
+    private static final Component ACTIVE_TEXT = Component.translatable("text.bedwars.shop.active").setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW));
+    private static final Component MAX_LEVEL_TEXT = Component.translatable("text.bedwars.shop.max_level").setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW));
 
-    public static void open(ServerPlayerEntity player, BwActive game) {
+    public static void open(ServerPlayer player, BwActive game) {
         List<GuiElementInterface> shop = new ArrayList<>();
 
         BwParticipant participant = game.participantBy(player);
@@ -44,7 +44,7 @@ public final class BwTeamShop {
                     .onBuyCheck((p, e) -> !teamState.trapSet && e.getCost(p).takeItems(p))
                     .onBuy(p -> {
                         teamState.trapSet = true;
-                        game.broadcast.broadcastToTeam(participant.team, Text.translatable("text.bedwars.shop.upgrade." + baseTrapName + ".buy", p.getDisplayName().copy()).formatted(Formatting.BOLD, Formatting.AQUA));
+                        game.broadcast.broadcastToTeam(participant.team, Component.translatable("text.bedwars.shop.upgrade." + baseTrapName + ".buy", p.getDisplayName().copy()).withStyle(ChatFormatting.BOLD, ChatFormatting.AQUA));
                     })
             );
 
@@ -55,7 +55,7 @@ public final class BwTeamShop {
                     .onBuyCheck((p, e) -> !teamState.healPool && e.getCost(p).takeItems(p))
                     .onBuy(p -> {
                         teamState.healPool = true;
-                        game.broadcast.broadcastToTeam(participant.team, Text.translatable("text.bedwars.shop.upgrade." + healPoolName + ".buy", p.getDisplayName().copy()).formatted(Formatting.BOLD, Formatting.AQUA));
+                        game.broadcast.broadcastToTeam(participant.team, Component.translatable("text.bedwars.shop.upgrade." + healPoolName + ".buy", p.getDisplayName().copy()).withStyle(ChatFormatting.BOLD, ChatFormatting.AQUA));
                     })
             );
 
@@ -66,7 +66,7 @@ public final class BwTeamShop {
                     .onBuyCheck((p, e) -> !teamState.hasteEnabled && e.getCost(p).takeItems(p))
                     .onBuy(p -> {
                         teamState.hasteEnabled = true;
-                        game.broadcast.broadcastToTeam(participant.team, Text.translatable("text.bedwars.shop.upgrade." + hasteName + ".buy", p.getDisplayName().copy()).formatted(Formatting.BOLD, Formatting.AQUA));
+                        game.broadcast.broadcastToTeam(participant.team, Component.translatable("text.bedwars.shop.upgrade." + hasteName + ".buy", p.getDisplayName().copy()).withStyle(ChatFormatting.BOLD, ChatFormatting.AQUA));
                     })
             );
 
@@ -79,7 +79,7 @@ public final class BwTeamShop {
                             .onBuy(p -> {
                                 teamState.swordSharpness++;
                                 game.teamLogic.applyEnchantments(participant.team);
-                                game.broadcast.broadcastToTeam(participant.team, Text.translatable("text.bedwars.shop.upgrade." + sharpnessName + ".buy", p.getDisplayName().copy(), Text.translatable("enchantment.level." + teamState.swordSharpness)).formatted(Formatting.BOLD, Formatting.AQUA));
+                                game.broadcast.broadcastToTeam(participant.team, Component.translatable("text.bedwars.shop.upgrade." + sharpnessName + ".buy", p.getDisplayName().copy(), Component.translatable("enchantment.level." + teamState.swordSharpness)).withStyle(ChatFormatting.BOLD, ChatFormatting.AQUA));
                             })
             );
 
@@ -92,7 +92,7 @@ public final class BwTeamShop {
                             .onBuy(p -> {
                                 teamState.armorProtection++;
                                 game.teamLogic.applyEnchantments(participant.team);
-                                game.broadcast.broadcastToTeam(participant.team, Text.translatable("text.bedwars.shop.upgrade." + protectionName + ".buy", p.getDisplayName().copy(), Text.translatable("enchantment.level." + teamState.armorProtection)).formatted(Formatting.BOLD, Formatting.AQUA));
+                                game.broadcast.broadcastToTeam(participant.team, Component.translatable("text.bedwars.shop.upgrade." + protectionName + ".buy", p.getDisplayName().copy(), Component.translatable("enchantment.level." + teamState.armorProtection)).withStyle(ChatFormatting.BOLD, ChatFormatting.AQUA));
                             })
             );
         }
@@ -106,17 +106,17 @@ public final class BwTeamShop {
                     .onBuyCheck((p, e) -> teamSpawn.getLevel() < BwMap.TeamSpawn.MAX_LEVEL && e.getCost(p).takeItems(p))
                     .onBuy(p -> {
                         teamSpawn.setLevel(teamSpawn.getLevel() + 1, game.map.pools);
-                        game.broadcast.broadcastToTeam(participant.team, Text.translatable("text.bedwars.shop.upgrade.generator.buy", p.getDisplayName().copy(), teamSpawn.getLevel()).formatted(Formatting.BOLD, Formatting.AQUA));
+                        game.broadcast.broadcastToTeam(participant.team, Component.translatable("text.bedwars.shop.upgrade.generator.buy", p.getDisplayName().copy(), teamSpawn.getLevel()).withStyle(ChatFormatting.BOLD, ChatFormatting.AQUA));
                     })
             );
         }
 
-        var ui = Guis.createSelectorGui(player, Text.translatable("text.bedwars.shop.type.team"), false, shop);
+        var ui = Guis.createSelectorGui(player, Component.translatable("text.bedwars.shop.type.team"), false, shop);
         ui.open();
     }
 
     private static int stagedUpgrade(int first, int level) {
-        return MathHelper.floor(Math.pow(2, level) * first);
+        return Mth.floor(Math.pow(2, level) * first);
     }
 
     private static int teamScaledCost(BwActive game, GameTeam team, double original) {
@@ -125,50 +125,50 @@ public final class BwTeamShop {
 
     private static ItemStack createIcon(Item item, String id) {
         return ItemStackBuilder.of(Items.STONE)
-                .set(DataComponentTypes.ITEM_MODEL, item.getComponents().get(DataComponentTypes.ITEM_MODEL))
-                .setName(Text.translatable("text.bedwars.shop.upgrade." + id))
-                .addLore(Text.translatable("text.bedwars.shop.upgrade." + id + ".description.1").formatted(Formatting.GRAY))
-                .addLore(Text.translatable("text.bedwars.shop.upgrade." + id + ".description.2").formatted(Formatting.GRAY))
+                .set(DataComponents.ITEM_MODEL, item.components().get(DataComponents.ITEM_MODEL))
+                .setName(Component.translatable("text.bedwars.shop.upgrade." + id))
+                .addLore(Component.translatable("text.bedwars.shop.upgrade." + id + ".description.1").withStyle(ChatFormatting.GRAY))
+                .addLore(Component.translatable("text.bedwars.shop.upgrade." + id + ".description.2").withStyle(ChatFormatting.GRAY))
                 .build();
     }
 
-    private static ItemStack createIconFor(ServerPlayerEntity player, ItemStack icon, ShopEntry entry, boolean active) {
+    private static ItemStack createIconFor(ServerPlayer player, ItemStack icon, ShopEntry entry, boolean active) {
         boolean canBuy = entry.canBuy(player);
 
-        var style = Style.EMPTY.withItalic(false).withColor(canBuy && !active ? Formatting.BLUE : Formatting.RED);
-        var name = icon.getName().copy().setStyle(style);
+        var style = Style.EMPTY.withItalic(false).withColor(canBuy && !active ? ChatFormatting.BLUE : ChatFormatting.RED);
+        var name = icon.getHoverName().copy().setStyle(style);
 
         if (active) {
-            name.append(Text.literal(" (").append(ACTIVE_TEXT).append(")").setStyle(ACTIVE_TEXT.getStyle()));
+            name.append(Component.literal(" (").append(ACTIVE_TEXT).append(")").setStyle(ACTIVE_TEXT.getStyle()));
         } else if (entry.getCost(player) != null) {
             var costText = entry.getCost(player).getDisplay();
-            costText = Text.literal(" (").append(costText).append(")").setStyle(costText.getStyle());
+            costText = Component.literal(" (").append(costText).append(")").setStyle(costText.getStyle());
             name.append(costText);
         }
 
-        icon.set(DataComponentTypes.CUSTOM_NAME, name);
+        icon.set(DataComponents.CUSTOM_NAME, name);
 
         return icon;
     }
 
-    private static ItemStack createIconLvlFor(ServerPlayerEntity player, ShopEntry entry, Item icon, String id, int level, boolean maxLvl) {
+    private static ItemStack createIconLvlFor(ServerPlayer player, ShopEntry entry, Item icon, String id, int level, boolean maxLvl) {
         boolean canBuy = entry.canBuy(player);
 
         var itemStackBuilder = ItemStackBuilder.of(Items.STONE)
-                .set(DataComponentTypes.ITEM_MODEL, icon.getComponents().get(DataComponentTypes.ITEM_MODEL))
-                .addLore(Text.translatable("text.bedwars.shop.upgrade." + id + ".description.1", Text.translatable("enchantment.level." + level)).formatted(Formatting.GRAY))
-                .addLore(Text.translatable("text.bedwars.shop.upgrade." + id + ".description.2", Text.translatable("enchantment.level." + level)).formatted(Formatting.GRAY))
+                .set(DataComponents.ITEM_MODEL, icon.components().get(DataComponents.ITEM_MODEL))
+                .addLore(Component.translatable("text.bedwars.shop.upgrade." + id + ".description.1", Component.translatable("enchantment.level." + level)).withStyle(ChatFormatting.GRAY))
+                .addLore(Component.translatable("text.bedwars.shop.upgrade." + id + ".description.2", Component.translatable("enchantment.level." + level)).withStyle(ChatFormatting.GRAY))
                 .setCount(level);
 
 
-        var style = Style.EMPTY.withItalic(false).withColor(canBuy && !maxLvl ? Formatting.BLUE : Formatting.RED);
-        var name = Text.translatable("text.bedwars.shop.upgrade." + id, Text.translatable("enchantment.level." + level)).setStyle(style);
+        var style = Style.EMPTY.withItalic(false).withColor(canBuy && !maxLvl ? ChatFormatting.BLUE : ChatFormatting.RED);
+        var name = Component.translatable("text.bedwars.shop.upgrade." + id, Component.translatable("enchantment.level." + level)).setStyle(style);
 
         if (maxLvl) {
-            name.append(Text.literal(" (").append(MAX_LEVEL_TEXT).append(")").setStyle(MAX_LEVEL_TEXT.getStyle()));
+            name.append(Component.literal(" (").append(MAX_LEVEL_TEXT).append(")").setStyle(MAX_LEVEL_TEXT.getStyle()));
         } else if (entry.getCost(player) != null) {
             var costText = entry.getCost(player).getDisplay();
-            costText = Text.literal(" (").append(costText).append(")").setStyle(costText.getStyle());
+            costText = Component.literal(" (").append(costText).append(")").setStyle(costText.getStyle());
             name.append(costText);
         }
 

@@ -1,9 +1,9 @@
 package xyz.nucleoid.bedwars.game.generator.island;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.Heightmap;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.levelgen.Heightmap;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.MapTemplate;
@@ -26,22 +26,22 @@ public final class BwCenterIsland {
             double x = Math.cos(theta) * emeraldDistance;
             double z = Math.sin(theta) * emeraldDistance;
 
-            this.addEmeraldSpawner(map, template, this.origin.add(MathHelper.floor(x), 0, MathHelper.floor(z)));
+            this.addEmeraldSpawner(map, template, this.origin.offset(Mth.floor(x), 0, Mth.floor(z)));
         }
 
         this.addCenterSpawn(map, template);
     }
 
     private void addEmeraldSpawner(BwMap map, MapTemplate template, BlockPos pos) {
-        BlockPos surfacePos = template.getTopPos(pos.getX(), pos.getZ(), Heightmap.Type.WORLD_SURFACE_WG);
+        BlockPos surfacePos = template.getTopPos(pos.getX(), pos.getZ(), Heightmap.Types.WORLD_SURFACE_WG);
 
-        template.setBlockState(surfacePos, Blocks.EMERALD_BLOCK.getDefaultState());
-        map.addEmeraldGenerator(BlockBounds.ofBlock(surfacePos.up()));
+        template.setBlockState(surfacePos, Blocks.EMERALD_BLOCK.defaultBlockState());
+        map.addEmeraldGenerator(BlockBounds.ofBlock(surfacePos.above()));
         map.addProtectedBlock(surfacePos.asLong());
     }
 
     private void addCenterSpawn(BwMap map, MapTemplate template) {
-        BlockPos surfacePos = template.getTopPos(this.origin.getX(), this.origin.getZ(), Heightmap.Type.WORLD_SURFACE_WG);
-        map.setCenterSpawn(surfacePos.up());
+        BlockPos surfacePos = template.getTopPos(this.origin.getX(), this.origin.getZ(), Heightmap.Types.WORLD_SURFACE_WG);
+        map.setCenterSpawn(surfacePos.above());
     }
 }

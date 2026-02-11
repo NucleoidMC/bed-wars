@@ -1,10 +1,10 @@
 package xyz.nucleoid.bedwars.game.active;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.collection.WeightedList;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.ai.behavior.ShufflingList;
 
 public final class ItemGeneratorPool {
-    private final WeightedList<ItemStack> pool = new WeightedList<>();
+    private final ShufflingList<ItemStack> pool = new ShufflingList<>();
     private long spawnInterval = 10;
 
     public ItemGeneratorPool add(ItemStack stack, int weight) {

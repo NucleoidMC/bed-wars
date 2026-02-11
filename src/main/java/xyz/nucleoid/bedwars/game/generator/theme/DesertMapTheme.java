@@ -1,12 +1,11 @@
 package xyz.nucleoid.bedwars.game.generator.theme;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeKeys;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import xyz.nucleoid.substrate.gen.CactusGen;
 import xyz.nucleoid.substrate.gen.MapGen;
 import xyz.nucleoid.substrate.gen.tree.DeadTreeGen;
@@ -18,27 +17,27 @@ public final class DesertMapTheme implements MapTheme {
 
 	@Override
 	public BlockState topState() {
-		return Blocks.SAND.getDefaultState();
+		return Blocks.SAND.defaultBlockState();
 	}
 
 	@Override
 	public BlockState middleState() {
-		return Blocks.SANDSTONE.getDefaultState();
+		return Blocks.SANDSTONE.defaultBlockState();
 	}
 
 	@Override
 	public BlockState stoneState() {
-		return Blocks.SANDSTONE.getDefaultState();
+		return Blocks.SANDSTONE.defaultBlockState();
 	}
 
 	@Override
 	public BlockState teamIslandState(Random random, BlockState terracotta) {
 		if (random.nextInt(4) < 3) {
-			return Blocks.SANDSTONE.getDefaultState();
+			return Blocks.SANDSTONE.defaultBlockState();
 		}
 
 		if (random.nextBoolean()) {
-			return Blocks.COARSE_DIRT.getDefaultState();
+			return Blocks.COARSE_DIRT.defaultBlockState();
 		}
 
 		return terracotta;
@@ -70,7 +69,7 @@ public final class DesertMapTheme implements MapTheme {
 	}
 
 	@Override
-	public RegistryKey<Biome> getFakingBiome() {
-		return BiomeKeys.DESERT;
+	public ResourceKey<Biome> getFakingBiome() {
+		return Biomes.DESERT;
 	}
 }
