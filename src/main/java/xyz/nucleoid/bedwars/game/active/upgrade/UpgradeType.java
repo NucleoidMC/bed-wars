@@ -25,6 +25,12 @@ public final class UpgradeType<T extends Upgrade> {
             .addLevel(new WeaponUpgrade(Items.IRON_SWORD, Cost.ofGold(6)))
             .addLevel(new WeaponUpgrade(Items.DIAMOND_SWORD, Cost.ofEmeralds(3)));
 
+    public static final UpgradeType<WeaponUpgrade> SPEAR = new UpgradeType<WeaponUpgrade>()
+            .addLevel(new WeaponUpgrade(Items.WOODEN_SPEAR, Cost.ofIron(8)))
+            .addLevel(new WeaponUpgrade(Items.STONE_SPEAR, Cost.ofIron(12)))
+            .addLevel(new WeaponUpgrade(Items.IRON_SPEAR, Cost.ofGold(6)))
+            .addLevel(new WeaponUpgrade(Items.DIAMOND_SPEAR, Cost.ofEmeralds(3)));
+
     public static final UpgradeType<WeaponUpgrade> PICKAXE = new UpgradeType<WeaponUpgrade>()
             .addLevel(new WeaponUpgrade(Items.WOODEN_PICKAXE, Cost.ofIron(8)))
             .addLevel(new WeaponUpgrade(Items.STONE_PICKAXE, Cost.ofIron(12)))

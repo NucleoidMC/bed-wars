@@ -12,6 +12,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import xyz.nucleoid.plasmid.api.game.GameSpaceManager;
 
+// TODO: collision needs fixing
 public class BridgeEggEntity extends EggEntity {
     private static final Direction[] DIRECTIONS = Direction.values();
 

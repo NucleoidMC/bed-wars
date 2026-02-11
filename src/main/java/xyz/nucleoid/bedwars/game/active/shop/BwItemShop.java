@@ -151,14 +151,15 @@ public final class BwItemShop extends LayeredGui {
     private void createWeapons(MinecraftServer server, Consumer<GuiElementInterface> items) {
         PlayerUpgrades upgrades = participant.upgrades;
         addUpgrade(items, upgrades, UpgradeType.SWORD, "sword");
+        addUpgrade(items, upgrades, UpgradeType.SPEAR, "spear");
 
 
-        ItemStack knockbackStick = ItemStackBuilder.of(Items.STICK)
+        ItemStack knockbackRod = ItemStackBuilder.of(Items.BREEZE_ROD)
                 .addEnchantment(server, Enchantments.KNOCKBACK, 1)
                 .addLore(Text.translatable("item.bedwars.knockback_stick.description"))
                 .build();
 
-        items.accept(ShopEntry.buyItem(knockbackStick, Cost.ofGold(10)));
+        items.accept(ShopEntry.buyItem(knockbackRod, Cost.ofGold(10)));
 
         ItemStack trident = ItemStackBuilder.of(Items.TRIDENT)
                 .setUnbreakable()
@@ -166,9 +167,20 @@ public final class BwItemShop extends LayeredGui {
                 .build();
         items.accept(ShopEntry.buyItem(trident, Cost.ofEmeralds(6)));
 
+        ItemStack mace = ItemStackBuilder.of(Items.MACE)
+                .setUnbreakable()
+                .addEnchantment(server, Enchantments.WIND_BURST, 1)
+                .build();
+        items.accept(ShopEntry.buyItem(mace, Cost.ofEmeralds(8)));
+
         items.accept(ShopEntry.buyItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().build(), Cost.ofGold(12)));
         items.accept(ShopEntry.buyItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().addEnchantment(server, Enchantments.POWER, 2).build(), Cost.ofGold(24)));
         items.accept(ShopEntry.buyItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().addEnchantment(server, Enchantments.PUNCH, 1).build(), Cost.ofEmeralds(6)));
+        ItemStack crossbow = ItemStackBuilder.of(Items.CROSSBOW)
+                .setUnbreakable()
+                .addEnchantment(server, Enchantments.MULTISHOT, 1)
+                .build();
+        items.accept(ShopEntry.buyItem(crossbow, Cost.ofGold(24)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.ARROW, 8), Cost.ofGold(2)));
     }
 
@@ -199,8 +211,10 @@ public final class BwItemShop extends LayeredGui {
         items.accept(ShopEntry.buyItem(new ItemStack(Items.WATER_BUCKET), Cost.ofGold(10)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.LAVA_BUCKET), Cost.ofGold(24)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.GOLDEN_APPLE), Cost.ofGold(3)));
+        items.accept(ShopEntry.buyItem(new ItemStack(Items.WIND_CHARGE), Cost.ofGold(12)));
         items.accept(ShopEntry.buyItem(new ItemStack(BwItems.CHORUS_FRUIT), Cost.ofGold(8)));
-        items.accept(ShopEntry.buyItem(new ItemStack(BwItems.BRIDGE_EGG), Cost.ofEmeralds(2)));
+        // TODO: collision needs fixing
+        // items.accept(ShopEntry.buyItem(new ItemStack(BwItems.BRIDGE_EGG), Cost.ofEmeralds(2)));
         items.accept(ShopEntry.buyItem(new ItemStack(BwItems.MOVING_CLOUD), Cost.ofEmeralds(1)));
     }
 

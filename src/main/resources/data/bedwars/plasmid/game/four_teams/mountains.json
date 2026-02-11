@@ -15,7 +15,7 @@
     "max": 8,
     "threshold": 4
   },
-  "keep_inventory": true,
+  "keep_inventory": false,
   "combat": {
     "old_mechanics": false
   },

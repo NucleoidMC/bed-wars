@@ -31,6 +31,7 @@ public final class BwParticipant {
 
         this.upgrades.addAt(UpgradeType.ARMOR, 0);
         this.upgrades.addAt(UpgradeType.SWORD, 0);
+        this.upgrades.add(UpgradeType.SPEAR);
         this.upgrades.add(UpgradeType.PICKAXE);
         this.upgrades.add(UpgradeType.AXE);
         this.upgrades.add(UpgradeType.SHEARS);

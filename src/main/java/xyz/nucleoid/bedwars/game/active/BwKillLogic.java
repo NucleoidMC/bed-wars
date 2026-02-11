@@ -85,6 +85,7 @@ public final class BwKillLogic {
 
     private void applyDowngrades(BwParticipant participant) {
         participant.upgrades.tryDowngrade(UpgradeType.SWORD);
+        participant.upgrades.tryDowngrade(UpgradeType.SPEAR);
         participant.upgrades.tryDowngrade(UpgradeType.PICKAXE);
         participant.upgrades.tryDowngrade(UpgradeType.AXE);
     }
