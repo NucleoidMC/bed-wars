@@ -44,7 +44,7 @@ public final class BwPlayerLogic {
 
                 // Don't kill spectators and creative players
                 if (!player.getAbilities().allowFlying) {
-                    player.kill(player.getServerWorld());
+                    player.kill(player.getEntityWorld());
                 }
             }
         });

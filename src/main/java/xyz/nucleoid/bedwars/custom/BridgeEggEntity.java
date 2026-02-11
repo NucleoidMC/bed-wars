@@ -26,11 +26,11 @@ public class BridgeEggEntity extends EggEntity {
     public void tick() {
         super.tick();
 
-        if (this.getWorld().isClient()) {
+        if (this.getEntityWorld().isClient()) {
             return;
         }
 
-        var game = GameSpaceManager.get().byWorld(this.getWorld());
+        var game = GameSpaceManager.get().byWorld(this.getEntityWorld());
         if (game == null) {
             this.remove(RemovalReason.DISCARDED);
             return;
@@ -47,8 +47,8 @@ public class BridgeEggEntity extends EggEntity {
     }
 
     private void tryPlaceAt(BlockPos pos) {
-        if (this.getWorld().getBlockState(pos).isAir()) {
-            this.getWorld().setBlockState(pos, this.trailBlock);
+        if (this.getEntityWorld().getBlockState(pos).isAir()) {
+            this.getEntityWorld().setBlockState(pos, this.trailBlock);
         }
     }
 
@@ -56,7 +56,7 @@ public class BridgeEggEntity extends EggEntity {
     protected void onCollision(HitResult hitResult) {
         // ignore self-collisions
         if (hitResult.getType() == HitResult.Type.BLOCK) {
-            if (this.getWorld().getBlockState(((BlockHitResult) hitResult).getBlockPos()) == this.trailBlock) {
+            if (this.getEntityWorld().getBlockState(((BlockHitResult) hitResult).getBlockPos()) == this.trailBlock) {
                 return;
             }
         }

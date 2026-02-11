@@ -23,8 +23,8 @@ public final class BwFireballEntity extends FireballEntity {
             this.onBlockHit((BlockHitResult) result);
         }
 
-        if (!this.getWorld().isClient()) {
-            this.getWorld().createExplosion(this, this.getX(), this.getY(), this.getZ(), this.explosionPower, World.ExplosionSourceType.MOB);
+        if (!this.getEntityWorld().isClient()) {
+            this.getEntityWorld().createExplosion(this, this.getX(), this.getY(), this.getZ(), this.explosionPower, World.ExplosionSourceType.MOB);
             this.discard();
         }
     }

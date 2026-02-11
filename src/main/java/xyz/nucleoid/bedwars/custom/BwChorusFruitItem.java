@@ -32,7 +32,7 @@ public final class BwChorusFruitItem extends Item implements PolymerItem {
 
     @Override
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity entity) {
-        if (!world.isClient) {
+        if (!world.isClient()) {
             stack.decrement(1);
 
             double originX = entity.getX();
@@ -81,7 +81,7 @@ public final class BwChorusFruitItem extends Item implements PolymerItem {
 
         return new Vec3d(
                 entity.getX() + deltaX,
-                MathHelper.clamp(entity.getY() + deltaY, entity.getWorld().getBottomY(), entity.getWorld().getTopYInclusive()),
+                MathHelper.clamp(entity.getY() + deltaY, entity.getEntityWorld().getBottomY(), entity.getEntityWorld().getTopYInclusive()),
                 entity.getZ() + deltaZ
         );
     }

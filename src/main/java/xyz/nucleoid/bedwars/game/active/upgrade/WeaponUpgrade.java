@@ -36,7 +36,7 @@ public final class WeaponUpgrade implements Upgrade {
 
     @Override
     public void applyTo(BwActive game, ServerPlayerEntity player, BwParticipant participant) {
-        player.getInventory().offerOrDrop(game.createTool(this.stack.apply(player.server)));
+        player.getInventory().offerOrDrop(game.createTool(this.stack.apply(player.getEntityWorld().getServer())));
     }
 
     @Override

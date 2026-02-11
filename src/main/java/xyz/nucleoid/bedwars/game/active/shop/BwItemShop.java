@@ -54,11 +54,11 @@ public final class BwItemShop extends LayeredGui {
         this.participant = participant;
         List<GuiElementInterface> navbar = new ArrayList<>();
 
-        this.addNavigationEntry(player.getServer(), Items.END_STONE, "blocks", true, navbar, this::createBlocks);
-        this.addNavigationEntry(player.getServer(), Items.DIAMOND_SWORD, "weapons", false, navbar, this::createWeapons);
-        this.addNavigationEntry(player.getServer(), Items.IRON_CHESTPLATE, "armor", false, navbar, this::createArmor);
-        this.addNavigationEntry(player.getServer(), Items.STONE_PICKAXE, "tools", false, navbar, this::createTools);
-        this.addNavigationEntry(player.getServer(), Items.POTION, "utils", false, navbar, this::createUtils);
+        this.addNavigationEntry(player.getEntityWorld().getServer(), Items.END_STONE, "blocks", true, navbar, this::createBlocks);
+        this.addNavigationEntry(player.getEntityWorld().getServer(), Items.DIAMOND_SWORD, "weapons", false, navbar, this::createWeapons);
+        this.addNavigationEntry(player.getEntityWorld().getServer(), Items.IRON_CHESTPLATE, "armor", false, navbar, this::createArmor);
+        this.addNavigationEntry(player.getEntityWorld().getServer(), Items.STONE_PICKAXE, "tools", false, navbar, this::createTools);
+        this.addNavigationEntry(player.getEntityWorld().getServer(), Items.POTION, "utils", false, navbar, this::createUtils);
 
         Layer navbar1 = Guis.createSelectorLayer(1, 9, navbar);
         this.addLayer(navbar1, 0, 0);

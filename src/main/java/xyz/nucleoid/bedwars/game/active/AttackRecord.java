@@ -15,7 +15,7 @@ public final class AttackRecord {
     }
 
     public static AttackRecord fromAttacker(ServerPlayerEntity player) {
-        return new AttackRecord(PlayerRef.of(player), player.getWorld().getTime());
+        return new AttackRecord(PlayerRef.of(player), player.getEntityWorld().getTime());
     }
 
     public boolean isValid(long time) {

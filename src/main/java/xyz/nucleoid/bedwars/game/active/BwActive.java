@@ -276,7 +276,7 @@ public final class BwActive {
 
             for (ServerPlayerEntity player : players) {
                 if (!player.isSpectator() && !this.map.isLegalAt(player.getBlockPos())) {
-                    player.damage(player.getServerWorld(), player.getDamageSources().outOfWorld(), 10000.0F);
+                    player.damage(player.getEntityWorld(), player.getDamageSources().outOfWorld(), 10000.0F);
                 }
             }
         }
