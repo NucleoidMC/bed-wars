@@ -18,7 +18,7 @@ public interface GameModifier {
 	/**
 	 * @return The type of trigger used to start this modifier
 	 */
-	GameTrigger getTrigger();
+	GameTrigger trigger();
 
 	/**
 	 * Called when starting a modifier
