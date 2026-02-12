@@ -50,12 +50,13 @@ public final class BwItemShop extends LayeredGui {
         this.setTitle(Component.translatable("text.bedwars.shop.type.item"));
         this.participant = participant;
         List<GuiElementInterface> navbar = new ArrayList<>();
+        DyeColor color = participant.team.config().blockDyeColor();
 
-        this.addNavigationEntry(player.level().getServer(), Items.END_STONE, "blocks", true, navbar, this::createBlocks);
-        this.addNavigationEntry(player.level().getServer(), Items.DIAMOND_SWORD, "weapons", false, navbar, this::createWeapons);
+        this.addNavigationEntry(player.level().getServer(), ColoredBlocks.wool(color).asItem(), "blocks", true, navbar, this::createBlocks);
+        this.addNavigationEntry(player.level().getServer(), Items.IRON_SWORD, "weapons", false, navbar, this::createWeapons);
         this.addNavigationEntry(player.level().getServer(), Items.IRON_CHESTPLATE, "armor", false, navbar, this::createArmor);
-        this.addNavigationEntry(player.level().getServer(), Items.STONE_PICKAXE, "tools", false, navbar, this::createTools);
-        this.addNavigationEntry(player.level().getServer(), Items.POTION, "utils", false, navbar, this::createUtils);
+        this.addNavigationEntry(player.level().getServer(), Items.IRON_PICKAXE, "tools", false, navbar, this::createTools);
+        this.addNavigationEntry(player.level().getServer(), Items.FIRE_CHARGE, "utils", false, navbar, this::createUtils);
 
         Layer navbar1 = Guis.createSelectorLayer(1, 9, navbar);
         this.addLayer(navbar1, 0, 0);
@@ -141,6 +142,8 @@ public final class BwItemShop extends LayeredGui {
         items.accept(ShopEntry.buyItem(new ItemStack(Blocks.END_STONE, 12), Cost.ofIron(24)));
         items.accept(ShopEntry.buyItem(new ItemStack(Blocks.OBSIDIAN, 4), Cost.ofEmeralds(4)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.COBWEB, 4), Cost.ofGold(8)));
+        items.accept(ShopEntry.buyItem(new ItemStack(Items.SLIME_BLOCK, 4), Cost.ofGold(8)));
+        items.accept(ShopEntry.buyItem(new ItemStack(Items.LADDER, 16), Cost.ofGold(4)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.SCAFFOLDING, 8), Cost.ofGold(4)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.TORCH, 8), Cost.ofGold(1)));
     }
@@ -170,6 +173,10 @@ public final class BwItemShop extends LayeredGui {
                 .build();
         items.accept(ShopEntry.buyItem(mace, Cost.ofEmeralds(8)));
 
+        ItemStack fishing_rod = ItemStackBuilder.of(Items.FISHING_ROD)
+                .setUnbreakable()
+                .build();
+        items.accept(ShopEntry.buyItem(fishing_rod, Cost.ofIron(12)));
         items.accept(ShopEntry.buyItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().build(), Cost.ofGold(12)));
         items.accept(ShopEntry.buyItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().addEnchantment(server, Enchantments.POWER, 2).build(), Cost.ofGold(24)));
         items.accept(ShopEntry.buyItem(ItemStackBuilder.of(Items.BOW).setUnbreakable().addEnchantment(server, Enchantments.PUNCH, 1).build(), Cost.ofEmeralds(6)));
@@ -179,6 +186,7 @@ public final class BwItemShop extends LayeredGui {
                 .build();
         items.accept(ShopEntry.buyItem(crossbow, Cost.ofGold(24)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.ARROW, 8), Cost.ofGold(2)));
+        items.accept(ShopEntry.buyItem(new ItemStack(Items.SPECTRAL_ARROW, 4), Cost.ofEmeralds(2)));
     }
 
     private void createArmor(Consumer<GuiElementInterface> items) {
@@ -206,6 +214,7 @@ public final class BwItemShop extends LayeredGui {
         items.accept(ShopEntry.buyItem(new ItemStack(Items.FIRE_CHARGE)/*.setCustomName(Text.translatable(EntityType.FIREBALL.getTranslationKey()))*/, Cost.ofIron(40)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.ENDER_PEARL), Cost.ofEmeralds(4)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.WATER_BUCKET), Cost.ofGold(10)));
+        items.accept(ShopEntry.buyItem(new ItemStack(Items.POWDER_SNOW_BUCKET), Cost.ofIron(20)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.LAVA_BUCKET), Cost.ofGold(24)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.GOLDEN_APPLE), Cost.ofGold(3)));
         items.accept(ShopEntry.buyItem(new ItemStack(Items.WIND_CHARGE), Cost.ofGold(12)));
