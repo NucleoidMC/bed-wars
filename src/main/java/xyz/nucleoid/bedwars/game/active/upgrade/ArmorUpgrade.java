@@ -9,6 +9,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.server.level.ServerPlayer;
 
+import static net.minecraft.world.item.Items.NETHERITE_INGOT;
+
 public final class ArmorUpgrade implements Upgrade {
     private static final EquipmentSlot[] ARMOR_SLOTS = {
             EquipmentSlot.HEAD, EquipmentSlot.CHEST,
@@ -16,8 +18,10 @@ public final class ArmorUpgrade implements Upgrade {
     };
 
     public static final ArmorUpgrade LEATHER = new ArmorUpgrade(Items.LEATHER_CHESTPLATE, Items.LEATHER_BOOTS, Cost.no());
+    public static final ArmorUpgrade COPPER = new ArmorUpgrade(Items.COPPER_CHESTPLATE, Items.COPPER_BOOTS, Cost.ofIron(24));
     public static final ArmorUpgrade IRON = new ArmorUpgrade(Items.IRON_CHESTPLATE, Items.IRON_BOOTS, Cost.ofGold(12));
     public static final ArmorUpgrade DIAMOND = new ArmorUpgrade(Items.DIAMOND_CHESTPLATE, Items.DIAMOND_BOOTS, Cost.ofEmeralds(6));
+    public static final ArmorUpgrade NETHERITE = new ArmorUpgrade(Items.NETHERITE_CHESTPLATE, Items.NETHERITE_BOOTS, Cost.ofItem(NETHERITE_INGOT, 2));
 
     public final Item chest;
     public final Item feet;

@@ -81,7 +81,7 @@
     "level_3": {
       "gold": 9,
       "iron": 36,
-      "emerald": 1,
+      "netherite": 1,
       "spawn_interval_ticks": 26
     },
     "diamond": 1,

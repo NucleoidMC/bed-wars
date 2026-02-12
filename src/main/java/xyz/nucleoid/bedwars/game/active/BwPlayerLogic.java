@@ -87,6 +87,7 @@ public final class BwPlayerLogic {
         }
 
         this.applyEnchantments(player, stack -> stack.is(ItemTags.SWORDS), Enchantments.SHARPNESS, teamState.swordSharpness);
+        this.applyEnchantments(player, stack -> stack.is(ItemTags.SPEARS), Enchantments.LUNGE, teamState.spearLunge);
         this.applyEnchantments(player, stack -> stack.is(ItemTags.ARMOR_ENCHANTABLE), Enchantments.PROTECTION, teamState.armorProtection);
     }
 

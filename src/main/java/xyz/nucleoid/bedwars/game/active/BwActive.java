@@ -434,6 +434,7 @@ public final class BwActive {
 
     public static class TeamState {
         public static final int MAX_SHARPNESS = 3;
+        public static final int MAX_LUNGE = 3;
         public static final int MAX_PROTECTION = 3;
 
         final GameTeam team;
@@ -445,6 +446,7 @@ public final class BwActive {
         public boolean healPool;
         public boolean hasteEnabled;
         public int swordSharpness;
+        public int spearLunge;
         public int armorProtection;
 
         TeamState(GameTeam team) {

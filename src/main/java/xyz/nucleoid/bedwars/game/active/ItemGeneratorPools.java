@@ -32,7 +32,7 @@ public class ItemGeneratorPools {
                 .add(new ItemStack(Items.IRON_INGOT, 2), generatorConfig.level3().ironSpawnRate() / 2)
                 .add(new ItemStack(Items.GOLD_INGOT, 1), generatorConfig.level3().goldSpawnRate())
                 .add(new ItemStack(Items.GOLD_INGOT, 2), generatorConfig.level3().goldSpawnRate() / 3)
-                .add(new ItemStack(Items.EMERALD, 1), 1)
+                .add(new ItemStack(Items.NETHERITE_INGOT, 1), 1)
                 .spawnInterval(generatorConfig.level3().spawnIntervalTicks());
 
         DIAMOND = new ItemGeneratorPool()

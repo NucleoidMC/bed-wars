@@ -83,6 +83,19 @@ public final class BwTeamShop {
                             })
             );
 
+            String lungeName = "lunge";
+            shop.add(ShopEntry.ofIcon((p, e) -> createIconLvlFor(p, e, Items.DIAMOND_SPEAR, lungeName, Math.min(teamState.spearLunge + 1, BwActive.TeamState.MAX_LUNGE),
+                                    teamState.spearLunge >= BwActive.TeamState.MAX_LUNGE)
+                            )
+                            .withCost((p, e) -> Cost.ofDiamonds(teamScaledCost(game, team, stagedUpgrade(4, teamState.spearLunge))))
+                            .onBuyCheck((p, e) -> teamState.spearLunge < BwActive.TeamState.MAX_LUNGE && e.getCost(p).takeItems(p))
+                            .onBuy(p -> {
+                                teamState.spearLunge++;
+                                game.teamLogic.applyEnchantments(participant.team);
+                                game.broadcast.broadcastToTeam(participant.team, Component.translatable("text.bedwars.shop.upgrade." + lungeName + ".buy", p.getDisplayName().copy(), Component.translatable("enchantment.level." + teamState.spearLunge)).withStyle(ChatFormatting.BOLD, ChatFormatting.AQUA));
+                            })
+            );
+
             String protectionName = "protection";
             shop.add(ShopEntry.ofIcon((p, e) -> createIconLvlFor(p, e, Items.DIAMOND_CHESTPLATE, protectionName, Math.min(teamState.armorProtection + 1, BwActive.TeamState.MAX_PROTECTION),
                     teamState.armorProtection >= BwActive.TeamState.MAX_PROTECTION)

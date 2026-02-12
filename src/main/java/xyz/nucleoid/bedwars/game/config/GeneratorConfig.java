@@ -14,11 +14,12 @@ public record GeneratorConfig(GeneratorLevelConfig level1, GeneratorLevelConfig 
             Codec.LONG.fieldOf("emerald_spawn_interval").forGetter(GeneratorConfig::emeraldSpawnInterval)
     ).apply(instance, GeneratorConfig::new));
 
-    public static record GeneratorLevelConfig(int ironSpawnRate, int goldSpawnRate, int emeraldSpawnRate, int diamondSpawnRate, long spawnIntervalTicks) {
+    public record GeneratorLevelConfig(int ironSpawnRate, int goldSpawnRate, int emeraldSpawnRate, int diamondSpawnRate, int netheriteSpawnRate, long spawnIntervalTicks) {
         public static final Codec<GeneratorLevelConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.INT.fieldOf("iron").forGetter(GeneratorLevelConfig::ironSpawnRate),
                 Codec.INT.fieldOf("gold").forGetter(GeneratorLevelConfig::goldSpawnRate),
                 Codec.INT.optionalFieldOf("emerald", 0).forGetter(GeneratorLevelConfig::emeraldSpawnRate),
+                Codec.INT.optionalFieldOf("netherite", 0).forGetter(GeneratorLevelConfig::netheriteSpawnRate),
                 Codec.INT.optionalFieldOf("diamond", 0).forGetter(GeneratorLevelConfig::diamondSpawnRate),
                 Codec.LONG.fieldOf("spawn_interval_ticks").forGetter(GeneratorLevelConfig::spawnIntervalTicks)
         ).apply(instance, GeneratorLevelConfig::new));
