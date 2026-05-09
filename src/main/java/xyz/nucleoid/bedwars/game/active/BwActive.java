@@ -326,7 +326,7 @@ public final class BwActive {
     }
 
     private void spawnFireworks(GameTeam team) {
-        RandomSource random = this.world.random;
+        RandomSource random = this.world.getRandom();
 
         if (random.nextInt(18) == 0) {
             List<ServerPlayer> players = Lists.newArrayList(this.players());

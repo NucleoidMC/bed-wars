@@ -13,11 +13,11 @@
   "mixins": ["bw.mixins.json"],
   "accessWidener": "bedwars.accesswidener",
   "depends": {
-    "fabricloader": ">=0.11",
-    "fabric": "*",
-    "minecraft": ">=1.20.3",
-    "plasmid": "0.6.x",
-    "substrate": "0.2.x",
-    "java": ">=17"
+    "fabricloader": ">=0.18",
+    "fabric-api": "*",
+    "minecraft": ">=26.1-",
+    "plasmid": "0.7.x",
+    "substrate": "0.3.x",
+    "java": ">=25"
   }
 }

@@ -10,7 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.GameType;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import xyz.nucleoid.bedwars.game.config.BwConfig;
-import xyz.nucleoid.fantasy.RuntimeWorldConfig;
+import xyz.nucleoid.fantasy.RuntimeLevelConfig;
 import xyz.nucleoid.plasmid.api.game.GameOpenContext;
 import xyz.nucleoid.plasmid.api.game.GameOpenProcedure;
 import xyz.nucleoid.plasmid.api.game.GameResult;
@@ -52,11 +52,11 @@ public final class BwWaiting {
         BwMap map = new BwMapBuilder(config)
                 .create(context.server());
 
-        RuntimeWorldConfig worldConfig = new RuntimeWorldConfig()
+        RuntimeLevelConfig worldConfig = new RuntimeLevelConfig()
                 .setGenerator(map.getChunkGenerator())
                 .setDimensionType(ResourceKey.create(Registries.DIMENSION_TYPE, config.dimension()));
 
-        return context.openWithWorld(worldConfig, (activity, world) -> {
+        return context.openWithLevel(worldConfig, (activity, world) -> {
             GameWaitingLobby.addTo(activity, config.players());
 
             TeamSelectionLobby teamSelection = TeamSelectionLobby.addTo(activity, config.teams());

@@ -88,7 +88,7 @@ public final class MovingCloud {
     }
 
     private void spawnParticles() {
-        RandomSource random = this.world.random;
+        RandomSource random = this.world.getRandom();
 
         double centerX = this.pos.x + this.movePerTick.x * 20.0;
         double centerZ = this.pos.z + this.movePerTick.z * 20.0;

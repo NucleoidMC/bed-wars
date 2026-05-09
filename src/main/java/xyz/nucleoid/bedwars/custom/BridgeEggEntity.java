@@ -31,7 +31,7 @@ public class BridgeEggEntity extends ThrownEgg {
             return;
         }
 
-        var game = GameSpaceManager.get().byWorld(this.level());
+        var game = GameSpaceManager.get().byLevel(this.level());
         if (game == null) {
             this.remove(RemovalReason.DISCARDED);
             return;

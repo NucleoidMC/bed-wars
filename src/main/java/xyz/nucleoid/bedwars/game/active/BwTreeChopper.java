@@ -14,7 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.NotNull;
 import xyz.nucleoid.plasmid.api.util.BlockTraversal;
-import xyz.nucleoid.plasmid.api.util.WoodType;
+import xyz.nucleoid.plasmid.api.util.WoodTypeContent;
 
 public final class BwTreeChopper {
     public boolean onBreakBlock(ServerPlayer player, ServerLevel world, BlockPos pos) {
@@ -49,20 +49,20 @@ public final class BwTreeChopper {
             world.destroyBlock(logPos, false);
 
             // Drop 1-3 planks
-            int count = 1 + world.random.nextInt(3);
+            int count = 1 + world.getRandom().nextInt(3);
 
-            var planks = WoodType.getType(logState.getBlock()).getPlanks();
+            var planks = WoodTypeContent.getType(logState.getBlock()).getPlanks();
             world.addFreshEntity(new ItemEntity(world, logPos.getX(), logPos.getY(), logPos.getZ(), new ItemStack(planks, count)));
         }
     }
 
     private void onBreakLeaves(ServerLevel world, BlockPos pos, BlockState state) {
-        if (world.random.nextDouble() < 0.025) {
-            var plant = WoodType.getType(state.getBlock()).getPlant();
+        if (world.getRandom().nextDouble() < 0.025) {
+            var plant = WoodTypeContent.getType(state.getBlock()).getPlant();
             world.addFreshEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(plant)));
         }
 
-        if (world.random.nextDouble() < 0.01) {
+        if (world.getRandom().nextDouble() < 0.01) {
             world.addFreshEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.GOLDEN_APPLE)));
         }
 
@@ -72,7 +72,7 @@ public final class BwTreeChopper {
     private void onBreakOre(ServerPlayer player, ServerLevel world, BlockPos pos, int minCount, int maxCount, Item drop) {
         world.destroyBlock(pos, false);
 
-        int count = minCount + world.random.nextInt(maxCount - minCount + 1);
+        int count = minCount + world.getRandom().nextInt(maxCount - minCount + 1);
         ItemStack stack = new ItemStack(drop, count);
 
         if (!player.getInventory().add(stack.copy())) {

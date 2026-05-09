@@ -25,7 +25,7 @@ public abstract class SaplingBlockMixin {
 	 */
 	@Inject(method = "randomTick", at = @At("HEAD"), cancellable = true)
 	public void handleRandomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random, CallbackInfo ci) {
-		var gameSpace = GameSpaceManager.get().byWorld(world);
+		var gameSpace = GameSpaceManager.get().byLevel(world);
 		if (gameSpace != null && gameSpace.getBehavior().testRule(BedWars.FAST_TREE_GROWTH) == EventResult.ALLOW) {
 			if (world.getMaxLocalRawBrightness(pos.above()) >= 9) {
 				this.advanceTree(world, pos, state, random);

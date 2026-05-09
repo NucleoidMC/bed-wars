@@ -106,7 +106,7 @@ public final class BwInteractions {
             return InteractionResult.PASS;
         }
 
-        player.displayClientMessage(Component.translatable("text.bedwars.cannot_open_chest").withStyle(ChatFormatting.RED), true);
+        player.sendSystemMessage(Component.translatable("text.bedwars.cannot_open_chest").withStyle(ChatFormatting.RED), true);
 
         return InteractionResult.FAIL;
     }
@@ -157,7 +157,7 @@ public final class BwInteractions {
         this.world.playSound(
                 null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.EGG_THROW, SoundSource.PLAYERS,
-                0.5F, 0.4F / (this.world.random.nextFloat() * 0.4F + 0.8F)
+                0.5F, 0.4F / (this.world.getRandom().nextFloat() * 0.4F + 0.8F)
         );
 
         // Get player wool color
@@ -186,7 +186,7 @@ public final class BwInteractions {
         this.world.playSound(
                 null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.EGG_THROW, SoundSource.PLAYERS,
-                0.5F, 0.4F / (this.world.random.nextFloat() * 0.4F + 0.8F)
+                0.5F, 0.4F / (this.world.getRandom().nextFloat() * 0.4F + 0.8F)
         );
 
         Direction direction = player.getDirection();

@@ -14,7 +14,7 @@ import net.minecraft.world.level.levelgen.RandomState;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.generator.theme.MapTheme;
 import xyz.nucleoid.map_templates.MapTemplate;
-import xyz.nucleoid.plasmid.api.game.world.generator.TemplateChunkGenerator;
+import xyz.nucleoid.plasmid.api.game.level.generator.TemplateChunkGenerator;
 
 public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
     private final BwMap map;
@@ -64,7 +64,7 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
 
     @Override
     public void applyBiomeDecoration(WorldGenLevel world, ChunkAccess chunk, StructureManager structureAccessor) {
-        RandomSource random = RandomSource.createNewThreadLocalInstance();
+        RandomSource random = RandomSource.createThreadLocalInstance();
         MapTheme theme = this.config.theme;
 
         var centerPos = chunk.getPos();

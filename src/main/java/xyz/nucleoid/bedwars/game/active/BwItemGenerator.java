@@ -114,7 +114,7 @@ public final class BwItemGenerator {
     }
 
     private void spawnItems(ServerLevel world, BwActive game) {
-        RandomSource random = world.random;
+        RandomSource random = world.getRandom();
         ItemStack stack = this.pool.sample();
 
         AABB box = this.bounds.asBox();

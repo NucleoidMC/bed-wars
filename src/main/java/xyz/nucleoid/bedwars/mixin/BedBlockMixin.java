@@ -22,7 +22,7 @@ public class BedBlockMixin {
 	 */
 	@Inject(method = "useWithoutItem", at = @At("HEAD"), cancellable = true)
 	private static void noExplosion(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit, CallbackInfoReturnable<Boolean> cir) {
-		var gameSpace = GameSpaceManager.get().byWorld(world);
+		var gameSpace = GameSpaceManager.get().byLevel(world);
 		if (gameSpace != null && gameSpace.getMetadata().sourceConfig().value().type() == BedWars.TYPE) {
 			cir.setReturnValue(true);
 		}

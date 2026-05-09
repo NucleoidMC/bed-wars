@@ -1,6 +1,6 @@
 package xyz.nucleoid.bedwars.game.active.shop;
 
-import eu.pb4.sgui.api.elements.GuiElementInterface;
+import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.gui.layered.Layer;
 import eu.pb4.sgui.api.gui.layered.LayerView;
 import eu.pb4.sgui.api.gui.layered.LayeredGui;
@@ -49,7 +49,7 @@ public final class BwItemShop extends LayeredGui {
         super(MenuType.GENERIC_9x5, player, false);
         this.setTitle(Component.translatable("text.bedwars.shop.type.item"));
         this.participant = participant;
-        List<GuiElementInterface> navbar = new ArrayList<>();
+        List<GuiElement> navbar = new ArrayList<>();
         DyeColor color = participant.team.config().blockDyeColor();
 
         this.addNavigationEntry(player.level().getServer(), ColoredBlocks.wool(color).asItem(), "blocks", true, navbar, this::createBlocks);
@@ -69,7 +69,7 @@ public final class BwItemShop extends LayeredGui {
         }
     }
 
-    private static <T extends Upgrade> void addUpgrade(Consumer<GuiElementInterface> items, PlayerUpgrades upgrades, UpgradeType<T> type, String upgradeName) {
+    private static <T extends Upgrade> void addUpgrade(Consumer<GuiElement> items, PlayerUpgrades upgrades, UpgradeType<T> type, String upgradeName) {
 
         items.accept(ShopEntry.ofIcon((player, entry) -> {
             int level = upgrades.getLevel(type);
@@ -106,11 +106,11 @@ public final class BwItemShop extends LayeredGui {
         return stack;
     }
 
-    private void addNavigationEntry(MinecraftServer server, Item icon, String name, boolean defaultSelected, List<GuiElementInterface> navbar, Consumer<Consumer<GuiElementInterface>> adder) {
+    private void addNavigationEntry(MinecraftServer server, Item icon, String name, boolean defaultSelected, List<GuiElement> navbar, Consumer<Consumer<GuiElement>> adder) {
         addNavigationEntry(server, icon, name, defaultSelected, navbar, (s, consumer) -> adder.accept(consumer));
     }
-    private void addNavigationEntry(MinecraftServer server, Item icon, String name, boolean defaultSelected, List<GuiElementInterface> navbar, BiConsumer<MinecraftServer, Consumer<GuiElementInterface>> adder) {
-        List<GuiElementInterface> items = new ArrayList<>();
+    private void addNavigationEntry(MinecraftServer server, Item icon, String name, boolean defaultSelected, List<GuiElement> navbar, BiConsumer<MinecraftServer, Consumer<GuiElement>> adder) {
+        List<GuiElement> items = new ArrayList<>();
         adder.accept(server, items::add);
 
         Layer layer = Guis.createSelectorLayer(3, 7, items);
@@ -129,7 +129,7 @@ public final class BwItemShop extends LayeredGui {
         }
     }
 
-    private void createBlocks(Consumer<GuiElementInterface> items) {
+    private void createBlocks(Consumer<GuiElement> items) {
         DyeColor color = participant.team.config().blockDyeColor();
         items.accept(ShopEntry.buyItem(new ItemStack(ColoredBlocks.wool(color), 16), Cost.ofIron(4)));
         items.accept(ShopEntry.buyItem(new ItemStack(ColoredBlocks.terracotta(color), 16), Cost.ofIron(16)));
@@ -148,7 +148,7 @@ public final class BwItemShop extends LayeredGui {
         items.accept(ShopEntry.buyItem(new ItemStack(Items.TORCH, 8), Cost.ofGold(1)));
     }
 
-    private void createWeapons(MinecraftServer server, Consumer<GuiElementInterface> items) {
+    private void createWeapons(MinecraftServer server, Consumer<GuiElement> items) {
         PlayerUpgrades upgrades = participant.upgrades;
         addUpgrade(items, upgrades, UpgradeType.SWORD, "sword");
         addUpgrade(items, upgrades, UpgradeType.SPEAR, "spear");
@@ -189,20 +189,20 @@ public final class BwItemShop extends LayeredGui {
         items.accept(ShopEntry.buyItem(new ItemStack(Items.SPECTRAL_ARROW, 4), Cost.ofEmeralds(2)));
     }
 
-    private void createArmor(Consumer<GuiElementInterface> items) {
+    private void createArmor(Consumer<GuiElement> items) {
         PlayerUpgrades upgrades = participant.upgrades;
         addUpgrade(items, upgrades, UpgradeType.ARMOR, "armor");
         items.accept(ShopEntry.buyItem(ItemStackBuilder.of(Items.SHIELD).setUnbreakable().build(), Cost.ofGold(10)));
     }
 
-    private void createTools(Consumer<GuiElementInterface> items) {
+    private void createTools(Consumer<GuiElement> items) {
         PlayerUpgrades upgrades = participant.upgrades;
         addUpgrade(items, upgrades, UpgradeType.PICKAXE, "pickaxe");
         addUpgrade(items, upgrades, UpgradeType.AXE, "axe");
         addUpgrade(items, upgrades, UpgradeType.SHEARS, "shears");
     }
 
-    private void createUtils(Consumer<GuiElementInterface> items) {
+    private void createUtils(Consumer<GuiElement> items) {
 
         MobEffectInstance jumpBoostEffect = new MobEffectInstance(MobEffects.JUMP_BOOST, 600, 5);
         items.accept(ShopEntry.buyItem(createPotion(jumpBoostEffect, Component.translatable("item.minecraft.potion.effect.leaping")), Cost.ofEmeralds(1)));
@@ -224,7 +224,7 @@ public final class BwItemShop extends LayeredGui {
         items.accept(ShopEntry.buyItem(new ItemStack(BwItems.MOVING_CLOUD), Cost.ofEmeralds(1)));
     }
 
-    private class NavbarItem implements GuiElementInterface {
+    private class NavbarItem implements GuiElement {
         private final ItemStack normal;
         private final ItemStack selected;
         private final Layer layer;

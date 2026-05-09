@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.nucleoid.bedwars.BedWars;
 import xyz.nucleoid.plasmid.api.game.GameSpaceManager;
-import xyz.nucleoid.plasmid.api.util.WoodType;
+import xyz.nucleoid.plasmid.api.util.WoodTypeContent;
 import xyz.nucleoid.stimuli.event.EventResult;
 
 @Mixin(LeavesBlock.class)
@@ -27,15 +27,15 @@ public class LeavesBlockMixin {
      */
     @Inject(method = "randomTick", at = @At("HEAD"), cancellable = true)
     public void handleRandomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random, CallbackInfo ci) {
-        var gameSpace = GameSpaceManager.get().byWorld(world);
+        var gameSpace = GameSpaceManager.get().byLevel(world);
         if (gameSpace != null && gameSpace.getBehavior().testRule(BedWars.LEAVES_DROP_GOLDEN_APPLES) == EventResult.ALLOW) {
             if (!state.getValue(LeavesBlock.PERSISTENT) && state.getValue(LeavesBlock.DISTANCE) == 7) {
-                if (world.random.nextDouble() < 0.025) {
-                    var plant = WoodType.getType(state.getBlock()).getPlant();
+                if (world.getRandom().nextDouble() < 0.025) {
+                    var plant = WoodTypeContent.getType(state.getBlock()).getPlant();
                     world.addFreshEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(plant)));
                 }
 
-                if (world.random.nextDouble() < 0.01) {
+                if (world.getRandom().nextDouble() < 0.01) {
                     world.addFreshEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.GOLDEN_APPLE)));
                 }
 

@@ -1,6 +1,6 @@
 package xyz.nucleoid.bedwars.game.active.shop;
 
-import eu.pb4.sgui.api.elements.GuiElementInterface;
+import eu.pb4.sgui.api.elements.GuiElement;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -29,7 +29,7 @@ public final class BwTeamShop {
     private static final Component MAX_LEVEL_TEXT = Component.translatable("text.bedwars.shop.max_level").setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW));
 
     public static void open(ServerPlayer player, BwActive game) {
-        List<GuiElementInterface> shop = new ArrayList<>();
+        List<GuiElement> shop = new ArrayList<>();
 
         BwParticipant participant = game.participantBy(player);
         if (participant == null) return;
