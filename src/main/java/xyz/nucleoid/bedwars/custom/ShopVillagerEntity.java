@@ -1,6 +1,7 @@
 package xyz.nucleoid.bedwars.custom;
 
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,7 +20,7 @@ public final class ShopVillagerEntity extends Villager {
     private final Type type;
 
     private ShopVillagerEntity(Level world, BwActive game, Type type) {
-        super(EntityType.VILLAGER, world);
+        super(EntityTypes.VILLAGER, world);
         this.game = game;
         this.type = type;
 

@@ -1,6 +1,7 @@
 package xyz.nucleoid.bedwars.game.active;
 
 import net.minecraft.core.Holder;
+import net.minecraft.world.entity.EntityTypes;
 import xyz.nucleoid.bedwars.game.BwMap;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.effect.MobEffect;
@@ -52,7 +53,7 @@ public final class BwMapLogic {
         BwMap.TeamRegions regions = this.game.map.getTeamRegions(teamState.team.key());
 
         if (regions.base() != null) {
-            List<Player> entities = world.getEntities(EntityType.PLAYER, regions.base().asBox(), player -> {
+            List<Player> entities = world.getEntities(EntityTypes.PLAYER, regions.base().asBox(), player -> {
                 // Filter out creative mode and spectator mode players
                 if (player.getAbilities().mayfly) {
                     return false;
@@ -81,7 +82,7 @@ public final class BwMapLogic {
         if (regions.base() != null) {
             AABB box = regions.base().asBox();
 
-            List<Player> entities = world.getEntities(EntityType.PLAYER, box, player -> {
+            List<Player> entities = world.getEntities(EntityTypes.PLAYER, box, player -> {
                 BwParticipant participant = this.game.participantBy(player);
                 return participant != null && participant.team.equals(teamState.team);
             });

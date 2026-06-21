@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityTypes;
 import xyz.nucleoid.bedwars.game.active.BwActive;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
@@ -34,7 +35,7 @@ public class LightningGameModifier implements GameModifier {
         game.players().forEach(player -> {
             ServerLevel world = game.world;
 
-            LightningBolt entity = EntityType.LIGHTNING_BOLT.create(world, EntitySpawnReason.LOAD);
+            LightningBolt entity = EntityTypes.LIGHTNING_BOLT.create(world, EntitySpawnReason.LOAD);
             if (entity == null) {
                 return;
             }

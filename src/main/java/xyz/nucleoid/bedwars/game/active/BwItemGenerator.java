@@ -4,6 +4,7 @@ import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.ChunkAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.TextDisplayElement;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.Display.BillboardConstraints;
 import net.minecraft.world.item.ItemStack;
@@ -120,7 +121,7 @@ public final class BwItemGenerator {
         AABB box = this.bounds.asBox();
 
         int itemCount = 0;
-        for (ItemEntity entity : world.getEntities(EntityType.ITEM, box.inflate(1.0), entity -> true)) {
+        for (ItemEntity entity : world.getEntities(EntityTypes.ITEM, box.inflate(1.0), entity -> true)) {
             itemCount += entity.getItem().getCount();
         }
 
