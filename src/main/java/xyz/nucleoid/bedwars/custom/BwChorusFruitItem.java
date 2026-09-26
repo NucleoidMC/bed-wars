@@ -5,6 +5,7 @@ import eu.pb4.polymer.core.impl.other.ComponentChangesMap;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -48,7 +49,7 @@ public final class BwChorusFruitItem extends Item implements PolymerItem {
                     entity.stopRiding();
                 }
 
-                if (entity.randomTeleport(target.x, target.y, target.z, true)) {
+                if (entity.randomTeleport(target.x, target.y, target.z, true, BlockTags.DANGEROUS_FOR_TELEPORTATION)) {
                     SoundEvent sound = SoundEvents.CHORUS_FRUIT_TELEPORT;
                     world.playSound(null, originX, originY, originZ, sound, SoundSource.PLAYERS, 1.0F, 1.0F);
                     entity.playSound(sound, 1.0F, 1.0F);

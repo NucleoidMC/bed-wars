@@ -27,7 +27,7 @@ public final class ShopVillagerEntity extends Villager {
         this.setCustomName(type.name);
 
         this.setNoAi(true);
-        this.setInvulnerable(true);
+        this.setPermanentlyInvulnerable(true);
         this.setCustomNameVisible(true);
     }
 

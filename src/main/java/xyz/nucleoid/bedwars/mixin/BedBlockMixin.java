@@ -1,5 +1,6 @@
 package xyz.nucleoid.bedwars.mixin;
 
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
@@ -20,11 +21,11 @@ public class BedBlockMixin {
 	 *
 	 * @author SuperCoder79
 	 */
-	@Inject(method = "useWithoutItem", at = @At("HEAD"), cancellable = true)
-	private static void noExplosion(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit, CallbackInfoReturnable<Boolean> cir) {
-		var gameSpace = GameSpaceManager.get().byLevel(world);
+	@Inject(method = "destroyOnUse", at = @At("HEAD"), cancellable = true)
+	private static void noExplosion(BlockState state, Level level, BlockPos pos, Player player, CallbackInfoReturnable<InteractionResult> cir) {
+		var gameSpace = GameSpaceManager.get().byLevel(level);
 		if (gameSpace != null && gameSpace.getMetadata().sourceConfig().value().type() == BedWars.TYPE) {
-			cir.setReturnValue(true);
+			cir.setReturnValue(InteractionResult.FAIL);
 		}
 	}
 }

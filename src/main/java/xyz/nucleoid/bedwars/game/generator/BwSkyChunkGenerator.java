@@ -1,5 +1,8 @@
 package xyz.nucleoid.bedwars.game.generator;
 
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.core.BlockPos;
@@ -11,10 +14,15 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.blending.Blender;
+import org.jspecify.annotations.Nullable;
 import xyz.nucleoid.bedwars.game.BwMap;
 import xyz.nucleoid.bedwars.game.generator.theme.MapTheme;
 import xyz.nucleoid.map_templates.MapTemplate;
 import xyz.nucleoid.plasmid.api.game.level.generator.TemplateChunkGenerator;
+
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
     private final BwMap map;
@@ -27,39 +35,43 @@ public final class BwSkyChunkGenerator extends TemplateChunkGenerator {
     }
 
     @Override
-    public void buildSurface(WorldGenRegion region, StructureManager structures, RandomState noiseConfig, ChunkAccess chunk) {
-        ChunkPos chunkPos = chunk.getPos();
+    public CompletableFuture<ChunkAccess> buildTerrain(ChunkAccess chunk1, Blender blender, RandomState randomState, StructureManager structureManager, BiomeManager biomeManager, @Nullable WorldGenRegion carverBiomeRegion, Set<Holder<Biome>> possibleBiomes) {
+        return super.buildTerrain(chunk1, blender, randomState, structureManager, biomeManager, carverBiomeRegion, possibleBiomes).thenApply(chunk -> {
+            ChunkPos chunkPos = chunk.getPos();
 
-        int minWorldX = chunkPos.getMinBlockX();
-        int minWorldZ = chunkPos.getMinBlockZ();
-        BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
-        MapTheme theme = this.config.theme;
+            int minWorldX = chunkPos.getMinBlockX();
+            int minWorldZ = chunkPos.getMinBlockZ();
+            BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
+            MapTheme theme = this.config.theme;
 
-        for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                int height = chunk.getHeight(Heightmap.Types.WORLD_SURFACE_WG, x, z);
+            for (int x = 0; x < 16; x++) {
+                for (int z = 0; z < 16; z++) {
+                    int height = chunk.getHeight(Heightmap.Types.WORLD_SURFACE_WG, x, z);
 
-                mutablePos.set(minWorldX + x, height, minWorldZ + z);
+                    mutablePos.set(minWorldX + x, height, minWorldZ + z);
 
-                for (int y = height; y >= 0; y--) {
-                    mutablePos.setY(y);
+                    for (int y = height; y >= 0; y--) {
+                        mutablePos.setY(y);
 
-                    if (region.getBlockState(mutablePos).isAir()) {
-                        height = y - 1;
-                    }
+                        if (chunk.getBlockState(mutablePos).isAir()) {
+                            height = y - 1;
+                        }
 
-                    if (region.getBlockState(mutablePos).is(Blocks.STONE)) {
-                        if (y == height) {
-                            region.setBlock(mutablePos, theme.topState(), 3);
-                        } else if (height - y <= 4) {
-                            region.setBlock(mutablePos, theme.middleState(), 3);
-                        } else {
-                            region.setBlock(mutablePos, theme.stoneState(), 3);
+                        if (chunk.getBlockState(mutablePos).is(Blocks.STONE)) {
+                            if (y == height) {
+                                chunk.setBlockState(mutablePos, theme.topState(), 3);
+                            } else if (height - y <= 4) {
+                                chunk.setBlockState(mutablePos, theme.middleState(), 3);
+                            } else {
+                                chunk.setBlockState(mutablePos, theme.stoneState(), 3);
+                            }
                         }
                     }
                 }
             }
-        }
+            return chunk;
+        });
+
     }
 
     @Override

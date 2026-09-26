@@ -1,6 +1,7 @@
 package xyz.nucleoid.bedwars.game.active;
 
 import com.google.common.collect.Sets;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.damagesource.DamageSource;
@@ -93,7 +94,7 @@ public final class BwKillLogic {
     private void transferResources(ServerPlayer player, ServerPlayer killerPlayer) {
         Collection<ItemStack> resources = this.takeResources(player);
         for (ItemStack resource : resources) {
-            killerPlayer.getInventory().placeItemBackInInventory(resource);
+            killerPlayer.getInventory().placeItemBackInInventory(resource, Prediction.SERVER_ONLY);
         }
     }
 

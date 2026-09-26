@@ -1,5 +1,6 @@
 package xyz.nucleoid.bedwars.game.active.upgrade;
 
+import net.minecraft.util.Prediction;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.item.ItemStack;
@@ -30,7 +31,7 @@ public final class WeaponUpgrade implements Upgrade {
 
     @Override
     public void applyTo(BwActive game, ServerPlayer player, BwParticipant participant) {
-        player.getInventory().placeItemBackInInventory(game.createTool(this.stack.apply(player.level().getServer())));
+        player.getInventory().placeItemBackInInventory(game.createTool(this.stack.apply(player.level().getServer())), Prediction.SERVER_ONLY);
     }
 
     @Override
